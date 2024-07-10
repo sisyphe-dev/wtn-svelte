@@ -12,16 +12,22 @@ export function displayUsFormat(value: number, decimals = 2): string {
 	return formatter.format(value);
 }
 
+// The bignumber.js library allows precise operations to avoid JavaScript unprecise handling of floating-point arithmetic.
 export function numberWithPrecision(x: number, decimals: number): number {
-	return Math.floor(x * 10 ** decimals) / 10 ** decimals;
+	const BigNumber = require('bignumber.js');
+	const x_scaled = Math.floor(BigNumber(x).multipliedBy(Math.pow(10, decimals)).toNumber());
+	return BigNumber(x_scaled).dividedBy(Math.pow(10, decimals)).toNumber();
 }
 
 export function numberToBigintE8s(x: number): bigint {
-	return BigInt(Math.floor(numberWithPrecision(x, 8) * 1e8));
+	const BigNumber = require('bignumber.js');
+	const x_scaled = BigNumber(numberWithPrecision(x, 8)).multipliedBy(1e8).toNumber();
+	return BigInt(x_scaled);
 }
 
 export function bigintE8sToNumber(x: bigint): number {
-	return Number(x) / 1e8;
+	const BigNumber = require('bignumber.js');
+	return BigNumber(Number(x)).dividedBy(1e8).toNumber();
 }
 
 export enum AssetType {
