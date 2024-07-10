@@ -4,15 +4,15 @@
 	import Connect from './Connect.svelte';
 	import Send from './wallet/Send.svelte';
 	import Menu from './Menu.svelte';
-	import { is_logging, menu, is_sending } from '$lib/stores';
+	import { isLogging, menu, isSending } from '$lib/stores';
 	import Toast from './Toast.svelte';
 </script>
 
-{#if $is_logging}
+{#if $isLogging}
 	<div class="background-filter">
 		<Connect />
 	</div>
-{:else if $is_sending}
+{:else if $isSending}
 	<div class="background-filter">
 		<Send />
 	</div>
@@ -22,7 +22,7 @@
 {:else}
 	<div class="page-container">
 		<Navbar />
-		<div class="content-container" class:filter={$is_sending || $is_logging}>
+		<div class="content-container" class:filter={$isSending || $isLogging}>
 			<slot />
 		</div>
 		<Footer />

@@ -1,15 +1,15 @@
 <script lang="ts">
 	import { Asset } from '$lib';
-	import { input_value, user } from '$lib/stores';
+	import { inputValue, user } from '$lib/stores';
 
 	export let asset: Asset;
 </script>
 
 <div class="input-container">
-	<input type="number" bind:value={$input_value} placeholder="Amount" />
+	<input type="number" bind:value={$inputValue} placeholder="Amount" />
 	<button
 		class="max-btn"
-		on:click={() => input_value.set($user ? $user.getBalance(asset.type()) : 0)}
+		on:click={() => inputValue.set($user ? $user.getBalance(asset.type) : 0)}
 	>
 		<div class="max-btn-items">
 			<h2>{asset.intoStr()}</h2>

@@ -5,33 +5,33 @@ import type { Principal } from '@dfinity/principal';
 export class User {
 	public principal: string;
 	public accountId: string;
-	private icp_balance_e8s: bigint;
-	private nicp_balance_e8s: bigint;
-	private wtn_balance_e8s: bigint;
+	private icpBalanceE8s: bigint;
+	private nicpBalanceE8s: bigint;
+	private wtnBalanceE8s: bigint;
 
 	constructor(
 		principal: Principal,
-		icp_balance_e8s: bigint,
-		nicp_balance_e8s: bigint,
-		wtn_balance_e8s: bigint
+		icpBalanceE8s: bigint,
+		nicpBalanceE8s: bigint,
+		wtnBalanceE8s: bigint
 	) {
 		this.principal = principal.toString();
 		this.accountId = AccountIdentifier.fromPrincipal({ principal: principal }).toHex();
-		this.icp_balance_e8s = icp_balance_e8s;
-		this.nicp_balance_e8s = nicp_balance_e8s;
-		this.wtn_balance_e8s = wtn_balance_e8s;
+		this.icpBalanceE8s = icpBalanceE8s;
+		this.nicpBalanceE8s = nicpBalanceE8s;
+		this.wtnBalanceE8s = wtnBalanceE8s;
 	}
 
 	icpBalance(): number {
-		return bigintE8sToNumber(this.icp_balance_e8s);
+		return bigintE8sToNumber(this.icpBalanceE8s);
 	}
 
 	nicpBalance(): number {
-		return bigintE8sToNumber(this.nicp_balance_e8s);
+		return bigintE8sToNumber(this.nicpBalanceE8s);
 	}
 
 	wtnBalance(): number {
-		return bigintE8sToNumber(this.wtn_balance_e8s);
+		return bigintE8sToNumber(this.wtnBalanceE8s);
 	}
 
 	getBalance(asset: AssetType): number {
@@ -46,31 +46,31 @@ export class User {
 	}
 
 	addBalance(asset: AssetType, amount: number) {
-		const e8s_amount = numberToBigintE8s(amount);
+		const e8sAmount = numberToBigintE8s(amount);
 		switch (asset) {
 			case AssetType.ICP:
-				this.icp_balance_e8s += e8s_amount;
+				this.icpBalanceE8s += e8sAmount;
 				break;
 			case AssetType.nICP:
-				this.nicp_balance_e8s += e8s_amount;
+				this.nicpBalanceE8s += e8sAmount;
 				break;
 			case AssetType.WTN:
-				this.wtn_balance_e8s += e8s_amount;
+				this.wtnBalanceE8s += e8sAmount;
 				break;
 		}
 	}
 
 	substractBalance(asset: AssetType, amount: number) {
-		const e8s_amount = numberToBigintE8s(amount);
+		const e8sAmount = numberToBigintE8s(amount);
 		switch (asset) {
 			case AssetType.ICP:
-				this.icp_balance_e8s -= e8s_amount;
+				this.icpBalanceE8s -= e8sAmount;
 				break;
 			case AssetType.nICP:
-				this.nicp_balance_e8s -= e8s_amount;
+				this.nicpBalanceE8s -= e8sAmount;
 				break;
 			case AssetType.WTN:
-				this.wtn_balance_e8s -= e8s_amount;
+				this.wtnBalanceE8s -= e8sAmount;
 				break;
 		}
 	}
@@ -81,21 +81,21 @@ const APY_6M = 0.08;
 const APY_8Y = 0.15;
 
 export class State {
-	public neuron_8y_stake_e8s: bigint;
-	public neuron_6m_stake_e8s: bigint;
-	public stakers_count: number;
-	public exchange_rate_e8s: bigint;
+	public neuron8yStakeE8s: bigint;
+	public neuron6mStakeE8s: bigint;
+	public stakersCount: number;
+	public exchangeRateE8s: bigint;
 
 	constructor(
-		neuron_8y_stake_e8s: bigint,
-		neuron_6m_stake_e8s: bigint,
-		stakers_count: number,
-		exchange_rate_e8s: bigint
+		neuron8yStakeE8s: bigint,
+		neuron6mStakeE8s: bigint,
+		stakersCount: number,
+		exchangeRateE8s: bigint
 	) {
-		this.neuron_8y_stake_e8s = neuron_8y_stake_e8s;
-		this.neuron_6m_stake_e8s = neuron_6m_stake_e8s;
-		this.stakers_count = stakers_count;
-		this.exchange_rate_e8s = exchange_rate_e8s;
+		this.neuron8yStakeE8s = neuron8yStakeE8s;
+		this.neuron6mStakeE8s = neuron6mStakeE8s;
+		this.stakersCount = stakersCount;
+		this.exchangeRateE8s = exchangeRateE8s;
 	}
 
 	totalIcpDeposited(): number {
@@ -103,15 +103,15 @@ export class State {
 	}
 
 	neuron8yStake(): number {
-		return Number(this.neuron_8y_stake_e8s) / 1e8;
+		return Number(this.neuron8yStakeE8s) / 1e8;
 	}
 
 	neuron6mStake(): number {
-		return Number(this.neuron_6m_stake_e8s) / 1e8;
+		return Number(this.neuron6mStakeE8s) / 1e8;
 	}
 
 	exchangeRate(): number {
-		return Number(this.exchange_rate_e8s) / 1e8;
+		return Number(this.exchangeRateE8s) / 1e8;
 	}
 
 	apy(): number {

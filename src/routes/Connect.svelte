@@ -1,5 +1,5 @@
 <script>
-	import { is_logging, isBusy, user } from '$lib/stores';
+	import { isLogging, isBusy, user } from '$lib/stores';
 	import { signIn } from '$lib/authentification';
 	import { User } from '$lib/state';
 
@@ -16,7 +16,7 @@
 		}
 
 		isBusy.set(false);
-		is_logging.update((_) => false);
+		isLogging.update((_) => false);
 	}
 </script>
 
@@ -33,7 +33,7 @@
 	<button
 		id="close-btn"
 		on:click={() => {
-			is_logging.update((_) => false);
+			isLogging.update((_) => false);
 		}}
 	>
 		<h2>Close</h2>

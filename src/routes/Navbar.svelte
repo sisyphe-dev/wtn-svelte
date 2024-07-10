@@ -1,9 +1,9 @@
 <script>
-	import { is_sending, is_logging, menu, user } from '$lib/stores';
+	import { isSending, isLogging, menu, user } from '$lib/stores';
 	import { displayUsFormat, displayPrincipal } from '$lib';
 </script>
 
-<nav class:filter={$is_sending || $is_logging}>
+<nav class:filter={$isSending || $isLogging}>
 	<a href="/stake" class="menu-selection-container">
 		<img src="/WTN.png" width="100em" height="100em" alt="WTN logo." />
 		<div class="wave-title">
@@ -15,7 +15,7 @@
 		<button
 			class="connect-btn"
 			on:click={() => {
-				is_logging.update((_) => true);
+				isLogging.update((_) => true);
 			}}
 		>
 			Connect
