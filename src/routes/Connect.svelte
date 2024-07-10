@@ -8,13 +8,12 @@
 
 		try {
 			const principal = await signIn();
-			user.set(new User(principal, BigInt(10_000 * 1e8),
-					BigInt(1_500 * 1e8),
-					BigInt(100_000 * 1e8)));
+			user.set(
+				new User(principal, BigInt(10_000 * 1e8), BigInt(1_500 * 1e8), BigInt(100_000 * 1e8))
+			);
 		} catch (error) {
 			console.error('Login failed:', error);
 		}
-		
 
 		isBusy.set(false);
 		is_logging.update((_) => false);
@@ -89,22 +88,22 @@
 	}
 
 	/* === Animation === */
-	
-	.spinner {
-	width: 2em;
-	height: 2em;
-	border: 3px solid white;
-	border-top-color: transparent;
-	border-radius: 50%;
-	animation: spin 1s linear infinite;
-  }
 
-  @keyframes spin {
-    from {
-      transform: rotate(0deg);
-    }
-    to {
-      transform: rotate(360deg);
-    }
-  }
+	.spinner {
+		width: 2em;
+		height: 2em;
+		border: 3px solid white;
+		border-top-color: transparent;
+		border-radius: 50%;
+		animation: spin 1s linear infinite;
+	}
+
+	@keyframes spin {
+		from {
+			transform: rotate(0deg);
+		}
+		to {
+			transform: rotate(360deg);
+		}
+	}
 </style>

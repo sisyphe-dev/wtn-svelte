@@ -1,5 +1,5 @@
 import { AssetType, bigintE8sToNumber, numberToBigintE8s } from '$lib';
-import { AccountIdentifier } from "@dfinity/ledger-icp";
+import { AccountIdentifier } from '@dfinity/ledger-icp';
 import type { Principal } from '@dfinity/principal';
 
 export class User {
