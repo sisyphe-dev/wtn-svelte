@@ -1,0 +1,10 @@
+
+{
+    "canisters": {
+        "internet_identity": {
+			"type": "custom",
+			"candid": "internet_identity/internet_identity.did",
+			"wasm": "internet_identity/internet_identity_dev.wasm.gz"
+		}
+    }
+}

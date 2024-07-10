@@ -6,7 +6,7 @@
 </script>
 
 <div class="input-container">
-	<input type="number" bind:value={$input_value} />
+	<input type="number" bind:value={$input_value} placeholder="Amount" />
 	<button
 		class="max-btn"
 		on:click={() => input_value.set($user ? $user.getBalance(asset.type()) : 0)}

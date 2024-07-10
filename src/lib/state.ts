@@ -1,37 +1,37 @@
-import { AssetType } from '$lib';
-
-interface Principal {
-	value: string;
-}
+import { AssetType, bigintE8sToNumber, numberToBigintE8s } from '$lib';
+import { AccountIdentifier } from "@dfinity/ledger-icp";
+import type { Principal } from '@dfinity/principal';
 
 export class User {
 	public principal: string;
+	public accountId: string;
 	private icp_balance_e8s: bigint;
 	private nicp_balance_e8s: bigint;
 	private wtn_balance_e8s: bigint;
 
 	constructor(
-		principal: string,
+		principal: Principal,
 		icp_balance_e8s: bigint,
 		nicp_balance_e8s: bigint,
 		wtn_balance_e8s: bigint
 	) {
-		this.principal = principal;
+		this.principal = principal.toString();
+		this.accountId = AccountIdentifier.fromPrincipal({ principal: principal }).toHex();
 		this.icp_balance_e8s = icp_balance_e8s;
 		this.nicp_balance_e8s = nicp_balance_e8s;
 		this.wtn_balance_e8s = wtn_balance_e8s;
 	}
 
 	icpBalance(): number {
-		return Number(this.icp_balance_e8s) / 1e8;
+		return bigintE8sToNumber(this.icp_balance_e8s);
 	}
 
 	nicpBalance(): number {
-		return Number(this.nicp_balance_e8s) / 1e8;
+		return bigintE8sToNumber(this.nicp_balance_e8s);
 	}
 
 	wtnBalance(): number {
-		return Number(this.wtn_balance_e8s) / 1e8;
+		return bigintE8sToNumber(this.wtn_balance_e8s);
 	}
 
 	getBalance(asset: AssetType): number {
@@ -46,29 +46,31 @@ export class User {
 	}
 
 	addBalance(asset: AssetType, amount: number) {
+		const e8s_amount = numberToBigintE8s(amount);
 		switch (asset) {
 			case AssetType.ICP:
-				this.icp_balance_e8s += BigInt(Math.floor(amount * 1e8));
+				this.icp_balance_e8s += e8s_amount;
 				break;
 			case AssetType.nICP:
-				this.nicp_balance_e8s += BigInt(Math.floor(amount * 1e8));
+				this.nicp_balance_e8s += e8s_amount;
 				break;
 			case AssetType.WTN:
-				this.wtn_balance_e8s += BigInt(Math.floor(amount * 1e8));
+				this.wtn_balance_e8s += e8s_amount;
 				break;
 		}
 	}
 
 	substractBalance(asset: AssetType, amount: number) {
+		const e8s_amount = numberToBigintE8s(amount);
 		switch (asset) {
 			case AssetType.ICP:
-				this.icp_balance_e8s -= BigInt(Math.floor(amount * 1e8));
+				this.icp_balance_e8s -= e8s_amount;
 				break;
 			case AssetType.nICP:
-				this.nicp_balance_e8s -= BigInt(Math.floor(amount * 1e8));
+				this.nicp_balance_e8s -= e8s_amount;
 				break;
 			case AssetType.WTN:
-				this.wtn_balance_e8s -= BigInt(Math.floor(amount * 1e8));
+				this.wtn_balance_e8s -= e8s_amount;
 				break;
 		}
 	}
@@ -120,85 +122,8 @@ export class State {
 	}
 }
 
-export interface NeuronId {
-	id: bigint;
-}
-
-export interface Account {
-	owner: Principal;
-	subaccount: [] | [Uint8Array | number[]];
-}
-
-export interface WithdrawalDetails {
-	status: WithdrawalStatus;
-	request: WithdrawalRequest;
-}
-export interface WithdrawalRequest {
-	nicp_burned: bigint;
-	withdrawal_id: bigint;
-	icp_due: bigint;
-	nicp_burn_index: bigint;
-	timestamp: bigint;
-	receiver: Account;
-	neuron_id: [] | [NeuronId];
-}
-export type WithdrawalStatus =
-	| {
-			ConversionDone: { transfer_block_height: bigint };
-	  }
-	| { NotFound: null }
-	| { WaitingToSplitNeuron: null }
-	| { WaitingDissolvement: { neuron_id: NeuronId } }
-	| { WaitingToStartDissolving: { neuron_id: NeuronId } };
-export interface WithdrawalSuccess {
-	block_index: bigint;
-	withdrawal_id: bigint;
-}
-
-const DEFAULT_PRINCIPAL = 'dwx4w-plydf-jxgs5-uncbu-mfyds-5vjzm-oohax-gmvja-cypv7-tmbt4-dqe';
-
-export function provideUser(): User {
-	return new User(
-		DEFAULT_PRINCIPAL,
-		BigInt(10_000 * 1e8),
-		BigInt(1_500 * 1e8),
-		BigInt(100_000 * 1e8)
-	);
-}
+export const DEFAULT_PRINCIPAL = 'dwx4w-plydf-jxgs5-uncbu-mfyds-5vjzm-oohax-gmvja-cypv7-tmbt4-dqe';
 
 export function provideState(): State {
 	return new State(BigInt(350_000 * 1e8), BigInt(1_500_000 * 1e8), 210, BigInt(1.3 * 1e8));
 }
-
-export const DEFAULT_WITHDRAWAL_DETAILS: WithdrawalDetails[] = [
-	{
-		status: { WaitingToSplitNeuron: null },
-		request: {
-			nicp_burned: BigInt(10 * 1e8),
-			withdrawal_id: 0n,
-			icp_due: BigInt(12 * 1e8),
-			nicp_burn_index: 5n,
-			timestamp: 1715676048n,
-			receiver: {
-				owner: { value: DEFAULT_PRINCIPAL },
-				subaccount: []
-			},
-			neuron_id: []
-		}
-	},
-	{
-		status: { WaitingDissolvement: { neuron_id: { id: 123n } } },
-		request: {
-			nicp_burned: BigInt(10 * 1e8),
-			withdrawal_id: 1n,
-			icp_due: BigInt(12 * 1e8),
-			nicp_burn_index: 5n,
-			timestamp: 1715676048n,
-			receiver: {
-				owner: { value: DEFAULT_PRINCIPAL },
-				subaccount: []
-			},
-			neuron_id: [{ id: 123n }]
-		}
-	}
-];

@@ -1,6 +1,6 @@
 <script>
 	import { state } from '$lib/stores';
-	import { numberWithDecimals, displayUsFormat } from '$lib';
+	import { displayUsFormat } from '$lib';
 </script>
 
 <div class="stat-widget-container">
@@ -16,7 +16,7 @@
 	</div>
 	<div class="stat-item">
 		<b>APY</b>
-		<b>{displayUsFormat(numberWithDecimals($state.apy(), 2))}%</b>
+		<b>{displayUsFormat($state.apy())}%</b>
 	</div>
 	<div class="stat-item">
 		<b>Stakers</b>
