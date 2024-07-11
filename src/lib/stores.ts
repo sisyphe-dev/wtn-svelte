@@ -12,7 +12,6 @@ export const menu = writable<boolean>(false);
 export const language = writable<string>('en');
 export const sendAsset = writable<Asset>(new Asset(AssetType.ICP));
 export const inputValue = writable<number>();
-export const reward = writable<number>(0);
 
 export const toasts = writable<Toast[]>([]);
 

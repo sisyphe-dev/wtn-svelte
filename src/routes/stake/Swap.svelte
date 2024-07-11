@@ -1,16 +1,17 @@
 <script lang="ts">
-	import { Asset, AssetType, displayUsFormat } from '$lib';
+	import { Asset, AssetType, computeRewards, displayUsFormat } from '$lib';
 	import SwapInput from './SwapInput.svelte';
 	import { Toast } from '$lib/toast';
-	import { inputValue, state, reward, user, isLogging, isConverting, toasts } from '$lib/stores';
+	import { inputValue, state, user, isLogging, isConverting, toasts } from '$lib/stores';
 
 	let stake = true;
 
-	function computeReceiveAmount(stake: boolean): string {
+	function computeReceiveAmount(stake: boolean, inputValue: number): number {
+		if (!inputValue) return 0;
 		if (stake) {
-			return `${displayUsFormat($state.exchangeRate() * $inputValue, 8)} nICP`;
+			return $state.exchangeRate() * inputValue;
 		} else {
-			return `${displayUsFormat($inputValue / $state.exchangeRate(), 8)} ICP`;
+			return inputValue / $state.exchangeRate();
 		}
 	}
 
@@ -59,28 +60,23 @@
 		<SwapInput asset={stake ? new Asset(AssetType.ICP) : new Asset(AssetType.nICP)} />
 		<div class="paragraphs">
 			{#if stake}
-				{#if $inputValue}
-					<p style:color="white">
-						You will receive {computeReceiveAmount(stake)}
-					</p>
-				{:else}
-					<p style:color="white">You will receive 0 nICP</p>
-				{/if}
+				<p style:color="white">
+					You will receive {displayUsFormat(computeReceiveAmount(stake, $inputValue), 8)} nICP
+				</p>
 				<p>
 					1 ICP = {displayUsFormat($state.exchangeRate())} nICP
 				</p>
 				<p class="reward">
-					Future WTN Airdrop: {$reward}{' '}
+					Future WTN Airdrop: {displayUsFormat(
+						computeRewards($state.totalIcpDeposited(), computeReceiveAmount(stake, $inputValue)),
+						8
+					)}
 					<img src="/tokens/WTN.png" width="30em" height="30em" alt="WTN logo" />
 				</p>
 			{:else}
-				{#if $inputValue}
-					<p style:color="white">
-						You will receive {computeReceiveAmount(stake)}
-					</p>
-				{:else}
-					<p style:color="white">You will receive 0 ICP</p>
-				{/if}
+				<p style:color="white">
+					You will receive {displayUsFormat(computeReceiveAmount(stake, $inputValue), 8)} ICP
+				</p>
 				<p>
 					1 nICP = {displayUsFormat(1 / $state.exchangeRate())} ICP
 				</p>

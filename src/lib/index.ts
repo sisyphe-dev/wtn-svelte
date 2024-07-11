@@ -77,3 +77,45 @@ export class Asset {
 		}
 	}
 }
+
+export const TIERS: [number, number][] = [
+	[80_000, 8],
+	[160_000, 4],
+	[320_000, 2],
+	[640_000, 1],
+	[1_280_000, 0.5],
+	[2_560_000, 0.25],
+	[5_120_000, 0.125]
+];
+
+export const EXPECTED_INITIAL_BALANCE: number = 4_480_000;
+
+export function computeRewards(alreadyDistributed: number, converting: number): number {
+	let totalRewards = BigNumber(0);
+	let amountToDistribute = BigNumber(converting);
+	let cumulativeAmount = BigNumber(alreadyDistributed);
+
+	for (const [threshold, rate] of TIERS) {
+		const nicpThreshold = BigNumber(threshold);
+		const allocationRate = BigNumber(rate);
+		if (cumulativeAmount.comparedTo(nicpThreshold) === 1) {
+			cumulativeAmount = cumulativeAmount.minus(nicpThreshold);
+			continue;
+		}
+		const tierAvailable = nicpThreshold.minus(cumulativeAmount);
+		cumulativeAmount = BigNumber(0);
+		const amountInThisTier = BigNumber(
+			Math.min(amountToDistribute.toNumber(), tierAvailable.toNumber())
+		);
+
+		totalRewards = totalRewards.plus(amountInThisTier.multipliedBy(allocationRate));
+
+		amountToDistribute = amountToDistribute.minus(amountInThisTier);
+
+		if (amountToDistribute.comparedTo(BigNumber(0)) === 0) {
+			break;
+		}
+	}
+
+	return totalRewards.toNumber();
+}
