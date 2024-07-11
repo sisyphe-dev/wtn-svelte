@@ -1,10 +1,9 @@
 import { AssetType, bigintE8sToNumber, E8S, numberToBigintE8s } from '$lib';
-import { AccountIdentifier } from '@dfinity/ledger-icp';
+import { AccountIdentifier, ApproveError } from '@dfinity/ledger-icp';
 import type { Principal } from '@dfinity/principal';
 import BigNumber from 'bignumber.js';
-
 export class User {
-	public principal: string;
+	public principal: Principal;
 	public accountId: string;
 	private icpBalanceE8s: bigint;
 	private nicpBalanceE8s: bigint;
@@ -16,7 +15,7 @@ export class User {
 		nicpBalanceE8s: bigint,
 		wtnBalanceE8s: bigint
 	) {
-		this.principal = principal.toString();
+		this.principal = principal;
 		this.accountId = AccountIdentifier.fromPrincipal({ principal: principal }).toHex();
 		this.icpBalanceE8s = icpBalanceE8s;
 		this.nicpBalanceE8s = nicpBalanceE8s;
@@ -121,11 +120,12 @@ export class State {
 		const amountTotal = amount6m.plus(amount8y);
 		const share = BigNumber(1).minus(DAO_SHARE);
 
-		return share.multipliedBy(amountTotal).multipliedBy(BigNumber(1)).dividedBy(this.neuron6mStake());
+		return share
+			.multipliedBy(amountTotal)
+			.multipliedBy(BigNumber(1))
+			.dividedBy(this.neuron6mStake());
 	}
 }
-
-export const DEFAULT_PRINCIPAL = 'dwx4w-plydf-jxgs5-uncbu-mfyds-5vjzm-oohax-gmvja-cypv7-tmbt4-dqe';
 
 export function provideState(): State {
 	return new State(BigInt(350_000 * 1e8), BigInt(1_500_000 * 1e8), 210, BigInt(1.3 * 1e8));

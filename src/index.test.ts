@@ -11,8 +11,10 @@ import BigNumber from 'bignumber.js';
 
 describe('numberWithPrecision test', () => {
 	it('Round a value with a given number of decimals', () => {
-		expect(numberWithPrecision(BigNumber(12.436), BigNumber(2)).eq((BigNumber(12.43)))).toBeTruthy();
-		expect(numberWithPrecision(BigNumber(1312.436),BigNumber(8)).eq(BigNumber(1312.436))).toBeTruthy();
+		expect(numberWithPrecision(BigNumber(12.436), BigNumber(2)).eq(BigNumber(12.43))).toBeTruthy();
+		expect(
+			numberWithPrecision(BigNumber(1312.436), BigNumber(8)).eq(BigNumber(1312.436))
+		).toBeTruthy();
 	});
 });
 
@@ -30,7 +32,7 @@ describe('bigintE8sToNumber test', () => {
 
 describe('computeRewards', () => {
 	it('should return expected rewards', () => {
-		const totalThresholds = TIERS.reduce((acc, [threshold, _]) => acc+threshold.toNumber(), 0);
+		const totalThresholds = TIERS.reduce((acc, [threshold, _]) => acc + threshold.toNumber(), 0);
 		expect(computeRewards(BigNumber(20_000), BigNumber(100)).eq(BigNumber(800))).toBeTruthy();
 		expect(computeRewards(BigNumber(0), BigNumber(10)).eq(BigNumber(80))).toBeTruthy();
 		expect(computeRewards(BigNumber(totalThresholds), BigNumber(10)).isZero()).toBeTruthy();
@@ -38,7 +40,10 @@ describe('computeRewards', () => {
 	});
 
 	it('tiers should add up to expected', () => {
-		const total = TIERS.reduce((acc, [threshold, amount]) => acc + threshold.toNumber() * amount.toNumber(), 0);
+		const total = TIERS.reduce(
+			(acc, [threshold, amount]) => acc + threshold.toNumber() * amount.toNumber(),
+			0
+		);
 		expect(BigNumber(total).eq(EXPECTED_INITIAL_BALANCE)).toBeTruthy();
 	});
 });

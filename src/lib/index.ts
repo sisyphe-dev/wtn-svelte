@@ -1,9 +1,10 @@
+import type { Principal } from '@dfinity/principal';
 import BigNumber from 'bignumber.js';
 
 export const E8S = BigNumber(10).pow(BigNumber(8));
 
-export function displayPrincipal(principal: string) {
-	const a = principal.split('-');
+export function displayPrincipal(principal: Principal) {
+	const a = principal.toString().split('-');
 	return a[0] + '...' + a[a.length - 1];
 }
 
@@ -20,7 +21,7 @@ export function displayUsFormat(value: BigNumber, decimals = 2): string {
 export function numberWithPrecision(x: BigNumber, decimals: BigNumber): BigNumber {
 	const scaleFactor = BigNumber(10).pow(decimals);
 	const xScaled = BigNumber(x).multipliedBy(scaleFactor).integerValue(BigNumber.ROUND_FLOOR);
-	return BigNumber(xScaled? xScaled:0).dividedBy(scaleFactor);
+	return BigNumber(xScaled ? xScaled : 0).dividedBy(scaleFactor);
 }
 
 export function numberToBigintE8s(x: BigNumber): bigint {

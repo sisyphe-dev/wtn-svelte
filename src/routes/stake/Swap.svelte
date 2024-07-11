@@ -1,9 +1,13 @@
 <script lang="ts">
-	import { Asset, AssetType, computeRewards, displayUsFormat } from '$lib';
+	import { Asset, AssetType, computeRewards, displayUsFormat, numberToBigintE8s } from '$lib';
 	import SwapInput from './SwapInput.svelte';
 	import { Toast } from '$lib/toast';
 	import { inputValue, state, user, isLogging, isConverting, toasts } from '$lib/stores';
 	import BigNumber from 'bignumber.js';
+	import { icpTransferApproved, nicpTransferApproved, handleStakeResult, handleRetrieveResult } from '$lib/ledger';
+	import { water_neuron } from '../../declarations/water_neuron';
+	import type { ConversionArg } from '../../declarations/water_neuron/water_neuron.did';
+	import type { Account } from '@dfinity/ledger-icp';
 
 	let stake = true;
 
@@ -18,23 +22,55 @@
 
 	export async function convert(amount: BigNumber, stake: boolean) {
 		if (!$user) return;
-		if (stake) {
-			if ($user.icpBalance().isGreaterThanOrEqualTo(amount) && amount.isGreaterThan(0)) {
-				$user.substractBalance(AssetType.ICP, amount);
-				$user.addBalance(AssetType.nICP, amount.multipliedBy($state.exchangeRate()));
-				user.set($user);
-				toasts.set([...$toasts, Toast.success('Converted ICP to nICP.')]);
+		if (!stake) {
+			if ($user.nicpBalance().isGreaterThanOrEqualTo(amount) && amount.isGreaterThan(0)) {
+				let amount_e8s = numberToBigintE8s(amount);
+				const messageError = await nicpTransferApproved(amount_e8s, {
+					owner: $user.principal,
+					subaccount: []
+				} as Account);
+				
+				if (messageError) {
+					toasts.set([...$toasts, Toast.error(messageError)]);
+				} else {
+					amount_e8s -= BigInt(10_000);
+					const conversionResult = await water_neuron.icp_to_nicp({maybe_subaccount: [],
+						amount_e8s: amount_e8s} as ConversionArg);
+
+					let status = handleStakeResult(conversionResult);
+					if (status.success) {
+						toasts.set([...$toasts, Toast.success(`Converted ${amount} ICP.`)]);
+					} else { 
+						toasts.set([...$toasts, Toast.error(`Conversion failed. ${status.message}`)]);
+					}
+				}
 			} else {
-				toasts.set([...$toasts, Toast.error('Conversion failed.')]);
+				toasts.set([...$toasts, Toast.error('Conversion failed due to ICP balance.')]);
 			}
 		} else {
-			if ($user.nicpBalance().isGreaterThanOrEqualTo(amount) && amount.isGreaterThan(0)) {
-				$user.substractBalance(AssetType.nICP, amount);
-				$user.addBalance(AssetType.ICP, BigNumber(amount).dividedBy($state.exchangeRate()));
-				user.set($user);
-				toasts.set([...$toasts, Toast.success('Converted nICP to ICP.')]);
+			if ($user.icpBalance().isGreaterThanOrEqualTo(amount) && amount.isGreaterThan(0)) {
+				let amount_e8s = numberToBigintE8s(amount);
+				const messageError = await icpTransferApproved(amount_e8s, {
+					owner: $user.principal,
+					subaccount: []
+				} as Account);
+				
+				if (messageError) {
+					toasts.set([...$toasts, Toast.error(messageError)]);
+				} else {
+					amount_e8s -= BigInt(10_000);
+					const conversionResult = await water_neuron.nicp_to_icp({maybe_subaccount: [],
+						amount_e8s: amount_e8s} as ConversionArg);
+
+					let status = handleRetrieveResult(conversionResult);
+					if (status.success) {
+						toasts.set([...$toasts, Toast.success(`Converted ${amount} nICP.`)]);
+					} else { 
+						toasts.set([...$toasts, Toast.error(`Conversion failed. ${status.message}`)]);
+					}
+				}
 			} else {
-				toasts.set([...$toasts, Toast.error('Conversion failed.')]);
+				toasts.set([...$toasts, Toast.error('Conversion failed due to ICP balance.')]);
 			}
 		}
 	}
@@ -62,21 +98,26 @@
 		<div class="paragraphs">
 			{#if stake}
 				<p style:color="white">
-					You will receive {displayUsFormat(computeReceiveAmount(stake, BigNumber($inputValue)), 8)} nICP
+					You will receive {displayUsFormat(computeReceiveAmount(stake, BigNumber($inputValue)), 8)}
+					nICP
 				</p>
 				<p>
 					1 ICP = {displayUsFormat($state.exchangeRate())} nICP
 				</p>
 				<p class="reward">
 					Future WTN Airdrop: {displayUsFormat(
-						computeRewards($state.totalIcpDeposited(), computeReceiveAmount(stake, BigNumber($inputValue))),
+						computeRewards(
+							$state.totalIcpDeposited(),
+							computeReceiveAmount(stake, BigNumber($inputValue))
+						),
 						8
 					)}
 					<img src="/tokens/WTN.png" width="30em" height="30em" alt="WTN logo" />
 				</p>
 			{:else}
 				<p style:color="white">
-					You will receive {displayUsFormat(computeReceiveAmount(stake, BigNumber($inputValue)), 8)} ICP
+					You will receive {displayUsFormat(computeReceiveAmount(stake, BigNumber($inputValue)), 8)}
+					ICP
 				</p>
 				<p>
 					1 nICP = {displayUsFormat(BigNumber(1).dividedBy($state.exchangeRate()))} ICP

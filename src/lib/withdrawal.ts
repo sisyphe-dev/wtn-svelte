@@ -1,5 +1,4 @@
 import { bigintE8sToNumber } from '$lib';
-import { DEFAULT_PRINCIPAL } from './state';
 import BigNumber from 'bignumber.js';
 
 interface Principal {
@@ -63,6 +62,7 @@ export class WithdrawalDetails {
 	}
 }
 
+const DEFAULT_PRINCIPAL = "vzdoo-4mrzy-6otni-yyax5-wxvvj-nctd5-aqaxy-x5rul-goeld-7s7k7-wae";
 export const DEFAULT_WITHDRAWAL_DETAILS: WithdrawalDetails[] = [
 	new WithdrawalDetails(
 		BigInt(10 * 1e8),
