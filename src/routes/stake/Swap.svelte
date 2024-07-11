@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Asset, AssetType, numberWithDecimals, displayUsFormat } from '$lib';
+	import { Asset, AssetType, displayUsFormat } from '$lib';
 	import SwapInput from './SwapInput.svelte';
 	import { Toast } from '$lib/toast';
 	import { input_value, state, reward, user, is_logging, is_converting, toasts } from '$lib/stores';
@@ -8,9 +8,9 @@
 
 	function computeReceiveAmount(stake: boolean): string {
 		if (stake) {
-			return `${displayUsFormat(numberWithDecimals($state.exchangeRate() * $input_value, 8))} nICP`;
+			return `${displayUsFormat($state.exchangeRate() * $input_value, 8)} nICP`;
 		} else {
-			return `${displayUsFormat(numberWithDecimals($input_value / $state.exchangeRate(), 8))} ICP`;
+			return `${displayUsFormat($input_value / $state.exchangeRate(), 8)} ICP`;
 		}
 	}
 
@@ -57,35 +57,37 @@
 	</div>
 	<div class="swap-container">
 		<SwapInput asset={stake ? new Asset(AssetType.ICP) : new Asset(AssetType.nICP)} />
-		{#if stake}
-			{#if $input_value}
-				<p style:color="white">
-					You will receive {computeReceiveAmount(stake)}
+		<div class="paragraphs">
+			{#if stake}
+				{#if $input_value}
+					<p style:color="white">
+						You will receive {computeReceiveAmount(stake)}
+					</p>
+				{:else}
+					<p style:color="white">You will receive 0 nICP</p>
+				{/if}
+				<p>
+					1 ICP = {displayUsFormat($state.exchangeRate())} nICP
+				</p>
+				<p class="reward">
+					Future WTN Airdrop: {$reward}{' '}
+					<img src="/tokens/WTN.png" width="30em" height="30em" alt="WTN logo" />
 				</p>
 			{:else}
-				<p style:color="red">Not a number.</p>
-			{/if}
-			<p>
-				1 ICP = {displayUsFormat(numberWithDecimals($state.exchangeRate(), 8))} nICP
-			</p>
-			<p class="reward">
-				Future WTN Airdrop: {$reward}{' '}
-				<img src="/tokens/WTN.png" width="30em" height="30em" alt="WTN logo" />
-			</p>
-		{:else}
-			{#if $input_value}
-				<p style:color="white">
-					You will receive {computeReceiveAmount(stake)}
+				{#if $input_value}
+					<p style:color="white">
+						You will receive {computeReceiveAmount(stake)}
+					</p>
+				{:else}
+					<p style:color="white">You will receive 0 ICP</p>
+				{/if}
+				<p>
+					1 nICP = {displayUsFormat(1 / $state.exchangeRate())} ICP
 				</p>
-			{:else}
-				<p style:color="red">Not a number.</p>
+				<p>Waiting Time: 6 months</p>
+				<p>Minimum Withdrawal: 10 ICP</p>
 			{/if}
-			<p>
-				1 nICP = {displayUsFormat(numberWithDecimals(1 / $state.exchangeRate(), 8))} ICP
-			</p>
-			<p>Waiting Time: 6 months</p>
-			<p>Minimum Withdrawal: 10 ICP</p>
-		{/if}
+		</div>
 		{#if !$user}
 			<button
 				class="swap-btn"
@@ -149,6 +151,13 @@
 		border-bottom-right-radius: 10px;
 		background-color: rgb(12, 44, 76);
 		gap: 1em;
+	}
+
+	.paragraphs {
+		display: flex;
+		justify-content: space-around;
+		flex-direction: column;
+		height: 8em;
 	}
 
 	/* === Components === */

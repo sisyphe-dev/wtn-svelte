@@ -1,6 +1,6 @@
 <script>
 	import { is_sending, is_logging, menu, user } from '$lib/stores';
-	import { displayUsFormat, displayPrincipal, numberWithDecimals } from '$lib';
+	import { displayUsFormat, displayPrincipal } from '$lib';
 </script>
 
 <nav class:filter={$is_sending || $is_logging}>
@@ -24,9 +24,9 @@
 		<div class="wallet-actions-container">
 			<a href="/wallet" class="wallet-btn" id="wallet-info">
 				<h2 style:font-weight={'bold'}>{displayPrincipal($user.principal)}</h2>
-				<p>{displayUsFormat(numberWithDecimals($user.icpBalance(), 8))} ICP</p>
-				<p>{displayUsFormat(numberWithDecimals($user.nicpBalance(), 8))} nICP</p>
-				<p>{displayUsFormat(numberWithDecimals($user.wtnBalance(), 8))} WTN</p>
+				<p>{displayUsFormat($user.icpBalance())} ICP</p>
+				<p>{displayUsFormat($user.nicpBalance())} nICP</p>
+				<p>{displayUsFormat($user.wtnBalance())} WTN</p>
 			</a>
 			<a href="/stake">
 				<button id="disconnect-btn" class="wallet-action-btn" on:click={() => user.set(undefined)}>

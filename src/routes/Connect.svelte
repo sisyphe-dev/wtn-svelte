@@ -1,17 +1,33 @@
 <script>
-	import { is_logging, user } from '$lib/stores';
-	import { provideUser } from '$lib/state';
+	import { is_logging, isBusy, user } from '$lib/stores';
+	import { signIn } from '$lib/authentification';
+	import { User } from '$lib/state';
 
-	function internetIdentityConnection() {
-		user.set(provideUser());
+	async function internetIdentityConnection() {
+		isBusy.set(true);
+
+		try {
+			const principal = await signIn();
+			user.set(
+				new User(principal, BigInt(10_000 * 1e8), BigInt(1_500 * 1e8), BigInt(100_000 * 1e8))
+			);
+		} catch (error) {
+			console.error('Login failed:', error);
+		}
+
+		isBusy.set(false);
 		is_logging.update((_) => false);
 	}
 </script>
 
 <div class="cards-container">
 	<button id="ii-btn" on:click={internetIdentityConnection}>
-		<img src="/astronaut.webp" width="50px" height="50px" alt="Dfinity Astronaut." />
-		<h2>Internet Identity</h2>
+		{#if $isBusy}
+			<div class="spinner"></div>
+		{:else}
+			<img src="/astronaut.webp" width="50em" height="50em" alt="Dfinity Astronaut." />
+			<h2>Internet Identity</h2>
+		{/if}
 	</button>
 
 	<button
@@ -25,13 +41,14 @@
 </div>
 
 <style>
-	/* ===Base Styles===*/
+	/* === Base Styles === */
 	button {
 		gap: 0.3em;
 		border-radius: 0.3em;
 		border: 2px solid black;
 		box-shadow: 3px 3px 0 0 black;
 		width: 100%;
+		height: 5em;
 		align-items: center;
 		justify-content: center;
 		cursor: pointer;
@@ -50,7 +67,7 @@
 		font-size: 20px;
 	}
 
-	/*===Layout===*/
+	/* === Layout === */
 	.cards-container {
 		max-width: 450px;
 		max-height: 180px;
@@ -61,12 +78,32 @@
 		gap: 1em;
 	}
 
-	/*===Components*/
+	/* === Components === */
 	#ii-btn {
 		background: #18c7c9;
 	}
 
 	#close-btn {
 		background: #66adff;
+	}
+
+	/* === Animation === */
+
+	.spinner {
+		width: 2em;
+		height: 2em;
+		border: 3px solid white;
+		border-top-color: transparent;
+		border-radius: 50%;
+		animation: spin 1s linear infinite;
+	}
+
+	@keyframes spin {
+		from {
+			transform: rotate(0deg);
+		}
+		to {
+			transform: rotate(360deg);
+		}
 	}
 </style>

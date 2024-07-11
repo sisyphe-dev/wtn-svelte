@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { displayUsFormat, numberWithDecimals } from '$lib';
-	import { DEFAULT_WITHDRAWAL_DETAILS, type NeuronId } from '$lib/state';
+	import { displayUsFormat } from '$lib';
+	import { DEFAULT_WITHDRAWAL_DETAILS, type NeuronId } from '$lib/withdrawal';
 
 	function displayNeuronId(neuron_id: [] | [NeuronId]): string {
 		if (neuron_id.length == 0) {
@@ -26,19 +26,17 @@
 		<tbody>
 			{#each DEFAULT_WITHDRAWAL_DETAILS as details}
 				<tr>
-					<td>{details.request.withdrawal_id}</td>
-					<td
-						>{displayUsFormat(numberWithDecimals(Number(details.request.nicp_burned) / 1e8, 8))}</td
-					>
-					<td>{displayUsFormat(numberWithDecimals(Number(details.request.icp_due) / 1e8, 8))}</td>
+					<td>{details.withdrawal_id}</td>
+					<td>{displayUsFormat(details.nicpBurned())}</td>
+					<td>{displayUsFormat(details.icpDue())}</td>
 					<td>
 						<a
 							target="_blank"
 							rel="noreferrer"
 							href={'https://dashboard.internetcomputer.org/neuron/' +
-								displayNeuronId(details.request.neuron_id)}
+								displayNeuronId(details.neuron_id)}
 						>
-							{displayNeuronId(details.request.neuron_id)}
+							{displayNeuronId(details.neuron_id)}
 						</a>
 					</td>
 					<td>{Object.keys(details.status)[0]}</td>

@@ -6,7 +6,6 @@
 	import Menu from './Menu.svelte';
 	import { is_logging, menu, is_sending } from '$lib/stores';
 	import Toast from './Toast.svelte';
-	import { redirect } from '@sveltejs/kit';
 </script>
 
 {#if $is_logging}
