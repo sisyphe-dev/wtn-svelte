@@ -40,7 +40,7 @@
 				<button
 					class="copy-btn"
 					on:click={() => {
-						navigator.clipboard.writeText($user ? $user.principal : '');
+						navigator.clipboard.writeText($user ? $user.accountId : '');
 					}}
 				>
 					<svg
@@ -192,5 +192,6 @@
 		color: lightgrey;
 		top: 50%;
 		margin-top: 1em;
+		font-family: Arial, Helvetica, sans-serif;
 	}
 </style>
