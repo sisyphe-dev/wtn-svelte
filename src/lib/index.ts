@@ -1,4 +1,4 @@
-import BigNumber from "bignumber.js";
+import BigNumber from 'bignumber.js';
 
 export function displayPrincipal(principal: string) {
 	const a = principal.split('-');

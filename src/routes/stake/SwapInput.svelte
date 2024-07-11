@@ -7,10 +7,7 @@
 
 <div class="input-container">
 	<input type="number" bind:value={$inputValue} placeholder="Amount" />
-	<button
-		class="max-btn"
-		on:click={() => inputValue.set($user ? $user.getBalance(asset.type) : 0)}
-	>
+	<button class="max-btn" on:click={() => inputValue.set($user ? $user.getBalance(asset.type) : 0)}>
 		<div class="max-btn-items">
 			<h2>{asset.intoStr()}</h2>
 			<span>Max</span>
