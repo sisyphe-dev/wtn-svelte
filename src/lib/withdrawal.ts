@@ -1,5 +1,6 @@
 import { bigintE8sToNumber } from '$lib';
 import { DEFAULT_PRINCIPAL } from './state';
+import BigNumber from 'bignumber.js';
 
 interface Principal {
 	value: string;
@@ -11,7 +12,7 @@ export interface NeuronId {
 
 export interface Account {
 	owner: Principal;
-	subaccount: [] | [Uint8Array | number[]];
+	subaccount: [] | [Uint8Array | BigNumber[]];
 }
 
 export type WithdrawalStatus =
@@ -53,11 +54,11 @@ export class WithdrawalDetails {
 		this.status = status;
 	}
 
-	nicpBurned(): number {
+	nicpBurned(): BigNumber {
 		return bigintE8sToNumber(this.nicpBurnedE8s);
 	}
 
-	icpDue(): number {
+	icpDue(): BigNumber {
 		return bigintE8sToNumber(this.icpDueE8s);
 	}
 }

@@ -2,6 +2,7 @@
 	import Withdrawals from './Withdrawals.svelte';
 	import { AssetType, Asset, displayUsFormat } from '$lib';
 	import { user, sendAsset, isSending } from '$lib/stores';
+	import BigNumber from 'bignumber.js';
 
 	let assets = [new Asset(AssetType.ICP), new Asset(AssetType.nICP), new Asset(AssetType.WTN)];
 </script>
@@ -66,7 +67,7 @@
 				<div class="token-balance-container">
 					<div class="balance">
 						<h3>
-							{displayUsFormat($user ? $user.getBalance(asset.type) : 0, 8)}
+							{displayUsFormat($user ? $user.getBalance(asset.type) : BigNumber(0), 8)}
 							{asset.intoStr()}
 						</h3>
 						<img alt="{asset.intoStr()} logo" src={asset.getUrl()} width="30px" height="30px" />

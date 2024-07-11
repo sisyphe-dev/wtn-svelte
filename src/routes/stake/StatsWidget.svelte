@@ -7,10 +7,7 @@
 	<div class="stat-item">
 		<b>Total Staked</b>
 		<b
-			>{($state.totalIcpDeposited() + $state.neuron8yStake()).toLocaleString(undefined, {
-				minimumFractionDigits: 0,
-				maximumFractionDigits: 2
-			})}
+			>{displayUsFormat($state.totalIcpDeposited())}
 			ICP
 		</b>
 	</div>

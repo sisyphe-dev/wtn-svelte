@@ -1,32 +1,35 @@
 import BigNumber from 'bignumber.js';
 
+export const E8S = BigNumber(10).pow(BigNumber(8));
+
 export function displayPrincipal(principal: string) {
 	const a = principal.split('-');
 	return a[0] + '...' + a[a.length - 1];
 }
 
-export function displayUsFormat(value: number, decimals = 2): string {
+export function displayUsFormat(value: BigNumber, decimals = 2): string {
 	const formatter = new Intl.NumberFormat('en-US', {
 		minimumFractionDigits: 0,
 		maximumFractionDigits: decimals
 	});
 
-	return formatter.format(value);
+	return formatter.format(value.toNumber());
 }
 
 // The bignumber.js library allows precise operations to avoid JavaScript unprecise handling of floating-point arithmetic.
-export function numberWithPrecision(x: number, decimals: number): number {
-	const xScaled = Math.floor(BigNumber(x).multipliedBy(Math.pow(10, decimals)).toNumber());
-	return BigNumber(xScaled).dividedBy(Math.pow(10, decimals)).toNumber();
+export function numberWithPrecision(x: BigNumber, decimals: BigNumber): BigNumber {
+	const scaleFactor = BigNumber(10).pow(decimals);
+	const xScaled = BigNumber(x).multipliedBy(scaleFactor).integerValue(BigNumber.ROUND_FLOOR);
+	return BigNumber(xScaled? xScaled:0).dividedBy(scaleFactor);
 }
 
-export function numberToBigintE8s(x: number): bigint {
-	const xScaled = BigNumber(numberWithPrecision(x, 8)).multipliedBy(1e8).toNumber();
-	return BigInt(xScaled);
+export function numberToBigintE8s(x: BigNumber): bigint {
+	const xScaled = numberWithPrecision(x, BigNumber(8)).multipliedBy(E8S);
+	return BigInt(xScaled.toNumber());
 }
 
-export function bigintE8sToNumber(x: bigint): number {
-	return BigNumber(Number(x)).dividedBy(1e8).toNumber();
+export function bigintE8sToNumber(x: bigint): BigNumber {
+	return BigNumber(Number(x)).dividedBy(E8S);
 }
 
 export enum AssetType {
@@ -66,31 +69,31 @@ export class Asset {
 		}
 	}
 
-	getTransferFee(): number {
+	getTransferFee(): BigNumber {
 		switch (this.type) {
 			case AssetType.ICP:
-				return 0.0001;
+				return BigNumber(0.0001);
 			case AssetType.nICP:
-				return 0.0001;
+				return BigNumber(0.0001);
 			case AssetType.WTN:
-				return 0.01;
+				return BigNumber(0.01);
 		}
 	}
 }
 
-export const TIERS: [number, number][] = [
-	[80_000, 8],
-	[160_000, 4],
-	[320_000, 2],
-	[640_000, 1],
-	[1_280_000, 0.5],
-	[2_560_000, 0.25],
-	[5_120_000, 0.125]
+export const TIERS: [BigNumber, BigNumber][] = [
+	[BigNumber(80_000), BigNumber(8)],
+	[BigNumber(160_000), BigNumber(4)],
+	[BigNumber(320_000), BigNumber(2)],
+	[BigNumber(640_000), BigNumber(1)],
+	[BigNumber(1_280_000), BigNumber(0.5)],
+	[BigNumber(2_560_000), BigNumber(0.25)],
+	[BigNumber(5_120_000), BigNumber(0.125)]
 ];
 
-export const EXPECTED_INITIAL_BALANCE: number = 4_480_000;
+export const EXPECTED_INITIAL_BALANCE: BigNumber = BigNumber(4_480_000);
 
-export function computeRewards(alreadyDistributed: number, converting: number): number {
+export function computeRewards(alreadyDistributed: BigNumber, converting: BigNumber): BigNumber {
 	let totalRewards = BigNumber(0);
 	let amountToDistribute = BigNumber(converting);
 	let cumulativeAmount = BigNumber(alreadyDistributed);
@@ -117,5 +120,5 @@ export function computeRewards(alreadyDistributed: number, converting: number): 
 		}
 	}
 
-	return totalRewards.toNumber();
+	return totalRewards;
 }

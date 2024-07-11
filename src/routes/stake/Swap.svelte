@@ -3,33 +3,34 @@
 	import SwapInput from './SwapInput.svelte';
 	import { Toast } from '$lib/toast';
 	import { inputValue, state, user, isLogging, isConverting, toasts } from '$lib/stores';
+	import BigNumber from 'bignumber.js';
 
 	let stake = true;
 
-	function computeReceiveAmount(stake: boolean, inputValue: number): number {
-		if (!inputValue) return 0;
+	function computeReceiveAmount(stake: boolean, inputValue: BigNumber): BigNumber {
+		if (inputValue.isNaN()) return BigNumber(0);
 		if (stake) {
-			return $state.exchangeRate() * inputValue;
+			return inputValue.multipliedBy($state.exchangeRate());
 		} else {
-			return inputValue / $state.exchangeRate();
+			return inputValue.dividedBy($state.exchangeRate());
 		}
 	}
 
-	export async function convert(amount: number, stake: boolean) {
+	export async function convert(amount: BigNumber, stake: boolean) {
 		if (!$user) return;
 		if (stake) {
-			if ($user.icpBalance() >= amount && amount > 0) {
+			if ($user.icpBalance().isGreaterThanOrEqualTo(amount) && amount.isGreaterThan(0)) {
 				$user.substractBalance(AssetType.ICP, amount);
-				$user.addBalance(AssetType.nICP, amount * $state.exchangeRate());
+				$user.addBalance(AssetType.nICP, amount.multipliedBy($state.exchangeRate()));
 				user.set($user);
 				toasts.set([...$toasts, Toast.success('Converted ICP to nICP.')]);
 			} else {
 				toasts.set([...$toasts, Toast.error('Conversion failed.')]);
 			}
 		} else {
-			if ($user.nicpBalance() >= amount && amount > 0) {
+			if ($user.nicpBalance().isGreaterThanOrEqualTo(amount) && amount.isGreaterThan(0)) {
 				$user.substractBalance(AssetType.nICP, amount);
-				$user.addBalance(AssetType.ICP, amount / $state.exchangeRate());
+				$user.addBalance(AssetType.ICP, BigNumber(amount).dividedBy($state.exchangeRate()));
 				user.set($user);
 				toasts.set([...$toasts, Toast.success('Converted nICP to ICP.')]);
 			} else {
@@ -61,24 +62,24 @@
 		<div class="paragraphs">
 			{#if stake}
 				<p style:color="white">
-					You will receive {displayUsFormat(computeReceiveAmount(stake, $inputValue), 8)} nICP
+					You will receive {displayUsFormat(computeReceiveAmount(stake, BigNumber($inputValue)), 8)} nICP
 				</p>
 				<p>
 					1 ICP = {displayUsFormat($state.exchangeRate())} nICP
 				</p>
 				<p class="reward">
 					Future WTN Airdrop: {displayUsFormat(
-						computeRewards($state.totalIcpDeposited(), computeReceiveAmount(stake, $inputValue)),
+						computeRewards($state.totalIcpDeposited(), computeReceiveAmount(stake, BigNumber($inputValue))),
 						8
 					)}
 					<img src="/tokens/WTN.png" width="30em" height="30em" alt="WTN logo" />
 				</p>
 			{:else}
 				<p style:color="white">
-					You will receive {displayUsFormat(computeReceiveAmount(stake, $inputValue), 8)} ICP
+					You will receive {displayUsFormat(computeReceiveAmount(stake, BigNumber($inputValue)), 8)} ICP
 				</p>
 				<p>
-					1 nICP = {displayUsFormat(1 / $state.exchangeRate())} ICP
+					1 nICP = {displayUsFormat(BigNumber(1).dividedBy($state.exchangeRate()))} ICP
 				</p>
 				<p>Waiting Time: 6 months</p>
 				<p>Minimum Withdrawal: 10 ICP</p>
@@ -94,7 +95,7 @@
 				<span>Connect your wallet</span>
 			</button>
 		{:else}
-			<button class="swap-btn" on:click={() => convert($inputValue, stake)}>
+			<button class="swap-btn" on:click={() => convert(BigNumber($inputValue), stake)}>
 				{#if $isConverting}
 					<svg class="spinner" viewBox="0 0 50 50">
 						<circle class="circle" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle>

@@ -2,9 +2,10 @@
 	import { AssetType } from '$lib';
 	import { isSending, sendAsset, user, toasts } from '$lib/stores';
 	import { Toast } from '$lib/toast';
+	import BigNumber from 'bignumber.js';
 
 	let principal: string;
-	let sendAmount: number;
+	let sendAmount: BigNumber;
 
 	function isValidPrincipal(principal: string): boolean {
 		if (principal) {
@@ -14,15 +15,15 @@
 		}
 	}
 
-	function isValidAmount(amount: number): boolean {
+	function isValidAmount(amount: BigNumber): boolean {
 		if (amount && $user) {
-			return $user.getBalance($sendAsset.type) >= amount;
+			return $user.getBalance($sendAsset.type).isGreaterThanOrEqualTo(amount);
 		} else {
 			return true;
 		}
 	}
 
-	function sendTokens(amount: number, principal: string) {
+	function sendTokens(amount: BigNumber, principal: string) {
 		if (amount && principal && isValidAmount(amount) && isValidPrincipal(principal) && $user) {
 			$user.substractBalance($sendAsset.type, amount);
 			user.set($user);
@@ -52,7 +53,7 @@
 			<button
 				class="max-btn"
 				on:click={() => {
-					sendAmount = $user ? $user.getBalance($sendAsset.type) : 0;
+					sendAmount = $user ? $user.getBalance($sendAsset.type) : BigNumber(0);
 				}}
 			>
 				MAX
