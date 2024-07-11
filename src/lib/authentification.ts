@@ -11,13 +11,13 @@ const AUTH_POPUP_HEIGHT = 625;
 
 const DEV = import.meta.env.DEV;
 const INTERNET_IDENTITY_CANISTER_ID = DEV
-	? 'bkyz2-fmaaa-aaaaa-qaaaq-cai'
+	? 'bd3sg-teaaa-aaaaa-qaaba-cai'
 	: 'rdmx6-jaaaa-aaaaa-aaadq-cai';
 
 export async function signIn(): Promise<Principal> {
 	return new Promise<Principal>(async (resolve, reject) => {
 		try {
-			let authClient: AuthClient = await createAuthClient();
+			let authClient: AuthClient = await AuthClient.create();
 
 			const identityProvider = import.meta.env.DEV
 				? `http://localhost:8080/?canisterId=${INTERNET_IDENTITY_CANISTER_ID}`
@@ -55,13 +55,4 @@ function popupCenter(width: number, height: number): string | undefined {
 	const x = innerWidth / 2 + screenX - width / 2;
 
 	return `toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=no, copyhistory=no, width=${width}, height=${height}, top=${y}, left=${x}`;
-}
-
-function createAuthClient(): Promise<AuthClient> {
-	return AuthClient.create({
-		idleOptions: {
-			disableIdle: true,
-			disableDefaultIdleCallback: true
-		}
-	});
 }

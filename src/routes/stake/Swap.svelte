@@ -2,15 +2,15 @@
 	import { Asset, AssetType, displayUsFormat } from '$lib';
 	import SwapInput from './SwapInput.svelte';
 	import { Toast } from '$lib/toast';
-	import { input_value, state, reward, user, is_logging, is_converting, toasts } from '$lib/stores';
+	import { inputValue, state, reward, user, isLogging, isConverting, toasts } from '$lib/stores';
 
 	let stake = true;
 
 	function computeReceiveAmount(stake: boolean): string {
 		if (stake) {
-			return `${displayUsFormat($state.exchangeRate() * $input_value, 8)} nICP`;
+			return `${displayUsFormat($state.exchangeRate() * $inputValue, 8)} nICP`;
 		} else {
-			return `${displayUsFormat($input_value / $state.exchangeRate(), 8)} ICP`;
+			return `${displayUsFormat($inputValue / $state.exchangeRate(), 8)} ICP`;
 		}
 	}
 
@@ -59,7 +59,7 @@
 		<SwapInput asset={stake ? new Asset(AssetType.ICP) : new Asset(AssetType.nICP)} />
 		<div class="paragraphs">
 			{#if stake}
-				{#if $input_value}
+				{#if $inputValue}
 					<p style:color="white">
 						You will receive {computeReceiveAmount(stake)}
 					</p>
@@ -74,7 +74,7 @@
 					<img src="/tokens/WTN.png" width="30em" height="30em" alt="WTN logo" />
 				</p>
 			{:else}
-				{#if $input_value}
+				{#if $inputValue}
 					<p style:color="white">
 						You will receive {computeReceiveAmount(stake)}
 					</p>
@@ -92,14 +92,14 @@
 			<button
 				class="swap-btn"
 				on:click={() => {
-					is_logging.update((_) => true);
+					isLogging.update((_) => true);
 				}}
 			>
 				<span>Connect your wallet</span>
 			</button>
 		{:else}
-			<button class="swap-btn" on:click={() => convert($input_value, stake)}>
-				{#if $is_converting}
+			<button class="swap-btn" on:click={() => convert($inputValue, stake)}>
+				{#if $isConverting}
 					<svg class="spinner" viewBox="0 0 50 50">
 						<circle class="circle" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle>
 					</svg>

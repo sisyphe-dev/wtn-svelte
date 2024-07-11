@@ -1,8 +1,8 @@
 <script>
-	import { is_sending, is_logging } from '$lib/stores';
+	import { isSending, isLogging } from '$lib/stores';
 </script>
 
-<footer class:filter={$is_logging || $is_sending}>
+<footer class:filter={$isLogging || $isSending}>
 	<div class="central-container">
 		<a href="https://github.com/WaterNeuron" target="_blank" rel="noreferrer">
 			<img alt="Github Icon" src="landing/github-white.svg" />

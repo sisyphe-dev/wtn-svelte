@@ -16,49 +16,49 @@ export interface Account {
 
 export type WithdrawalStatus =
 	| {
-			ConversionDone: { transfer_block_height: bigint };
+			ConversionDone: { transferBlockHeight: bigint };
 	  }
 	| { NotFound: null }
 	| { WaitingToSplitNeuron: null }
-	| { WaitingDissolvement: { neuron_id: NeuronId } }
-	| { WaitingToStartDissolving: { neuron_id: NeuronId } };
+	| { WaitingDissolvement: { neuronId: NeuronId } }
+	| { WaitingToStartDissolving: { neuronId: NeuronId } };
 
 export class WithdrawalDetails {
-	private nicp_burned_e8s: bigint;
-	private icp_due_e8s: bigint;
-	public withdrawal_id: bigint;
-	public nicp_burn_index: bigint;
+	private nicpBurnedE8s: bigint;
+	private icpDueE8s: bigint;
+	public withdrawalId: bigint;
+	public nicpBurnIndex: bigint;
 	public timestamp: bigint;
 	public receiver: Account;
-	public neuron_id: [] | [NeuronId];
+	public neuronId: [] | [NeuronId];
 	public status: WithdrawalStatus;
 
 	constructor(
-		nicp_burned_e8s: bigint,
-		icp_due_e8s: bigint,
-		withdrawal_id: bigint,
-		nicp_burn_index: bigint,
+		nicpBurnedE8s: bigint,
+		icpDueE8s: bigint,
+		withdrawalId: bigint,
+		nicpBurnIndex: bigint,
 		timestamp: bigint,
 		receiver: Account,
-		neuron_id: [] | [NeuronId],
+		neuronId: [] | [NeuronId],
 		status: WithdrawalStatus
 	) {
-		this.nicp_burned_e8s = nicp_burned_e8s;
-		this.icp_due_e8s = icp_due_e8s;
-		this.nicp_burn_index = nicp_burn_index;
-		this.withdrawal_id = withdrawal_id;
+		this.nicpBurnedE8s = nicpBurnedE8s;
+		this.icpDueE8s = icpDueE8s;
+		this.nicpBurnIndex = nicpBurnIndex;
+		this.withdrawalId = withdrawalId;
 		this.timestamp = timestamp;
 		this.receiver = receiver;
-		this.neuron_id = neuron_id;
+		this.neuronId = neuronId;
 		this.status = status;
 	}
 
 	nicpBurned(): number {
-		return bigintE8sToNumber(this.nicp_burned_e8s);
+		return bigintE8sToNumber(this.nicpBurnedE8s);
 	}
 
 	icpDue(): number {
-		return bigintE8sToNumber(this.icp_due_e8s);
+		return bigintE8sToNumber(this.icpDueE8s);
 	}
 }
 
@@ -87,6 +87,6 @@ export const DEFAULT_WITHDRAWAL_DETAILS: WithdrawalDetails[] = [
 			subaccount: []
 		},
 		[{ id: 123n }],
-		{ WaitingDissolvement: { neuron_id: { id: 123n } } }
+		{ WaitingDissolvement: { neuronId: { id: 123n } } }
 	)
 ];

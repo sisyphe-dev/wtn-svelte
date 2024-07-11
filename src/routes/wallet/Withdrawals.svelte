@@ -2,11 +2,11 @@
 	import { displayUsFormat } from '$lib';
 	import { DEFAULT_WITHDRAWAL_DETAILS, type NeuronId } from '$lib/withdrawal';
 
-	function displayNeuronId(neuron_id: [] | [NeuronId]): string {
-		if (neuron_id.length == 0) {
+	function displayNeuronId(neuronId: [] | [NeuronId]): string {
+		if (neuronId.length == 0) {
 			return 'Not Set';
 		} else {
-			return neuron_id[0].id.toString();
+			return neuronId[0].id.toString();
 		}
 	}
 </script>
@@ -26,7 +26,7 @@
 		<tbody>
 			{#each DEFAULT_WITHDRAWAL_DETAILS as details}
 				<tr>
-					<td>{details.withdrawal_id}</td>
+					<td>{details.withdrawalId}</td>
 					<td>{displayUsFormat(details.nicpBurned())}</td>
 					<td>{displayUsFormat(details.icpDue())}</td>
 					<td>
@@ -34,9 +34,9 @@
 							target="_blank"
 							rel="noreferrer"
 							href={'https://dashboard.internetcomputer.org/neuron/' +
-								displayNeuronId(details.neuron_id)}
+								displayNeuronId(details.neuronId)}
 						>
-							{displayNeuronId(details.neuron_id)}
+							{displayNeuronId(details.neuronId)}
 						</a>
 					</td>
 					<td>{Object.keys(details.status)[0]}</td>

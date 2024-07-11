@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { AssetType } from '$lib';
-	import { is_sending, send_asset, user, toasts } from '$lib/stores';
+	import { isSending, sendAsset, user, toasts } from '$lib/stores';
 	import { Toast } from '$lib/toast';
 
 	let principal: string;
-	let send_amount: number;
+	let sendAmount: number;
 
 	function isValidPrincipal(principal: string): boolean {
 		if (principal) {
@@ -16,36 +16,15 @@
 
 	function isValidAmount(amount: number): boolean {
 		if (amount && $user) {
-			return $user.getBalance($send_asset.type()) >= amount;
+			return $user.getBalance($sendAsset.type) >= amount;
 		} else {
 			return true;
 		}
 	}
 
-	function get_transfer_fee() {
-		switch ($send_asset.type()) {
-			case AssetType.ICP:
-				return 0.0001;
-			case AssetType.nICP:
-				return 0.0001;
-			case AssetType.WTN:
-				return 0.01;
-		}
-	}
-
 	function sendTokens(amount: number, principal: string) {
 		if (amount && principal && isValidAmount(amount) && isValidPrincipal(principal) && $user) {
-			switch ($send_asset.type()) {
-				case AssetType.ICP:
-					$user.substractBalance(AssetType.ICP, amount);
-					break;
-				case AssetType.nICP:
-					$user.substractBalance(AssetType.nICP, amount);
-					break;
-				case AssetType.WTN:
-					$user.substractBalance(AssetType.WTN, amount);
-					break;
-			}
+			$user.substractBalance($sendAsset.type, amount);
 			user.set($user);
 			toasts.set([...$toasts, Toast.success('Successful transfer.')]);
 		} else {
@@ -56,8 +35,8 @@
 
 <div class="send-container">
 	<div class="header-container">
-		<h2>Send {$send_asset.intoStr()}</h2>
-		<img alt="{$send_asset.intoStr()} logo" src={$send_asset.getUrl()} width="50px" height="50px" />
+		<h2>Send {$sendAsset.intoStr()}</h2>
+		<img alt="{$sendAsset.intoStr()} logo" src={$sendAsset.getUrl()} width="50px" height="50px" />
 	</div>
 	<div>
 		<p>Destination</p>
@@ -69,34 +48,34 @@
 	<div>
 		<p>Amount</p>
 		<div class="amount-input">
-			<input type="number" placeholder="Amount" bind:value={send_amount} />
+			<input type="number" placeholder="Amount" bind:value={sendAmount} />
 			<button
 				class="max-btn"
 				on:click={() => {
-					send_amount = $user ? $user.getBalance($send_asset.type()) : 0;
+					sendAmount = $user ? $user.getBalance($sendAsset.type) : 0;
 				}}
 			>
 				MAX
 			</button>
 		</div>
-		{#if !isValidAmount(send_amount)}
+		{#if !isValidAmount(sendAmount)}
 			<span> Not enough treasury. </span>
 		{/if}
 	</div>
 	<div>
 		<p>Transfer Fee</p>
 		<p style:padding-left="1em">
-			{get_transfer_fee()}
-			{$send_asset.intoStr()}
+			{$sendAsset.getTransferFee()}
+			{$sendAsset.intoStr()}
 		</p>
 	</div>
 	<div class="button-container">
-		<button class="toggle-btn" on:click={() => is_sending.set(false)}>Cancel</button>
+		<button class="toggle-btn" on:click={() => isSending.set(false)}>Cancel</button>
 		<button
 			class="toggle-btn"
 			on:click={() => {
-				sendTokens(send_amount, principal);
-				is_sending.set(false);
+				sendTokens(sendAmount, principal);
+				isSending.set(false);
 			}}>Continue</button
 		>
 	</div>

@@ -3,15 +3,15 @@ import { type User, type State, provideState } from './state';
 import { Asset, AssetType } from '$lib';
 import { Toast } from './toast';
 
-export const is_logging = writable<boolean>(false);
+export const isLogging = writable<boolean>(false);
 export const isBusy = writable<boolean>(false);
-export const is_converting = writable<boolean>(false);
-export const is_sending = writable<boolean>(false);
+export const isConverting = writable<boolean>(false);
+export const isSending = writable<boolean>(false);
 export const menu = writable<boolean>(false);
 
 export const language = writable<string>('en');
-export const send_asset = writable<Asset>(new Asset(AssetType.ICP));
-export const input_value = writable<number>();
+export const sendAsset = writable<Asset>(new Asset(AssetType.ICP));
+export const inputValue = writable<number>();
 export const reward = writable<number>(0);
 
 export const toasts = writable<Toast[]>([]);

@@ -21,7 +21,7 @@
 	<div class="stat-item">
 		<b>Stakers</b>
 		<b>
-			{$state.stakers_count}
+			{$state.stakersCount}
 		</b>
 	</div>
 </div>

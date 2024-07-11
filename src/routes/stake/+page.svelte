@@ -4,7 +4,7 @@
 	import Swap from './Swap.svelte';
 	export let data;
 
-	function get_content(language: string) {
+	function getContent(language: string) {
 		switch (language) {
 			case 'en':
 				return data.en.sections;
@@ -18,7 +18,7 @@
 				return [];
 		}
 	}
-	let toggled_map = get_content($language).map((_) => {
+	let toggledMap = getContent($language).map((_) => {
 		return false;
 	});
 </script>
@@ -27,11 +27,11 @@
 <Swap />
 <div class="faq">
 	<h1>FAQ</h1>
-	{#each get_content($language) as section, i}
+	{#each getContent($language) as section, i}
 		<button
 			class="faq-btn"
 			on:click={() => {
-				toggled_map[i] = !toggled_map[i];
+				toggledMap[i] = !toggledMap[i];
 			}}
 		>
 			<h2>{section.title}</h2>
@@ -40,12 +40,12 @@
 				height="20em"
 				src="icon/down-arrow.svg"
 				alt="Down arrow."
-				class:arrow-down={toggled_map[i]}
-				class:arrow-up={!toggled_map[i]}
+				class:arrow-down={toggledMap[i]}
+				class:arrow-up={!toggledMap[i]}
 			/>
 		</button>
 
-		{#if toggled_map[i]}
+		{#if toggledMap[i]}
 			<p>{section.content}</p>
 		{/if}
 	{/each}

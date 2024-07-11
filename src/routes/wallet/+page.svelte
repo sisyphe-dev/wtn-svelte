@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Withdrawals from './Withdrawals.svelte';
 	import { AssetType, Asset, displayUsFormat } from '$lib';
-	import { user, send_asset, is_sending } from '$lib/stores';
+	import { user, sendAsset, isSending } from '$lib/stores';
 
 	let assets = [new Asset(AssetType.ICP), new Asset(AssetType.nICP), new Asset(AssetType.WTN)];
 </script>
@@ -66,7 +66,7 @@
 				<div class="token-balance-container">
 					<div class="balance">
 						<h3>
-							{displayUsFormat($user ? $user.getBalance(asset.type()) : 0, 8)}
+							{displayUsFormat($user ? $user.getBalance(asset.type) : 0, 8)}
 							{asset.intoStr()}
 						</h3>
 						<img alt="{asset.intoStr()} logo" src={asset.getUrl()} width="30px" height="30px" />
@@ -74,11 +74,11 @@
 					<button
 						class="swap-btn"
 						on:click={() => {
-							is_sending.set(true);
-							send_asset.set(asset);
+							isSending.set(true);
+							sendAsset.set(asset);
 						}}>Send</button
 					>
-					{#if asset.type() === AssetType.WTN}
+					{#if asset.type === AssetType.WTN}
 						<p class="airdrop-allocation">Airdrop Allocation: 10 WTN</p>
 					{/if}
 				</div>
