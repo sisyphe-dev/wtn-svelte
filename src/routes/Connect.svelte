@@ -1,16 +1,25 @@
-<script>
+<script lang="ts">
 	import { isLogging, isBusy, user } from '$lib/stores';
 	import { signIn } from '$lib/authentification';
 	import { User } from '$lib/state';
+	import { nns_ledger } from '../declarations/nns-ledger';
+	import { nicp_ledger } from '../declarations/nicp_ledger';
+	import { wtn_ledger } from '../declarations/wtn_ledger';
+	import type { Account } from '@dfinity/ledger-icp';
 
 	async function internetIdentityConnection() {
 		isBusy.set(true);
 
 		try {
 			const principal = await signIn();
-			user.set(
-				new User(principal, BigInt(10_000 * 1e8), BigInt(1_500 * 1e8), BigInt(100_000 * 1e8))
-			);
+			const user_account: Account = {
+				owner: principal,
+				subaccount: []
+			};
+			const icp_balance = await nns_ledger.icrc1_balance_of(user_account);
+			const nicp_balance = await nicp_ledger.icrc1_balance_of(user_account);
+			const wtn_balance = await wtn_ledger.icrc1_balance_of(user_account);
+			user.set(new User(principal, icp_balance, nicp_balance, wtn_balance));
 		} catch (error) {
 			console.error('Login failed:', error);
 		}
