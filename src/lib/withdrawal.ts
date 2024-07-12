@@ -62,7 +62,7 @@ export class WithdrawalDetails {
 	}
 }
 
-const DEFAULT_PRINCIPAL = "vzdoo-4mrzy-6otni-yyax5-wxvvj-nctd5-aqaxy-x5rul-goeld-7s7k7-wae";
+const DEFAULT_PRINCIPAL = 'vzdoo-4mrzy-6otni-yyax5-wxvvj-nctd5-aqaxy-x5rul-goeld-7s7k7-wae';
 export const DEFAULT_WITHDRAWAL_DETAILS: WithdrawalDetails[] = [
 	new WithdrawalDetails(
 		BigInt(10 * 1e8),

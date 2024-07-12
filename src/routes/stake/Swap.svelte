@@ -4,8 +4,12 @@
 	import { Toast } from '$lib/toast';
 	import { inputValue, state, user, isLogging, isConverting, toasts } from '$lib/stores';
 	import BigNumber from 'bignumber.js';
-	import { icpTransferApproved, nicpTransferApproved, handleStakeResult, handleRetrieveResult } from '$lib/ledger';
-	import { water_neuron } from '../../declarations/water_neuron';
+	import {
+		icpTransferApproved,
+		nicpTransferApproved,
+		handleStakeResult,
+		handleRetrieveResult
+	} from '$lib/ledger';
 	import type { ConversionArg } from '../../declarations/water_neuron/water_neuron.did';
 	import type { Account } from '@dfinity/ledger-icp';
 
@@ -25,47 +29,65 @@
 		if (!stake) {
 			if ($user.nicpBalance().isGreaterThanOrEqualTo(amount) && amount.isGreaterThan(0)) {
 				let amount_e8s = numberToBigintE8s(amount);
-				const messageError = await nicpTransferApproved(amount_e8s, {
-					owner: $user.principal,
-					subaccount: []
-				} as Account);
-				
-				if (messageError) {
-					toasts.set([...$toasts, Toast.error(messageError)]);
-				} else {
-					amount_e8s -= BigInt(10_000);
-					const conversionResult = await water_neuron.icp_to_nicp({maybe_subaccount: [],
-						amount_e8s: amount_e8s} as ConversionArg);
+				const messageError = await nicpTransferApproved(
+					amount_e8s,
+					{
+						owner: $user.principal,
+						subaccount: []
+					} as Account,
+					$state.nicpLedger
+				);
 
-					let status = handleStakeResult(conversionResult);
-					if (status.success) {
-						toasts.set([...$toasts, Toast.success(`Converted ${amount} ICP.`)]);
-					} else { 
-						toasts.set([...$toasts, Toast.error(`Conversion failed. ${status.message}`)]);
-					}
-				}
-			} else {
-				toasts.set([...$toasts, Toast.error('Conversion failed due to ICP balance.')]);
-			}
-		} else {
-			if ($user.icpBalance().isGreaterThanOrEqualTo(amount) && amount.isGreaterThan(0)) {
-				let amount_e8s = numberToBigintE8s(amount);
-				const messageError = await icpTransferApproved(amount_e8s, {
-					owner: $user.principal,
-					subaccount: []
-				} as Account);
-				
 				if (messageError) {
 					toasts.set([...$toasts, Toast.error(messageError)]);
 				} else {
 					amount_e8s -= BigInt(10_000);
-					const conversionResult = await water_neuron.nicp_to_icp({maybe_subaccount: [],
-						amount_e8s: amount_e8s} as ConversionArg);
+					const conversionResult = await $state.waterNeuron.nicp_to_icp({
+						maybe_subaccount: [],
+						amount_e8s: amount_e8s
+					} as ConversionArg);
 
 					let status = handleRetrieveResult(conversionResult);
 					if (status.success) {
 						toasts.set([...$toasts, Toast.success(`Converted ${amount} nICP.`)]);
-					} else { 
+					} else {
+						toasts.set([...$toasts, Toast.error(`Conversion failed. ${status.message}`)]);
+					}
+				}
+			} else {
+				toasts.set([...$toasts, Toast.error('Conversion failed due to nICP balance.')]);
+			}
+		} else {
+			if ($user.icpBalance().isGreaterThanOrEqualTo(amount) && amount.isGreaterThan(0)) {
+				let amount_e8s = numberToBigintE8s(amount);
+				const messageError = await icpTransferApproved(
+					amount_e8s,
+					{
+						owner: $user.principal,
+						subaccount: []
+					} as Account,
+					$state.icpLedger
+				);
+
+				if (messageError) {
+					toasts.set([...$toasts, Toast.error(messageError)]);
+				} else {
+					amount_e8s -= BigInt(10_000);
+					const conversionResult = await $state.waterNeuron.icp_to_nicp({
+						maybe_subaccount: [],
+						amount_e8s: amount_e8s
+					} as ConversionArg);
+
+					let status = handleStakeResult(conversionResult);
+					if (status.success) {
+						toasts.set([...$toasts, Toast.success(`Converted ${amount} ICP.`)]);
+						const minting = await $state.nicpLedger.icrc1_minting_account();
+						if (minting[0]) {
+							const nicp_balance = await $state.nicpLedger.icrc1_balance_of(minting[0]);
+							console.log(nicp_balance);
+						}
+						
+					} else {
 						toasts.set([...$toasts, Toast.error(`Conversion failed. ${status.message}`)]);
 					}
 				}

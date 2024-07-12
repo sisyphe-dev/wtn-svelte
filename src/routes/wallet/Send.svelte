@@ -1,8 +1,18 @@
 <script lang="ts">
-	import { AssetType } from '$lib';
+	import { AssetType, numberToBigintE8s } from '$lib';
 	import { isSending, sendAsset, user, toasts } from '$lib/stores';
 	import { Toast } from '$lib/toast';
 	import BigNumber from 'bignumber.js';
+	import { nns_ledger } from '../../declarations/nns-ledger';
+	import { nicp_ledger } from '../../declarations/nicp_ledger';
+	import { wtn_ledger } from '../../declarations/wtn_ledger';
+	import type { Account } from '@dfinity/ledger-icp';
+	import { Principal } from '@dfinity/principal';
+	import type {
+		TransferArg,
+		Icrc1TransferResult
+	} from '../../declarations/nns-ledger/nns-ledger.did';
+	import { handleTransferResult } from '$lib/ledger';
 
 	let principal: string;
 	let sendAmount: BigNumber;
@@ -30,6 +40,62 @@
 			toasts.set([...$toasts, Toast.success('Successful transfer.')]);
 		} else {
 			toasts.set([...$toasts, Toast.error('Error while sending tokens.')]);
+		}
+	}
+
+	async function icrcTransfer(asset: AssetType, principal: string, amount: BigNumber) {
+		if ($isSending) return;
+
+		isSending.set(true);
+
+		let transferResult: Icrc1TransferResult;
+		switch (asset) {
+			case AssetType.ICP: {
+				transferResult = await nns_ledger.icrc1_transfer({
+					to: {
+						owner: Principal.fromText(principal),
+						subaccount: []
+					} as Account,
+					fee: [],
+					memo: [],
+					from_subaccount: [],
+					created_at_time: [],
+					amount: numberToBigintE8s(amount)
+				} as TransferArg);
+			}
+			case AssetType.nICP: {
+				transferResult = await nicp_ledger.icrc1_transfer({
+					to: {
+						owner: Principal.fromText(principal),
+						subaccount: []
+					} as Account,
+					fee: [],
+					memo: [],
+					from_subaccount: [],
+					created_at_time: [],
+					amount: numberToBigintE8s(amount)
+				} as TransferArg);
+			}
+			case AssetType.WTN: {
+				transferResult = await wtn_ledger.icrc1_transfer({
+					to: {
+						owner: Principal.fromText(principal),
+						subaccount: []
+					} as Account,
+					fee: [],
+					memo: [],
+					from_subaccount: [],
+					created_at_time: [],
+					amount: numberToBigintE8s(amount)
+				} as TransferArg);
+			}
+		}
+
+		let status = handleTransferResult(transferResult);
+		if (status.success) {
+			toasts.set([...$toasts, Toast.success(`asset sent.`)]);
+		} else {
+			toasts.set([...$toasts, Toast.error(`Conversion failed. ${status.message}`)]);
 		}
 	}
 </script>

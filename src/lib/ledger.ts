@@ -1,4 +1,3 @@
-import { nicp_ledger } from '../declarations/nicp_ledger';
 import { Principal } from '@dfinity/principal';
 import type {
 	Allowance,
@@ -8,11 +7,12 @@ import type {
 	ApproveResult,
 	ApproveError
 } from '../declarations/nns-ledger/nns-ledger.did';
-import { nns_ledger } from '../declarations/nns-ledger';
 import type { Result_3, Result_4 } from '../declarations/water_neuron/water_neuron.did';
 import { bigintE8sToNumber } from '$lib';
-
-const CANISTER_ID_WATER_NEURON = 'n76cn-tyaaa-aaaam-acc5a-cai';
+import type { Icrc1TransferResult } from '../declarations/nns-ledger/nns-ledger.did';
+import type { _SERVICE as icpLedgerInterface } from '../declarations/nns-ledger/nns-ledger.did';
+import type { _SERVICE as nicpLedgerInterface } from '../declarations/nicp_ledger/nicp_ledger.did';
+import { CANISTER_ID_WATER_NEURON } from './authentification';
 
 function handleApproveError(error: ApproveError) {
 	if ('GenericError' in error) {
@@ -52,19 +52,20 @@ export function handleApproveResult(result: ApproveResult): string {
 
 export async function nicpTransferApproved(
 	amount: bigint,
-	account: Account
+	account: Account,
+	nicpLedger: nicpLedgerInterface
 ): Promise<void | string> {
 	const spender = {
 		owner: Principal.fromText(CANISTER_ID_WATER_NEURON),
 		subaccount: []
 	} as Account;
-	const allowanceResult: Allowance = await nicp_ledger.icrc2_allowance({
+	const allowanceResult: Allowance = await nicpLedger.icrc2_allowance({
 		account,
 		spender
 	} as AllowanceArgs);
 	const allowance = allowanceResult['allowance'];
 	if (amount > allowance) {
-		const approveResult: ApproveResult = await nicp_ledger.icrc2_approve({
+		const approveResult: ApproveResult = await nicpLedger.icrc2_approve({
 			spender,
 			fee: [],
 			memo: [],
@@ -81,24 +82,25 @@ export async function nicpTransferApproved(
 			return;
 		}
 	}
-	return 'Not enough nICP.';
+	return;
 }
 
 export async function icpTransferApproved(
 	amount: bigint,
-	account: Account
+	account: Account,
+	icpLedger: icpLedgerInterface
 ): Promise<void | string> {
 	const spender = {
 		owner: Principal.fromText(CANISTER_ID_WATER_NEURON),
 		subaccount: []
 	} as Account;
-	const allowanceResult: Allowance = await nns_ledger.icrc2_allowance({
+	const allowanceResult: Allowance = await icpLedger.icrc2_allowance({
 		account,
 		spender
 	} as AllowanceArgs);
 	const allowance = allowanceResult['allowance'];
 	if (amount > allowance) {
-		const approveResult: ApproveResult = await nns_ledger.icrc2_approve({
+		const approveResult: ApproveResult = await icpLedger.icrc2_approve({
 			spender,
 			fee: [],
 			memo: [],
@@ -115,56 +117,122 @@ export async function icpTransferApproved(
 			return;
 		}
 	}
-	return 'Not enough nICP.';
+	return;
 }
 
 interface ConversionResult {
-    success: boolean,
-    message: string, 
+	success: boolean;
+	message: string;
 }
 
 export function handleStakeResult(result: Result_3): ConversionResult {
 	if ('Ok' in result) {
-        return {success: true, message: `Converted ICP to nICP at ${"https://dashboard.internetcomputer.org/transaction/" +
-				result.Ok.block_index.toString()}`};
-    } else if ('Err' in result){
-        if ('GenericError' in result.Err) {
-            return {success: false, message: `Generic Error: ${result.Err.GenericError.message}`};
-        } else if ('TransferError' in result.Err) {
-            return {success: false, message: `Transfer Error: ${result.Err.TransferError}`};
-        }  else if ('AmountTooLow' in result.Err) {
-            return {success: false, message: `Amount too low. Minimum amount: ${bigintE8sToNumber(result.Err.AmountTooLow.minimum_amount_e8s)}`};
-        } else if ('TransferFromError' in result.Err) {
-            return {success: false, message: `TransferFrom Error: ${result.Err.TransferFromError}`};
-        }  else if ('GuardError' in result.Err) {
-            return {success: false, message: `Guard Error: ${result.Err.GuardError.guard_error}`};
-        } else {
-            return {success: false, message: 'Unkown Error. Please refresh the page.'}
-        }
-    } else {
-        return {success: false, message: 'Did not catch yor name'};
-    }
-  }
+		return {
+			success: true,
+			message: `Converted ICP to nICP at ${
+				'https://dashboard.internetcomputer.org/transaction/' + result.Ok.block_index.toString()
+			}`
+		};
+	} else if ('Err' in result) {
+		if ('GenericError' in result.Err) {
+			return { success: false, message: `Generic Error: ${result.Err.GenericError.message}` };
+		} else if ('TransferError' in result.Err) {
+			return { success: false, message: `Transfer Error: ${result.Err.TransferError}` };
+		} else if ('AmountTooLow' in result.Err) {
+			return {
+				success: false,
+				message: `Amount too low. Minimum amount: ${bigintE8sToNumber(result.Err.AmountTooLow.minimum_amount_e8s)}`
+			};
+		} else if ('TransferFromError' in result.Err) {
+			const error = result.Err.TransferFromError;
+			if ('GenericError' in error){
+				return { success: false, message: `Generic Error: ${error.GenericError.message}` };
+			} else if ('TemporarilyUnavailable' in error) {
+				return { success: false, message: "Ledger is temporarily unvailable." };
+			} else if ('InsufficientAllowance' in error) {
+				return { success: false, message: `Insufficient allowance.  Allowance amount: ${error.InsufficientAllowance.allowance}` };
+			}else if ('BadBurn' in error) {
+				return { success: false, message: `Bad burn. Minimum burn amount: ${error.BadBurn.min_burn_amount}` };
+			}else if ('Duplicate' in error) {
+				return { success: false, message: `Duplicate. Already occuring transfer: ${error.Duplicate.duplicate_of.toString()}` };
+			}else if ('BadFee' in error) {
+				return { success: false, message: `Bad fee. Expected fee: ${error.BadFee.expected_fee}`};
+			}else if ('CreatedInFuture' in error) {
+				return { success: false, message: `Created in future: ${error.CreatedInFuture.ledger_time.toString()}` };
+			}else if ('TooOld' in error) {
+				return { success: false, message:  `The transfer is too old.`};
+			}else if ('InsufficientFunds' in error) {
+				return { success: false, message:  `Insufficient funds. Balance: ${error.InsufficientFunds.balance}`};
+			} else {
+				return { success: false, message: 'Unknown transferfrom error.' } 
+			}
+		} else if ('GuardError' in result.Err) {
+			return { success: false, message: `Guard Error: ${result.Err.GuardError.guard_error}` };
+		} else {
+			return { success: false, message: 'Unkown Conversion Error. Please refresh the page.' };
+		}
+	} else {
+		return { success: false, message: 'Unknown error.' };
+	}
+}
 
-  export function handleRetrieveResult(result: Result_4): ConversionResult {
+export function handleRetrieveResult(result: Result_4): ConversionResult {
 	if ('Ok' in result) {
-        return {success: true, message: `Converted ICP to nICP at ${"https://dashboard.internetcomputer.org/transaction/" +
-				result.Ok.block_index.toString()}`};
-    } else if ('Err' in result){
-        if ('GenericError' in result.Err) {
-            return {success: false, message: `Generic Error: ${result.Err.GenericError.message}`};
-        } else if ('TransferError' in result.Err) {
-            return {success: false, message: `Transfer Error: ${result.Err.TransferError}`};
-        }  else if ('AmountTooLow' in result.Err) {
-            return {success: false, message: `Amount too low. Minimum amount: ${bigintE8sToNumber(result.Err.AmountTooLow.minimum_amount_e8s)}`};
-        } else if ('TransferFromError' in result.Err) {
-            return {success: false, message: `TransferFrom Error: ${result.Err.TransferFromError}`};
-        }  else if ('GuardError' in result.Err) {
-            return {success: false, message: `Guard Error: ${result.Err.GuardError.guard_error}`};
-        } else {
-            return {success: false, message: 'Unkown Error. Please refresh the page.'}
-        }
-    } else {
-        return {success: false, message: 'Did not catch yor name'};
-    }
-  }
+		return {
+			success: true,
+			message: `Converted ICP to nICP at ${
+				'https://dashboard.internetcomputer.org/transaction/' + result.Ok.block_index.toString()
+			}`
+		};
+	} else if ('Err' in result) {
+		if ('GenericError' in result.Err) {
+			return { success: false, message: `Generic Error: ${result.Err.GenericError.message}` };
+		} else if ('TransferError' in result.Err) {
+			return { success: false, message: `Transfer Error: ${result.Err.TransferError}` };
+		} else if ('AmountTooLow' in result.Err) {
+			return {
+				success: false,
+				message: `Amount too low. Minimum amount: ${bigintE8sToNumber(result.Err.AmountTooLow.minimum_amount_e8s)}`
+			};
+		} else if ('TransferFromError' in result.Err) {
+			const error = result.Err.TransferFromError;
+			if ('GenericError' in error){
+				return { success: false, message: `Generic Error: ${error.GenericError.message}` };
+			} else if ('TemporarilyUnavailable' in error) {
+				return { success: false, message: "Ledger is temporarily unvailable." };
+			} else if ('InsufficientAllowance' in error) {
+				return { success: false, message: `Insufficient allowance. Allowance amount: ${error.InsufficientAllowance.allowance}` };
+			}else if ('BadBurn' in error) {
+				return { success: false, message: `Bad burn. Minimum burn amount: ${error.BadBurn.min_burn_amount}` };
+			}else if ('Duplicate' in error) {
+				return { success: false, message: `Duplicate. Already occuring transfer: ${error.Duplicate.duplicate_of.toString()}` };
+			}else if ('BadFee' in error) {
+				return { success: false, message: `Bad fee. Expected fee: ${error.BadFee.expected_fee}`};
+			}else if ('CreatedInFuture' in error) {
+				return { success: false, message: `Created in future: ${error.CreatedInFuture.ledger_time.toString()}` };
+			}else if ('TooOld' in error) {
+				return { success: false, message:  `The transfer is too old.`};
+			}else if ('InsufficientFunds' in error) {
+				return { success: false, message:  `Insufficient funds. Balance: ${error.InsufficientFunds.balance}`};
+			} else {
+				return { success: false, message: 'Unknown transferfrom error.' } 
+			}
+		} else if ('GuardError' in result.Err) {
+			return { success: false, message: `Guard Error: ${result.Err.GuardError.guard_error}` };
+		} else {
+			return { success: false, message: 'Unkown Conversion Error. Please refresh the page.' };
+		}
+	} else {
+		return { success: false, message: 'Unknown Error.' };
+	}
+}
+
+export function handleTransferResult(result: Icrc1TransferResult): ConversionResult {
+	if ('Ok' in result) {
+		return { success: true, message: `block index ${result.Ok.toString()}` };
+	} else if ('Err' in result) {
+		return { success: true, message: `Transfer Error: ${result.Err}` };
+	} else {
+		return { success: true, message: 'Error Unkown. Please refresh the page.' };
+	}
+}

@@ -1,25 +1,30 @@
 <script lang="ts">
-	import { isLogging, isBusy, user } from '$lib/stores';
+	import { isLogging, isBusy, user, state } from '$lib/stores';
 	import { signIn } from '$lib/authentification';
 	import { User } from '$lib/state';
-	import { nns_ledger } from '../declarations/nns-ledger';
-	import { nicp_ledger } from '../declarations/nicp_ledger';
-	import { wtn_ledger } from '../declarations/wtn_ledger';
 	import type { Account } from '@dfinity/ledger-icp';
 
 	async function internetIdentityConnection() {
 		isBusy.set(true);
 
 		try {
-			const principal = await signIn();
+			const authResult = await signIn();
+
+			$state.wtnLedger = authResult.wtnLedger;
+			$state.icpLedger = authResult.icpLedger;
+			$state.nicpLedger = authResult.nicpLedger;
+			$state.waterNeuron = authResult.waterNeuron;
+
 			const user_account: Account = {
-				owner: principal,
+				owner: authResult.principal,
 				subaccount: []
 			};
-			const icp_balance = await nns_ledger.icrc1_balance_of(user_account);
-			const nicp_balance = await nicp_ledger.icrc1_balance_of(user_account);
-			const wtn_balance = await wtn_ledger.icrc1_balance_of(user_account);
-			user.set(new User(principal, icp_balance, nicp_balance, wtn_balance));
+			const icp_balance = await $state.icpLedger.icrc1_balance_of(user_account);
+			const nicp_balance = await $state.nicpLedger.icrc1_balance_of(user_account);
+			console.log(nicp_balance);
+			const wtn_balance = await $state.wtnLedger.icrc1_balance_of(user_account);
+
+			user.set(new User(authResult.principal, icp_balance, nicp_balance, wtn_balance));
 		} catch (error) {
 			console.error('Login failed:', error);
 		}

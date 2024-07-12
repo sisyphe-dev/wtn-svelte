@@ -2,6 +2,15 @@ import { AssetType, bigintE8sToNumber, E8S, numberToBigintE8s } from '$lib';
 import { AccountIdentifier, ApproveError } from '@dfinity/ledger-icp';
 import type { Principal } from '@dfinity/principal';
 import BigNumber from 'bignumber.js';
+import type { _SERVICE as nicpLedgerInterface } from '../declarations/nicp_ledger/nicp_ledger.did';
+import type { _SERVICE as wtnLedgerInterface } from '../declarations/wtn_ledger/wtn_ledger.did';
+import type { _SERVICE as icpLedgerInterface } from '../declarations/nns-ledger/nns-ledger.did';
+import type { _SERVICE as waterNeuronInterface } from '../declarations/water_neuron/water_neuron.did';
+import { nns_ledger } from '../declarations/nns-ledger';
+import { nicp_ledger } from '../declarations/nicp_ledger';
+import { wtn_ledger } from '../declarations/wtn_ledger';
+import { water_neuron } from '../declarations/water_neuron';
+
 export class User {
 	public principal: Principal;
 	public accountId: string;
@@ -85,6 +94,10 @@ export class State {
 	public neuron6mStakeE8s: bigint;
 	public stakersCount: number;
 	public exchangeRateE8s: bigint;
+	public icpLedger: icpLedgerInterface;
+	public wtnLedger: wtnLedgerInterface;
+	public nicpLedger: nicpLedgerInterface;
+	public waterNeuron: waterNeuronInterface;
 
 	constructor(
 		neuron8yStakeE8s: bigint,
@@ -96,6 +109,10 @@ export class State {
 		this.neuron6mStakeE8s = neuron6mStakeE8s;
 		this.stakersCount = stakersCount;
 		this.exchangeRateE8s = exchangeRateE8s;
+		this.nicpLedger = nicp_ledger;
+		this.icpLedger = nns_ledger;
+		this.wtnLedger = wtn_ledger;
+		this.waterNeuron = water_neuron
 	}
 
 	totalIcpDeposited(): BigNumber {
