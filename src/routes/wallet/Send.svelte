@@ -3,9 +3,6 @@
 	import { isSending, sendAsset, user, toasts, state } from '$lib/stores';
 	import { Toast } from '$lib/toast';
 	import BigNumber from 'bignumber.js';
-	import { nns_ledger } from '../../declarations/nns-ledger';
-	import { nicp_ledger } from '../../declarations/nicp_ledger';
-	import { wtn_ledger } from '../../declarations/wtn_ledger';
 	import type { Account } from '@dfinity/ledger-icp';
 	import { Principal } from '@dfinity/principal';
 	import type {
@@ -18,10 +15,12 @@
 	let sendAmount: BigNumber;
 
 	function isValidPrincipal(principal: string): boolean {
-		if (principal) {
-			return principal.length === 4;
-		} else {
+		if (!principal) return true;
+		try {
+			Principal.fromText(principal);
 			return true;
+		} catch (e) {
+			return false;
 		}
 	}
 
@@ -34,10 +33,7 @@
 	}
 
 	async function icrcTransfer(amount: BigNumber, principal: string) {
-		if ($isSending) return;
-
 		if (amount && principal && isValidAmount(amount) && isValidPrincipal(principal)) {
-			isSending.set(true);
 			let transferResult: Icrc1TransferResult;
 			switch ($sendAsset.type) {
 				case AssetType.ICP: {
@@ -135,7 +131,6 @@
 			class="toggle-btn"
 			on:click={() => {
 				icrcTransfer(sendAmount, principal);
-				isSending.set(false);
 			}}>Continue</button
 		>
 	</div>

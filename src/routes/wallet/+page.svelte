@@ -17,7 +17,7 @@
 				<button
 					class="copy-btn"
 					on:click={() => {
-						navigator.clipboard.writeText($user ? $user.principal : '');
+						navigator.clipboard.writeText($user ? $user.principal.toString() : '');
 					}}
 				>
 					<svg
