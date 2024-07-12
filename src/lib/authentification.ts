@@ -23,7 +23,8 @@ const INTERNET_IDENTITY_CANISTER_ID = DEV
 	? 'bd3sg-teaaa-aaaaa-qaaba-cai'
 	: 'rdmx6-jaaaa-aaaaa-aaadq-cai';
 
-export const HOST = 'http://127.0.0.1:50490/';
+export const HOST = 'http://127.0.0.1:8080/';
+
 const CANISTER_ID_WTN_LEDGER = 'jcmow-hyaaa-aaaaq-aadlq-cai';
 const CANISTER_ID_ICP_LEDGER = 'ryjl3-tyaaa-aaaaa-aaaba-cai';
 const CANISTER_ID_NICP_LEDGER = 'ny7ez-6aaaa-aaaam-acc5q-cai';

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { AssetType, numberToBigintE8s } from '$lib';
-	import { isSending, sendAsset, user, toasts } from '$lib/stores';
+	import { isSending, sendAsset, user, toasts, state } from '$lib/stores';
 	import { Toast } from '$lib/toast';
 	import BigNumber from 'bignumber.js';
 	import { nns_ledger } from '../../declarations/nns-ledger';
@@ -33,70 +33,63 @@
 		}
 	}
 
-	function sendTokens(amount: BigNumber, principal: string) {
-		if (amount && principal && isValidAmount(amount) && isValidPrincipal(principal) && $user) {
-			$user.substractBalance($sendAsset.type, amount);
-			user.set($user);
-			toasts.set([...$toasts, Toast.success('Successful transfer.')]);
-		} else {
-			toasts.set([...$toasts, Toast.error('Error while sending tokens.')]);
-		}
-	}
-
-	async function icrcTransfer(asset: AssetType, principal: string, amount: BigNumber) {
+	async function icrcTransfer(amount: BigNumber, principal: string) {
 		if ($isSending) return;
 
-		isSending.set(true);
+		if (amount && principal && isValidAmount(amount) && isValidPrincipal(principal)) {
+			isSending.set(true);
+			let transferResult: Icrc1TransferResult;
+			switch ($sendAsset.type) {
+				case AssetType.ICP: {
+					transferResult = await $state.icpLedger.icrc1_transfer({
+						to: {
+							owner: Principal.fromText(principal),
+							subaccount: []
+						} as Account,
+						fee: [],
+						memo: [],
+						from_subaccount: [],
+						created_at_time: [],
+						amount: numberToBigintE8s(amount)
+					} as TransferArg);
+				}
+				case AssetType.nICP: {
+					transferResult = await $state.nicpLedger.icrc1_transfer({
+						to: {
+							owner: Principal.fromText(principal),
+							subaccount: []
+						} as Account,
+						fee: [],
+						memo: [],
+						from_subaccount: [],
+						created_at_time: [],
+						amount: numberToBigintE8s(amount)
+					} as TransferArg);
+				}
+				case AssetType.WTN: {
+					transferResult = await $state.wtnLedger.icrc1_transfer({
+						to: {
+							owner: Principal.fromText(principal),
+							subaccount: []
+						} as Account,
+						fee: [],
+						memo: [],
+						from_subaccount: [],
+						created_at_time: [],
+						amount: numberToBigintE8s(amount)
+					} as TransferArg);
+				}
+			}
 
-		let transferResult: Icrc1TransferResult;
-		switch (asset) {
-			case AssetType.ICP: {
-				transferResult = await nns_ledger.icrc1_transfer({
-					to: {
-						owner: Principal.fromText(principal),
-						subaccount: []
-					} as Account,
-					fee: [],
-					memo: [],
-					from_subaccount: [],
-					created_at_time: [],
-					amount: numberToBigintE8s(amount)
-				} as TransferArg);
+			let status = handleTransferResult(transferResult);
+			if (status.success) {
+				toasts.set([...$toasts, Toast.success(`asset sent.`)]);
+			} else {
+				toasts.set([...$toasts, Toast.error(`Conversion failed. ${status.message}`)]);
 			}
-			case AssetType.nICP: {
-				transferResult = await nicp_ledger.icrc1_transfer({
-					to: {
-						owner: Principal.fromText(principal),
-						subaccount: []
-					} as Account,
-					fee: [],
-					memo: [],
-					from_subaccount: [],
-					created_at_time: [],
-					amount: numberToBigintE8s(amount)
-				} as TransferArg);
-			}
-			case AssetType.WTN: {
-				transferResult = await wtn_ledger.icrc1_transfer({
-					to: {
-						owner: Principal.fromText(principal),
-						subaccount: []
-					} as Account,
-					fee: [],
-					memo: [],
-					from_subaccount: [],
-					created_at_time: [],
-					amount: numberToBigintE8s(amount)
-				} as TransferArg);
-			}
+			isSending.set(false);
 		}
-
-		let status = handleTransferResult(transferResult);
-		if (status.success) {
-			toasts.set([...$toasts, Toast.success(`asset sent.`)]);
-		} else {
-			toasts.set([...$toasts, Toast.error(`Conversion failed. ${status.message}`)]);
-		}
+		
 	}
 </script>
 
@@ -141,7 +134,7 @@
 		<button
 			class="toggle-btn"
 			on:click={() => {
-				sendTokens(sendAmount, principal);
+				icrcTransfer(sendAmount, principal);
 				isSending.set(false);
 			}}>Continue</button
 		>

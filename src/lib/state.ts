@@ -53,36 +53,6 @@ export class User {
 				return this.wtnBalance();
 		}
 	}
-
-	addBalance(asset: AssetType, amount: BigNumber) {
-		const e8sAmount = numberToBigintE8s(amount);
-		switch (asset) {
-			case AssetType.ICP:
-				this.icpBalanceE8s += e8sAmount;
-				break;
-			case AssetType.nICP:
-				this.nicpBalanceE8s += e8sAmount;
-				break;
-			case AssetType.WTN:
-				this.wtnBalanceE8s += e8sAmount;
-				break;
-		}
-	}
-
-	substractBalance(asset: AssetType, amount: BigNumber) {
-		const e8sAmount = numberToBigintE8s(amount);
-		switch (asset) {
-			case AssetType.ICP:
-				this.icpBalanceE8s -= e8sAmount;
-				break;
-			case AssetType.nICP:
-				this.nicpBalanceE8s -= e8sAmount;
-				break;
-			case AssetType.WTN:
-				this.wtnBalanceE8s -= e8sAmount;
-				break;
-		}
-	}
 }
 
 const DAO_SHARE = BigNumber(0.1);

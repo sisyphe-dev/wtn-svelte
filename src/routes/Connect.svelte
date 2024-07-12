@@ -21,10 +21,9 @@
 			};
 			const icp_balance = await $state.icpLedger.icrc1_balance_of(user_account);
 			const nicp_balance = await $state.nicpLedger.icrc1_balance_of(user_account);
-			console.log(nicp_balance);
 			const wtn_balance = await $state.wtnLedger.icrc1_balance_of(user_account);
 
-			user.set(new User(authResult.principal, icp_balance, nicp_balance, wtn_balance));
+			user.set(new User(authResult.principal, icp_balance, wtn_balance, nicp_balance));
 		} catch (error) {
 			console.error('Login failed:', error);
 		}
