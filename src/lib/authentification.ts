@@ -42,7 +42,6 @@ export async function signIn(): Promise<AuthResult> {
 	return new Promise<AuthResult>(async (resolve, reject) => {
 		try {
 			const authClient = await AuthClient.create();
-			console.log(authClient.isAuthenticated());
 			if (!(await authClient.isAuthenticated())) {
 				const identityProvider = import.meta.env.DEV
 					? `http://localhost:8080/?canisterId=${INTERNET_IDENTITY_CANISTER_ID}`
@@ -145,6 +144,5 @@ function popupCenter(width: number, height: number): string | undefined {
 
 export async function logout() {
 	const autClient = await AuthClient.create();
-	console.log(autClient);
 	await autClient.logout();
 }
