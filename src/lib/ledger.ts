@@ -145,26 +145,41 @@ export function handleStakeResult(result: Result_3): ConversionResult {
 			};
 		} else if ('TransferFromError' in result.Err) {
 			const error = result.Err.TransferFromError;
-			if ('GenericError' in error){
+			if ('GenericError' in error) {
 				return { success: false, message: `Generic Error: ${error.GenericError.message}` };
 			} else if ('TemporarilyUnavailable' in error) {
-				return { success: false, message: "Ledger is temporarily unvailable." };
+				return { success: false, message: 'Ledger is temporarily unvailable.' };
 			} else if ('InsufficientAllowance' in error) {
-				return { success: false, message: `Insufficient allowance.  Allowance amount: ${error.InsufficientAllowance.allowance}` };
-			}else if ('BadBurn' in error) {
-				return { success: false, message: `Bad burn. Minimum burn amount: ${error.BadBurn.min_burn_amount}` };
-			}else if ('Duplicate' in error) {
-				return { success: false, message: `Duplicate. Already occuring transfer: ${error.Duplicate.duplicate_of.toString()}` };
-			}else if ('BadFee' in error) {
-				return { success: false, message: `Bad fee. Expected fee: ${error.BadFee.expected_fee}`};
-			}else if ('CreatedInFuture' in error) {
-				return { success: false, message: `Created in future: ${error.CreatedInFuture.ledger_time.toString()}` };
-			}else if ('TooOld' in error) {
-				return { success: false, message:  `The transfer is too old.`};
-			}else if ('InsufficientFunds' in error) {
-				return { success: false, message:  `Insufficient funds. Balance: ${error.InsufficientFunds.balance}`};
+				return {
+					success: false,
+					message: `Insufficient allowance.  Allowance amount: ${error.InsufficientAllowance.allowance}`
+				};
+			} else if ('BadBurn' in error) {
+				return {
+					success: false,
+					message: `Bad burn. Minimum burn amount: ${error.BadBurn.min_burn_amount}`
+				};
+			} else if ('Duplicate' in error) {
+				return {
+					success: false,
+					message: `Duplicate. Already occuring transfer: ${error.Duplicate.duplicate_of.toString()}`
+				};
+			} else if ('BadFee' in error) {
+				return { success: false, message: `Bad fee. Expected fee: ${error.BadFee.expected_fee}` };
+			} else if ('CreatedInFuture' in error) {
+				return {
+					success: false,
+					message: `Created in future: ${error.CreatedInFuture.ledger_time.toString()}`
+				};
+			} else if ('TooOld' in error) {
+				return { success: false, message: `The transfer is too old.` };
+			} else if ('InsufficientFunds' in error) {
+				return {
+					success: false,
+					message: `Insufficient funds. Balance: ${error.InsufficientFunds.balance}`
+				};
 			} else {
-				return { success: false, message: 'Unknown transferfrom error.' } 
+				return { success: false, message: 'Unknown transferfrom error.' };
 			}
 		} else if ('GuardError' in result.Err) {
 			return { success: false, message: `Guard Error: ${result.Err.GuardError.guard_error}` };
@@ -196,26 +211,41 @@ export function handleRetrieveResult(result: Result_4): ConversionResult {
 			};
 		} else if ('TransferFromError' in result.Err) {
 			const error = result.Err.TransferFromError;
-			if ('GenericError' in error){
+			if ('GenericError' in error) {
 				return { success: false, message: `Generic Error: ${error.GenericError.message}` };
 			} else if ('TemporarilyUnavailable' in error) {
-				return { success: false, message: "Ledger is temporarily unvailable." };
+				return { success: false, message: 'Ledger is temporarily unvailable.' };
 			} else if ('InsufficientAllowance' in error) {
-				return { success: false, message: `Insufficient allowance. Allowance amount: ${error.InsufficientAllowance.allowance}` };
-			}else if ('BadBurn' in error) {
-				return { success: false, message: `Bad burn. Minimum burn amount: ${error.BadBurn.min_burn_amount}` };
-			}else if ('Duplicate' in error) {
-				return { success: false, message: `Duplicate. Already occuring transfer: ${error.Duplicate.duplicate_of.toString()}` };
-			}else if ('BadFee' in error) {
-				return { success: false, message: `Bad fee. Expected fee: ${error.BadFee.expected_fee}`};
-			}else if ('CreatedInFuture' in error) {
-				return { success: false, message: `Created in future: ${error.CreatedInFuture.ledger_time.toString()}` };
-			}else if ('TooOld' in error) {
-				return { success: false, message:  `The transfer is too old.`};
-			}else if ('InsufficientFunds' in error) {
-				return { success: false, message:  `Insufficient funds. Balance: ${error.InsufficientFunds.balance}`};
+				return {
+					success: false,
+					message: `Insufficient allowance. Allowance amount: ${error.InsufficientAllowance.allowance}`
+				};
+			} else if ('BadBurn' in error) {
+				return {
+					success: false,
+					message: `Bad burn. Minimum burn amount: ${error.BadBurn.min_burn_amount}`
+				};
+			} else if ('Duplicate' in error) {
+				return {
+					success: false,
+					message: `Duplicate. Already occuring transfer: ${error.Duplicate.duplicate_of.toString()}`
+				};
+			} else if ('BadFee' in error) {
+				return { success: false, message: `Bad fee. Expected fee: ${error.BadFee.expected_fee}` };
+			} else if ('CreatedInFuture' in error) {
+				return {
+					success: false,
+					message: `Created in future: ${error.CreatedInFuture.ledger_time.toString()}`
+				};
+			} else if ('TooOld' in error) {
+				return { success: false, message: `The transfer is too old.` };
+			} else if ('InsufficientFunds' in error) {
+				return {
+					success: false,
+					message: `Insufficient funds. Balance: ${error.InsufficientFunds.balance}`
+				};
 			} else {
-				return { success: false, message: 'Unknown transferfrom error.' } 
+				return { success: false, message: 'Unknown transferfrom error.' };
 			}
 		} else if ('GuardError' in result.Err) {
 			return { success: false, message: `Guard Error: ${result.Err.GuardError.guard_error}` };

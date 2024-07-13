@@ -1,6 +1,7 @@
 <script>
 	import { isSending, isLogging, menu, user } from '$lib/stores';
 	import { displayUsFormat, displayPrincipal } from '$lib';
+	import { logout } from '$lib/authentification';
 </script>
 
 <nav class:filter={$isSending || $isLogging}>
@@ -24,12 +25,19 @@
 		<div class="wallet-actions-container">
 			<a href="/wallet" class="wallet-btn" id="wallet-info">
 				<h2 style:font-weight={'bold'}>{displayPrincipal($user.principal)}</h2>
-				<p>{displayUsFormat($user.icpBalance())} ICP</p>
+				<p id="special">{displayUsFormat($user.icpBalance())} ICP</p>
 				<p>{displayUsFormat($user.nicpBalance())} nICP</p>
 				<p>{displayUsFormat($user.wtnBalance())} WTN</p>
 			</a>
 			<a href="/stake">
-				<button id="disconnect-btn" class="wallet-action-btn" on:click={() => user.set(undefined)}>
+				<button
+					id="disconnect-btn"
+					class="wallet-action-btn"
+					on:click={async () => {
+						await logout();
+						user.set(undefined);
+					}}
+				>
 					<img src="icon/power-off.svg" width="15em" height="15em" alt="Disconnect Icon" />
 				</button>
 			</a>
@@ -103,6 +111,7 @@
 	}
 
 	p {
+		text-align: end;
 		font-weight: normal;
 	}
 
@@ -158,6 +167,9 @@
 		display: none;
 	}
 
+	#wallet-info {
+		align-items: end;
+	}
 	#wallet-info:hover {
 		background-color: #1e3466;
 	}

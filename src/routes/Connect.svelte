@@ -3,7 +3,6 @@
 	import { signIn } from '$lib/authentification';
 	import { User } from '$lib/state';
 	import type { Account } from '@dfinity/ledger-icp';
-
 	async function internetIdentityConnection() {
 		isBusy.set(true);
 
@@ -19,11 +18,13 @@
 				owner: authResult.principal,
 				subaccount: []
 			};
-			const icp_balance = await $state.icpLedger.icrc1_balance_of(user_account);
-			const nicp_balance = await $state.nicpLedger.icrc1_balance_of(user_account);
-			const wtn_balance = await $state.wtnLedger.icrc1_balance_of(user_account);
+			const icpBalanceE8s = await $state.icpLedger.icrc1_balance_of(user_account);
+			const nicpBalanceE8s = await $state.nicpLedger.icrc1_balance_of(user_account);
+			const wtnBalanceE8s = await $state.wtnLedger.icrc1_balance_of(user_account);
 
-			user.set(new User(authResult.principal, icp_balance, wtn_balance, nicp_balance));
+			user.set(
+				new User({ principal: authResult.principal, icpBalanceE8s, nicpBalanceE8s, wtnBalanceE8s })
+			);
 		} catch (error) {
 			console.error('Login failed:', error);
 		}

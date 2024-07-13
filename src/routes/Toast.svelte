@@ -42,7 +42,7 @@
 						</svg>
 					</div>
 				{:else}
-					<svg
+					<svg style:color={"red"} 
 						xmlns="http://www.w3.org/2000/svg"
 						height="20"
 						viewBox="0 0 24 24"
@@ -95,8 +95,9 @@
 </div>
 
 <style>
+	/* === Layout === */
 	.toast-container {
-		background-color: #66adff;
+		background-color: oklab(0.88 -0.18 0.03);
 		box-shadow: 8px 8px 16px 0 rgba(0, 0, 0, 0.25);
 		display: flex;
 		border-radius: 8px;
@@ -124,6 +125,7 @@
 		gap: 1em;
 	}
 
+	/* === Components === */
 	.toast-close {
 		border: 0;
 		outline: 0;

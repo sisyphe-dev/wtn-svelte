@@ -28,9 +28,9 @@
 		if (!$user) return;
 		if (!stake) {
 			if ($user.nicpBalance().isGreaterThanOrEqualTo(amount) && amount.isGreaterThan(0)) {
-				let amount_e8s = numberToBigintE8s(amount);
+				let amountE8s = numberToBigintE8s(amount);
 				const messageError = await nicpTransferApproved(
-					amount_e8s,
+					amountE8s,
 					{
 						owner: $user.principal,
 						subaccount: []
@@ -41,10 +41,10 @@
 				if (messageError) {
 					toasts.set([...$toasts, Toast.error(messageError)]);
 				} else {
-					amount_e8s -= BigInt(10_000);
+					amountE8s -= BigInt(10_000);
 					const conversionResult = await $state.waterNeuron.nicp_to_icp({
 						maybe_subaccount: [],
-						amount_e8s: amount_e8s
+						amount_e8s: amountE8s
 					} as ConversionArg);
 
 					let status = handleRetrieveResult(conversionResult);
@@ -59,9 +59,9 @@
 			}
 		} else {
 			if ($user.icpBalance().isGreaterThanOrEqualTo(amount) && amount.isGreaterThan(0)) {
-				let amount_e8s = numberToBigintE8s(amount);
+				let amountE8s = numberToBigintE8s(amount);
 				const messageError = await icpTransferApproved(
-					amount_e8s,
+					amountE8s,
 					{
 						owner: $user.principal,
 						subaccount: []
@@ -72,21 +72,15 @@
 				if (messageError) {
 					toasts.set([...$toasts, Toast.error(messageError)]);
 				} else {
-					amount_e8s -= BigInt(10_000);
+					amountE8s -= BigInt(10_000);
 					const conversionResult = await $state.waterNeuron.icp_to_nicp({
 						maybe_subaccount: [],
-						amount_e8s: amount_e8s
+						amount_e8s: amountE8s
 					} as ConversionArg);
 
 					let status = handleStakeResult(conversionResult);
 					if (status.success) {
 						toasts.set([...$toasts, Toast.success(`Converted ${amount} ICP.`)]);
-						const minting = await $state.nicpLedger.icrc1_minting_account();
-						if (minting[0]) {
-							const nicp_balance = await $state.nicpLedger.icrc1_balance_of(minting[0]);
-							console.log(nicp_balance);
-						}
-						
 					} else {
 						toasts.set([...$toasts, Toast.error(`Conversion failed. ${status.message}`)]);
 					}
@@ -240,7 +234,7 @@
 
 	.swap-btn {
 		color: black;
-		background: #66adff;
+		background: oklab(0.88 -0.18 0.03);
 		min-width: 80px;
 		max-width: fit-content;
 		position: relative;

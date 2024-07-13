@@ -85,7 +85,6 @@
 			}
 			isSending.set(false);
 		}
-		
 	}
 </script>
 

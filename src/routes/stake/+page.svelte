@@ -2,6 +2,7 @@
 	import { language } from '$lib/stores';
 	import StatsWidget from './StatsWidget.svelte';
 	import Swap from './Swap.svelte';
+
 	export let data;
 
 	function getContent(language: string) {
@@ -18,7 +19,7 @@
 				return [];
 		}
 	}
-	let toggledMap = getContent($language).map((_) => {
+	let toggledMap = getContent($language).map(() => {
 		return false;
 	});
 </script>

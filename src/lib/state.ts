@@ -11,24 +11,26 @@ import { nicp_ledger } from '../declarations/nicp_ledger';
 import { wtn_ledger } from '../declarations/wtn_ledger';
 import { water_neuron } from '../declarations/water_neuron';
 
+interface UserProps {
+	principal: Principal;
+	icpBalanceE8s: bigint;
+	nicpBalanceE8s: bigint;
+	wtnBalanceE8s: bigint;
+}
+
 export class User {
 	public principal: Principal;
 	public accountId: string;
-	private icpBalanceE8s: bigint;
-	private nicpBalanceE8s: bigint;
-	private wtnBalanceE8s: bigint;
+	public icpBalanceE8s: bigint;
+	public nicpBalanceE8s: bigint;
+	public wtnBalanceE8s: bigint;
 
-	constructor(
-		principal: Principal,
-		icpBalanceE8s: bigint,
-		nicpBalanceE8s: bigint,
-		wtnBalanceE8s: bigint
-	) {
-		this.principal = principal;
-		this.accountId = AccountIdentifier.fromPrincipal({ principal: principal }).toHex();
-		this.icpBalanceE8s = icpBalanceE8s;
-		this.nicpBalanceE8s = nicpBalanceE8s;
-		this.wtnBalanceE8s = wtnBalanceE8s;
+	constructor(props: UserProps) {
+		this.principal = props.principal;
+		this.accountId = AccountIdentifier.fromPrincipal({ principal: props.principal }).toHex();
+		this.icpBalanceE8s = props.icpBalanceE8s;
+		this.nicpBalanceE8s = props.nicpBalanceE8s;
+		this.wtnBalanceE8s = props.wtnBalanceE8s;
 	}
 
 	icpBalance(): BigNumber {
@@ -82,7 +84,7 @@ export class State {
 		this.nicpLedger = nicp_ledger;
 		this.icpLedger = nns_ledger;
 		this.wtnLedger = wtn_ledger;
-		this.waterNeuron = water_neuron
+		this.waterNeuron = water_neuron;
 	}
 
 	totalIcpDeposited(): BigNumber {
