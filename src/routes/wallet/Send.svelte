@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { AssetType, numberToBigintE8s } from '$lib';
-	import { isSending, sendAsset, user, toasts, state } from '$lib/stores';
+	import { isSelecting, sendAsset, user, toasts, state } from '$lib/stores';
 	import { Toast } from '$lib/toast';
 	import BigNumber from 'bignumber.js';
 	import type { Account } from '@dfinity/ledger-icp';
@@ -33,6 +33,7 @@
 	}
 
 	async function icrcTransfer(amount: BigNumber, principal: string) {
+		isSelecting.set(true);
 		if (amount && principal && isValidAmount(amount) && isValidPrincipal(principal)) {
 			let transferResult: Icrc1TransferResult;
 			switch ($sendAsset.type) {
@@ -83,7 +84,7 @@
 			} else {
 				toasts.set([...$toasts, Toast.error(`Conversion failed. ${status.message}`)]);
 			}
-			isSending.set(false);
+			isSelecting.set(false);
 		}
 	}
 </script>
@@ -125,12 +126,19 @@
 		</p>
 	</div>
 	<div class="button-container">
-		<button class="toggle-btn" on:click={() => isSending.set(false)}>Cancel</button>
+		<button class="toggle-btn" on:click={() => isSelecting.set(false)}>Cancel</button>
 		<button
 			class="toggle-btn"
 			on:click={() => {
 				icrcTransfer(sendAmount, principal);
-			}}>Continue</button
+			}}
+			>{#if $isSelecting}
+				<svg class="spinner" viewBox="0 0 50 50">
+					<circle class="circle" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle>
+				</svg>
+			{:else}
+				<span>Continue</span>
+			{/if}</button
 		>
 	</div>
 </div>
@@ -208,7 +216,7 @@
 
 	.toggle-btn {
 		color: black;
-		background: #66adff;
+		background: var(--main-color);
 		min-width: 80px;
 		position: relative;
 		border: 2px solid black;
@@ -218,6 +226,12 @@
 		max-width: none;
 		height: 60px;
 		font-weight: bold;
+	}
+
+	.toggle-btn:hover {
+		transform: scale(0.95);
+		transition: all 0.3s;
+		box-shadow: 6px 6px 0 0 black;
 	}
 
 	input::-webkit-outer-spin-button,

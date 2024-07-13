@@ -1,8 +1,9 @@
 <script lang="ts">
 	import Withdrawals from './Withdrawals.svelte';
 	import { AssetType, Asset, displayUsFormat } from '$lib';
-	import { user, sendAsset, isSending } from '$lib/stores';
+	import { user, sendAsset, isSelecting } from '$lib/stores';
 	import BigNumber from 'bignumber.js';
+	import SendButton from './SendButton.svelte';
 
 	let assets = [new Asset(AssetType.ICP), new Asset(AssetType.nICP), new Asset(AssetType.WTN)];
 </script>
@@ -11,7 +12,7 @@
 	<div class="wallet-menu-container">
 		<h1>Wallet</h1>
 		<div class="address-container">
-			<h2>Address</h2>
+			<h2>ICP Account Id</h2>
 			<div class="principal-container">
 				<b>{$user?.principal}</b>
 				<button
@@ -36,6 +37,10 @@
 					</svg>
 				</button>
 			</div>
+			<SendButton asset={new Asset(AssetType.ICP)} />
+		</div>
+		<div class="address-container">
+			<h2>Principal Address</h2>
 			<div class="principal-container">
 				<b>{$user?.accountId}</b>
 				<button
@@ -60,30 +65,8 @@
 					</svg>
 				</button>
 			</div>
-		</div>
-		<div class="balances-container">
-			<h2>Balances</h2>
-			{#each assets as asset}
-				<div class="token-balance-container">
-					<div class="balance">
-						<h3>
-							{displayUsFormat($user ? $user.getBalance(asset.type) : BigNumber(0), 8)}
-							{asset.intoStr()}
-						</h3>
-						<img alt="{asset.intoStr()} logo" src={asset.getUrl()} width="30px" height="30px" />
-					</div>
-					<button
-						class="swap-btn"
-						on:click={() => {
-							isSending.set(true);
-							sendAsset.set(asset);
-						}}>Send</button
-					>
-					{#if asset.type === AssetType.WTN}
-						<p class="airdrop-allocation">Airdrop Allocation: 10 WTN</p>
-					{/if}
-				</div>
-			{/each}
+			<SendButton asset={new Asset(AssetType.nICP)} />
+			<SendButton asset={new Asset(AssetType.WTN)} />
 		</div>
 	</div>
 	<Withdrawals />
@@ -102,10 +85,6 @@
 	h2 {
 		margin: 0;
 		margin-top: 1em;
-		font-family: Arial, Helvetica, sans-serif;
-	}
-
-	h3 {
 		font-family: Arial, Helvetica, sans-serif;
 	}
 
@@ -139,17 +118,10 @@
 		margin-top: 1em;
 	}
 
-	.balances-container {
+	.address-container {
+		gap: 1em;
 		display: flex;
 		flex-direction: column;
-		gap: 1em;
-	}
-
-	.token-balance-container {
-		display: flex;
-		justify-content: space-between;
-		position: relative;
-		margin-left: 1em;
 	}
 
 	/* === Components ==== */
@@ -166,33 +138,5 @@
 
 	.copy-btn:hover {
 		background-color: #1e3466;
-	}
-
-	.balances-container button {
-		color: black;
-		background: #66adff;
-		min-width: 80px;
-		position: relative;
-		border: 2px solid black;
-		font-size: 16px;
-		box-shadow: 3px 3px 0 0 black;
-		padding: 0 1em 0 1em;
-		max-width: none;
-		height: 60px;
-		font-weight: bold;
-	}
-
-	.balance {
-		display: flex;
-		align-items: center;
-		gap: 5px;
-	}
-
-	.airdrop-allocation {
-		position: absolute;
-		color: lightgrey;
-		top: 50%;
-		margin-top: 1em;
-		font-family: Arial, Helvetica, sans-serif;
 	}
 </style>

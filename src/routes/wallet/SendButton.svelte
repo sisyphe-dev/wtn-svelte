@@ -1,0 +1,75 @@
+<script lang="ts">
+	import { AssetType, Asset, displayUsFormat } from '$lib';
+	import { user, sendAsset, isSelecting } from '$lib/stores';
+	import BigNumber from 'bignumber.js';
+
+	export let asset;
+</script>
+
+<div class="token-balance-container">
+	<div class="balance">
+		<h3>
+			{displayUsFormat($user ? $user.getBalance(asset.type) : BigNumber(0), 8)}
+			{asset.intoStr()}
+		</h3>
+		<img alt="{asset.intoStr()} logo" src={asset.getUrl()} width="30px" height="30px" />
+	</div>
+	<button
+		class="swap-btn"
+		on:click={() => {
+			isSelecting.set(true);
+			sendAsset.set(asset);
+		}}>Send</button
+	>
+	{#if asset.type === AssetType.WTN}
+		<p class="airdrop-allocation">Airdrop Allocation: 10 WTN</p>
+	{/if}
+</div>
+
+<style>
+	/* === Base Styles === */
+	h3 {
+		font-family: Arial, Helvetica, sans-serif;
+	}
+
+	/* === Layout === */
+	.token-balance-container {
+		display: flex;
+		justify-content: space-between;
+		position: relative;
+		margin-left: 1em;
+	}
+
+	/* === Components ==== */
+	.balance {
+		display: flex;
+		align-items: center;
+		gap: 5px;
+	}
+
+	.airdrop-allocation {
+		position: absolute;
+		color: lightgrey;
+		top: 50%;
+		margin-top: 1em;
+		font-family: Arial, Helvetica, sans-serif;
+	}
+
+	.swap-btn {
+		border: 2px solid black;
+		box-shadow: 3px 3px 0 0 black;
+		background-color: var(--main-color);
+		align-items: center;
+		padding: 0 2em;
+		font-weight: bold;
+		justify-content: center;
+		cursor: pointer;
+		display: flex;
+	}
+
+	.swap-btn:hover {
+		transform: scale(0.95);
+		transition: all 0.3s;
+		box-shadow: 6px 6px 0 0 black;
+	}
+</style>

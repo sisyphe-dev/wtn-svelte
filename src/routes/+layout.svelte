@@ -4,7 +4,7 @@
 	import Connect from './Connect.svelte';
 	import Send from './wallet/Send.svelte';
 	import Menu from './Menu.svelte';
-	import { isLogging, menu, isSending } from '$lib/stores';
+	import { isLogging, menu, isSelecting } from '$lib/stores';
 	import Toast from './Toast.svelte';
 	import { onMount } from 'svelte';
 	import { user, state } from '$lib/stores';
@@ -67,7 +67,7 @@
 	<div class="background-filter">
 		<Connect />
 	</div>
-{:else if $isSending}
+{:else if $isSelecting}
 	<div class="background-filter">
 		<Send />
 	</div>
@@ -77,7 +77,7 @@
 {:else}
 	<div class="page-container">
 		<Navbar />
-		<div class="content-container" class:filter={$isSending || $isLogging}>
+		<div class="content-container" class:filter={$isSelecting || $isLogging}>
 			<slot />
 		</div>
 		<Footer />
@@ -88,11 +88,11 @@
 <style>
 	/* === Variables === */
 	:root {
-    	--main-color: oklab(0.88 -0.18 0.03);
+		--main-color: oklab(0.88 -0.18 0.03);
 		--border-color: rgb(102, 173, 255);
-		--background-color: rgb(12, 44, 76); 
+		--background-color: rgb(12, 44, 76);
 		--text-color: rgb(176, 163, 217);
-  	}
+	}
 	/* === Layout === */
 	.page-container {
 		display: flex;

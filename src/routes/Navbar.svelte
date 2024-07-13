@@ -1,10 +1,10 @@
 <script>
-	import { isSending, isLogging, menu, user } from '$lib/stores';
+	import { isSelecting, isLogging, menu, user } from '$lib/stores';
 	import { displayUsFormat, displayPrincipal } from '$lib';
 	import { logout } from '$lib/authentification';
 </script>
 
-<nav class:filter={$isSending || $isLogging}>
+<nav class:filter={$isSelecting || $isLogging}>
 	<a href="/stake" class="menu-selection-container">
 		<img src="/WTN.png" width="100em" height="100em" alt="WTN logo." />
 		<div class="wave-title">
@@ -186,7 +186,7 @@
 
 	#blue-wave {
 		color: transparent;
-		background: linear-gradient(to right, #1c90ee, #7bedfe);
+		background: linear-gradient(to right, #3dae3c, #d6fea9);
 		background-clip: text;
 		clip-path: polygon(
 			0% 35%,

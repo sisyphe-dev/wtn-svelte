@@ -1,9 +1,9 @@
 <script>
 	import { ToastType } from '$lib/toast';
-	import { toasts, isSending, isLogging } from '$lib/stores';
+	import { toasts, isSelecting, isLogging } from '$lib/stores';
 </script>
 
-<div class="toasts-container" class:filter={$isSending || $isLogging}>
+<div class="toasts-container" class:filter={$isSelecting || $isLogging}>
 	{#each $toasts as toast, index}
 		<div class="toast-container">
 			<div class="info-container">
@@ -42,7 +42,8 @@
 						</svg>
 					</div>
 				{:else}
-					<svg style:color={"red"} 
+					<svg
+						style:color={'red'}
 						xmlns="http://www.w3.org/2000/svg"
 						height="20"
 						viewBox="0 0 24 24"
@@ -103,7 +104,7 @@
 		border-radius: 8px;
 		align-items: center;
 		justify-content: space-between;
-		width: 60%;
+		max-width: 30%;
 		padding: 0 2%;
 	}
 

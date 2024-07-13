@@ -263,9 +263,7 @@
 	}
 
 	.not-selected {
-		border-left: 2px solid var(--border-color);
-		border-top: 2px solid var(--border-color);
-		border-right: 2px solid var(--border-color);
+		border-bottom: 2px solid var(--border-color);
 		background-color: #5d6b77;
 		color: #c7c7c7;
 	}
