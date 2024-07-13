@@ -16,7 +16,7 @@
 	const fetchUser = async () => {
 		try {
 			const authClient = await AuthClient.create();
-			if (await authClient.isAuthenticated()) return;
+			if (!await authClient.isAuthenticated()) return;
 
 			const authResult = await signIn();
 

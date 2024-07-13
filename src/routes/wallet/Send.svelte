@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { AssetType, numberToBigintE8s } from '$lib';
-	import { isSelecting, sendAsset, user, toasts, state } from '$lib/stores';
+	import { isSelecting, sendAsset, user, toasts, state, isSending } from '$lib/stores';
 	import { Toast } from '$lib/toast';
 	import BigNumber from 'bignumber.js';
 	import type { Account } from '@dfinity/ledger-icp';
@@ -33,7 +33,7 @@
 	}
 
 	async function icrcTransfer(amount: BigNumber, principal: string) {
-		isSelecting.set(true);
+		isSending.set(true);
 		if (amount && principal && isValidAmount(amount) && isValidPrincipal(principal)) {
 			let transferResult: Icrc1TransferResult;
 			switch ($sendAsset.type) {
@@ -86,6 +86,7 @@
 			}
 			isSelecting.set(false);
 		}
+		isSending.set(false)
 	}
 </script>
 
@@ -98,7 +99,7 @@
 		<p>Destination</p>
 		<input placeholder="Address" bind:value={principal} />
 		{#if !isValidPrincipal(principal)}
-			<span> Please enter a valid address. </span>
+			<span class="error"> Please enter a valid address. </span>
 		{/if}
 	</div>
 	<div>
@@ -115,7 +116,7 @@
 			</button>
 		</div>
 		{#if !isValidAmount(sendAmount)}
-			<span> Not enough treasury. </span>
+			<span class="error"> Not enough treasury. </span>
 		{/if}
 	</div>
 	<div>
@@ -132,7 +133,7 @@
 			on:click={() => {
 				icrcTransfer(sendAmount, principal);
 			}}
-			>{#if $isSelecting}
+			>{#if $isSending}
 				<svg class="spinner" viewBox="0 0 50 50">
 					<circle class="circle" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle>
 				</svg>
@@ -164,8 +165,6 @@
 
 	span {
 		font-family: Arial, Helvetica, sans-serif;
-		color: red;
-		margin-left: 1em;
 	}
 
 	/* === Layout === */
@@ -200,6 +199,10 @@
 	}
 
 	/* === Componennts === */
+	.error {
+		color: red;
+		margin-left: 1em;
+	}
 	.max-btn {
 		position: absolute;
 		right: 8%;
