@@ -105,7 +105,7 @@
 	}
 
 	p {
-		color: rgb(176, 163, 217);
+		color: var(--text-color);
 		font-weight: 400;
 		font-family: CircularXX, sans-serif;
 		-webkit-font-smoothing: antialiased;

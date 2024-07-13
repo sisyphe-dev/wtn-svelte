@@ -94,7 +94,7 @@
 
 	/* === Components === */
 	#ii-btn {
-		background: #18c7c9;
+		background: var(--main-color);
 	}
 
 	#close-btn {

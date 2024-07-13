@@ -26,6 +26,8 @@
 
 	export async function convert(amount: BigNumber, stake: boolean) {
 		if (!$user) return;
+
+		isConverting.set(true);
 		if (!stake) {
 			if ($user.nicpBalance().isGreaterThanOrEqualTo(amount) && amount.isGreaterThan(0)) {
 				let amountE8s = numberToBigintE8s(amount);
@@ -89,6 +91,7 @@
 				toasts.set([...$toasts, Toast.error('Conversion failed due to ICP balance.')]);
 			}
 		}
+		isConverting.set(false);
 	}
 </script>
 
@@ -146,7 +149,7 @@
 			<button
 				class="swap-btn"
 				on:click={() => {
-					isLogging.update((_) => true);
+					isLogging.update(() => true);
 				}}
 			>
 				<span>Connect your wallet</span>
@@ -168,7 +171,7 @@
 <style>
 	/* === Base Styles === */
 	p {
-		color: rgb(176, 163, 217);
+		color: var(--text-color);
 		font-family: Arial, Helvetica, sans-serif;
 		font-weight: bold;
 		text-align: end;
@@ -198,12 +201,12 @@
 		display: flex;
 		flex-direction: column;
 		padding: 1em;
-		border-left: 2px solid rgb(102, 173, 255);
-		border-right: 2px solid rgb(102, 173, 255);
-		border-bottom: 2px solid rgb(102, 173, 255);
+		border-left: 2px solid var(--border-color);
+		border-right: 2px solid var(--border-color);
+		border-bottom: 2px solid var(--border-color);
 		border-bottom-left-radius: 10px;
 		border-bottom-right-radius: 10px;
-		background-color: rgb(12, 44, 76);
+		background-color: var(--background-color);
 		gap: 1em;
 	}
 
@@ -234,7 +237,7 @@
 
 	.swap-btn {
 		color: black;
-		background: oklab(0.88 -0.18 0.03);
+		background: var(--main-color);
 		min-width: 80px;
 		max-width: fit-content;
 		position: relative;
@@ -253,14 +256,16 @@
 
 	/* === Utilities === */
 	.selected {
-		border-left: 2px solid rgb(102, 173, 255);
-		border-top: 2px solid rgb(102, 173, 255);
-		border-right: 2px solid rgb(102, 173, 255);
-		background-color: rgb(12, 44, 76);
+		border-left: 2px solid var(--border-color);
+		border-top: 2px solid var(--border-color);
+		border-right: 2px solid var(--border-color);
+		background-color: var(--background-color);
 	}
 
 	.not-selected {
-		border-bottom: 2px solid rgb(102, 173, 255);
+		border-left: 2px solid var(--border-color);
+		border-top: 2px solid var(--border-color);
+		border-right: 2px solid var(--border-color);
 		background-color: #5d6b77;
 		color: #c7c7c7;
 	}
@@ -268,40 +273,20 @@
 	/* === Animation === */
 
 	.spinner {
-		animation: rotate 2s linear infinite;
-		z-index: 2;
-		width: 40px;
-		height: 40px;
-
-		& .path {
-			stroke: #0a1623;
-			stroke-width: 7%;
-			stroke-linecap: round;
-			animation: dash 2s cubic-bezier(0.35, 0, 0.25, 1) infinite;
-		}
+		width: 2em;
+		height: 2em;
+		border: 3px solid white;
+		border-top-color: transparent;
+		border-radius: 50%;
+		animation: spin 1s linear infinite;
 	}
 
-	@keyframes rotate {
-		0% {
+	@keyframes spin {
+		from {
 			transform: rotate(0deg);
 		}
-		100% {
+		to {
 			transform: rotate(360deg);
-		}
-	}
-
-	@keyframes dash {
-		0% {
-			stroke-dasharray: 1, 150;
-			stroke-dashoffset: 0;
-		}
-		50% {
-			stroke-dasharray: 90, 150;
-			stroke-dashoffset: -35;
-		}
-		100% {
-			stroke-dasharray: 90, 150;
-			stroke-dashoffset: -124;
 		}
 	}
 </style>

@@ -1,9 +1,9 @@
 <script>
 	import { ToastType } from '$lib/toast';
-	import { toasts } from '$lib/stores';
+	import { toasts, isSending, isLogging } from '$lib/stores';
 </script>
 
-<div class="toasts-container">
+<div class="toasts-container" class:filter={$isSending || $isLogging}>
 	{#each $toasts as toast, index}
 		<div class="toast-container">
 			<div class="info-container">
@@ -97,7 +97,7 @@
 <style>
 	/* === Layout === */
 	.toast-container {
-		background-color: oklab(0.88 -0.18 0.03);
+		background-color: var(--main-color);
 		box-shadow: 8px 8px 16px 0 rgba(0, 0, 0, 0.25);
 		display: flex;
 		border-radius: 8px;
@@ -133,5 +133,10 @@
 		margin: 0;
 		cursor: pointer;
 		padding: 0 var(--padding-0_5x);
+	}
+
+	/* === Utillities === */
+	.filter {
+		filter: blur(5px);
 	}
 </style>

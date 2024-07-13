@@ -86,6 +86,13 @@
 {/if}
 
 <style>
+	/* === Variables === */
+	:root {
+    	--main-color: oklab(0.88 -0.18 0.03);
+		--border-color: rgb(102, 173, 255);
+		--background-color: rgb(12, 44, 76); 
+		--text-color: rgb(176, 163, 217);
+  	}
 	/* === Layout === */
 	.page-container {
 		display: flex;

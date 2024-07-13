@@ -168,13 +168,13 @@
 		flex-direction: column;
 		max-width: 35em;
 		width: 80vw;
-		background: rgb(12, 44, 76);
+		background: var(--background-color);
 		color: white;
 		padding: 2em;
 		border-radius: 15px;
 		margin-left: 0.5em;
 		margin-right: 0.5em;
-		border: 2px solid rgb(102, 173, 255);
+		border: 2px solid var(--border-color);
 	}
 
 	.header-container {
