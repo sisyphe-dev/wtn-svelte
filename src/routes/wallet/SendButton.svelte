@@ -1,9 +1,23 @@
 <script lang="ts">
 	import { AssetType, displayUsFormat } from '$lib';
-	import { user, sendAsset, isSelecting } from '$lib/stores';
+	import { user, sendAsset, isSelecting, state } from '$lib/stores';
 	import BigNumber from 'bignumber.js';
+	import { onMount } from 'svelte';
 
 	export let asset;
+	let wtnAllocation: BigNumber;
+
+	const fetchAllocation = async () => {
+		wtnAllocation = await $state.wtnAllocation();
+	};
+
+	onMount(() => {
+		fetchAllocation();
+
+		const intervalId = setInterval(fetchAllocation, 5000);
+
+		return () => clearInterval(intervalId);
+	});
 </script>
 
 <div class="token-balance-container">
@@ -22,7 +36,7 @@
 		}}>Send</button
 	>
 	{#if asset.type === AssetType.WTN}
-		<p class="airdrop-allocation">Airdrop Allocation: 10 WTN</p>
+		<p class="airdrop-allocation">Airdrop Allocation: {wtnAllocation} WTN</p>
 	{/if}
 </div>
 

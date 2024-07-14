@@ -1,11 +1,9 @@
 <script lang="ts">
 	import Withdrawals from './Withdrawals.svelte';
 	import { AssetType, Asset, displayUsFormat } from '$lib';
-	import { user, sendAsset, isSelecting } from '$lib/stores';
-	import BigNumber from 'bignumber.js';
+	import { user } from '$lib/stores';
 	import SendButton from './SendButton.svelte';
 
-	let assets = [new Asset(AssetType.ICP), new Asset(AssetType.nICP), new Asset(AssetType.WTN)];
 </script>
 
 {#if $user}

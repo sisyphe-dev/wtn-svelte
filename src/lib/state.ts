@@ -114,6 +114,15 @@ export class State {
 		
 	}
 
+	async wtnAllocation(): Promise<BigNumber> {
+		if (this.waterNeuron) {
+			const allocation = await this.waterNeuron.get_airdrop_allocation();
+			return bigintE8sToNumber(allocation);
+		} else {
+			return BigNumber(0);
+		}
+	}
+
 	async apy(): Promise<BigNumber> {
 		const neuron6mStake = await this.neuron6mStake();
 		const neuron8yStake = await this.neuron8yStake();
