@@ -13,15 +13,23 @@
 	import type { ConversionArg } from '../../declarations/water_neuron/water_neuron.did';
 	import type { Account } from '@dfinity/ledger-icp';
 	import { toastsStore } from '@dfinity/gix-components';
+	import { onMount } from 'svelte';
 
 	let stake = true;
+	let exchangeRate: BigNumber; 
+	let totalIcpDeposited: BigNumber;
 
-	function computeReceiveAmount(stake: boolean, inputValue: BigNumber): BigNumber {
+	function computeReceiveAmount(stake: boolean, inputValue: BigNumber, exchangeRate: BigNumber): BigNumber {
 		if (inputValue.isNaN()) return BigNumber(0);
-		if (stake) {
-			return inputValue.multipliedBy($state.exchangeRate());
+
+		if (exchangeRate) {
+			if (stake) {
+				return inputValue.multipliedBy(exchangeRate);
+			} else {
+				return inputValue.dividedBy(exchangeRate);
+			}
 		} else {
-			return inputValue.dividedBy($state.exchangeRate());
+			return BigNumber(0);
 		}
 	}
 
@@ -49,18 +57,13 @@
 						maybe_subaccount: [],
 						amount_e8s: amountE8s
 					} as ConversionArg);
-
-					console.log('setted toast', toastsStore);
 					toastsStore.show({ text: `Habiba, Converted ${amount} nICP.`, level: 'success' });
 					toasts.set([...$toasts, Toast.success(`Converted ${amount} nICP.`)]);
-					console.log('setted toast', toastsStore);
 
 					let status = handleRetrieveResult(conversionResult);
 					if (status.success) {
-						console.log('setted toast', toastsStore);
 						toastsStore.show({ text: `Habiba, Converted ${amount} nICP.`, level: 'success' });
 						toasts.set([...$toasts, Toast.success(`Converted ${amount} nICP.`)]);
-						console.log('setted toast', toastsStore);
 					} else {
 						toasts.set([...$toasts, Toast.error(`Conversion failed. ${status.message}`)]);
 					}
@@ -107,6 +110,23 @@
 		}
 		isConverting.set(false);
 	}
+
+	const fetchData = async () => {
+		try {
+			exchangeRate = await $state.exchangeRate();
+			totalIcpDeposited = await $state.totalIcpDeposited();
+		} catch (error) {
+			console.error('Error fetching data:', error);
+		}
+	};
+
+	onMount(() => {
+		fetchData();
+
+		const intervalId = setInterval(fetchData, 5000);
+
+		return () => clearInterval(intervalId);
+	});
 </script>
 
 <div class="main-container">
@@ -131,32 +151,43 @@
 		<div class="paragraphs">
 			{#if stake}
 				<p style:color="white">
-					You will receive {displayUsFormat(computeReceiveAmount(stake, BigNumber($inputValue)), 8)}
-					nICP
+					{#if exchangeRate}
+						You will receive {displayUsFormat(computeReceiveAmount(stake, BigNumber($inputValue), exchangeRate) , 8)} nICP
+					{:else }				
+					...
+					{/if}
 				</p>
 				<p>
-					1 ICP = {displayUsFormat($state.exchangeRate())} nICP
+					{#if exchangeRate}
+					1 ICP = {displayUsFormat(exchangeRate)} nICP
+					{:else}
+					...
+					{/if}
 				</p>
 				<p class="reward">
 					Future WTN Airdrop:
-					{#await $state.totalIcpDeposited()}
+					{#if exchangeRate && totalIcpDeposited}
+					{displayUsFormat(computeRewards(totalIcpDeposited, computeReceiveAmount(stake, BigNumber($inputValue), exchangeRate)), 8)}
+					{:else}
 						...
-					{:then number}
-						{displayUsFormat(
-							computeRewards(number, computeReceiveAmount(stake, BigNumber($inputValue))),
-							8
-						)}
-					{/await}
+					{/if}
 					<img src="/tokens/WTN.png" width="30em" height="30em" alt="WTN logo" />
 				</p>
 			{:else}
-				<p style:color="white">
-					You will receive {displayUsFormat(computeReceiveAmount(stake, BigNumber($inputValue)), 8)}
-					ICP
-				</p>
-				<p>
-					1 nICP = {displayUsFormat(BigNumber(1).dividedBy($state.exchangeRate()))} ICP
-				</p>
+			<p style:color="white">
+				{#if exchangeRate}
+					You will receive {displayUsFormat(computeReceiveAmount(stake, BigNumber($inputValue), exchangeRate) , 8)} ICP
+				{:else }				
+				...
+				{/if}
+			</p>
+			<p>
+				{#if exchangeRate}
+				1 nICP = {displayUsFormat(BigNumber(1).dividedBy(exchangeRate))} ICP
+				{:else}
+				...
+				{/if}
+			</p>
 				<p>Waiting Time: 6 months</p>
 				<p>Minimum Withdrawal: 10 ICP</p>
 			{/if}

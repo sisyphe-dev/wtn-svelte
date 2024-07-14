@@ -19,7 +19,6 @@
 	};
 
 	onMount(() => {
-		// Fetch data immediately
 		fetchData();
 
 		const intervalId = setInterval(fetchData, 5000);

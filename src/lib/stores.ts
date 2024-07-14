@@ -1,5 +1,5 @@
 import { writable } from 'svelte/store';
-import { type User, type State, provideState } from './state';
+import { type User, State } from './state';
 import { Asset, AssetType } from '$lib';
 import { Toast } from './toast';
 
@@ -17,4 +17,4 @@ export const inputValue = writable<number>();
 export const toasts = writable<Toast[]>([]);
 
 export const user = writable<User | undefined>(undefined);
-export const state = writable<State>(provideState());
+export const state = writable<State>(new State());

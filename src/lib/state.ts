@@ -64,21 +64,15 @@ const APY_8Y = BigNumber(0.15);
 export class State {
 	public neuron8yStakeE8s: bigint;
 	public neuron6mStakeE8s: bigint;
-	public exchangeRateE8s: bigint;
 	public icpLedger: icpLedgerInterface;
 	public wtnLedger: wtnLedgerInterface;
 	public nicpLedger: nicpLedgerInterface;
 	public waterNeuron: waterNeuronInterface;
 
 	constructor(
-		neuron8yStakeE8s: bigint,
-		neuron6mStakeE8s: bigint,
-		stakersCount: number,
-		exchangeRateE8s: bigint
 	) {
-		this.neuron8yStakeE8s = neuron8yStakeE8s;
-		this.neuron6mStakeE8s = neuron6mStakeE8s;
-		this.exchangeRateE8s = exchangeRateE8s;
+		this.neuron8yStakeE8s = BigInt(0);
+		this.neuron6mStakeE8s = BigInt(0);
 		this.nicpLedger = nicp_ledger;
 		this.icpLedger = nns_ledger;
 		this.wtnLedger = wtn_ledger;
@@ -110,8 +104,14 @@ export class State {
 		}
 	}
 
-	exchangeRate(): BigNumber {
-		return bigintE8sToNumber(this.exchangeRateE8s);
+	async exchangeRate(): Promise<BigNumber> {
+		if (this.waterNeuron) {
+			const info = await this.waterNeuron.get_info();
+			return bigintE8sToNumber(info.exchange_rate);
+		} else {
+			return BigNumber(1);
+		}
+		
 	}
 
 	async apy(): Promise<BigNumber> {
@@ -137,8 +137,4 @@ export class State {
 		}
 		
 	}
-}
-
-export function provideState(): State {
-	return new State(BigInt(350_000 * 1e8), BigInt(1_500_000 * 1e8), 210, BigInt(1.3 * 1e8));
 }
