@@ -39,7 +39,7 @@
 	}
 
 	export async function convert(amount: BigNumber, stake: boolean) {
-		if (!$user) return;
+		if (!($user && $isConverting)) return;
 
 		isConverting.set(true);
 		if (!stake) {
@@ -156,7 +156,7 @@
 		<SwapInput asset={stake ? new Asset(AssetType.ICP) : new Asset(AssetType.nICP)} />
 		<div class="paragraphs">
 			{#if stake}
-				<p style:color="white">
+				<p style:color="#fa796e">
 					{#if exchangeRate}
 						You will receive {displayUsFormat(
 							computeReceiveAmount(stake, BigNumber($inputValue), exchangeRate),
@@ -189,7 +189,7 @@
 					<img src="/tokens/WTN.png" width="30em" height="30em" alt="WTN logo" />
 				</p>
 			{:else}
-				<p style:color="white">
+				<p style:color="#fa796e">
 					{#if exchangeRate}
 						You will receive {displayUsFormat(
 							computeReceiveAmount(stake, BigNumber($inputValue), exchangeRate),
@@ -232,7 +232,11 @@
 						<circle class="circle" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle>
 					</svg>
 				{:else}
-					<span>Convert</span>
+				{#if stake}
+				<span>Stake</span>
+				{:else}
+				<span>Unstake</span>
+				{/if}
 				{/if}
 			</button>
 		{/if}

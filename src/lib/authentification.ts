@@ -145,3 +145,21 @@ export async function logout() {
 	const autClient = await AuthClient.create();
 	await autClient.logout();
 }
+
+export function fetchState(): Promise<waterNeuronInterface> {
+	return new Promise<waterNeuronInterface>(async (resolve, reject) => {
+		try {
+			const agent = new HttpAgent({
+				host: HOST,
+			  });
+			agent.fetchRootKey();
+			const waterNeuron: waterNeuronInterface = Actor.createActor(idlFactoryWaterNeuron, {
+				agent, 
+				canisterId: CANISTER_ID_WATER_NEURON
+			});
+			resolve(waterNeuron);
+		} catch (error) {
+			reject(error);
+		}
+	});
+}

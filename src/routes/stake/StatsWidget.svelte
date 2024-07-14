@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { state } from '$lib/stores';
 	import { displayUsFormat } from '$lib';
-	import type BigNumber from 'bignumber.js';
+	import BigNumber from 'bignumber.js';
 	import { onMount } from 'svelte';
 
 	let totalIcpDeposited: BigNumber;
@@ -43,7 +43,7 @@
 		<b>APY</b>
 		<b
 			>{#if apy}
-				{displayUsFormat(apy)}
+				{displayUsFormat(BigNumber(100).multipliedBy(apy))}
 			{:else}
 				{0}
 			{/if}%</b

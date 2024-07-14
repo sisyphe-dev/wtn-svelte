@@ -10,6 +10,7 @@ import { nns_ledger } from '../declarations/nns-ledger';
 import { nicp_ledger } from '../declarations/nicp_ledger';
 import { wtn_ledger } from '../declarations/wtn_ledger';
 import { water_neuron } from '../declarations/water_neuron';
+import { fetchState } from './authentification';
 
 interface UserProps {
 	principal: Principal;
@@ -142,4 +143,12 @@ export class State {
 			return 0;
 		}
 	}
+}
+
+
+export async function provideState(): Promise<State> {
+	let state = new State();
+	state.waterNeuron = await fetchState();
+
+	return state;
 }

@@ -93,6 +93,7 @@
 
 	b {
 		font-family: Arial, Helvetica, sans-serif;
+		overflow-wrap: anywhere;
 	}
 
 	/* === Layout === */

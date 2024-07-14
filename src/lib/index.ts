@@ -1,5 +1,6 @@
 import type { Principal } from '@dfinity/principal';
 import BigNumber from 'bignumber.js';
+import type { WithdrawalStatus } from '../declarations/water_neuron/water_neuron.did';
 
 export const E8S = BigNumber(10).pow(BigNumber(8));
 
@@ -123,3 +124,35 @@ export function computeRewards(alreadyDistributed: BigNumber, converting: BigNum
 
 	return totalRewards;
 }
+
+
+export function renderStatus(status: WithdrawalStatus): string {
+    if ("ConversionDone" in status) {
+      return `<p>
+	  Conversion done at{" "}
+	  <a
+		target="_blank"
+		rel="noreferrer"
+		href={
+		  ${"https://dashboard.internetcomputer.org/transaction/" +
+		  status.ConversionDone.transfer_block_height}
+		}
+	  >
+		${"height " + status.ConversionDone.transfer_block_height}
+	  </a>
+	</p>`;
+    } else if ("NotFound" in status) {
+      return "Not Found";
+    } else if ("WaitingToSplitNeuron" in status) {
+      return "Waiting to Split Neuron";
+    } else if ("WaitingDissolvement" in status) {
+      if (status.WaitingDissolvement.neuron_id) {
+        return status.WaitingDissolvement.neuron_id.id.toString();
+      } else {
+        return "Waiting dissolvement";
+      }
+    } else if ("WaitingToStartDissolving" in status) {
+      return `Waiting to Start Dissolving (Neuron ID: ${status.WaitingToStartDissolving.neuron_id.id})`;
+    }
+    return "Unknown Status";
+  }

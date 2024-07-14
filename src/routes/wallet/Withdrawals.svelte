@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { bigintE8sToNumber, displayUsFormat } from '$lib';
+	import { bigintE8sToNumber, displayUsFormat, renderStatus } from '$lib';
 	import { state, user } from '$lib/stores';
 	import { onMount } from 'svelte';
 	import type {
@@ -64,7 +64,7 @@
 								{displayNeuronId(details.request.neuron_id)}
 							</a>
 						</td>
-						<td>{Object.keys(details.status)[0]}</td>
+						<td>{renderStatus(details.status)}</td>
 					</tr>
 				{/each}
 			{/if}

@@ -13,7 +13,6 @@ import type { Icrc1TransferResult } from '../declarations/nns-ledger/nns-ledger.
 import type { _SERVICE as icpLedgerInterface } from '../declarations/nns-ledger/nns-ledger.did';
 import type { _SERVICE as nicpLedgerInterface } from '../declarations/nicp_ledger/nicp_ledger.did';
 import { CANISTER_ID_WATER_NEURON } from './authentification';
-import { BREAKPOINT_LARGE } from '@dfinity/gix-components';
 
 function handleApproveError(error: ApproveError) {
 	if ('GenericError' in error) {
