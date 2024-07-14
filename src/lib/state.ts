@@ -69,8 +69,7 @@ export class State {
 	public nicpLedger: nicpLedgerInterface;
 	public waterNeuron: waterNeuronInterface;
 
-	constructor(
-	) {
+	constructor() {
 		this.neuron8yStakeE8s = BigInt(0);
 		this.neuron6mStakeE8s = BigInt(0);
 		this.nicpLedger = nicp_ledger;
@@ -92,7 +91,6 @@ export class State {
 		} else {
 			return BigNumber(0);
 		}
-		
 	}
 
 	async neuron6mStake(): Promise<BigNumber> {
@@ -111,7 +109,6 @@ export class State {
 		} else {
 			return BigNumber(1);
 		}
-		
 	}
 
 	async wtnAllocation(): Promise<BigNumber> {
@@ -144,6 +141,5 @@ export class State {
 		} else {
 			return 0;
 		}
-		
 	}
 }

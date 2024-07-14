@@ -40,7 +40,7 @@
 			console.error('Login failed:', error);
 		}
 	};
-	
+
 	onMount(() => {
 		fetchUser();
 

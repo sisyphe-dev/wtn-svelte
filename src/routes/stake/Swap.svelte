@@ -16,10 +16,15 @@
 	import { onMount } from 'svelte';
 
 	let stake = true;
-	let exchangeRate: BigNumber; 
+	let exchangeRate: BigNumber;
 	let totalIcpDeposited: BigNumber;
+	let minimumWithdraw: BigNumber;
 
-	function computeReceiveAmount(stake: boolean, inputValue: BigNumber, exchangeRate: BigNumber): BigNumber {
+	function computeReceiveAmount(
+		stake: boolean,
+		inputValue: BigNumber,
+		exchangeRate: BigNumber
+	): BigNumber {
 		if (inputValue.isNaN()) return BigNumber(0);
 
 		if (exchangeRate) {
@@ -115,6 +120,7 @@
 		try {
 			exchangeRate = await $state.exchangeRate();
 			totalIcpDeposited = await $state.totalIcpDeposited();
+			minimumWithdraw = BigNumber(10).multipliedBy(exchangeRate);
 		} catch (error) {
 			console.error('Error fetching data:', error);
 		}
@@ -152,44 +158,62 @@
 			{#if stake}
 				<p style:color="white">
 					{#if exchangeRate}
-						You will receive {displayUsFormat(computeReceiveAmount(stake, BigNumber($inputValue), exchangeRate) , 8)} nICP
-					{:else }				
-					...
+						You will receive {displayUsFormat(
+							computeReceiveAmount(stake, BigNumber($inputValue), exchangeRate),
+							8
+						)} nICP
+					{:else}
+						...
 					{/if}
 				</p>
 				<p>
 					{#if exchangeRate}
-					1 ICP = {displayUsFormat(exchangeRate)} nICP
+						1 ICP = {displayUsFormat(exchangeRate)} nICP
 					{:else}
-					...
+						...
 					{/if}
 				</p>
 				<p class="reward">
 					Future WTN Airdrop:
 					{#if exchangeRate && totalIcpDeposited}
-					{displayUsFormat(computeRewards(totalIcpDeposited, computeReceiveAmount(stake, BigNumber($inputValue), exchangeRate)), 8)}
+						{displayUsFormat(
+							computeRewards(
+								totalIcpDeposited,
+								computeReceiveAmount(stake, BigNumber($inputValue), exchangeRate)
+							),
+							8
+						)}
 					{:else}
 						...
 					{/if}
 					<img src="/tokens/WTN.png" width="30em" height="30em" alt="WTN logo" />
 				</p>
 			{:else}
-			<p style:color="white">
-				{#if exchangeRate}
-					You will receive {displayUsFormat(computeReceiveAmount(stake, BigNumber($inputValue), exchangeRate) , 8)} ICP
-				{:else }				
-				...
-				{/if}
-			</p>
-			<p>
-				{#if exchangeRate}
-				1 nICP = {displayUsFormat(BigNumber(1).dividedBy(exchangeRate))} ICP
-				{:else}
-				...
-				{/if}
-			</p>
+				<p style:color="white">
+					{#if exchangeRate}
+						You will receive {displayUsFormat(
+							computeReceiveAmount(stake, BigNumber($inputValue), exchangeRate),
+							8
+						)} ICP
+					{:else}
+						...
+					{/if}
+				</p>
+				<p>
+					{#if exchangeRate}
+						1 nICP = {displayUsFormat(BigNumber(1).dividedBy(exchangeRate))} ICP
+					{:else}
+						...
+					{/if}
+				</p>
 				<p>Waiting Time: 6 months</p>
-				<p>Minimum Withdrawal: 10 ICP</p>
+				<p>
+					{#if minimumWithdraw}
+						Minimum Withdrawal: {minimumWithdraw} nICP
+					{:else}
+						...
+					{/if}
+				</p>
 			{/if}
 		</div>
 		{#if !$user}

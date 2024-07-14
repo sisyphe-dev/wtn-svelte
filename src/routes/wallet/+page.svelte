@@ -3,7 +3,6 @@
 	import { AssetType, Asset, displayUsFormat } from '$lib';
 	import { user } from '$lib/stores';
 	import SendButton from './SendButton.svelte';
-
 </script>
 
 {#if $user}

@@ -23,5 +23,3 @@ vite.config.ts.timestamp-*
 /.dfx
 
 package-lock.json
-
-src/declarations
