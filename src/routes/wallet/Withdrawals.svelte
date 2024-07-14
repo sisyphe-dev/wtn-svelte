@@ -2,8 +2,10 @@
 	import { bigintE8sToNumber, displayUsFormat } from '$lib';
 	import { state, user } from '$lib/stores';
 	import { onMount } from 'svelte';
-	import type { WithdrawalDetails } from '$lib/withdrawal';
-	import type { NeuronId } from '../../declarations/water_neuron/water_neuron.did';
+	import type {
+		WithdrawalDetails,
+		NeuronId
+	} from '../../declarations/water_neuron/water_neuron.did';
 
 	let withdrawalRequests: WithdrawalDetails[];
 	function displayNeuronId(neuronId: [] | [NeuronId]): string {
@@ -14,11 +16,11 @@
 		}
 	}
 
-	const fetchWithdrawals = async() => {
+	const fetchWithdrawals = async () => {
 		if ($user) {
-				withdrawalRequests = await $state.waterNeuron.get_withdrawal_requests([$user.principal]);
-			}
-	}
+			withdrawalRequests = await $state.waterNeuron.get_withdrawal_requests([$user.principal]);
+		}
+	};
 
 	onMount(() => {
 		fetchWithdrawals();

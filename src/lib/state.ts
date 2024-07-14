@@ -92,13 +92,22 @@ export class State {
 	}
 
 	async neuron8yStake(): Promise<BigNumber> {
-		const info = await this.waterNeuron.get_info();
-		return bigintE8sToNumber(info.neuron_8y_stake_e8s);
+		if (this.waterNeuron) {
+			const info = await this.waterNeuron.get_info();
+			return bigintE8sToNumber(info.neuron_8y_stake_e8s);
+		} else {
+			return BigNumber(0);
+		}
+		
 	}
 
 	async neuron6mStake(): Promise<BigNumber> {
-		const info = await this.waterNeuron.get_info();
-		return bigintE8sToNumber(info.neuron_8y_stake_e8s);
+		if (this.waterNeuron) {
+			const info = await this.waterNeuron.get_info();
+			return bigintE8sToNumber(info.neuron_6m_stake_e8s);
+		} else {
+			return BigNumber(0);
+		}
 	}
 
 	exchangeRate(): BigNumber {
@@ -118,10 +127,15 @@ export class State {
 
 		return share.multipliedBy(amountTotal).multipliedBy(BigNumber(1)).dividedBy(neuron6mStake);
 	}
-	
+
 	async stakersCount(): Promise<Number> {
-		const info = await this.waterNeuron.get_info();
-		return Number(info.stakers_count);
+		if (this.waterNeuron) {
+			const info = await this.waterNeuron.get_info();
+			return Number(info.stakers_count);
+		} else {
+			return 0;
+		}
+		
 	}
 }
 
