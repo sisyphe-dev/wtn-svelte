@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { AssetType, Asset, displayUsFormat } from '$lib';
+	import { AssetType, displayUsFormat } from '$lib';
 	import { user, sendAsset, isSelecting } from '$lib/stores';
 	import BigNumber from 'bignumber.js';
 

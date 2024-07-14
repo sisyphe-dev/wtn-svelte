@@ -1,24 +1,59 @@
-<script>
+<script lang='ts'>
 	import { state } from '$lib/stores';
 	import { displayUsFormat } from '$lib';
+	import type BigNumber from 'bignumber.js';
+	import { onMount } from 'svelte';
+
+	let totalIcpDeposited: BigNumber; 
+	let apy: BigNumber;
+	let stakersCount: Number;
+
+	const fetchData = async () => {
+			try {
+				totalIcpDeposited = await $state.totalIcpDeposited();
+				apy = await $state.apy();
+				stakersCount = await $state.stakersCount();
+			} catch (error) {
+				console.error('Error fetching data:', error);
+			}
+		};
+		
+	onMount(() => {
+		// Fetch data immediately
+		fetchData();
+
+		const intervalId = setInterval(fetchData, 5000);
+
+		return () => clearInterval(intervalId);
+	});
 </script>
 
 <div class="stat-widget-container">
 	<div class="stat-item">
 		<b>Total Staked</b>
-		<b
-			>{displayUsFormat($state.totalIcpDeposited())}
+		<b>
+			{#if totalIcpDeposited}
+				{displayUsFormat(totalIcpDeposited)}
+			{:else }
+				{0}
+			{/if}
 			ICP
 		</b>
 	</div>
 	<div class="stat-item">
 		<b>APY</b>
-		<b>{displayUsFormat($state.apy())}%</b>
+		<b
+			>{#if apy}
+				{displayUsFormat(apy)}
+			{:else}
+				{0}
+			{/if}%</b
+		>
 	</div>
 	<div class="stat-item">
 		<b>Stakers</b>
 		<b>
-			{$state.stakersCount}
+			{stakersCount? stakersCount: 0}
 		</b>
 	</div>
 </div>

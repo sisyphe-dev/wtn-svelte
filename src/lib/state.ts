@@ -64,7 +64,6 @@ const APY_8Y = BigNumber(0.15);
 export class State {
 	public neuron8yStakeE8s: bigint;
 	public neuron6mStakeE8s: bigint;
-	public stakersCount: number;
 	public exchangeRateE8s: bigint;
 	public icpLedger: icpLedgerInterface;
 	public wtnLedger: wtnLedgerInterface;
@@ -79,7 +78,6 @@ export class State {
 	) {
 		this.neuron8yStakeE8s = neuron8yStakeE8s;
 		this.neuron6mStakeE8s = neuron6mStakeE8s;
-		this.stakersCount = stakersCount;
 		this.exchangeRateE8s = exchangeRateE8s;
 		this.nicpLedger = nicp_ledger;
 		this.icpLedger = nns_ledger;
@@ -87,32 +85,43 @@ export class State {
 		this.waterNeuron = water_neuron;
 	}
 
-	totalIcpDeposited(): BigNumber {
-		return this.neuron6mStake().plus(this.neuron8yStake());
+	async totalIcpDeposited(): Promise<BigNumber> {
+		const neuron6mStake = await this.neuron6mStake();
+		const neuron8yStake = await this.neuron8yStake();
+		return neuron6mStake.plus(neuron8yStake);
 	}
 
-	neuron8yStake(): BigNumber {
-		return bigintE8sToNumber(this.neuron8yStakeE8s);
+	async neuron8yStake(): Promise<BigNumber> {
+		const info = await this.waterNeuron.get_info();
+		return bigintE8sToNumber(info.neuron_8y_stake_e8s);
 	}
 
-	neuron6mStake(): BigNumber {
-		return bigintE8sToNumber(this.neuron6mStakeE8s);
+	async neuron6mStake(): Promise<BigNumber> {
+		const info = await this.waterNeuron.get_info();
+		return bigintE8sToNumber(info.neuron_8y_stake_e8s);
 	}
 
 	exchangeRate(): BigNumber {
 		return bigintE8sToNumber(this.exchangeRateE8s);
 	}
 
-	apy(): BigNumber {
-		const amount6m = APY_6M.multipliedBy(this.neuron6mStake());
-		const amount8y = APY_8Y.multipliedBy(this.neuron8yStake());
+	async apy(): Promise<BigNumber> {
+		const neuron6mStake = await this.neuron6mStake();
+		const neuron8yStake = await this.neuron8yStake();
+
+		if (neuron6mStake.plus(neuron8yStake).isZero()) return BigNumber(0);
+
+		const amount6m = APY_6M.multipliedBy(neuron6mStake);
+		const amount8y = APY_8Y.multipliedBy(neuron8yStake);
 		const amountTotal = amount6m.plus(amount8y);
 		const share = BigNumber(1).minus(DAO_SHARE);
 
-		return share
-			.multipliedBy(amountTotal)
-			.multipliedBy(BigNumber(1))
-			.dividedBy(this.neuron6mStake());
+		return share.multipliedBy(amountTotal).multipliedBy(BigNumber(1)).dividedBy(neuron6mStake);
+	}
+	
+	async stakersCount(): Promise<Number> {
+		const info = await this.waterNeuron.get_info();
+		return Number(info.stakers_count);
 	}
 }
 

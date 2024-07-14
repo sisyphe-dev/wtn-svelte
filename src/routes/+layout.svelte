@@ -5,18 +5,18 @@
 	import Send from './wallet/Send.svelte';
 	import Menu from './Menu.svelte';
 	import { isLogging, menu, isSelecting } from '$lib/stores';
-	import Toast from './Toast.svelte';
 	import { onMount } from 'svelte';
 	import { user, state } from '$lib/stores';
 	import type { Account } from '@dfinity/ledger-icp';
 	import { signIn } from '$lib/authentification';
 	import { User } from '$lib/state';
 	import { AuthClient } from '@dfinity/auth-client';
+	import { Toasts } from '@dfinity/gix-components';
 
 	const fetchUser = async () => {
 		try {
 			const authClient = await AuthClient.create();
-			if (!await authClient.isAuthenticated()) return;
+			if (!(await authClient.isAuthenticated())) return;
 
 			const authResult = await signIn();
 
@@ -79,10 +79,10 @@
 		<Navbar />
 		<div class="content-container" class:filter={$isSelecting || $isLogging}>
 			<slot />
+			<Toasts />
 		</div>
 		<Footer />
 	</div>
-	<Toast />
 {/if}
 
 <style>

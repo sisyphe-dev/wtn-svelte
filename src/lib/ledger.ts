@@ -13,6 +13,7 @@ import type { Icrc1TransferResult } from '../declarations/nns-ledger/nns-ledger.
 import type { _SERVICE as icpLedgerInterface } from '../declarations/nns-ledger/nns-ledger.did';
 import type { _SERVICE as nicpLedgerInterface } from '../declarations/nicp_ledger/nicp_ledger.did';
 import { CANISTER_ID_WATER_NEURON } from './authentification';
+import { BREAKPOINT_LARGE } from '@dfinity/gix-components';
 
 function handleApproveError(error: ApproveError) {
 	if ('GenericError' in error) {
@@ -126,134 +127,188 @@ interface ConversionResult {
 }
 
 export function handleStakeResult(result: Result_3): ConversionResult {
-	if ('Ok' in result) {
-		return {
-			success: true,
-			message: `Converted ICP to nICP at ${
-				'https://dashboard.internetcomputer.org/transaction/' + result.Ok.block_index.toString()
-			}`
-		};
-	} else if ('Err' in result) {
-		if ('GenericError' in result.Err) {
-			return { success: false, message: `Generic Error: ${result.Err.GenericError.message}` };
-		} else if ('TransferError' in result.Err) {
-			return { success: false, message: `Transfer Error: ${result.Err.TransferError}` };
-		} else if ('AmountTooLow' in result.Err) {
+	const key = Object.keys(result)[0] as keyof Result_4;
+
+	switch (key) {
+		case 'Ok':
 			return {
-				success: false,
-				message: `Amount too low. Minimum amount: ${bigintE8sToNumber(result.Err.AmountTooLow.minimum_amount_e8s)}`
+				success: true,
+				message: `Converted ICP to nICP at https://dashboard.internetcomputer.org/transaction/${result[key][0]}`
 			};
-		} else if ('TransferFromError' in result.Err) {
-			const error = result.Err.TransferFromError;
-			if ('GenericError' in error) {
-				return { success: false, message: `Generic Error: ${error.GenericError.message}` };
-			} else if ('TemporarilyUnavailable' in error) {
-				return { success: false, message: 'Ledger is temporarily unvailable.' };
-			} else if ('InsufficientAllowance' in error) {
-				return {
-					success: false,
-					message: `Insufficient allowance.  Allowance amount: ${error.InsufficientAllowance.allowance}`
-				};
-			} else if ('BadBurn' in error) {
-				return {
-					success: false,
-					message: `Bad burn. Minimum burn amount: ${error.BadBurn.min_burn_amount}`
-				};
-			} else if ('Duplicate' in error) {
-				return {
-					success: false,
-					message: `Duplicate. Already occuring transfer: ${error.Duplicate.duplicate_of.toString()}`
-				};
-			} else if ('BadFee' in error) {
-				return { success: false, message: `Bad fee. Expected fee: ${error.BadFee.expected_fee}` };
-			} else if ('CreatedInFuture' in error) {
-				return {
-					success: false,
-					message: `Created in future: ${error.CreatedInFuture.ledger_time.toString()}`
-				};
-			} else if ('TooOld' in error) {
-				return { success: false, message: `The transfer is too old.` };
-			} else if ('InsufficientFunds' in error) {
-				return {
-					success: false,
-					message: `Insufficient funds. Balance: ${error.InsufficientFunds.balance}`
-				};
-			} else {
-				return { success: false, message: 'Unknown transferfrom error.' };
+		case 'Err':
+			const error = result[key];
+			const errorKey = Object.keys(result[key])[0];
+			switch (errorKey) {
+				case 'GenericError':
+					return { success: false, message: `Generic Error: ${error[errorKey][0]}` };
+
+				case 'TransferError':
+					return { success: false, message: `Transfer Error: ${error[errorKey][0]}` };
+
+				case 'AmountTooLow':
+					return {
+						success: false,
+						message: `Amount too low. Minimum amount: ${bigintE8sToNumber(error[errorKey][0])}`
+					};
+
+				case 'TransferFromError':
+					const transferFromError = error[errorKey][0];
+					const transferFromErrorKey = Object.keys(error[errorKey][0])[0];
+
+					switch (transferFromErrorKey) {
+						case 'GenericError':
+							return {
+								success: false,
+								message: `Generic Error: ${transferFromError[transferFromErrorKey][0]}`
+							};
+
+						case 'TemporarilyUnavailable':
+							return { success: false, message: 'Ledger is temporarily unavailable.' };
+
+						case 'InsufficientAllowance':
+							return {
+								success: false,
+								message: `Insufficient allowance. Allowance amount: ${transferFromError[transferFromErrorKey][0]}`
+							};
+
+						case 'BadBurn':
+							return {
+								success: false,
+								message: `Bad burn. Minimum burn amount: ${transferFromError[transferFromErrorKey][0]}`
+							};
+
+						case 'Duplicate':
+							return {
+								success: false,
+								message: `Duplicate. Already occurring transfer: ${transferFromError[transferFromErrorKey][0]}`
+							};
+
+						case 'BadFee':
+							return {
+								success: false,
+								message: `Bad fee. Expected fee: ${transferFromError[transferFromErrorKey][0]}`
+							};
+
+						case 'CreatedInFuture':
+							return {
+								success: false,
+								message: `Created in future: ${transferFromError[transferFromErrorKey][0]}`
+							};
+
+						case 'TooOld':
+							return { success: false, message: `The transfer is too old.` };
+
+						case 'InsufficientFunds':
+							return {
+								success: false,
+								message: `Insufficient funds. Balance: ${transferFromError[transferFromErrorKey][0]}`
+							};
+
+						default:
+							return { success: false, message: 'Unknown transferfrom error.' };
+					}
+
+				case 'GuardError':
+					return { success: false, message: `Guard Error: ${error[errorKey][0]}` };
+
+				default:
+					return { success: false, message: 'Unknown Conversion Error. Please refresh the page.' };
 			}
-		} else if ('GuardError' in result.Err) {
-			return { success: false, message: `Guard Error: ${result.Err.GuardError.guard_error}` };
-		} else {
-			return { success: false, message: 'Unkown Conversion Error. Please refresh the page.' };
-		}
-	} else {
-		return { success: false, message: 'Unknown error.' };
+		default:
+			return { success: false, message: 'Unknown Error.' };
 	}
 }
 
 export function handleRetrieveResult(result: Result_4): ConversionResult {
-	if ('Ok' in result) {
-		return {
-			success: true,
-			message: `Converted ICP to nICP at ${
-				'https://dashboard.internetcomputer.org/transaction/' + result.Ok.block_index.toString()
-			}`
-		};
-	} else if ('Err' in result) {
-		if ('GenericError' in result.Err) {
-			return { success: false, message: `Generic Error: ${result.Err.GenericError.message}` };
-		} else if ('TransferError' in result.Err) {
-			return { success: false, message: `Transfer Error: ${result.Err.TransferError}` };
-		} else if ('AmountTooLow' in result.Err) {
+	const key = Object.keys(result)[0] as keyof Result_4;
+
+	switch (key) {
+		case 'Ok':
 			return {
-				success: false,
-				message: `Amount too low. Minimum amount: ${bigintE8sToNumber(result.Err.AmountTooLow.minimum_amount_e8s)}`
+				success: true,
+				message: `Converted ICP to nICP at https://dashboard.internetcomputer.org/transaction/${result[key][0]}`
 			};
-		} else if ('TransferFromError' in result.Err) {
-			const error = result.Err.TransferFromError;
-			if ('GenericError' in error) {
-				return { success: false, message: `Generic Error: ${error.GenericError.message}` };
-			} else if ('TemporarilyUnavailable' in error) {
-				return { success: false, message: 'Ledger is temporarily unvailable.' };
-			} else if ('InsufficientAllowance' in error) {
-				return {
-					success: false,
-					message: `Insufficient allowance. Allowance amount: ${error.InsufficientAllowance.allowance}`
-				};
-			} else if ('BadBurn' in error) {
-				return {
-					success: false,
-					message: `Bad burn. Minimum burn amount: ${error.BadBurn.min_burn_amount}`
-				};
-			} else if ('Duplicate' in error) {
-				return {
-					success: false,
-					message: `Duplicate. Already occuring transfer: ${error.Duplicate.duplicate_of.toString()}`
-				};
-			} else if ('BadFee' in error) {
-				return { success: false, message: `Bad fee. Expected fee: ${error.BadFee.expected_fee}` };
-			} else if ('CreatedInFuture' in error) {
-				return {
-					success: false,
-					message: `Created in future: ${error.CreatedInFuture.ledger_time.toString()}`
-				};
-			} else if ('TooOld' in error) {
-				return { success: false, message: `The transfer is too old.` };
-			} else if ('InsufficientFunds' in error) {
-				return {
-					success: false,
-					message: `Insufficient funds. Balance: ${error.InsufficientFunds.balance}`
-				};
-			} else {
-				return { success: false, message: 'Unknown transferfrom error.' };
+		case 'Err':
+			const error = result[key];
+			const errorKey = Object.keys(result[key])[0];
+			switch (errorKey) {
+				case 'GenericError':
+					return { success: false, message: `Generic Error: ${error[errorKey][0]}` };
+
+				case 'TransferError':
+					return { success: false, message: `Transfer Error: ${error[errorKey][0]}` };
+
+				case 'AmountTooLow':
+					return {
+						success: false,
+						message: `Amount too low. Minimum amount: ${bigintE8sToNumber(error[errorKey][0])}`
+					};
+
+				case 'TransferFromError':
+					const transferFromError = error[errorKey][0];
+					const transferFromErrorKey = Object.keys(error[errorKey][0])[0];
+
+					switch (transferFromErrorKey) {
+						case 'GenericError':
+							return {
+								success: false,
+								message: `Generic Error: ${transferFromError[transferFromErrorKey][0]}`
+							};
+
+						case 'TemporarilyUnavailable':
+							return { success: false, message: 'Ledger is temporarily unavailable.' };
+
+						case 'InsufficientAllowance':
+							return {
+								success: false,
+								message: `Insufficient allowance. Allowance amount: ${transferFromError[transferFromErrorKey][0]}`
+							};
+
+						case 'BadBurn':
+							return {
+								success: false,
+								message: `Bad burn. Minimum burn amount: ${transferFromError[transferFromErrorKey][0]}`
+							};
+
+						case 'Duplicate':
+							return {
+								success: false,
+								message: `Duplicate. Already occurring transfer: ${transferFromError[transferFromErrorKey][0]}`
+							};
+
+						case 'BadFee':
+							return {
+								success: false,
+								message: `Bad fee. Expected fee: ${transferFromError[transferFromErrorKey][0]}`
+							};
+
+						case 'CreatedInFuture':
+							return {
+								success: false,
+								message: `Created in future: ${transferFromError[transferFromErrorKey][0]}`
+							};
+
+						case 'TooOld':
+							return { success: false, message: `The transfer is too old.` };
+
+						case 'InsufficientFunds':
+							return {
+								success: false,
+								message: `Insufficient funds. Balance: ${transferFromError[transferFromErrorKey][0]}`
+							};
+
+						default:
+							return { success: false, message: 'Unknown transferfrom error.' };
+					}
+
+				case 'GuardError':
+					return { success: false, message: `Guard Error: ${error[errorKey][0]}` };
+
+				default:
+					return { success: false, message: 'Unknown Conversion Error. Please refresh the page.' };
 			}
-		} else if ('GuardError' in result.Err) {
-			return { success: false, message: `Guard Error: ${result.Err.GuardError.guard_error}` };
-		} else {
-			return { success: false, message: 'Unkown Conversion Error. Please refresh the page.' };
-		}
-	} else {
-		return { success: false, message: 'Unknown Error.' };
+		default:
+			return { success: false, message: 'Unknown Error.' };
 	}
 }
 

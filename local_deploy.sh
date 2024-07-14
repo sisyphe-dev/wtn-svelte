@@ -15,5 +15,5 @@ dfx deploy internet_identity
 
 dfx identity use icp-ident-RqOPnjj5ERjAEnwlvfKw
 
-# dfx ledger transfer --memo 0 --icp 1_500 34952342dsf23fhefnbdfnewsf
+# dfx ledger transfer --memo 0 --icp 1_500 4dbccf063b29e82eeed66adeb978491224c1c8de7ebce016c44740ca695e1695
 

@@ -2,7 +2,6 @@ import { AuthClient } from '@dfinity/auth-client';
 import { isNullish } from '@dfinity/utils';
 import { Principal } from '@dfinity/principal';
 import { HttpAgent, Actor, type Identity } from '@dfinity/agent';
-import { ECDSAKeyIdentity, DelegationIdentity } from '@dfinity/identity';
 import type { _SERVICE as nicpLedgerInterface } from '../declarations/nicp_ledger/nicp_ledger.did';
 import type { _SERVICE as wtnLedgerInterface } from '../declarations/wtn_ledger/wtn_ledger.did';
 import type { _SERVICE as icpLedgerInterface } from '../declarations/nns-ledger/nns-ledger.did';

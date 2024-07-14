@@ -12,6 +12,7 @@
 	} from '$lib/ledger';
 	import type { ConversionArg } from '../../declarations/water_neuron/water_neuron.did';
 	import type { Account } from '@dfinity/ledger-icp';
+	import { toastsStore } from '@dfinity/gix-components';
 
 	let stake = true;
 
@@ -49,9 +50,17 @@
 						amount_e8s: amountE8s
 					} as ConversionArg);
 
+					console.log('setted toast', toastsStore);
+					toastsStore.show({ text: `Habiba, Converted ${amount} nICP.`, level: 'success' });
+					toasts.set([...$toasts, Toast.success(`Converted ${amount} nICP.`)]);
+					console.log('setted toast', toastsStore);
+
 					let status = handleRetrieveResult(conversionResult);
 					if (status.success) {
+						console.log('setted toast', toastsStore);
+						toastsStore.show({ text: `Habiba, Converted ${amount} nICP.`, level: 'success' });
 						toasts.set([...$toasts, Toast.success(`Converted ${amount} nICP.`)]);
+						console.log('setted toast', toastsStore);
 					} else {
 						toasts.set([...$toasts, Toast.error(`Conversion failed. ${status.message}`)]);
 					}
@@ -82,6 +91,11 @@
 
 					let status = handleStakeResult(conversionResult);
 					if (status.success) {
+						console.log('setted toast', toastsStore);
+						toastsStore.show({ text: `Habib, Converted ${amount} nICP.`, level: 'success' });
+						toasts.set([...$toasts, Toast.success(`Converted ${amount} nICP.`)]);
+						console.log('setted toast', toastsStore);
+
 						toasts.set([...$toasts, Toast.success(`Converted ${amount} ICP.`)]);
 					} else {
 						toasts.set([...$toasts, Toast.error(`Conversion failed. ${status.message}`)]);
@@ -124,13 +138,15 @@
 					1 ICP = {displayUsFormat($state.exchangeRate())} nICP
 				</p>
 				<p class="reward">
-					Future WTN Airdrop: {displayUsFormat(
-						computeRewards(
-							$state.totalIcpDeposited(),
-							computeReceiveAmount(stake, BigNumber($inputValue))
-						),
-						8
-					)}
+					Future WTN Airdrop:
+					{#await $state.totalIcpDeposited()}
+						...
+					{:then number}
+						{displayUsFormat(
+							computeRewards(number, computeReceiveAmount(stake, BigNumber($inputValue))),
+							8
+						)}
+					{/await}
 					<img src="/tokens/WTN.png" width="30em" height="30em" alt="WTN logo" />
 				</p>
 			{:else}

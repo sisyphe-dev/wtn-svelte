@@ -14,11 +14,11 @@
 		<div class="address-container">
 			<h2>ICP Account Id</h2>
 			<div class="principal-container">
-				<b>{$user?.principal}</b>
+				<b>{$user?.accountId}</b>
 				<button
 					class="copy-btn"
 					on:click={() => {
-						navigator.clipboard.writeText($user ? $user.principal.toString() : '');
+						navigator.clipboard.writeText($user ? $user.accountId : '');
 					}}
 				>
 					<svg
@@ -42,11 +42,11 @@
 		<div class="address-container">
 			<h2>Principal Address</h2>
 			<div class="principal-container">
-				<b>{$user?.accountId}</b>
+				<b>{$user?.principal}</b>
 				<button
 					class="copy-btn"
 					on:click={() => {
-						navigator.clipboard.writeText($user ? $user.accountId : '');
+						navigator.clipboard.writeText($user ? $user.principal.toString() : '');
 					}}
 				>
 					<svg

@@ -1,7 +1,11 @@
 <script lang="ts">
-	import { displayUsFormat } from '$lib';
-	import { DEFAULT_WITHDRAWAL_DETAILS, type NeuronId } from '$lib/withdrawal';
+	import { bigintE8sToNumber, displayUsFormat } from '$lib';
+	import { state, user } from '$lib/stores';
+	import { onMount } from 'svelte';
+	import type { WithdrawalDetails } from '$lib/withdrawal';
+	import type { NeuronId } from '../../declarations/water_neuron/water_neuron.did';
 
+	let withdrawalRequests: WithdrawalDetails[];
 	function displayNeuronId(neuronId: [] | [NeuronId]): string {
 		if (neuronId.length == 0) {
 			return 'Not Set';
@@ -9,6 +13,24 @@
 			return neuronId[0].id.toString();
 		}
 	}
+
+	const fetchWithdrawals = async() => {
+		if ($user) {
+				withdrawalRequests = await $state.waterNeuron.get_withdrawal_requests([$user.principal]);
+			}
+	}
+
+	onMount(() => {
+		fetchWithdrawals();
+
+		const intervalId = setInterval(async () => {
+			if ($user) {
+				withdrawalRequests = await $state.waterNeuron.get_withdrawal_requests([$user.principal]);
+			}
+		}, 5000);
+
+		return () => clearInterval(intervalId);
+	});
 </script>
 
 <div class="withdrawals-container">
@@ -24,24 +46,26 @@
 			</tr>
 		</thead>
 		<tbody>
-			{#each DEFAULT_WITHDRAWAL_DETAILS as details}
-				<tr>
-					<td>{details.withdrawalId}</td>
-					<td>{displayUsFormat(details.nicpBurned())}</td>
-					<td>{displayUsFormat(details.icpDue())}</td>
-					<td>
-						<a
-							target="_blank"
-							rel="noreferrer"
-							href={'https://dashboard.internetcomputer.org/neuron/' +
-								displayNeuronId(details.neuronId)}
-						>
-							{displayNeuronId(details.neuronId)}
-						</a>
-					</td>
-					<td>{Object.keys(details.status)[0]}</td>
-				</tr>
-			{/each}
+			{#if withdrawalRequests}
+				{#each withdrawalRequests as details}
+					<tr>
+						<td>{details.request.withdrawal_id}</td>
+						<td>{displayUsFormat(bigintE8sToNumber(details.request.nicp_burned))}</td>
+						<td>{displayUsFormat(bigintE8sToNumber(details.request.icp_due))}</td>
+						<td>
+							<a
+								target="_blank"
+								rel="noreferrer"
+								href={'https://dashboard.internetcomputer.org/neuron/' +
+									displayNeuronId(details.request.neuron_id)}
+							>
+								{displayNeuronId(details.request.neuron_id)}
+							</a>
+						</td>
+						<td>{Object.keys(details.status)[0]}</td>
+					</tr>
+				{/each}
+			{/if}
 		</tbody>
 	</table>
 </div>

@@ -86,7 +86,7 @@
 			}
 			isSelecting.set(false);
 		}
-		isSending.set(false)
+		isSending.set(false);
 	}
 </script>
 
