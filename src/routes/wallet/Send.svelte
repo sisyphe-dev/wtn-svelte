@@ -3,15 +3,13 @@
 	import { isSelecting, sendAsset, user, toasts, state, isSending } from '$lib/stores';
 	import { Toast } from '$lib/toast';
 	import BigNumber from 'bignumber.js';
-	import { type Account, AccountIdentifier } from '@dfinity/ledger-icp';
+	import {
+		type Account,
+		AccountIdentifier
+	} from '@dfinity/ledger-icp';
 	import { Principal } from '@dfinity/principal';
-	import type {
-		TransferArg,
-		TransferArgs,
-		Tokens,
-	} from '../../declarations/nns-ledger/nns-ledger.did';
-	import { handleIcrcTransferResult, handleTransferResult, type ConversionResult } from '$lib/ledger';
-	import { Buffer } from 'buffer';
+	import type { TransferArg } from '../../declarations/nicp_ledger/nicp_ledger.did';
+	import { handleTransferResult, type ConversionResult } from '$lib/ledger';
 
 	let principal: string;
 	let sendAmount: BigNumber;
@@ -22,9 +20,8 @@
 			return principal;
 		} catch (e) {
 			if ($sendAsset.type === AssetType.ICP) {
-				try{
+				try {
 					const accountId = AccountIdentifier.fromHex(input);
-					// const accountId =  Uint8Array.from(Buffer.from(input, "hex"));
 					return accountId;
 				} catch (error) {
 					console.log(error);
@@ -47,6 +44,7 @@
 	async function icrcTransfer(amount: BigNumber, input: string) {
 		isSending.set(true);
 		if (amount && principal && isValidAmount(amount)) {
+			const amount_e8s = numberToBigintE8s(amount);
 			const receiver = getReceiver(input);
 			if (!receiver) {
 				isSending.set(false);
@@ -55,8 +53,8 @@
 
 			let status: ConversionResult;
 			switch ($sendAsset.type) {
-				case AssetType.ICP: {
-					if (receiver instanceof Principal) {
+				case AssetType.ICP:
+				{
 						const transferResult = await $state.icpLedger.icrc1_transfer({
 							to: {
 								owner: receiver,
@@ -66,55 +64,45 @@
 							memo: [],
 							from_subaccount: [],
 							created_at_time: [],
-							amount: numberToBigintE8s(amount)
+							amount: amount_e8s
 						} as TransferArg);
-						status = handleIcrcTransferResult(transferResult);
-					} else {
-						const transferResult = await $state.icpLedger.transfer({
-							to: receiver.toUint8Array(),
-							fee: {e8s: 10000n} as Tokens,
-							memo: BigInt(0),
+						status = handleTransferResult(transferResult);
+					}
+					break;
+				case AssetType.nICP:
+					{
+						const transferResult = await $state.nicpLedger.icrc1_transfer({
+							to: {
+								owner: receiver,
+								subaccount: []
+							} as Account,
+							fee: [],
+							memo: [],
 							from_subaccount: [],
 							created_at_time: [],
-							amount: { e8s: numberToBigintE8s(amount)} as Tokens,
-							} as TransferArgs);
-							status = handleTransferResult(transferResult);
-							console.log(transferResult);
-					}		
-				}
-				break;
-				case AssetType.nICP: {
-					const transferResult = await $state.nicpLedger.icrc1_transfer({
-						to: {
-							owner: receiver,
-							subaccount: []
-						} as Account,
-						fee: [],
-						memo: [],
-						from_subaccount: [],
-						created_at_time: [],
-						amount: numberToBigintE8s(amount)
-					} as TransferArg);
-					status = handleIcrcTransferResult(transferResult);
-				}
-				break;
-				case AssetType.WTN: {
-					const transferResult = await $state.wtnLedger.icrc1_transfer({
-						to: {
-							owner: receiver,
-							subaccount: []
-						} as Account,
-						fee: [],
-						memo: [],
-						from_subaccount: [],
-						created_at_time: [],
-						amount: numberToBigintE8s(amount)
-					} as TransferArg);
-					status = handleIcrcTransferResult(transferResult);
-				}
-				break;
+							amount: amount_e8s
+						} as TransferArg);
+						status = handleTransferResult(transferResult);
+					}
+					break;
+				case AssetType.WTN:
+					{
+						const transferResult = await $state.wtnLedger.icrc1_transfer({
+							to: {
+								owner: receiver,
+								subaccount: []
+							} as Account,
+							fee: [],
+							memo: [],
+							from_subaccount: [],
+							created_at_time: [],
+							amount: amount_e8s
+						} as TransferArg);
+						status = handleTransferResult(transferResult);
+					}
+					break;
 			}
-			
+
 			if (status.success) {
 				toasts.set([...$toasts, Toast.success(`asset sent.`)]);
 			} else {
@@ -198,11 +186,11 @@
 	}
 
 	p {
-		font-family: Arial, Helvetica, sans-serif;
+		font-family: var(--font-type2);
 	}
 
 	span {
-		font-family: Arial, Helvetica, sans-serif;
+		font-family: var(--font-type2);
 	}
 
 	/* === Layout === */
@@ -227,7 +215,7 @@
 		justify-content: space-between;
 		align-items: center;
 		padding: 0 2%;
-		font-family: Arial, Helvetica, sans-serif;
+		font-family: var(--font-type2);
 	}
 
 	.button-container {

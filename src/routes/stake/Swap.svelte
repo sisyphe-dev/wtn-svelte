@@ -238,7 +238,7 @@
 	/* === Base Styles === */
 	p {
 		color: var(--text-color);
-		font-family: Arial, Helvetica, sans-serif;
+		font-family: var(--font-type2);
 		font-weight: bold;
 		text-align: end;
 		margin: 0;
@@ -257,6 +257,7 @@
 		box-shadow: rgba(41, 49, 71, 0.1) 0px 8px 16px;
 		width: 30em;
 		max-width: 95vw;
+		height: auto;
 	}
 
 	.header-container {
@@ -286,7 +287,7 @@
 
 	/* === Components === */
 	.header-btn {
-		font-family: Arial, Helvetica, sans-serif;
+		font-family: var(--font-type2);
 		font-size: 1.2em;
 		color: white;
 		border: none;

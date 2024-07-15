@@ -1,16 +1,12 @@
-import { AssetType, bigintE8sToNumber, E8S, numberToBigintE8s } from '$lib';
-import { AccountIdentifier, ApproveError } from '@dfinity/ledger-icp';
+import { AssetType, bigintE8sToNumber } from '$lib';
+import { AccountIdentifier } from '@dfinity/ledger-icp';
 import { Principal } from '@dfinity/principal';
 import BigNumber from 'bignumber.js';
 import type { _SERVICE as nicpLedgerInterface } from '../declarations/nicp_ledger/nicp_ledger.did';
 import type { _SERVICE as wtnLedgerInterface } from '../declarations/wtn_ledger/wtn_ledger.did';
 import type { _SERVICE as icpLedgerInterface } from '../declarations/nns-ledger/nns-ledger.did';
 import type { _SERVICE as waterNeuronInterface } from '../declarations/water_neuron/water_neuron.did';
-import { nns_ledger } from '../declarations/nns-ledger';
-import { nicp_ledger } from '../declarations/nicp_ledger';
-import { wtn_ledger } from '../declarations/wtn_ledger';
-import { water_neuron } from '../declarations/water_neuron';
-import { fetchState } from './authentification';
+import { fetchActors, type Actors } from './authentification';
 
 interface UserProps {
 	principal: Principal;
@@ -28,7 +24,7 @@ export class User {
 
 	constructor(props: UserProps) {
 		this.principal = props.principal;
-		this.accountId = AccountIdentifier.fromPrincipal({ principal: props.principal }).toHex(); 
+		this.accountId = AccountIdentifier.fromPrincipal({ principal: props.principal }).toHex();
 		this.icpBalanceE8s = props.icpBalanceE8s;
 		this.nicpBalanceE8s = props.nicpBalanceE8s;
 		this.wtnBalanceE8s = props.wtnBalanceE8s;
@@ -70,13 +66,13 @@ export class State {
 	public nicpLedger: nicpLedgerInterface;
 	public waterNeuron: waterNeuronInterface;
 
-	constructor() {
+	constructor(actors: Actors) {
 		this.neuron8yStakeE8s = BigInt(0);
 		this.neuron6mStakeE8s = BigInt(0);
-		this.nicpLedger = nicp_ledger;
-		this.icpLedger = nns_ledger;
-		this.wtnLedger = wtn_ledger;
-		this.waterNeuron = water_neuron;
+		this.nicpLedger = actors.nicpLedger;
+		this.wtnLedger = actors.wtnLedger;
+		this.icpLedger = actors.icpLedger;
+		this.waterNeuron = actors.waterNeuron;
 	}
 
 	async totalIcpDeposited(): Promise<BigNumber> {
@@ -84,7 +80,7 @@ export class State {
 			const neuron6mStake = await this.neuron6mStake();
 			const neuron8yStake = await this.neuron8yStake();
 			return neuron6mStake.plus(neuron8yStake);
-		} catch(e) {
+		} catch (e) {
 			return BigNumber(0);
 		}
 	}
@@ -93,7 +89,7 @@ export class State {
 		try {
 			const info = await this.waterNeuron.get_info();
 			return bigintE8sToNumber(info.neuron_8y_stake_e8s);
-		} catch(e) {
+		} catch (e) {
 			return BigNumber(0);
 		}
 	}
@@ -102,7 +98,7 @@ export class State {
 		try {
 			const info = await this.waterNeuron.get_info();
 			return bigintE8sToNumber(info.neuron_6m_stake_e8s);
-		} catch(e) {
+		} catch (e) {
 			return BigNumber(0);
 		}
 	}
@@ -111,7 +107,7 @@ export class State {
 		try {
 			const info = await this.waterNeuron.get_info();
 			return bigintE8sToNumber(info.exchange_rate);
-		} catch(e) {
+		} catch (e) {
 			return BigNumber(1);
 		}
 	}
@@ -120,7 +116,7 @@ export class State {
 		try {
 			const allocation = await this.waterNeuron.get_airdrop_allocation();
 			return bigintE8sToNumber(allocation);
-		} catch(e) {
+		} catch (e) {
 			return BigNumber(0);
 		}
 	}
@@ -143,15 +139,14 @@ export class State {
 		try {
 			const info = await this.waterNeuron.get_info();
 			return Number(info.stakers_count);
-		} catch(e) {
+		} catch (e) {
 			return 0;
 		}
 	}
 }
 
 export async function provideState(): Promise<State> {
-	let state = new State();
-	state.waterNeuron = await fetchState();
-
+	let actors = await fetchActors();
+	let state = new State(actors);
 	return state;
 }

@@ -3,22 +3,31 @@ import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
 import environment from 'vite-plugin-environment';
 import dotenv from 'dotenv';
-import path from 'path';
-import GlobalPolyFill from "@esbuild-plugins/node-globals-polyfill";
+import inject from '@rollup/plugin-inject';
+
 
 dotenv.config({ path: '../../.env' });
 
 export default defineConfig({
 	build: {
-		emptyOutDir: true
+		emptyOutDir: true,
+		rollupOptions: {
+			plugins: [
+				inject({
+					modules: { Buffer: ['buffer', 'Buffer'] }
+				})
+			]
+
+		}
 	},
 	optimizeDeps: {
 		esbuildOptions: {
 			define: {
 				global: 'globalThis'
-			}
+			},
+
 		},
-		include: ['buffer'] // Ensure buffer is included in optimized dependencies
+		
 	},
 	server: {
 		proxy: {
@@ -32,10 +41,6 @@ export default defineConfig({
 		sveltekit(),
 		environment('all', { prefix: 'CANISTER_' }),
 		environment('all', { prefix: 'DFX_' }),
-		GlobalPolyFill({
-			process: true,
-			buffer: true,
-		}),
 	],
 	resolve: {
 		alias: [
@@ -43,14 +48,8 @@ export default defineConfig({
 				find: 'declarations',
 				replacement: fileURLToPath(new URL('../declarations', import.meta.url)),
 			},
-			{
-				find: 'buffer',
-				replacement: path.resolve(__dirname, 'node_modules/buffer/index.js'), // Resolve buffer
-			},
-			{
-				find: 'process',
-				replacement: path.resolve(__dirname, 'node_modules/process/browser.js'), // Resolve process
-			}
+			
 		]
 	}
 });
+

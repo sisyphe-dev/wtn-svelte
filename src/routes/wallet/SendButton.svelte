@@ -50,7 +50,7 @@
 <style>
 	/* === Base Styles === */
 	h3 {
-		font-family: Arial, Helvetica, sans-serif;
+		font-family: var(--font-type2);
 	}
 
 	/* === Layout === */
@@ -72,8 +72,9 @@
 		position: absolute;
 		color: lightgrey;
 		top: 50%;
+		width: 60%;
 		margin-top: 1em;
-		font-family: Arial, Helvetica, sans-serif;
+		font-family: var(--font-type1);
 	}
 
 	.swap-btn {

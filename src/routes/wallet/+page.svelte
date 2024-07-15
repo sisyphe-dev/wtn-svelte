@@ -8,21 +8,21 @@
 	import { scale } from 'svelte/transition';
 
 	let isAnimating = false;
-    let circleVisible = false;
+	let circleVisible = false;
 	let accountId = false;
 
-    function handleAnimation() {
-        if (!isAnimating) {
-            isAnimating = true;
-            circleVisible = true;
-            setTimeout(() => {
-                circleVisible = false;
-                setTimeout(() => {
-                    isAnimating = false;
-                }, 500);
-            }, 500);
-        }
-    }
+	function handleAnimation() {
+		if (!isAnimating) {
+			isAnimating = true;
+			circleVisible = true;
+			setTimeout(() => {
+				circleVisible = false;
+				setTimeout(() => {
+					isAnimating = false;
+				}, 500);
+			}, 500);
+		}
+	}
 
 	onMount(() => {
 		if (!$user) {
@@ -108,17 +108,17 @@
 	h1 {
 		text-align: center;
 		margin: 0;
-		font-family: Arial, Helvetica, sans-serif;
+		font-family: var(--font-type2);
 	}
 
 	h2 {
 		margin: 0;
 		margin-top: 1em;
-		font-family: Arial, Helvetica, sans-serif;
+		font-family: var(--font-type2);
 	}
 
 	b {
-		font-family: Arial, Helvetica, sans-serif;
+		font-family: var(--font-type2);
 		overflow-wrap: anywhere;
 	}
 
@@ -162,16 +162,15 @@
 	}
 
 	/* === Animation === */
-	
-	.circle {
-        position: absolute;
-        border-radius: 50%;
-        background-color: rgb(37, 139, 255, 0.5);
-        width: 25px;
-        height: 25px;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-    }
 
+	.circle {
+		position: absolute;
+		border-radius: 50%;
+		background-color: rgb(37, 139, 255, 0.5);
+		width: 25px;
+		height: 25px;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+	}
 </style>

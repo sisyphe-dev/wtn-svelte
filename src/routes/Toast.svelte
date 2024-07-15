@@ -8,7 +8,7 @@
 		<div class="toast-container">
 			<div class="info-container">
 				{#if toast.type == ToastType.Success}
-					<div>
+					<div class="info-icon">
 						<svg
 							width="20"
 							height="20"
@@ -95,15 +95,21 @@
 </div>
 
 <style>
+	/* === Base Styles === */
+	p {
+		font-weight: lighter;
+	}
+
+	/* === Layout === */
 	.toast-container {
-		background-color: #66adff;
+		background-color: var(--main-color);
 		box-shadow: 8px 8px 16px 0 rgba(0, 0, 0, 0.25);
 		display: flex;
 		border-radius: 8px;
 		align-items: center;
 		justify-content: space-between;
-		width: 60%;
-		padding: 0 2%;
+		width: 30%;
+		padding: 0 1%;
 	}
 
 	.toasts-container {
@@ -131,5 +137,11 @@
 		margin: 0;
 		cursor: pointer;
 		padding: 0 var(--padding-0_5x);
+	}
+
+	/* === Components === */
+	.info-icon{
+		display: flex;
+		align-items: center;
 	}
 </style>

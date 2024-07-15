@@ -78,6 +78,6 @@
 		flex-direction: column;
 		align-items: center;
 		gap: 8px;
-		font-family: Arial, Helvetica, sans-serif;
+		font-family: var(--font-type2);
 	}
 </style>

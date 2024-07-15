@@ -68,7 +68,7 @@
 		font-weight: 200;
 		text-align: start;
 		text-decoration: none;
-		font-family: Arial;
+		font-family: var(--font-type2);
 		font-weight: 200;
 	}
 

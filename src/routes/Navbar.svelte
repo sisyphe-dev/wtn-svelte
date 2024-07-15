@@ -38,7 +38,7 @@
 						user.set(undefined);
 					}}
 				>
-					<img src="icon/power-off.svg" width="15em" height="15em" alt="Disconnect Icon" />
+					<img src="/icon/power-off.svg" width="15em" height="15em" alt="Disconnect Icon" />
 				</button>
 			</a>
 			<button
@@ -100,7 +100,7 @@
 		align-items: center;
 		text-decoration: none;
 		color: inherit;
-		font-family: Arial;
+		font-family: var(--font-type2);
 	}
 
 	p,
@@ -127,7 +127,7 @@
 	.menu-selection-container h1 {
 		font-size: 4em;
 		cursor: pointer;
-		font-family: Arial;
+		font-family: var(--font-type1);
 		position: absolute;
 	}
 

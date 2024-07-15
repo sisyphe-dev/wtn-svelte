@@ -39,7 +39,7 @@
 			<img
 				width="20em"
 				height="20em"
-				src="icon/down-arrow.svg"
+				src="/icon/down-arrow.svg"
 				alt="Down arrow."
 				class:arrow-down={!toggledMap[i]}
 				class:arrow-up={toggledMap[i]}
@@ -96,7 +96,7 @@
 	h1 {
 		color: white;
 		font-size: 42px;
-		font-family: Arial, Helvetica, sans-serif;
+		font-family: var(--font-type1);
 	}
 
 	h2 {

@@ -16,7 +16,7 @@ export function displayUsFormat(value: BigNumber, decimals = 2): string {
 		maximumFractionDigits: decimals
 	});
 
-	return formatter.format(value.toNumber());
+	return formatter.format(value.toNumber()).replace(/,/g, "'");
 }
 
 export function numberWithPrecision(x: BigNumber, decimals: BigNumber): BigNumber {

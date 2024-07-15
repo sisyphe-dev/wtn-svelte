@@ -96,7 +96,7 @@
 	/* === Base Styles ==== */
 	h1 {
 		text-align: center;
-		font-family: Arial, Helvetica, sans-serif;
+		font-family: var(--font-type1);
 	}
 
 	table {
@@ -104,7 +104,7 @@
 		border-collapse: collapse;
 		margin: 1em;
 		padding: 1em;
-		font-family: Arial, Helvetica, sans-serif;
+		font-family: var(--font-type2);
 	}
 
 	th {

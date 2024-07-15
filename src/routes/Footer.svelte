@@ -5,16 +5,16 @@
 <footer class:filter={$isLogging || $isSelecting}>
 	<div class="central-container">
 		<a href="https://github.com/WaterNeuron" target="_blank" rel="noreferrer">
-			<img alt="Github Icon" src="landing/github-white.svg" />
+			<img alt="Github Icon" src="/landing/github-white.svg" />
 		</a>
 		<div class="central-icons">
 			<a href="https://twitter.com/WaterNeuron" target="_blank" rel="noreferrer">
-				<img alt="Twitter Icon" src="landing/twitter.svg" />
+				<img alt="Twitter Icon" src="/landing/twitter.svg" />
 			</a>
-			<img alt="WTN icon" src="/WTN.png" id="wtn-icon" />
+			<img alt="WTN icon" src="/tokens/WTN.png" id="wtn-icon" />
 		</div>
 		<a href="https://docs.waterneuron.fi/" rel="noreferrer" target="_blank">
-			<img alt="Git book icon" src="icon/gitbook.svg" />
+			<img alt="Git book icon" src="/icon/gitbook.svg" />
 		</a>
 	</div>
 </footer>

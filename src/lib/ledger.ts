@@ -6,10 +6,10 @@ import type {
 	ApproveArgs,
 	ApproveResult,
 	ApproveError
-} from '../declarations/nns-ledger/nns-ledger.did';
+} from '../declarations/nicp_ledger/nicp_ledger.did';
 import type { Result_3, Result_4 } from '../declarations/water_neuron/water_neuron.did';
 import { bigintE8sToNumber } from '$lib';
-import type { Icrc1TransferResult, TransferResult } from '../declarations/nns-ledger/nns-ledger.did';
+import type { TransferResult } from '../declarations/nicp_ledger/nicp_ledger.did';
 import type { _SERVICE as icpLedgerInterface } from '../declarations/nns-ledger/nns-ledger.did';
 import type { _SERVICE as nicpLedgerInterface } from '../declarations/nicp_ledger/nicp_ledger.did';
 import { CANISTER_ID_WATER_NEURON } from './authentification';
@@ -311,16 +311,6 @@ export function handleRetrieveResult(result: Result_4): ConversionResult {
 	}
 }
 
-export function handleIcrcTransferResult(result: Icrc1TransferResult): ConversionResult {
-	if ('Ok' in result) {
-		return { success: true, message: `block index ${result.Ok.toString()}` };
-	} else if ('Err' in result) {
-		return { success: true, message: `Transfer Error: ${result.Err}` };
-	} else {
-		return { success: true, message: 'Error Unkown. Please refresh the page.' };
-	}
-}
-
 export function handleTransferResult(result: TransferResult): ConversionResult {
 	if ('Ok' in result) {
 		return { success: true, message: `block index ${result.Ok.toString()}` };
@@ -330,4 +320,3 @@ export function handleTransferResult(result: TransferResult): ConversionResult {
 		return { success: true, message: 'Error Unkown. Please refresh the page.' };
 	}
 }
-

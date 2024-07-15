@@ -7,7 +7,7 @@
 	import { isLogging, menu, isSelecting, user, state } from '$lib/stores';
 	import { onMount } from 'svelte';
 	import type { Account } from '@dfinity/ledger-icp';
-	import { signIn, fetchState } from '$lib/authentification';
+	import { signIn } from '$lib/authentification';
 	import { User } from '$lib/state';
 	import { AuthClient } from '@dfinity/auth-client';
 	import Toast from './Toast.svelte';
@@ -21,18 +21,18 @@
 
 			const authResult = await signIn();
 
-			$state.wtnLedger = authResult.wtnLedger;
-			$state.icpLedger = authResult.icpLedger;
-			$state.nicpLedger = authResult.nicpLedger;
-			$state.waterNeuron = authResult.waterNeuron;
+			$state.wtnLedger = authResult.actors.wtnLedger;
+			$state.icpLedger = authResult.actors.icpLedger;
+			$state.nicpLedger = authResult.actors.nicpLedger;
+			$state.waterNeuron = authResult.actors.waterNeuron;
 
 			const user_account: Account = {
 				owner: authResult.principal,
 				subaccount: []
 			};
-			const icpBalanceE8s = await $state.icpLedger.icrc1_balance_of(user_account);
 			const nicpBalanceE8s = await $state.nicpLedger.icrc1_balance_of(user_account);
 			const wtnBalanceE8s = await $state.wtnLedger.icrc1_balance_of(user_account);
+			const icpBalanceE8s = await $state.icpLedger.icrc1_balance_of(user_account);
 
 			user.set(
 				new User({ principal: authResult.principal, icpBalanceE8s, nicpBalanceE8s, wtnBalanceE8s })
@@ -43,13 +43,6 @@
 	};
 
 	onMount(() => {
-		const setState = async () => {
-			if ($state) {
-				$state.waterNeuron = await fetchState();
-			}
-		};
-
-		setState();
 		fetchUser();
 
 		const intervalId = setInterval(async () => {
@@ -101,7 +94,18 @@
 		--border-color: rgb(102, 173, 255);
 		--background-color: rgb(12, 44, 76);
 		--text-color: rgb(176, 163, 217);
+		--font-type1: "Akrobat-black";
+		--font-type2: Arial;
 	}
+
+	@font-face {
+		font-family: "Akrobat-black";
+		src: url("/Akrobat-Black.ttf") format("truetype");
+		font-weight: normal;
+		font-style: normal;
+	}
+
+
 	/* === Layout === */
 	.page-container {
 		display: flex;
@@ -120,7 +124,7 @@
 		height: fit-content;
 		min-height: 45vh;
 		width: 100%;
-		gap: 2em;
+		gap: 1.5em;
 		padding-top: 2em;
 		color: white;
 	}

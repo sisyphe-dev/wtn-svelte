@@ -3,16 +3,17 @@
 	import { signIn } from '$lib/authentification';
 	import { User } from '$lib/state';
 	import type { Account } from '@dfinity/ledger-icp';
+
 	async function internetIdentityConnection() {
 		isBusy.set(true);
 
 		try {
 			const authResult = await signIn();
 
-			$state.wtnLedger = authResult.wtnLedger;
-			$state.icpLedger = authResult.icpLedger;
-			$state.nicpLedger = authResult.nicpLedger;
-			$state.waterNeuron = authResult.waterNeuron;
+			$state.wtnLedger = authResult.actors.wtnLedger;
+			$state.icpLedger = authResult.actors.icpLedger;
+			$state.nicpLedger = authResult.actors.nicpLedger;
+			$state.waterNeuron = authResult.actors.waterNeuron;
 
 			const user_account: Account = {
 				owner: authResult.principal,
@@ -76,7 +77,7 @@
 	}
 
 	h2 {
-		font-family: Arial;
+		font-family: var(--font-type2);
 		font-weight: 600;
 		font-size: 20px;
 	}
