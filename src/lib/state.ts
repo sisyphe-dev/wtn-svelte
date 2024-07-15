@@ -1,6 +1,6 @@
 import { AssetType, bigintE8sToNumber, E8S, numberToBigintE8s } from '$lib';
 import { AccountIdentifier, ApproveError } from '@dfinity/ledger-icp';
-import type { Principal } from '@dfinity/principal';
+import { Principal } from '@dfinity/principal';
 import BigNumber from 'bignumber.js';
 import type { _SERVICE as nicpLedgerInterface } from '../declarations/nicp_ledger/nicp_ledger.did';
 import type { _SERVICE as wtnLedgerInterface } from '../declarations/wtn_ledger/wtn_ledger.did';
@@ -28,7 +28,7 @@ export class User {
 
 	constructor(props: UserProps) {
 		this.principal = props.principal;
-		this.accountId = AccountIdentifier.fromPrincipal({ principal: props.principal }).toHex();
+		this.accountId = AccountIdentifier.fromPrincipal({ principal: props.principal }).toHex(); 
 		this.icpBalanceE8s = props.icpBalanceE8s;
 		this.nicpBalanceE8s = props.nicpBalanceE8s;
 		this.wtnBalanceE8s = props.wtnBalanceE8s;
@@ -80,43 +80,47 @@ export class State {
 	}
 
 	async totalIcpDeposited(): Promise<BigNumber> {
-		const neuron6mStake = await this.neuron6mStake();
-		const neuron8yStake = await this.neuron8yStake();
-		return neuron6mStake.plus(neuron8yStake);
+		try {
+			const neuron6mStake = await this.neuron6mStake();
+			const neuron8yStake = await this.neuron8yStake();
+			return neuron6mStake.plus(neuron8yStake);
+		} catch(e) {
+			return BigNumber(0);
+		}
 	}
 
 	async neuron8yStake(): Promise<BigNumber> {
-		if (this.waterNeuron) {
+		try {
 			const info = await this.waterNeuron.get_info();
 			return bigintE8sToNumber(info.neuron_8y_stake_e8s);
-		} else {
+		} catch(e) {
 			return BigNumber(0);
 		}
 	}
 
 	async neuron6mStake(): Promise<BigNumber> {
-		if (this.waterNeuron) {
+		try {
 			const info = await this.waterNeuron.get_info();
 			return bigintE8sToNumber(info.neuron_6m_stake_e8s);
-		} else {
+		} catch(e) {
 			return BigNumber(0);
 		}
 	}
 
 	async exchangeRate(): Promise<BigNumber> {
-		if (this.waterNeuron) {
+		try {
 			const info = await this.waterNeuron.get_info();
 			return bigintE8sToNumber(info.exchange_rate);
-		} else {
+		} catch(e) {
 			return BigNumber(1);
 		}
 	}
 
 	async wtnAllocation(): Promise<BigNumber> {
-		if (this.waterNeuron) {
+		try {
 			const allocation = await this.waterNeuron.get_airdrop_allocation();
 			return bigintE8sToNumber(allocation);
-		} else {
+		} catch(e) {
 			return BigNumber(0);
 		}
 	}
@@ -136,15 +140,14 @@ export class State {
 	}
 
 	async stakersCount(): Promise<Number> {
-		if (this.waterNeuron) {
+		try {
 			const info = await this.waterNeuron.get_info();
 			return Number(info.stakers_count);
-		} else {
+		} catch(e) {
 			return 0;
 		}
 	}
 }
-
 
 export async function provideState(): Promise<State> {
 	let state = new State();

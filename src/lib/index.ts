@@ -1,6 +1,7 @@
 import type { Principal } from '@dfinity/principal';
 import BigNumber from 'bignumber.js';
-import type { WithdrawalStatus } from '../declarations/water_neuron/water_neuron.did';
+import type { NeuronId, WithdrawalStatus } from '../declarations/water_neuron/water_neuron.did';
+import { DEV } from './authentification';
 
 export const E8S = BigNumber(10).pow(BigNumber(8));
 
@@ -18,7 +19,6 @@ export function displayUsFormat(value: BigNumber, decimals = 2): string {
 	return formatter.format(value.toNumber());
 }
 
-// The bignumber.js library allows precise operations to avoid JavaScript unprecise handling of floating-point arithmetic.
 export function numberWithPrecision(x: BigNumber, decimals: BigNumber): BigNumber {
 	const scaleFactor = BigNumber(10).pow(decimals);
 	const xScaled = BigNumber(x).multipliedBy(scaleFactor).integerValue(BigNumber.ROUND_FLOOR);
@@ -125,34 +125,62 @@ export function computeRewards(alreadyDistributed: BigNumber, converting: BigNum
 	return totalRewards;
 }
 
-
-export function renderStatus(status: WithdrawalStatus): string {
-    if ("ConversionDone" in status) {
-      return `<p>
+export async function renderStatus(status: WithdrawalStatus): Promise<string> {
+	if ('ConversionDone' in status) {
+		return `<p>
 	  Conversion done at{" "}
 	  <a
 		target="_blank"
 		rel="noreferrer"
 		href={
-		  ${"https://dashboard.internetcomputer.org/transaction/" +
-		  status.ConversionDone.transfer_block_height}
+		  ${
+				'https://dashboard.internetcomputer.org/transaction/' +
+				status.ConversionDone.transfer_block_height
+			}
 		}
 	  >
-		${"height " + status.ConversionDone.transfer_block_height}
+		${'height ' + status.ConversionDone.transfer_block_height}
 	  </a>
 	</p>`;
-    } else if ("NotFound" in status) {
-      return "Not Found";
-    } else if ("WaitingToSplitNeuron" in status) {
-      return "Waiting to Split Neuron";
-    } else if ("WaitingDissolvement" in status) {
-      if (status.WaitingDissolvement.neuron_id) {
-        return status.WaitingDissolvement.neuron_id.id.toString();
-      } else {
-        return "Waiting dissolvement";
-      }
-    } else if ("WaitingToStartDissolving" in status) {
-      return `Waiting to Start Dissolving (Neuron ID: ${status.WaitingToStartDissolving.neuron_id.id})`;
-    }
-    return "Unknown Status";
-  }
+	} else if ('NotFound' in status) {
+		return 'Not Found';
+	} else if ('WaitingToSplitNeuron' in status) {
+		return 'Waiting to Split Neuron';
+	} else if ('WaitingDissolvement' in status) {
+		if (status.WaitingDissolvement.neuron_id.id) {
+			return displayStatus(status.WaitingDissolvement.neuron_id);
+		} else {
+			return 'Waiting dissolvement';
+		}
+	} else if ('WaitingToStartDissolving' in status) {
+		return `Waiting to Start Dissolving (Neuron ID: ${status.WaitingToStartDissolving.neuron_id.id})`;
+	}
+	return 'Unknown Status';
+}
+
+export async function displayStatus(neuron_id: NeuronId): Promise<string> {
+	if (DEV) {
+		return 'Waiting dissolvement';
+	}
+	try {
+		const response = await fetch('https://ic-api.internetcomputer.org/api/v3/neurons/' + neuron_id);
+		if (!response.ok) {
+			throw new Error('Network response was not ok');
+		}
+		const data = await response.json();
+		const neuron_created_at = data['created_timestamp_seconds'];
+		return displayTimeLeft(Number(neuron_created_at));
+	} catch (error) {
+		throw new Error('Failed to fetch with error: ' + error);
+	}
+}
+
+function displayTimeLeft(created_at: number) {
+	const currentTimestamp = Math.floor(Date.now() / 1000);
+	const sixMonthsInSeconds = 6 * 30.44 * 24 * 60 * 60;
+	const timeLeft = created_at + sixMonthsInSeconds - currentTimestamp;
+	const daysLeft = Math.floor(timeLeft / 60 / 60 / 24);
+	const hoursLeft = Math.floor((timeLeft - daysLeft * 60 * 60 * 24) / 60 / 60);
+
+	return `Dissolvement in ${daysLeft} days and ${hoursLeft} hours`;
+}

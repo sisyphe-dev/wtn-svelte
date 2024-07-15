@@ -18,7 +18,7 @@ const AUTH_MAX_TIME_TO_LIVE = BigInt(60 * 60 * 1000 * 1000 * 1000);
 const AUTH_POPUP_WIDTH = 576;
 const AUTH_POPUP_HEIGHT = 625;
 
-const DEV = import.meta.env.DEV;
+export const DEV = import.meta.env.DEV;
 const INTERNET_IDENTITY_CANISTER_ID = DEV
 	? 'bd3sg-teaaa-aaaaa-qaaba-cai'
 	: 'rdmx6-jaaaa-aaaaa-aaadq-cai';
@@ -150,11 +150,11 @@ export function fetchState(): Promise<waterNeuronInterface> {
 	return new Promise<waterNeuronInterface>(async (resolve, reject) => {
 		try {
 			const agent = new HttpAgent({
-				host: HOST,
-			  });
+				host: HOST
+			});
 			agent.fetchRootKey();
 			const waterNeuron: waterNeuronInterface = Actor.createActor(idlFactoryWaterNeuron, {
-				agent, 
+				agent,
 				canisterId: CANISTER_ID_WATER_NEURON
 			});
 			resolve(waterNeuron);

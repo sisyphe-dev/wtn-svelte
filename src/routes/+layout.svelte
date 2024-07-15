@@ -10,15 +10,14 @@
 	import { signIn, fetchState } from '$lib/authentification';
 	import { User } from '$lib/state';
 	import { AuthClient } from '@dfinity/auth-client';
-	import { Toasts } from '@dfinity/gix-components';
+	import Toast from './Toast.svelte';
 
 	const fetchUser = async () => {
 		try {
 			const authClient = await AuthClient.create();
-			if (!(await authClient.isAuthenticated())){
-
+			if (!(await authClient.isAuthenticated())) {
 				return;
-			} 
+			}
 
 			const authResult = await signIn();
 
@@ -48,8 +47,7 @@
 			if ($state) {
 				$state.waterNeuron = await fetchState();
 			}
-			
-		}
+		};
 
 		setState();
 		fetchUser();
@@ -90,9 +88,9 @@
 		<Navbar />
 		<div class="content-container" class:filter={$isSelecting || $isLogging}>
 			<slot />
-			<Toasts />
 		</div>
 		<Footer />
+		<Toast />
 	</div>
 {/if}
 

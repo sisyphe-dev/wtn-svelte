@@ -12,7 +12,6 @@
 	} from '$lib/ledger';
 	import type { ConversionArg } from '../../declarations/water_neuron/water_neuron.did';
 	import type { Account } from '@dfinity/ledger-icp';
-	import { toastsStore } from '@dfinity/gix-components';
 	import { onMount } from 'svelte';
 
 	let stake = true;
@@ -39,7 +38,7 @@
 	}
 
 	export async function convert(amount: BigNumber, stake: boolean) {
-		if (!($user && $isConverting)) return;
+		if (!($user && !$isConverting)) return;
 
 		isConverting.set(true);
 		if (!stake) {
@@ -62,12 +61,9 @@
 						maybe_subaccount: [],
 						amount_e8s: amountE8s
 					} as ConversionArg);
-					toastsStore.show({ text: `Habiba, Converted ${amount} nICP.`, level: 'success' });
-					toasts.set([...$toasts, Toast.success(`Converted ${amount} nICP.`)]);
 
 					let status = handleRetrieveResult(conversionResult);
 					if (status.success) {
-						toastsStore.show({ text: `Habiba, Converted ${amount} nICP.`, level: 'success' });
 						toasts.set([...$toasts, Toast.success(`Converted ${amount} nICP.`)]);
 					} else {
 						toasts.set([...$toasts, Toast.error(`Conversion failed. ${status.message}`)]);
@@ -99,11 +95,6 @@
 
 					let status = handleStakeResult(conversionResult);
 					if (status.success) {
-						console.log('setted toast', toastsStore);
-						toastsStore.show({ text: `Habib, Converted ${amount} nICP.`, level: 'success' });
-						toasts.set([...$toasts, Toast.success(`Converted ${amount} nICP.`)]);
-						console.log('setted toast', toastsStore);
-
 						toasts.set([...$toasts, Toast.success(`Converted ${amount} ICP.`)]);
 					} else {
 						toasts.set([...$toasts, Toast.error(`Conversion failed. ${status.message}`)]);
@@ -173,21 +164,23 @@
 						...
 					{/if}
 				</p>
-				<p class="reward">
-					Future WTN Airdrop:
-					{#if exchangeRate && totalIcpDeposited}
-						{displayUsFormat(
-							computeRewards(
-								totalIcpDeposited,
-								computeReceiveAmount(stake, BigNumber($inputValue), exchangeRate)
-							),
-							8
-						)}
-					{:else}
-						...
-					{/if}
+				<div class="reward">
+					<p style:margin-right={'3em'}>
+						Future WTN Airdrop:
+						{#if exchangeRate && totalIcpDeposited}
+							{displayUsFormat(
+								computeRewards(
+									totalIcpDeposited,
+									computeReceiveAmount(stake, BigNumber($inputValue), exchangeRate)
+								),
+								8
+							)}
+						{:else}
+							...
+						{/if}
+					</p>
 					<img src="/tokens/WTN.png" width="30em" height="30em" alt="WTN logo" />
-				</p>
+				</div>
 			{:else}
 				<p style:color="#fa796e">
 					{#if exchangeRate}
@@ -231,12 +224,10 @@
 					<svg class="spinner" viewBox="0 0 50 50">
 						<circle class="circle" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle>
 					</svg>
+				{:else if stake}
+					<span>Stake</span>
 				{:else}
-				{#if stake}
-				<span>Stake</span>
-				{:else}
-				<span>Unstake</span>
-				{/if}
+					<span>Unstake</span>
 				{/if}
 			</button>
 		{/if}
@@ -255,6 +246,7 @@
 
 	img {
 		padding: 0.3em;
+		position: absolute;
 	}
 
 	/* === Layout === */
@@ -305,9 +297,10 @@
 	}
 
 	.reward {
-		display: flex;
+		display: inline-flex;
 		align-items: center;
 		justify-content: flex-end;
+		position: relative;
 	}
 
 	.swap-btn {

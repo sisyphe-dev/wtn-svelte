@@ -36,7 +36,14 @@
 		}}>Send</button
 	>
 	{#if asset.type === AssetType.WTN}
-		<p class="airdrop-allocation">Airdrop Allocation: {wtnAllocation} WTN</p>
+		<p class="airdrop-allocation">
+			Airdrop Allocation:
+			{#if wtnAllocation}
+				{displayUsFormat(wtnAllocation)}
+			{:else}
+				...
+			{/if} WTN
+		</p>
 	{/if}
 </div>
 

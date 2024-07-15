@@ -41,8 +41,8 @@
 				height="20em"
 				src="icon/down-arrow.svg"
 				alt="Down arrow."
-				class:arrow-down={toggledMap[i]}
-				class:arrow-up={!toggledMap[i]}
+				class:arrow-down={!toggledMap[i]}
+				class:arrow-up={toggledMap[i]}
 			/>
 		</button>
 

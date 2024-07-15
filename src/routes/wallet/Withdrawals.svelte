@@ -64,7 +64,13 @@
 								{displayNeuronId(details.request.neuron_id)}
 							</a>
 						</td>
-						<td>{renderStatus(details.status)}</td>
+						<td
+							>{#await renderStatus(details.status)}
+								...
+							{:then status}
+								{@html status}
+							{/await}
+						</td>
 					</tr>
 				{/each}
 			{/if}
@@ -82,7 +88,7 @@
 		padding: 2em;
 		display: flex;
 		flex-direction: column;
-		width: 40em;
+		width: 50em;
 		max-width: 80vw;
 		overflow: auto;
 	}

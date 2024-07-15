@@ -3,24 +3,36 @@
 	import { isSelecting, sendAsset, user, toasts, state, isSending } from '$lib/stores';
 	import { Toast } from '$lib/toast';
 	import BigNumber from 'bignumber.js';
-	import type { Account } from '@dfinity/ledger-icp';
+	import { type Account, AccountIdentifier } from '@dfinity/ledger-icp';
 	import { Principal } from '@dfinity/principal';
 	import type {
 		TransferArg,
-		Icrc1TransferResult
+		TransferArgs,
+		Tokens,
 	} from '../../declarations/nns-ledger/nns-ledger.did';
-	import { handleTransferResult } from '$lib/ledger';
+	import { handleIcrcTransferResult, handleTransferResult, type ConversionResult } from '$lib/ledger';
+	import { Buffer } from 'buffer';
 
 	let principal: string;
 	let sendAmount: BigNumber;
 
-	function isValidPrincipal(principal: string): boolean {
-		if (!principal) return true;
+	function getReceiver(input: string): Principal | AccountIdentifier | undefined {
 		try {
-			Principal.fromText(principal);
-			return true;
+			const principal = Principal.fromText(input);
+			return principal;
 		} catch (e) {
-			return false;
+			if ($sendAsset.type === AssetType.ICP) {
+				try{
+					const accountId = AccountIdentifier.fromHex(input);
+					// const accountId =  Uint8Array.from(Buffer.from(input, "hex"));
+					return accountId;
+				} catch (error) {
+					console.log(error);
+					return undefined;
+				}
+			}
+			console.log(e);
+			return undefined;
 		}
 	}
 
@@ -32,61 +44,87 @@
 		}
 	}
 
-	async function icrcTransfer(amount: BigNumber, principal: string) {
+	async function icrcTransfer(amount: BigNumber, input: string) {
 		isSending.set(true);
-		if (amount && principal && isValidAmount(amount) && isValidPrincipal(principal)) {
-			let transferResult: Icrc1TransferResult;
-			switch ($sendAsset.type) {
-				case AssetType.ICP: {
-					transferResult = await $state.icpLedger.icrc1_transfer({
-						to: {
-							owner: Principal.fromText(principal),
-							subaccount: []
-						} as Account,
-						fee: [],
-						memo: [],
-						from_subaccount: [],
-						created_at_time: [],
-						amount: numberToBigintE8s(amount)
-					} as TransferArg);
-				}
-				case AssetType.nICP: {
-					transferResult = await $state.nicpLedger.icrc1_transfer({
-						to: {
-							owner: Principal.fromText(principal),
-							subaccount: []
-						} as Account,
-						fee: [],
-						memo: [],
-						from_subaccount: [],
-						created_at_time: [],
-						amount: numberToBigintE8s(amount)
-					} as TransferArg);
-				}
-				case AssetType.WTN: {
-					transferResult = await $state.wtnLedger.icrc1_transfer({
-						to: {
-							owner: Principal.fromText(principal),
-							subaccount: []
-						} as Account,
-						fee: [],
-						memo: [],
-						from_subaccount: [],
-						created_at_time: [],
-						amount: numberToBigintE8s(amount)
-					} as TransferArg);
-				}
+		if (amount && principal && isValidAmount(amount)) {
+			const receiver = getReceiver(input);
+			if (!receiver) {
+				isSending.set(false);
+				return;
 			}
 
-			let status = handleTransferResult(transferResult);
+			let status: ConversionResult;
+			switch ($sendAsset.type) {
+				case AssetType.ICP: {
+					if (receiver instanceof Principal) {
+						const transferResult = await $state.icpLedger.icrc1_transfer({
+							to: {
+								owner: receiver,
+								subaccount: []
+							} as Account,
+							fee: [],
+							memo: [],
+							from_subaccount: [],
+							created_at_time: [],
+							amount: numberToBigintE8s(amount)
+						} as TransferArg);
+						status = handleIcrcTransferResult(transferResult);
+					} else {
+						const transferResult = await $state.icpLedger.transfer({
+							to: receiver.toUint8Array(),
+							fee: {e8s: 10000n} as Tokens,
+							memo: BigInt(0),
+							from_subaccount: [],
+							created_at_time: [],
+							amount: { e8s: numberToBigintE8s(amount)} as Tokens,
+							} as TransferArgs);
+							status = handleTransferResult(transferResult);
+							console.log(transferResult);
+					}		
+				}
+				break;
+				case AssetType.nICP: {
+					const transferResult = await $state.nicpLedger.icrc1_transfer({
+						to: {
+							owner: receiver,
+							subaccount: []
+						} as Account,
+						fee: [],
+						memo: [],
+						from_subaccount: [],
+						created_at_time: [],
+						amount: numberToBigintE8s(amount)
+					} as TransferArg);
+					status = handleIcrcTransferResult(transferResult);
+				}
+				break;
+				case AssetType.WTN: {
+					const transferResult = await $state.wtnLedger.icrc1_transfer({
+						to: {
+							owner: receiver,
+							subaccount: []
+						} as Account,
+						fee: [],
+						memo: [],
+						from_subaccount: [],
+						created_at_time: [],
+						amount: numberToBigintE8s(amount)
+					} as TransferArg);
+					status = handleIcrcTransferResult(transferResult);
+				}
+				break;
+			}
+			
 			if (status.success) {
 				toasts.set([...$toasts, Toast.success(`asset sent.`)]);
 			} else {
 				toasts.set([...$toasts, Toast.error(`Conversion failed. ${status.message}`)]);
 			}
 			isSelecting.set(false);
+			isSending.set(false);
 		}
 		isSending.set(false);
+		isSelecting.set(false);
 	}
 </script>
 
@@ -98,7 +136,7 @@
 	<div>
 		<p>Destination</p>
 		<input placeholder="Address" bind:value={principal} />
-		{#if !isValidPrincipal(principal)}
+		{#if principal && !getReceiver(principal)}
 			<span class="error"> Please enter a valid address. </span>
 		{/if}
 	</div>
@@ -241,5 +279,25 @@
 	input::-webkit-inner-spin-button {
 		-webkit-appearance: none;
 		margin: 0;
+	}
+
+	/* === Animation === */
+
+	.spinner {
+		width: 2em;
+		height: 2em;
+		border: 3px solid white;
+		border-top-color: transparent;
+		border-radius: 50%;
+		animation: spin 1s linear infinite;
+	}
+
+	@keyframes spin {
+		from {
+			transform: rotate(0deg);
+		}
+		to {
+			transform: rotate(360deg);
+		}
 	}
 </style>
