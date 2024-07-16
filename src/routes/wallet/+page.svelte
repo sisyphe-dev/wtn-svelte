@@ -35,9 +35,9 @@
 <div class="wallet-menu-container">
 	<h1>Wallet</h1>
 	<div class="address-container">
-		<h3>ICP Account Id</h3>
+		<h2>ICP Account Id</h2>
 		<div class="principal-container">
-			<b>{$user?.accountId}</b>
+			<p>{$user?.accountId}</p>
 			<button
 				class="copy-btn"
 				on:click={() => {
@@ -55,9 +55,9 @@
 		<SendButton asset={new Asset(AssetType.ICP)} />
 	</div>
 	<div class="address-container">
-		<h3>Principal Address</h3>
+		<h2>Principal Address</h2>
 		<div class="principal-container">
-			<b>{$user?.principal}</b>
+			<p>{$user?.principal}</p>
 			<button
 				class="copy-btn"
 				on:click={() => {
@@ -86,13 +86,13 @@
 		font-family: var(--font-type2);
 	}
 
-	h3 {
+	h2 {
 		margin: 0;
 		margin-top: 1em;
 		font-family: var(--font-type2);
 	}
 
-	b {
+	p {
 		font-family: var(--font-type2);
 		overflow-wrap: anywhere;
 	}
@@ -106,14 +106,13 @@
 		padding: 2em;
 		display: flex;
 		flex-direction: column;
-		width: 50em;
+		width: 40em;
 		max-width: 80vw;
 	}
 
 	.principal-container {
 		margin-left: 1em;
 		display: flex;
-		margin-top: 1em;
 		align-items: center;
 	}
 

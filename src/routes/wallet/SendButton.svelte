@@ -22,10 +22,10 @@
 
 <div class="token-balance-container">
 	<div class="balance">
-		<h3>
+		<p>
 			{displayUsFormat($user ? $user.getBalance(asset.type) : BigNumber(0), 8)}
 			{asset.intoStr()}
-		</h3>
+		</p>
 		<img alt="{asset.intoStr()} logo" src={asset.getUrl()} width="30px" height="30px" />
 	</div>
 	<button
@@ -49,7 +49,7 @@
 
 <style>
 	/* === Base Styles === */
-	h3 {
+	p {
 		font-family: var(--font-type2);
 	}
 
@@ -74,7 +74,7 @@
 		top: 50%;
 		width: 60%;
 		margin-top: 1em;
-		font-family: var(--font-type1);
+		font-family: var(--font-type2);
 	}
 
 	.swap-btn {

@@ -4,6 +4,9 @@
 
 <footer class:filter={$isLogging || $isSelecting}>
 	<div class="central-container">
+		<a href="https://oc.app/assets/spinner.svg" rel="noreferrer" target="_blank">
+			<img alt="Open chat icon" src="https://oc.app/assets/spinner.svg" />
+		</a>
 		<a href="https://github.com/WaterNeuron" target="_blank" rel="noreferrer">
 			<img alt="Github Icon" src="/landing/github-white.svg" />
 		</a>
@@ -15,6 +18,9 @@
 		</div>
 		<a href="https://docs.waterneuron.fi/" rel="noreferrer" target="_blank">
 			<img alt="Git book icon" src="/icon/gitbook.svg" />
+		</a>
+		<a href="https://docs.waterneuron.fi/" rel="noreferrer" target="_blank">
+			<img alt="Git book icon" src="/icon/telegram.svg" />
 		</a>
 	</div>
 </footer>

@@ -2,7 +2,8 @@ dfx identity use default
 
 dfx nns install
 
-cp /Users/ulyssekaz/sisyphe/wtn_svelte/wasm/governance-canister.wasm /Users/ulyssekaz/.cache/dfinity/versions/0.16.1/wasms/governance-canister_test.wasm
+cp /Users/ulyssekaz/sisyphe/wtn_svelte/wasm/governance-canister_test.wasm /Users/ulyssekaz/.cache/dfinity/versions/0.16.1/wasms/governance-canister_test.wasm
+cp /Users/ulyssekaz/sisyphe/wtn_svelte/wasm/governance-canister_test.wasm /Users/ulyssekaz/.cache/dfinity/versions/0.16.1/wasms/governance-canister.wasm
 
 dfx canister create water_neuron --specified-id n76cn-tyaaa-aaaam-acc5a-cai
 dfx canister create nicp_ledger --specified-id ny7ez-6aaaa-aaaam-acc5q-cai
@@ -17,5 +18,5 @@ dfx deploy internet_identity
 
 dfx identity use icp-ident-RqOPnjj5ERjAEnwlvfKw
 
-# dfx ledger transfer --memo 0 --icp 1_500_000 0be44491707d4b564caa515730dca79f70837811dd6202b2f498b26f4e59a01c
+# dfx ledger transfer --memo 0 --icp 1_500_000 3649a972346629c3ffc64456a86dafa7c4d729f69f6d2f588e3a6e36a72cb3b5
 

@@ -40,18 +40,17 @@
 	<table class="withdrawal-requests-table">
 		<thead>
 			<tr>
-				<th>Id</th>
 				<th>nICP Burned</th>
 				<th>ICP Due</th>
 				<th>Neuron Id</th>
 				<th>Status</th>
+				<th>Id</th>
 			</tr>
 		</thead>
 		<tbody>
 			{#if withdrawalRequests}
 				{#each withdrawalRequests as details}
 					<tr>
-						<td>{details.request.withdrawal_id}</td>
 						<td>{displayUsFormat(bigintE8sToNumber(details.request.nicp_burned))}</td>
 						<td>{displayUsFormat(bigintE8sToNumber(details.request.icp_due))}</td>
 						<td>
@@ -71,6 +70,7 @@
 								{@html status}
 							{/await}
 						</td>
+						<td>{details.request.withdrawal_id}</td>
 					</tr>
 				{/each}
 			{/if}
@@ -88,8 +88,8 @@
 		padding: 2em;
 		display: flex;
 		flex-direction: column;
-		width: 50em;
-		max-width: 80vw;
+		width: 40em;
+		max-width: 95vw;
 		overflow: auto;
 	}
 
@@ -121,5 +121,12 @@
 	a {
 		text-decoration: underline;
 		color: var(--text-color);
+	}
+
+	/* === Responsive === */
+	@media (max-width: 767px) {
+		.withdrawals-container {
+			padding: 2em;
+		}
 	}
 </style>

@@ -269,7 +269,6 @@
 	}
 
 	.toggle-btn {
-		color: black;
 		background: var(--main-color);
 		min-width: 80px;
 		position: relative;
@@ -280,6 +279,9 @@
 		max-width: none;
 		height: 60px;
 		font-weight: bold;
+		display: flex;
+		justify-content: center;
+		align-items: center;
 	}
 
 	.toggle-btn:hover {

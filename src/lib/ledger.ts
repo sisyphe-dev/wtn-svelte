@@ -17,6 +17,8 @@ import type { _SERVICE as icpLedgerInterface } from '../declarations/nns-ledger/
 import type { _SERVICE as nicpLedgerInterface } from '../declarations/nicp_ledger/nicp_ledger.did';
 import { CANISTER_ID_WATER_NEURON } from './authentification';
 
+const DEFAULT_ERROR_MESSAGE: string = 'Unknown result, please refresh the page.';
+
 function handleApproveError(error: ApproveError) {
 	if ('GenericError' in error) {
 		console.error(`Error: ${error.GenericError.message}, Code: ${error.GenericError.error_code}`);
@@ -49,7 +51,7 @@ export function handleApproveResult(result: ApproveResult): string {
 	} else if ('Ok' in result) {
 		return '';
 	} else {
-		return 'Unknown result, refresh the page';
+		return DEFAULT_ERROR_MESSAGE;
 	}
 }
 
@@ -161,19 +163,19 @@ export function handleStakeResult(result: Result_3): ConversionResult {
 						case 'BadBurn':
 							return {
 								success: false,
-								message: `Bad burn. Minimum burn amount: ${transferError[transferErrorKey]['min_burn_amount']}`
+								message: `Bad burn. Minimum burn amount: ${bigintE8sToNumber(transferError[transferErrorKey]['min_burn_amount'])}`
 							};
 
 						case 'Duplicate':
 							return {
 								success: false,
-								message: `Duplicate. Already occurring transfer: ${transferError[transferErrorKey]['duplicate_of']}`
+								message: `Duplicate transfer of: ${transferError[transferErrorKey]['duplicate_of']}`
 							};
 
 						case 'BadFee':
 							return {
 								success: false,
-								message: `Bad fee. Expected fee: ${transferError[transferErrorKey]['expected_fee']}`
+								message: `Bad fee, expected ${bigintE8sToNumber(transferError[transferErrorKey]['expected_fee'])}`
 							};
 
 						case 'CreatedInFuture':
@@ -188,7 +190,7 @@ export function handleStakeResult(result: Result_3): ConversionResult {
 						case 'InsufficientFunds':
 							return {
 								success: false,
-								message: `Insufficient funds. Balance: ${transferError[transferErrorKey]['balance']}`
+								message: `Insufficient funds, current balance: ${bigintE8sToNumber(transferError[transferErrorKey]['balance'])}`
 							};
 
 						default:
@@ -218,25 +220,25 @@ export function handleStakeResult(result: Result_3): ConversionResult {
 						case 'InsufficientAllowance':
 							return {
 								success: false,
-								message: `Insufficient allowance. Current allowance: ${transferFromError[transferFromErrorKey]['allowance']}`
+								message: `Insufficient allowance: ${bigintE8sToNumber(transferFromError[transferFromErrorKey]['allowance'])}`
 							};
 
 						case 'BadBurn':
 							return {
 								success: false,
-								message: `Bad burn. Minimum burn amount: ${transferFromError[transferFromErrorKey]['min_burn_amount']}`
+								message: `Bad burn, minimum burn amount: ${bigintE8sToNumber(transferFromError[transferFromErrorKey]['min_burn_amount'])}`
 							};
 
 						case 'Duplicate':
 							return {
 								success: false,
-								message: `Duplicate. Already occurring transfer: ${transferFromError[transferFromErrorKey]['duplicate_of']}`
+								message: `Duplicate transfer of: ${transferFromError[transferFromErrorKey]['duplicate_of']}`
 							};
 
 						case 'BadFee':
 							return {
 								success: false,
-								message: `Bad fee. Expected fee: ${transferFromError[transferFromErrorKey]['expected_fee']}`
+								message: `Bad fee, expected: ${bigintE8sToNumber(transferFromError[transferFromErrorKey]['expected_fee'])}`
 							};
 
 						case 'CreatedInFuture':
@@ -251,7 +253,7 @@ export function handleStakeResult(result: Result_3): ConversionResult {
 						case 'InsufficientFunds':
 							return {
 								success: false,
-								message: `Insufficient funds. Balance: ${transferFromError[transferFromErrorKey]['balance']}`
+								message: `Insufficient funds, balance: ${bigintE8sToNumber(transferFromError[transferFromErrorKey]['balance'])}`
 							};
 
 						default:
@@ -263,13 +265,13 @@ export function handleStakeResult(result: Result_3): ConversionResult {
 
 					switch (guardErrorKey) {
 						case 'AlreadyProcessing':
-							return { success: false, message: `Guard Error. Conversion already processing.` };
+							return { success: false, message: `Conversion already processing.` };
 						case 'TooManyConcurrentRequests':
-							return { success: false, message: `Guard Error. Too many concurrent requests.` };
+							return { success: false, message: `Too many concurrent requests.` };
 					}
 
 				default:
-					return { success: false, message: 'Unknown Conversion Error. Please refresh the page.' };
+					return { success: false, message: DEFAULT_ERROR_MESSAGE };
 			}
 		default:
 			return { success: false, message: 'Unknown Error.' };
@@ -283,7 +285,7 @@ export function handleRetrieveResult(result: Result_4): ConversionResult {
 		case 'Ok':
 			return {
 				success: true,
-				message: `Converted ICP to nICP at https://dashboard.internetcomputer.org/transaction/${result[key]}`
+				message: `Successful conversion at block index ${result[key]['block_index']}`
 			};
 		case 'Err':
 			const error = result[key];
@@ -309,19 +311,19 @@ export function handleRetrieveResult(result: Result_4): ConversionResult {
 						case 'BadBurn':
 							return {
 								success: false,
-								message: `Bad burn. Minimum burn amount: ${transferError[transferErrorKey]['min_burn_amount']}`
+								message: `Bad burn, minimum burn amount: ${bigintE8sToNumber(transferError[transferErrorKey]['min_burn_amount'])}`
 							};
 
 						case 'Duplicate':
 							return {
 								success: false,
-								message: `Duplicate. Already occurring transfer: ${transferError[transferErrorKey]['duplicate_of']}`
+								message: `Duplicate, already occurring transfer: ${transferError[transferErrorKey]['duplicate_of']}`
 							};
 
 						case 'BadFee':
 							return {
 								success: false,
-								message: `Bad fee. Expected fee: ${transferError[transferErrorKey]['expected_fee']}`
+								message: `Bad fee, expected: ${bigintE8sToNumber(transferError[transferErrorKey]['expected_fee'])}`
 							};
 
 						case 'CreatedInFuture':
@@ -331,12 +333,12 @@ export function handleRetrieveResult(result: Result_4): ConversionResult {
 							};
 
 						case 'TooOld':
-							return { success: false, message: `The transfer is too old.` };
+							return { success: false, message: `Transfer is too old.` };
 
 						case 'InsufficientFunds':
 							return {
 								success: false,
-								message: `Insufficient funds. Balance: ${transferError[transferErrorKey]['balance']}`
+								message: `Insufficient funds, balance: ${bigintE8sToNumber(transferError[transferErrorKey]['balance'])}`
 							};
 
 						default:
@@ -346,7 +348,7 @@ export function handleRetrieveResult(result: Result_4): ConversionResult {
 				case 'AmountTooLow':
 					return {
 						success: false,
-						message: `Amount too low. Should be greater than ${bigintE8sToNumber(error[errorKey]['minimum_amount_e8s'])}`
+						message: `Amount too low, minimum amount: ${bigintE8sToNumber(error[errorKey]['minimum_amount_e8s'])}`
 					};
 
 				case 'TransferFromError':
@@ -366,13 +368,13 @@ export function handleRetrieveResult(result: Result_4): ConversionResult {
 						case 'InsufficientAllowance':
 							return {
 								success: false,
-								message: `Insufficient allowance. Current allowance: ${transferFromError[transferFromErrorKey]['allowance']}`
+								message: `Insufficient allowance, current allowance: ${bigintE8sToNumber(transferFromError[transferFromErrorKey]['allowance'])}`
 							};
 
 						case 'BadBurn':
 							return {
 								success: false,
-								message: `Bad burn. Minimum burn amount: ${transferFromError[transferFromErrorKey]['min_burn_amount']}`
+								message: `Bad burn, minimum burn amount: ${bigintE8sToNumber(transferFromError[transferFromErrorKey]['min_burn_amount'])}`
 							};
 
 						case 'Duplicate':
@@ -384,13 +386,13 @@ export function handleRetrieveResult(result: Result_4): ConversionResult {
 						case 'BadFee':
 							return {
 								success: false,
-								message: `Bad fee. Expected fee: ${transferFromError[transferFromErrorKey]['expected_fee']}`
+								message: `Bad fee. Expected fee: ${bigintE8sToNumber(transferFromError[transferFromErrorKey]['expected_fee'])}`
 							};
 
 						case 'CreatedInFuture':
 							return {
 								success: false,
-								message: `Created in future: ${transferFromError[transferFromErrorKey]['ledger_time']}`
+								message: `Created in future: ${bigintE8sToNumber(transferFromError[transferFromErrorKey]['ledger_time'])}`
 							};
 
 						case 'TooOld':
@@ -399,7 +401,7 @@ export function handleRetrieveResult(result: Result_4): ConversionResult {
 						case 'InsufficientFunds':
 							return {
 								success: false,
-								message: `Insufficient funds. Balance: ${transferFromError[transferFromErrorKey]['balance']}`
+								message: `Insufficient funds. Balance: ${bigintE8sToNumber(transferFromError[transferFromErrorKey]['balance'])}`
 							};
 
 						default:
@@ -417,7 +419,7 @@ export function handleRetrieveResult(result: Result_4): ConversionResult {
 					}
 
 				default:
-					return { success: false, message: 'Unknown Conversion Error. Please refresh the page.' };
+					return { success: false, message: DEFAULT_ERROR_MESSAGE };
 			}
 		default:
 			return { success: false, message: 'Unknown Error.' };
@@ -443,23 +445,23 @@ export function handleTransferResult(result: TransferResult): ConversionResult {
 				case 'BadFee':
 					return {
 						success: false,
-						message: `Bad fee. Expected fee: ${error[errorKey]['expected_fee']}`
+						message: `Bad fee, expected: ${bigintE8sToNumber(error[errorKey]['expected_fee'])}`
 					};
 				case 'TxDuplicate':
 					return {
 						success: false,
-						message: `Duplicate. Already occurring transfer: ${error[errorKey]['duplicate_of']}`
+						message: `Duplicate, already occurring transfer: ${error[errorKey]['duplicate_of']}`
 					};
 				case 'TxCreatedInFuture':
 					return {
 						success: false,
-						message: `The transfer will be created in future.`
+						message: `The transfer is created in future.`
 					};
 
 				case 'InsufficientFunds':
 					return {
 						success: false,
-						message: `Insufficient funds. Balance: ${error[errorKey]['balance']}`
+						message: `Insufficient funds, balance: ${bigintE8sToNumber(error[errorKey]['balance'])}`
 					};
 				default:
 					return {
@@ -496,12 +498,12 @@ export function handleIcrcTransferResult(result: Icrc1TransferResult): Conversio
 				case 'BadFee':
 					return {
 						success: false,
-						message: `Bad fee. Expected fee: ${error[errorKey]['min_burn_amount']}`
+						message: `Bad fee, expected: ${bigintE8sToNumber(error[errorKey]['min_burn_amount'])}`
 					};
 				case 'Duplicate':
 					return {
 						success: false,
-						message: `Duplicate. Already occurring transfer: ${error[errorKey]['duplicate_of']}`
+						message: `Duplicate transfer of: ${error[errorKey]['duplicate_of']}`
 					};
 				case 'CreatedInFuture':
 					return {
@@ -512,7 +514,7 @@ export function handleIcrcTransferResult(result: Icrc1TransferResult): Conversio
 				case 'InsufficientFunds':
 					return {
 						success: false,
-						message: `Insufficient funds. Balance: ${error[errorKey]['balance']}`
+						message: `Insufficient funds, balance: ${bigintE8sToNumber(error[errorKey]['balance'])}`
 					};
 
 				case 'GenericError':
@@ -524,7 +526,7 @@ export function handleIcrcTransferResult(result: Icrc1TransferResult): Conversio
 				case 'BadBurn':
 					return {
 						success: false,
-						message: `Bad burn. Minimum burn amount: ${error[errorKey]['min_burn_amount']}`
+						message: `Bad burn, minimum burn amount: ${bigintE8sToNumber(error[errorKey]['min_burn_amount'])}`
 					};
 
 				default:
@@ -538,7 +540,7 @@ export function handleIcrcTransferResult(result: Icrc1TransferResult): Conversio
 		default:
 			return {
 				success: false,
-				message: `Unknown Error. Try again.`
+				message: DEFAULT_ERROR_MESSAGE
 			};
 	}
 }
