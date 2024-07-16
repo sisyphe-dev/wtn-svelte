@@ -18,5 +18,7 @@ dfx deploy internet_identity
 
 dfx identity use icp-ident-RqOPnjj5ERjAEnwlvfKw
 
-# dfx ledger transfer --memo 0 --icp 1_500_000 3649a972346629c3ffc64456a86dafa7c4d729f69f6d2f588e3a6e36a72cb3b5
+# dfx ledger transfer --memo 0 --icp 1_00_000 3649a972346629c3ffc64456a86dafa7c4d729f69f6d2f588e3a6e36a72cb3b5
+
+#water neuron account id: 0be44491707d4b564caa515730dca79f70837811dd6202b2f498b26f4e59a01c
 

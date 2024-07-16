@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { AssetType, numberToBigintE8s } from '$lib';
+	import { Asset, AssetType, numberToBigintE8s } from '$lib';
 	import { isSelecting, sendAsset, user, toasts, state, isSending } from '$lib/stores';
 	import { Toast } from '$lib/toast';
 	import BigNumber from 'bignumber.js';
@@ -18,6 +18,7 @@
 
 	let principal: string;
 	let sendAmount: BigNumber;
+	const assets = [new Asset(AssetType.ICP), new Asset(AssetType.nICP), new Asset(AssetType.WTN)];
 
 	function getReceiver(input: string): Principal | AccountIdentifier | undefined {
 		try {
@@ -26,6 +27,7 @@
 		} catch (e) {
 			if ($sendAsset.type === AssetType.ICP) {
 				try {
+					if (input.length !== 64) return undefined;
 					const accountId = AccountIdentifier.fromHex(input);
 					return accountId;
 				} catch (error) {
@@ -138,8 +140,21 @@
 <div class="send-container">
 	<div class="header-container">
 		<h2>Send {$sendAsset.intoStr()}</h2>
-		<img alt="{$sendAsset.intoStr()} logo" src={$sendAsset.getUrl()} width="50px" height="50px" />
+		<img alt="ICP logo" src={$sendAsset.getUrl()} width="50px" height="50px" />
 	</div>
+	{#if $user}
+		<div>
+			<p>Balances</p>
+			<div style:display={'flex'}>
+			{#each assets as asset}
+			<div class="balances">
+				<span>{$user.getBalance(asset.type)} {asset.intoStr()}</span>
+				<img alt="{asset.intoStr()} logo" src={asset.getUrl()} width="20px" height="20px" />
+			</div>
+			{/each}
+		</div>
+		</div>
+	{/if}
 	<div>
 		<p>Destination</p>
 		<input placeholder="Address" bind:value={principal} />
@@ -154,7 +169,11 @@
 			<button
 				class="max-btn"
 				on:click={() => {
-					sendAmount = $user ? $user.getBalance($sendAsset.type) : BigNumber(0);
+					sendAmount =
+						$user &&
+						$user.getBalance($sendAsset.type).isGreaterThanOrEqualTo($sendAsset.getTransferFee())
+							? $user.getBalance($sendAsset.type).minus($sendAsset.getTransferFee())
+							: BigNumber(0);
 				}}
 			>
 				MAX
@@ -216,6 +235,9 @@
 
 	span {
 		font-family: var(--font-type2);
+		margin-left: 1em;
+		display: flex;
+		align-items: center;
 	}
 
 	/* === Layout === */
@@ -266,6 +288,12 @@
 		position: relative;
 		display: flex;
 		align-items: center;
+	}
+
+	.balances {
+		display: flex;
+		align-items: center;
+		gap: 0.5em;
 	}
 
 	.toggle-btn {
