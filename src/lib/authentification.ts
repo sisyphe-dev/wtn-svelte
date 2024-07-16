@@ -5,10 +5,10 @@ import { HttpAgent, Actor, type Identity } from '@dfinity/agent';
 import type { _SERVICE as nicpLedgerInterface } from '../declarations/nicp_ledger/nicp_ledger.did';
 import type { _SERVICE as wtnLedgerInterface } from '../declarations/wtn_ledger/wtn_ledger.did';
 import type { _SERVICE as waterNeuronInterface } from '../declarations/water_neuron/water_neuron.did';
-import type { _SERVICE as icpLedgerInterface} from '../declarations/nns-ledger/nns-ledger.did';
+import type { _SERVICE as icpLedgerInterface } from '../declarations/nns-ledger/nns-ledger.did';
 import { idlFactory as idlFactoryNicp } from '../declarations/nicp_ledger';
 import { idlFactory as idlFactoryWtn } from '../declarations/wtn_ledger';
-import { idlFactory as idlFactoryWaterNeuron } from '../declarations/water_neuron';;
+import { idlFactory as idlFactoryWaterNeuron } from '../declarations/water_neuron';
 import { idlFactory as idlFactoryIcp } from '../declarations/nns-ledger';
 
 // How long the delegation identity should remain valid?

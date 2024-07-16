@@ -54,7 +54,7 @@
 				);
 
 				if (messageError) {
-					toasts.set([...$toasts, Toast.error(messageError)]);
+					toasts.add(Toast.error(messageError));
 				} else {
 					amountE8s -= BigInt(10_000);
 					const conversionResult = await $state.waterNeuron.nicp_to_icp({
@@ -64,13 +64,13 @@
 
 					let status = handleRetrieveResult(conversionResult);
 					if (status.success) {
-						toasts.set([...$toasts, Toast.success(`Converted ${amount} nICP.`)]);
+						toasts.add(Toast.success(status.message));
 					} else {
-						toasts.set([...$toasts, Toast.error(`Conversion failed. ${status.message}`)]);
+						toasts.add(Toast.error(status.message));
 					}
 				}
 			} else {
-				toasts.set([...$toasts, Toast.error('Conversion failed due to nICP balance.')]);
+				toasts.add(Toast.error('Conversion failed due to nICP balance.'));
 			}
 		} else {
 			if ($user.icpBalance().isGreaterThanOrEqualTo(amount) && amount.isGreaterThan(0)) {
@@ -85,7 +85,7 @@
 				);
 
 				if (messageError) {
-					toasts.set([...$toasts, Toast.error(messageError)]);
+					toasts.add(Toast.error(messageError));
 				} else {
 					amountE8s -= BigInt(10_000);
 					const conversionResult = await $state.waterNeuron.icp_to_nicp({
@@ -95,13 +95,13 @@
 
 					let status = handleStakeResult(conversionResult);
 					if (status.success) {
-						toasts.set([...$toasts, Toast.success(`Converted ${amount} ICP.`)]);
+						toasts.add(Toast.success(status.message));
 					} else {
-						toasts.set([...$toasts, Toast.error(`Conversion failed. ${status.message}`)]);
+						toasts.add(Toast.error(status.message));
 					}
 				}
 			} else {
-				toasts.set([...$toasts, Toast.error('Conversion failed due to ICP balance.')]);
+				toasts.add(Toast.error('Conversion failed due to ICP balance.'));
 			}
 		}
 		isConverting.set(false);

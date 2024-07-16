@@ -9,7 +9,10 @@ import type {
 } from '../declarations/nicp_ledger/nicp_ledger.did';
 import type { Result_3, Result_4 } from '../declarations/water_neuron/water_neuron.did';
 import { bigintE8sToNumber } from '$lib';
-import type { TransferResult } from '../declarations/nicp_ledger/nicp_ledger.did';
+import type {
+	TransferResult,
+	Icrc1TransferResult
+} from '../declarations/nns-ledger/nns-ledger.did';
 import type { _SERVICE as icpLedgerInterface } from '../declarations/nns-ledger/nns-ledger.did';
 import type { _SERVICE as nicpLedgerInterface } from '../declarations/nicp_ledger/nicp_ledger.did';
 import { CANISTER_ID_WATER_NEURON } from './authentification';
@@ -312,6 +315,59 @@ export function handleRetrieveResult(result: Result_4): ConversionResult {
 }
 
 export function handleTransferResult(result: TransferResult): ConversionResult {
+	const key = Object.keys(result)[0] as keyof TransferResult;
+
+	switch (key) {
+		case 'Ok':
+			return {
+				success: true,
+				message: `Successful transfer at <a style="text-decoration: underline; color: var(--text-color);" href=https://dashboard.internetcomputer.org/transaction/${result[key][0]}>${result[key][0]}</a>`
+			};
+		case 'Err': {
+			const error = result[key];
+			const errorKey = Object(error[key])[0];
+
+			switch (errorKey) {
+				case 'TxTooOld':
+					return { success: false, message: `The transfer is too old.` };
+				case 'BadFee':
+					return {
+						success: false,
+						message: `Bad fee. Expected fee: ${error[errorKey][0]}`
+					};
+				case 'TxDuplicate':
+					return {
+						success: false,
+						message: `Duplicate. Already occurring transfer: ${error[errorKey][0]}`
+					};
+				case 'TxCreatedInFuture':
+					return {
+						success: false,
+						message: `Created in future: ${error[errorKey][0]}`
+					};
+
+				case 'InsufficientFunds':
+					return {
+						success: false,
+						message: `Insufficient funds. Balance: ${error[errorKey][0]}`
+					};
+				default:
+					return {
+						success: false,
+						message: `Unknown Error. Try again and verify the Account Id.`
+					};
+			}
+		}
+
+		default:
+			return {
+				success: false,
+				message: `Unknown Error. Try again.`
+			};
+	}
+}
+
+export function handleIcrcTransferResult(result: Icrc1TransferResult): ConversionResult {
 	if ('Ok' in result) {
 		return { success: true, message: `block index ${result.Ok.toString()}` };
 	} else if ('Err' in result) {

@@ -94,17 +94,16 @@
 		--border-color: rgb(102, 173, 255);
 		--background-color: rgb(12, 44, 76);
 		--text-color: rgb(176, 163, 217);
-		--font-type1: "Akrobat-black";
+		--font-type1: 'Akrobat-black';
 		--font-type2: Arial;
 	}
 
 	@font-face {
-		font-family: "Akrobat-black";
-		src: url("/Akrobat-Black.ttf") format("truetype");
+		font-family: 'Akrobat-black';
+		src: url('/Akrobat-Black.ttf') format('truetype');
 		font-weight: normal;
 		font-style: normal;
 	}
-
 
 	/* === Layout === */
 	.page-container {

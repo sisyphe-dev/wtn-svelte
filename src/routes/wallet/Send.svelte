@@ -3,13 +3,18 @@
 	import { isSelecting, sendAsset, user, toasts, state, isSending } from '$lib/stores';
 	import { Toast } from '$lib/toast';
 	import BigNumber from 'bignumber.js';
-	import {
-		type Account,
-		AccountIdentifier
-	} from '@dfinity/ledger-icp';
+	import { type Account, AccountIdentifier } from '@dfinity/ledger-icp';
 	import { Principal } from '@dfinity/principal';
-	import type { TransferArg } from '../../declarations/nicp_ledger/nicp_ledger.did';
-	import { handleTransferResult, type ConversionResult } from '$lib/ledger';
+	import {
+		handleIcrcTransferResult,
+		handleTransferResult,
+		type ConversionResult
+	} from '$lib/ledger';
+	import type {
+		Tokens,
+		TransferArgs,
+		TransferArg
+	} from '../../declarations/nns-ledger/nns-ledger.did';
 
 	let principal: string;
 	let sendAmount: BigNumber;
@@ -54,19 +59,31 @@
 			let status: ConversionResult;
 			switch ($sendAsset.type) {
 				case AssetType.ICP:
-				{
-						const transferResult = await $state.icpLedger.icrc1_transfer({
-							to: {
-								owner: receiver,
-								subaccount: []
-							} as Account,
-							fee: [],
-							memo: [],
-							from_subaccount: [],
-							created_at_time: [],
-							amount: amount_e8s
-						} as TransferArg);
-						status = handleTransferResult(transferResult);
+					{
+						if (receiver instanceof Principal) {
+							const transferResult = await $state.icpLedger.icrc1_transfer({
+								to: {
+									owner: receiver,
+									subaccount: []
+								} as Account,
+								fee: [],
+								memo: [],
+								from_subaccount: [],
+								created_at_time: [],
+								amount: amount_e8s
+							} as TransferArg);
+							status = handleIcrcTransferResult(transferResult);
+						} else {
+							const transferResult = await $state.icpLedger.transfer({
+								to: receiver.toUint8Array(),
+								fee: { e8s: 10000n } as Tokens,
+								memo: 0n,
+								from_subaccount: [],
+								created_at_time: [],
+								amount: { e8s: amount_e8s } as Tokens
+							} as TransferArgs);
+							status = handleTransferResult(transferResult);
+						}
 					}
 					break;
 				case AssetType.nICP:
@@ -82,7 +99,7 @@
 							created_at_time: [],
 							amount: amount_e8s
 						} as TransferArg);
-						status = handleTransferResult(transferResult);
+						status = handleIcrcTransferResult(transferResult);
 					}
 					break;
 				case AssetType.WTN:
@@ -98,15 +115,15 @@
 							created_at_time: [],
 							amount: amount_e8s
 						} as TransferArg);
-						status = handleTransferResult(transferResult);
+						status = handleIcrcTransferResult(transferResult);
 					}
 					break;
 			}
 
 			if (status.success) {
-				toasts.set([...$toasts, Toast.success(`asset sent.`)]);
+				toasts.add(Toast.success(status.message));
 			} else {
-				toasts.set([...$toasts, Toast.error(`Conversion failed. ${status.message}`)]);
+				toasts.add(Toast.error(status.message));
 			}
 			isSelecting.set(false);
 			isSending.set(false);
