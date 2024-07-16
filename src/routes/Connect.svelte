@@ -107,7 +107,7 @@
 	.spinner {
 		width: 2em;
 		height: 2em;
-		border: 3px solid white;
+		border: 3px solid black;
 		border-top-color: transparent;
 		border-radius: 50%;
 		animation: spin 1s linear infinite;

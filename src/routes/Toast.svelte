@@ -3,7 +3,6 @@
 	import { toasts } from '$lib/stores';
 	import { fade, fly } from 'svelte/transition';
 	import { flip } from 'svelte/animate';
-	import InfoIcon from '$lib/icons/InfoIcon.svelte';
 	import ErrorIcon from '$lib/icons/ErrorIcon.svelte';
 	import CloseIcon from '$lib/icons/CloseIcon.svelte';
 	import SuccessIcon from '$lib/icons/SuccessIcon.svelte';
@@ -11,7 +10,7 @@
 
 <div class="toasts-container">
 	{#each $toasts as toast (toast.id)}
-		<div class="toast-container" animate:flip in:fly={{ y: -200, duration: 1000 }} out:fade>
+		<div class="toast-container" animate:flip transition:fade>
 			<div class="info-container">
 				<div class="info-icon">
 					{#if toast.type == ToastType.Success}

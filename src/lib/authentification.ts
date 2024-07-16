@@ -123,7 +123,14 @@ export function fetchActors(agent?: HttpAgent): Promise<Actors> {
 				});
 			}
 
-			agent.fetchRootKey();
+			if (process.env.DFX_NETWORK !== 'ic') {
+				agent.fetchRootKey().catch((err) => {
+					console.warn(
+						'Unable to fetch root key. Check to ensure that your local replica is running'
+					);
+					console.error(err);
+				});
+			}
 
 			const icpLedger: icpLedgerInterface = Actor.createActor(idlFactoryIcp, {
 				agent,

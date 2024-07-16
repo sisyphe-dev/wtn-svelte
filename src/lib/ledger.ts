@@ -130,12 +130,11 @@ export interface ConversionResult {
 
 export function handleStakeResult(result: Result_3): ConversionResult {
 	const key = Object.keys(result)[0] as keyof Result_4;
-	console.log(result[key]['block_index']);
 	switch (key) {
 		case 'Ok':
 			return {
 				success: true,
-				message: `Successful conversion at <a style="text-decoration: underline; color: var(--text-color);" href=https://dashboard.internetcomputer.org/transaction/${result[key]['block_index']}>block index ${result[key]['block_index']}</a>.`
+				message: `Successful conversion at <a target='_blank' style="text-decoration: underline; color: var(--text-color);" href=https://dashboard.internetcomputer.org/transaction/${result[key]['block_index']}>block index ${result[key]['block_index']}</a>.`
 			};
 		case 'Err':
 			const error = result[key];
@@ -432,7 +431,7 @@ export function handleTransferResult(result: TransferResult): ConversionResult {
 		case 'Ok':
 			return {
 				success: true,
-				message: `Successful transfer at <a style="text-decoration: underline; color: var(--text-color);" href=https://dashboard.internetcomputer.org/transaction/${result[key]}>block index ${result[key]}</a>.`
+				message: `Successful transfer at <a target='_blank' style="text-decoration: underline; color: var(--text-color);" href=https://dashboard.internetcomputer.org/transaction/${result[key]}>block index ${result[key]}</a>.`
 			};
 		case 'Err': {
 			const error = result[key];
@@ -485,7 +484,7 @@ export function handleIcrcTransferResult(result: Icrc1TransferResult): Conversio
 		case 'Ok':
 			return {
 				success: true,
-				message: `Successful transfer at <a style="text-decoration: underline; color: var(--text-color);" href=https://dashboard.internetcomputer.org/transaction/${result[key]}>block index ${result[key]}</a>.`
+				message: `Successful transfer at <a target='_blank' style="text-decoration: underline; color: var(--text-color);" href=https://dashboard.internetcomputer.org/transaction/${result[key]}>block index ${result[key]}</a>.`
 			};
 		case 'Err': {
 			const error = result[key];

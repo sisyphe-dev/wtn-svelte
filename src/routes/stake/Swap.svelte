@@ -140,7 +140,7 @@
 			style:text-align="end"
 			on:click={() => (stake = !stake)}
 			class:selected={!stake}
-			class:not-selected={stake}>Unstake ICP</button
+			class:not-selected={stake}>Unstake nICP</button
 		>
 	</div>
 	<div class="swap-container">
@@ -165,7 +165,7 @@
 					{/if}
 				</p>
 				<div class="reward">
-					<p style:margin-right={'3em'}>
+					<p style:margin-right={'2.5em'}>
 						Future WTN Airdrop:
 						{#if exchangeRate && totalIcpDeposited}
 							{displayUsFormat(
@@ -221,9 +221,7 @@
 		{:else}
 			<button class="swap-btn" on:click={() => convert(BigNumber($inputValue), stake)}>
 				{#if $isConverting}
-					<svg class="spinner" viewBox="0 0 50 50">
-						<circle class="circle" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle>
-					</svg>
+					<div class="spinner"></div>
 				{:else if stake}
 					<span>Stake</span>
 				{:else}
@@ -289,6 +287,7 @@
 	.header-btn {
 		font-family: var(--font-type2);
 		font-size: 1.2em;
+		font-weight: bold;
 		color: white;
 		border: none;
 		color: white;
@@ -305,7 +304,6 @@
 	}
 
 	.swap-btn {
-		color: black;
 		background: var(--main-color);
 		min-width: 80px;
 		max-width: fit-content;
@@ -317,6 +315,10 @@
 		padding: 0 1em 0 1em;
 		max-width: none;
 		height: 4em;
+		cursor: pointer;
+		display: flex;
+		justify-content: center;
+		align-items: center;
 	}
 
 	.swap-btn:hover {
@@ -342,7 +344,7 @@
 	.spinner {
 		width: 2em;
 		height: 2em;
-		border: 3px solid white;
+		border: 3px solid black;
 		border-top-color: transparent;
 		border-radius: 50%;
 		animation: spin 1s linear infinite;

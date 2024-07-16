@@ -172,20 +172,26 @@
 		</p>
 	</div>
 	<div class="button-container">
-		<button class="toggle-btn" on:click={() => isSelecting.set(false)}>Cancel</button>
-		<button
-			class="toggle-btn"
-			on:click={() => {
-				icrcTransfer(sendAmount, principal);
-			}}
-			>{#if $isSending}
-				<svg class="spinner" viewBox="0 0 50 50">
-					<circle class="circle" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle>
-				</svg>
-			{:else}
+		{#if $isSending}
+			<button
+				class="toggle-btn"
+				on:click={() => {
+					icrcTransfer(sendAmount, principal);
+				}}
+			>
+				<div class="spinner"></div>
+			</button>
+		{:else}
+			<button class="toggle-btn" on:click={() => isSelecting.set(false)}>Cancel</button>
+			<button
+				class="toggle-btn"
+				on:click={() => {
+					icrcTransfer(sendAmount, principal);
+				}}
+			>
 				<span>Continue</span>
-			{/if}</button
-		>
+			</button>
+		{/if}
 	</div>
 </div>
 
@@ -293,7 +299,7 @@
 	.spinner {
 		width: 2em;
 		height: 2em;
-		border: 3px solid white;
+		border: 3px solid black;
 		border-top-color: transparent;
 		border-radius: 50%;
 		animation: spin 1s linear infinite;
