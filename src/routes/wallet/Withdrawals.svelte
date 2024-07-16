@@ -104,7 +104,7 @@
 		border-collapse: collapse;
 		margin: 1em;
 		padding: 1em;
-		font-family: var(--font-type2);
+		font-family: sans-serif;
 	}
 
 	th {
@@ -120,6 +120,6 @@
 
 	a {
 		text-decoration: underline;
-		color: inherit;
+		color: var(--text-color);
 	}
 </style>

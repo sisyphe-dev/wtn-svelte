@@ -3,6 +3,10 @@
 	import { toasts } from '$lib/stores';
 	import { fade, fly } from 'svelte/transition';
 	import { flip } from 'svelte/animate';
+	import InfoIcon from '$lib/icons/InfoIcon.svelte';
+	import ErrorIcon from '$lib/icons/ErrorIcon.svelte';
+	import CloseIcon from '$lib/icons/CloseIcon.svelte';
+	import SuccessIcon from '$lib/icons/SuccessIcon.svelte';
 </script>
 
 <div class="toasts-container">
@@ -11,9 +15,9 @@
 			<div class="info-container">
 				<div class="info-icon">
 					{#if toast.type == ToastType.Success}
-						<img alt="Info Icon" src="/icon/infoIcon.svg" />
+						<SuccessIcon />
 					{:else}
-						<img alt="Error Icon" src="/icon/errorIcon.svg" />
+						<ErrorIcon />
 					{/if}
 				</div>
 				<p>{@html toast.message}</p>
@@ -24,32 +28,7 @@
 					toasts.remove(toast.id);
 				}}
 			>
-				<svg
-					height="20px"
-					width="20px"
-					viewBox="0 0 20 20"
-					fill="none"
-					xmlns="http://www.w3.org/2000/svg"
-				>
-					<rect
-						x="14.4194"
-						y="4.52441"
-						width="1.5"
-						height="14"
-						rx="0.75"
-						transform="rotate(45 14.4194 4.52441)"
-						fill="rgb(176, 163, 217)"
-					/>
-					<rect
-						x="4.5199"
-						y="5.58496"
-						width="1.5"
-						height="14"
-						rx="0.75"
-						transform="rotate(-45 4.5199 5.58496)"
-						fill="rgb(176, 163, 217)"
-					/>
-				</svg>
+				<CloseIcon />
 			</button>
 		</div>
 	{/each}
@@ -63,18 +42,6 @@
 	}
 
 	/* === Layout === */
-	.toast-container {
-		background-color: var(--main-color);
-		box-shadow: 8px 8px 16px 0 rgba(0, 0, 0, 0.25);
-		display: flex;
-		border-radius: 8px;
-		align-items: center;
-		justify-content: space-between;
-		width: 30%;
-		min-width: max-content;
-		padding: 0 1%;
-	}
-
 	.toasts-container {
 		position: fixed;
 		display: flex;
@@ -85,6 +52,18 @@
 		width: 100%;
 		gap: 0.5em;
 		margin-bottom: 1em;
+	}
+
+	.toast-container {
+		background-color: var(--main-color);
+		box-shadow: 8px 8px 16px 0 rgba(0, 0, 0, 0.25);
+		display: flex;
+		border-radius: 8px;
+		align-items: center;
+		justify-content: space-between;
+		width: 30em;
+		max-width: 90vw;
+		padding: 0 1%;
 	}
 
 	.info-container {

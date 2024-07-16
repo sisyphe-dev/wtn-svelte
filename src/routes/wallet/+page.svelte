@@ -6,6 +6,7 @@
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { scale } from 'svelte/transition';
+	import CopyIcon from '$lib/icons/CopyIcon.svelte';
 
 	let isAnimating = false;
 	let circleVisible = false;
@@ -34,7 +35,7 @@
 <div class="wallet-menu-container">
 	<h1>Wallet</h1>
 	<div class="address-container">
-		<h2>ICP Account Id</h2>
+		<h3>ICP Account Id</h3>
 		<div class="principal-container">
 			<b>{$user?.accountId}</b>
 			<button
@@ -45,7 +46,7 @@
 					navigator.clipboard.writeText($user ? $user.accountId : '');
 				}}
 			>
-				<img alt="Copy Icon" src="/icon/copyIcon.svg" />
+				<CopyIcon />
 				{#if circleVisible && accountId}
 					<div class="circle" transition:scale={{ duration: 500 }}></div>
 				{/if}
@@ -54,7 +55,7 @@
 		<SendButton asset={new Asset(AssetType.ICP)} />
 	</div>
 	<div class="address-container">
-		<h2>Principal Address</h2>
+		<h3>Principal Address</h3>
 		<div class="principal-container">
 			<b>{$user?.principal}</b>
 			<button
@@ -65,7 +66,7 @@
 					navigator.clipboard.writeText($user ? $user.principal.toString() : '');
 				}}
 			>
-				<img alt="Copy Icon" src="/icon/copyIcon.svg" />
+				<CopyIcon />
 				{#if circleVisible && !accountId}
 					<div class="circle" transition:scale={{ duration: 500 }}></div>
 				{/if}
@@ -85,7 +86,7 @@
 		font-family: var(--font-type2);
 	}
 
-	h2 {
+	h3 {
 		margin: 0;
 		margin-top: 1em;
 		font-family: var(--font-type2);

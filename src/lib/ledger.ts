@@ -130,12 +130,12 @@ export interface ConversionResult {
 
 export function handleStakeResult(result: Result_3): ConversionResult {
 	const key = Object.keys(result)[0] as keyof Result_4;
-
+	console.log(result[key]['block_index']);
 	switch (key) {
 		case 'Ok':
 			return {
 				success: true,
-				message: `Converted ICP to nICP at https://dashboard.internetcomputer.org/transaction/${result[key][0]}`
+				message: `Successful conversion at <a style="text-decoration: underline; color: var(--text-color);" href=https://dashboard.internetcomputer.org/transaction/${result[key]['block_index']}>block index ${result[key]['block_index']}</a>.`
 			};
 		case 'Err':
 			const error = result[key];
@@ -228,7 +228,7 @@ export function handleRetrieveResult(result: Result_4): ConversionResult {
 		case 'Ok':
 			return {
 				success: true,
-				message: `Converted ICP to nICP at https://dashboard.internetcomputer.org/transaction/${result[key][0]}`
+				message: `Converted ICP to nICP at https://dashboard.internetcomputer.org/transaction/${result[key]}`
 			};
 		case 'Err':
 			const error = result[key];
@@ -321,7 +321,7 @@ export function handleTransferResult(result: TransferResult): ConversionResult {
 		case 'Ok':
 			return {
 				success: true,
-				message: `Successful transfer at <a style="text-decoration: underline; color: var(--text-color);" href=https://dashboard.internetcomputer.org/transaction/${result[key][0]}>${result[key][0]}</a>`
+				message: `Successful transfer at <a style="text-decoration: underline; color: var(--text-color);" href=https://dashboard.internetcomputer.org/transaction/${result[key]}>block index ${result[key]}</a>.`
 			};
 		case 'Err': {
 			const error = result[key];
@@ -368,11 +368,67 @@ export function handleTransferResult(result: TransferResult): ConversionResult {
 }
 
 export function handleIcrcTransferResult(result: Icrc1TransferResult): ConversionResult {
-	if ('Ok' in result) {
-		return { success: true, message: `block index ${result.Ok.toString()}` };
-	} else if ('Err' in result) {
-		return { success: true, message: `Transfer Error: ${result.Err}` };
-	} else {
-		return { success: true, message: 'Error Unkown. Please refresh the page.' };
+	const key = Object.keys(result)[0] as keyof TransferResult;
+
+	switch (key) {
+		case 'Ok':
+			return {
+				success: true,
+				message: `Successful transfer at <a style="text-decoration: underline; color: var(--text-color);" href=https://dashboard.internetcomputer.org/transaction/${result[key]}>block index ${result[key]}</a>.`
+			};
+		case 'Err': {
+			const error = result[key];
+			const errorKey = Object(error[key])[0];
+
+			switch (errorKey) {
+				case 'TooOld':
+					return { success: false, message: `The transfer is too old.` };
+				case 'BadFee':
+					return {
+						success: false,
+						message: `Bad fee. Expected fee: ${error[errorKey][0]}`
+					};
+				case 'Duplicate':
+					return {
+						success: false,
+						message: `Duplicate. Already occurring transfer: ${error[errorKey][0]}`
+					};
+				case 'CreatedInFuture':
+					return {
+						success: false,
+						message: `Created in future: ${error[errorKey][0]}`
+					};
+
+				case 'InsufficientFunds':
+					return {
+						success: false,
+						message: `Insufficient funds. Balance: ${error[errorKey][0]}`
+					};
+
+				case 'GenericError':
+					return { success: false, message: `Generic Error: ${error[errorKey][0]}` };
+
+				case 'TemporarilyUnavailable':
+					return { success: false, message: 'Ledger is temporarily unavailable.' };
+
+				case 'BadBurn':
+					return {
+						success: false,
+						message: `Bad burn. Minimum burn amount: ${error[errorKey][0]}`
+					};
+
+				default:
+					return {
+						success: false,
+						message: `Unknown Error. Try again and verify the Account Id.`
+					};
+			}
+		}
+
+		default:
+			return {
+				success: false,
+				message: `Unknown Error. Try again.`
+			};
 	}
 }
