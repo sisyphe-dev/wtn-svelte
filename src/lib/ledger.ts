@@ -140,61 +140,47 @@ export function handleStakeResult(result: Result_3): ConversionResult {
 		case 'Err':
 			const error = result[key];
 			const errorKey = Object.keys(result[key])[0];
+
 			switch (errorKey) {
 				case 'GenericError':
-					return { success: false, message: `Generic Error: ${error[errorKey][0]}` };
+					return { success: false, message: `Generic Error: ${error[errorKey]['message']}` };
 
 				case 'TransferError':
-					return { success: false, message: `Transfer Error: ${error[errorKey][0]}` };
+					const transferError = error[errorKey];
+					const transferErrorKey = Object.keys(error[errorKey])[0];
 
-				case 'AmountTooLow':
-					return {
-						success: false,
-						message: `Amount too low. Minimum amount: ${bigintE8sToNumber(error[errorKey][0])}`
-					};
-
-				case 'TransferFromError':
-					const transferFromError = error[errorKey][0];
-					const transferFromErrorKey = Object.keys(error[errorKey][0])[0];
-
-					switch (transferFromErrorKey) {
+					switch (transferErrorKey) {
 						case 'GenericError':
 							return {
 								success: false,
-								message: `Generic Error: ${transferFromError[transferFromErrorKey][0]}`
+								message: `Generic Error: ${transferError[transferErrorKey]['message']}`
 							};
 
 						case 'TemporarilyUnavailable':
 							return { success: false, message: 'Ledger is temporarily unavailable.' };
 
-						case 'InsufficientAllowance':
-							return {
-								success: false,
-								message: `Insufficient allowance. Allowance amount: ${transferFromError[transferFromErrorKey][0]}`
-							};
-
 						case 'BadBurn':
 							return {
 								success: false,
-								message: `Bad burn. Minimum burn amount: ${transferFromError[transferFromErrorKey][0]}`
+								message: `Bad burn. Minimum burn amount: ${transferError[transferErrorKey]['min_burn_amount']}`
 							};
 
 						case 'Duplicate':
 							return {
 								success: false,
-								message: `Duplicate. Already occurring transfer: ${transferFromError[transferFromErrorKey][0]}`
+								message: `Duplicate. Already occurring transfer: ${transferError[transferErrorKey]['duplicate_of']}`
 							};
 
 						case 'BadFee':
 							return {
 								success: false,
-								message: `Bad fee. Expected fee: ${transferFromError[transferFromErrorKey][0]}`
+								message: `Bad fee. Expected fee: ${transferError[transferErrorKey]['expected_fee']}`
 							};
 
 						case 'CreatedInFuture':
 							return {
 								success: false,
-								message: `Created in future: ${transferFromError[transferFromErrorKey][0]}`
+								message: `Created in future: ${transferError[transferErrorKey]['ledger_time']}`
 							};
 
 						case 'TooOld':
@@ -203,7 +189,70 @@ export function handleStakeResult(result: Result_3): ConversionResult {
 						case 'InsufficientFunds':
 							return {
 								success: false,
-								message: `Insufficient funds. Balance: ${transferFromError[transferFromErrorKey][0]}`
+								message: `Insufficient funds. Balance: ${transferError[transferErrorKey]['balance']}`
+							};
+
+						default:
+							return { success: false, message: 'Unknown transferfrom error.' };
+					}
+
+				case 'AmountTooLow':
+					return {
+						success: false,
+						message: `Amount too low. Should be greater than ${bigintE8sToNumber(error[errorKey]['minimum_amount_e8s'])}`
+					};
+
+				case 'TransferFromError':
+					const transferFromError = error[errorKey];
+					const transferFromErrorKey = Object.keys(error[errorKey])[0];
+
+					switch (transferFromErrorKey) {
+						case 'GenericError':
+							return {
+								success: false,
+								message: `Generic Error: ${transferFromError[transferFromErrorKey]['message']}`
+							};
+
+						case 'TemporarilyUnavailable':
+							return { success: false, message: 'Ledger is temporarily unavailable.' };
+
+						case 'InsufficientAllowance':
+							return {
+								success: false,
+								message: `Insufficient allowance. Current allowance: ${transferFromError[transferFromErrorKey]['allowance']}`
+							};
+
+						case 'BadBurn':
+							return {
+								success: false,
+								message: `Bad burn. Minimum burn amount: ${transferFromError[transferFromErrorKey]['min_burn_amount']}`
+							};
+
+						case 'Duplicate':
+							return {
+								success: false,
+								message: `Duplicate. Already occurring transfer: ${transferFromError[transferFromErrorKey]['duplicate_of']}`
+							};
+
+						case 'BadFee':
+							return {
+								success: false,
+								message: `Bad fee. Expected fee: ${transferFromError[transferFromErrorKey]['expected_fee']}`
+							};
+
+						case 'CreatedInFuture':
+							return {
+								success: false,
+								message: `Created in future: ${transferFromError[transferFromErrorKey]['ledger_time']}`
+							};
+
+						case 'TooOld':
+							return { success: false, message: `The transfer is too old.` };
+
+						case 'InsufficientFunds':
+							return {
+								success: false,
+								message: `Insufficient funds. Balance: ${transferFromError[transferFromErrorKey]['balance']}`
 							};
 
 						default:
@@ -211,7 +260,14 @@ export function handleStakeResult(result: Result_3): ConversionResult {
 					}
 
 				case 'GuardError':
-					return { success: false, message: `Guard Error: ${error[errorKey][0]}` };
+					const guardErrorKey = Object.keys(error[errorKey])[0];
+
+					switch (guardErrorKey) {
+						case 'AlreadyProcessing':
+							return { success: false, message: `Guard Error. Conversion already processing.` };
+						case 'TooManyConcurrentRequests':
+							return { success: false, message: `Guard Error. Too many concurrent requests.` };
+					}
 
 				default:
 					return { success: false, message: 'Unknown Conversion Error. Please refresh the page.' };
@@ -235,15 +291,63 @@ export function handleRetrieveResult(result: Result_4): ConversionResult {
 			const errorKey = Object.keys(result[key])[0];
 			switch (errorKey) {
 				case 'GenericError':
-					return { success: false, message: `Generic Error: ${error[errorKey][0]}` };
+					return { success: false, message: `Generic Error: ${error[errorKey]['message']}` };
 
 				case 'TransferError':
-					return { success: false, message: `Transfer Error: ${error[errorKey][0]}` };
+					const transferError = error[errorKey];
+					const transferErrorKey = Object.keys(error[errorKey])[0];
+
+					switch (transferErrorKey) {
+						case 'GenericError':
+							return {
+								success: false,
+								message: `Generic Error: ${transferError[transferErrorKey]['message']}`
+							};
+
+						case 'TemporarilyUnavailable':
+							return { success: false, message: 'Ledger is temporarily unavailable.' };
+
+						case 'BadBurn':
+							return {
+								success: false,
+								message: `Bad burn. Minimum burn amount: ${transferError[transferErrorKey]['min_burn_amount']}`
+							};
+
+						case 'Duplicate':
+							return {
+								success: false,
+								message: `Duplicate. Already occurring transfer: ${transferError[transferErrorKey]['duplicate_of']}`
+							};
+
+						case 'BadFee':
+							return {
+								success: false,
+								message: `Bad fee. Expected fee: ${transferError[transferErrorKey]['expected_fee']}`
+							};
+
+						case 'CreatedInFuture':
+							return {
+								success: false,
+								message: `Created in future: ${transferError[transferErrorKey]['ledger_time']}`
+							};
+
+						case 'TooOld':
+							return { success: false, message: `The transfer is too old.` };
+
+						case 'InsufficientFunds':
+							return {
+								success: false,
+								message: `Insufficient funds. Balance: ${transferError[transferErrorKey]['balance']}`
+							};
+
+						default:
+							return { success: false, message: 'Unknown transferfrom error.' };
+					}
 
 				case 'AmountTooLow':
 					return {
 						success: false,
-						message: `Amount too low. Minimum amount: ${bigintE8sToNumber(error[errorKey][0])}`
+						message: `Amount too low. Should be greater than ${bigintE8sToNumber(error[errorKey]['minimum_amount_e8s'])}`
 					};
 
 				case 'TransferFromError':
@@ -254,7 +358,7 @@ export function handleRetrieveResult(result: Result_4): ConversionResult {
 						case 'GenericError':
 							return {
 								success: false,
-								message: `Generic Error: ${transferFromError[transferFromErrorKey][0]}`
+								message: `Generic Error: ${transferFromError[transferFromErrorKey]['message']}`
 							};
 
 						case 'TemporarilyUnavailable':
@@ -263,31 +367,31 @@ export function handleRetrieveResult(result: Result_4): ConversionResult {
 						case 'InsufficientAllowance':
 							return {
 								success: false,
-								message: `Insufficient allowance. Allowance amount: ${transferFromError[transferFromErrorKey][0]}`
+								message: `Insufficient allowance. Current allowance: ${transferFromError[transferFromErrorKey]['allowance']}`
 							};
 
 						case 'BadBurn':
 							return {
 								success: false,
-								message: `Bad burn. Minimum burn amount: ${transferFromError[transferFromErrorKey][0]}`
+								message: `Bad burn. Minimum burn amount: ${transferFromError[transferFromErrorKey]['min_burn_amount']}`
 							};
 
 						case 'Duplicate':
 							return {
 								success: false,
-								message: `Duplicate. Already occurring transfer: ${transferFromError[transferFromErrorKey][0]}`
+								message: `Duplicate. Already occurring transfer: ${transferFromError[transferFromErrorKey]['duplicate_of']}`
 							};
 
 						case 'BadFee':
 							return {
 								success: false,
-								message: `Bad fee. Expected fee: ${transferFromError[transferFromErrorKey][0]}`
+								message: `Bad fee. Expected fee: ${transferFromError[transferFromErrorKey]['expected_fee']}`
 							};
 
 						case 'CreatedInFuture':
 							return {
 								success: false,
-								message: `Created in future: ${transferFromError[transferFromErrorKey][0]}`
+								message: `Created in future: ${transferFromError[transferFromErrorKey]['ledger_time']}`
 							};
 
 						case 'TooOld':
@@ -296,7 +400,7 @@ export function handleRetrieveResult(result: Result_4): ConversionResult {
 						case 'InsufficientFunds':
 							return {
 								success: false,
-								message: `Insufficient funds. Balance: ${transferFromError[transferFromErrorKey][0]}`
+								message: `Insufficient funds. Balance: ${transferFromError[transferFromErrorKey]['balance']}`
 							};
 
 						default:
@@ -304,7 +408,14 @@ export function handleRetrieveResult(result: Result_4): ConversionResult {
 					}
 
 				case 'GuardError':
-					return { success: false, message: `Guard Error: ${error[errorKey][0]}` };
+					const guardErrorKey = Object.keys(error[errorKey])[0];
+
+					switch (guardErrorKey) {
+						case 'AlreadyProcessing':
+							return { success: false, message: `Guard Error. Conversion already processing.` };
+						case 'TooManyConcurrentRequests':
+							return { success: false, message: `Guard Error. Too many concurrent requests.` };
+					}
 
 				default:
 					return { success: false, message: 'Unknown Conversion Error. Please refresh the page.' };
@@ -333,23 +444,23 @@ export function handleTransferResult(result: TransferResult): ConversionResult {
 				case 'BadFee':
 					return {
 						success: false,
-						message: `Bad fee. Expected fee: ${error[errorKey][0]}`
+						message: `Bad fee. Expected fee: ${error[errorKey]['expected_fee']}`
 					};
 				case 'TxDuplicate':
 					return {
 						success: false,
-						message: `Duplicate. Already occurring transfer: ${error[errorKey][0]}`
+						message: `Duplicate. Already occurring transfer: ${error[errorKey]['duplicate_of']}`
 					};
 				case 'TxCreatedInFuture':
 					return {
 						success: false,
-						message: `Created in future: ${error[errorKey][0]}`
+						message: `The transfer will be created in future.`
 					};
 
 				case 'InsufficientFunds':
 					return {
 						success: false,
-						message: `Insufficient funds. Balance: ${error[errorKey][0]}`
+						message: `Insufficient funds. Balance: ${error[errorKey]['balance']}`
 					};
 				default:
 					return {
@@ -386,27 +497,27 @@ export function handleIcrcTransferResult(result: Icrc1TransferResult): Conversio
 				case 'BadFee':
 					return {
 						success: false,
-						message: `Bad fee. Expected fee: ${error[errorKey][0]}`
+						message: `Bad fee. Expected fee: ${error[errorKey]['min_burn_amount']}`
 					};
 				case 'Duplicate':
 					return {
 						success: false,
-						message: `Duplicate. Already occurring transfer: ${error[errorKey][0]}`
+						message: `Duplicate. Already occurring transfer: ${error[errorKey]['duplicate_of']}`
 					};
 				case 'CreatedInFuture':
 					return {
 						success: false,
-						message: `Created in future: ${error[errorKey][0]}`
+						message: `Created in future: ${error[errorKey]['ledger_time']}`
 					};
 
 				case 'InsufficientFunds':
 					return {
 						success: false,
-						message: `Insufficient funds. Balance: ${error[errorKey][0]}`
+						message: `Insufficient funds. Balance: ${error[errorKey]['balance']}`
 					};
 
 				case 'GenericError':
-					return { success: false, message: `Generic Error: ${error[errorKey][0]}` };
+					return { success: false, message: `Generic Error: ${error[errorKey]['message']}` };
 
 				case 'TemporarilyUnavailable':
 					return { success: false, message: 'Ledger is temporarily unavailable.' };
@@ -414,7 +525,7 @@ export function handleIcrcTransferResult(result: Icrc1TransferResult): Conversio
 				case 'BadBurn':
 					return {
 						success: false,
-						message: `Bad burn. Minimum burn amount: ${error[errorKey][0]}`
+						message: `Bad burn. Minimum burn amount: ${error[errorKey]['min_burn_amount']}`
 					};
 
 				default:

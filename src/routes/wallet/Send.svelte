@@ -48,7 +48,7 @@
 
 	async function icrcTransfer(amount: BigNumber, input: string) {
 		if ($isSending) return;
-		
+
 		isSending.set(true);
 		if (amount && principal && isValidAmount(amount)) {
 			const amount_e8s = numberToBigintE8s(amount);
