@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Asset, AssetType, numberToBigintE8s } from '$lib';
+	import { Asset, AssetType, displayUsFormat, numberToBigintE8s } from '$lib';
 	import { isSelecting, sendAsset, user, toasts, state, isSending } from '$lib/stores';
 	import { Toast } from '$lib/toast';
 	import BigNumber from 'bignumber.js';
@@ -18,7 +18,6 @@
 
 	let principal: string;
 	let sendAmount: BigNumber;
-	const assets = [new Asset(AssetType.ICP), new Asset(AssetType.nICP), new Asset(AssetType.WTN)];
 
 	function getReceiver(input: string): Principal | AccountIdentifier | undefined {
 		try {
@@ -144,14 +143,12 @@
 	</div>
 	{#if $user}
 		<div>
-			<p>Balances</p>
+			<p>Balance</p>
 			<div style:display={'flex'}>
-			{#each assets as asset}
 			<div class="balances">
-				<span>{$user.getBalance(asset.type)} {asset.intoStr()}</span>
-				<img alt="{asset.intoStr()} logo" src={asset.getUrl()} width="20px" height="20px" />
+				<span>{displayUsFormat($user.getBalance($sendAsset.type), 8)} {$sendAsset.intoStr()}</span>
+				<img alt="{$sendAsset.intoStr()} logo" src={$sendAsset.getUrl()} width="20px" height="20px" />
 			</div>
-			{/each}
 		</div>
 		</div>
 	{/if}
