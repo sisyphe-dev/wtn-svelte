@@ -22,7 +22,7 @@
 		if ($state) {
 			fetchData();
 		}
-	})
+	});
 
 	onMount(() => {
 		const intervalId = setInterval(fetchData, 5000);
@@ -39,7 +39,6 @@
 			{:else}
 				...
 			{/if}
-			
 		</b>
 	</div>
 	<div class="stat-item">

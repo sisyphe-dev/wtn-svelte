@@ -121,7 +121,7 @@ export class State {
 		return share.multipliedBy(amountTotal).multipliedBy(BigNumber(1)).dividedBy(neuron6mStake);
 	}
 
-	 stakersCount(): Number {
+	stakersCount(): Number {
 		return Number(this.wtnCanisterInfo.stakers_count);
 	}
 }

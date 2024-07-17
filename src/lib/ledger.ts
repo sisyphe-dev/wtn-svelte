@@ -7,7 +7,7 @@ import type {
 	ApproveResult,
 	ApproveError
 } from '../declarations/nicp_ledger/nicp_ledger.did';
-import type { Result_3, Result_4 } from '../declarations/water_neuron/water_neuron.did';
+import type { Result_1, Result_2 } from '../declarations/water_neuron/water_neuron.did';
 import { bigintE8sToNumber } from '$lib';
 import type {
 	TransferResult,
@@ -130,8 +130,8 @@ export interface ConversionResult {
 	message: string;
 }
 
-export function handleStakeResult(result: Result_3): ConversionResult {
-	const key = Object.keys(result)[0] as keyof Result_4;
+export function handleStakeResult(result: Result_1): ConversionResult {
+	const key = Object.keys(result)[0] as keyof Result_1;
 	switch (key) {
 		case 'Ok':
 			return {
@@ -278,14 +278,14 @@ export function handleStakeResult(result: Result_3): ConversionResult {
 	}
 }
 
-export function handleRetrieveResult(result: Result_4): ConversionResult {
-	const key = Object.keys(result)[0] as keyof Result_4;
+export function handleRetrieveResult(result: Result_2): ConversionResult {
+	const key = Object.keys(result)[0] as keyof Result_2;
 
 	switch (key) {
 		case 'Ok':
 			return {
 				success: true,
-				message: `Successful conversion at block index ${result[key]['block_index']}`
+				message: `Successful conversion at block index ${result[key]['block_index']}. Follow your <a style="text-decoration: underline; color: var(--text-color);" href='/wallet'>withdrawal status</a>.`
 			};
 		case 'Err':
 			const error = result[key];

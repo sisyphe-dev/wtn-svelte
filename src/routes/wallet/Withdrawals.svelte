@@ -19,13 +19,12 @@
 	const fetchWithdrawals = async () => {
 		if ($user) {
 			withdrawalRequests = await $state.waterNeuron.get_withdrawal_requests([$user.principal]);
-			console.log(withdrawalRequests);
 		}
 	};
 
 	afterUpdate(() => {
 		fetchWithdrawals();
-	})
+	});
 
 	onMount(() => {
 		fetchWithdrawals();
@@ -37,20 +36,19 @@
 </script>
 
 {#if withdrawalRequests && withdrawalRequests.length >= 1}
-<div class="withdrawals-container">
-	<h1>Withdrawal Requests</h1>
-	<table class="withdrawal-requests-table">
-		<thead>
-			<tr>
-				<th>nICP Burned</th>
-				<th>ICP Due</th>
-				<th>Neuron Id</th>
-				<th>Status</th>
-				<th>Id</th>
-			</tr>
-		</thead>
-		<tbody>
-			
+	<div class="withdrawals-container">
+		<h1>Withdrawal Requests</h1>
+		<table class="withdrawal-requests-table">
+			<thead>
+				<tr>
+					<th>nICP Burned</th>
+					<th>ICP Due</th>
+					<th>Neuron Id</th>
+					<th>Status</th>
+					<th>Id</th>
+				</tr>
+			</thead>
+			<tbody>
 				{#each withdrawalRequests as details}
 					<tr>
 						<td>{displayUsFormat(bigintE8sToNumber(details.request.nicp_burned))}</td>
@@ -75,11 +73,10 @@
 						<td>{details.request.withdrawal_id}</td>
 					</tr>
 				{/each}
-		
-		</tbody>
-	</table>
-</div>
-	{/if}
+			</tbody>
+		</table>
+	</div>
+{/if}
 
 <style>
 	/* === Layout === */

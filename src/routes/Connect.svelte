@@ -14,6 +14,7 @@
 			$state.icpLedger = authResult.actors.icpLedger;
 			$state.nicpLedger = authResult.actors.nicpLedger;
 			$state.waterNeuron = authResult.actors.waterNeuron;
+			$state.wtnCanisterInfo = authResult.actors.wtnCanisterInfo;
 
 			const user_account: Account = {
 				owner: authResult.principal,
@@ -33,6 +34,8 @@
 		isBusy.set(false);
 		isLogging.update((_) => false);
 	}
+
+	async function plugConnection() {}
 </script>
 
 <div class="cards-container">
@@ -40,8 +43,17 @@
 		{#if $isBusy}
 			<div class="spinner"></div>
 		{:else}
-			<img src="/astronaut.webp" width="50em" height="50em" alt="Dfinity Astronaut." />
+			<img src="/icon/astronaut.webp" width="50em" height="50em" alt="Dfinity Astronaut." />
 			<h2>Internet Identity</h2>
+		{/if}
+	</button>
+
+	<button id="plug-btn" on:click={plugConnection}>
+		{#if $isBusy}
+			<div class="spinner"></div>
+		{:else}
+			<img src="/icon/plug.svg" width="50em" height="50em" alt="Plug Icon." />
+			<h2>Plug Wallet</h2>
 		{/if}
 	</button>
 
@@ -95,6 +107,10 @@
 
 	/* === Components === */
 	#ii-btn {
+		background: var(--main-color);
+	}
+
+	#plug-btn {
 		background: var(--main-color);
 	}
 

@@ -43,7 +43,6 @@
 		}
 	};
 
-
 	onMount(() => {
 		fetchUser();
 

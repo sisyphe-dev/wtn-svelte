@@ -44,6 +44,7 @@
 		if (!stake) {
 			if ($user.nicpBalance().isGreaterThanOrEqualTo(amount) && amount.isGreaterThan(0)) {
 				let amountE8s = numberToBigintE8s(amount);
+
 				const messageError = await nicpTransferApproved(
 					amountE8s,
 					{
@@ -56,7 +57,6 @@
 				if (messageError) {
 					toasts.add(Toast.error(messageError));
 				} else {
-					amountE8s -= BigInt(10_000);
 					const conversionResult = await $state.waterNeuron.nicp_to_icp({
 						maybe_subaccount: [],
 						amount_e8s: amountE8s
@@ -87,7 +87,6 @@
 				if (messageError) {
 					toasts.add(Toast.error(messageError));
 				} else {
-					amountE8s -= BigInt(10_000);
 					const conversionResult = await $state.waterNeuron.icp_to_nicp({
 						maybe_subaccount: [],
 						amount_e8s: amountE8s
@@ -121,7 +120,7 @@
 		if ($state) {
 			fetchData();
 		}
-	})
+	});
 
 	onMount(() => {
 		const intervalId = setInterval(fetchData, 5000);

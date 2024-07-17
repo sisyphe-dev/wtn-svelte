@@ -9,12 +9,13 @@
 	<input type="number" bind:value={$inputValue} placeholder="Amount" />
 	<button
 		class="max-btn"
-		on:click={() =>
+		on:click={() => {
+			const maxAmount = $user?.getBalance(asset.type).minus(asset.getTransferFee()).toNumber();
 			inputValue.set(
-				$user && $user.getBalance(asset.type).isGreaterThanOrEqualTo(asset.getTransferFee())
-					? $user.getBalance(asset.type).minus(asset.getTransferFee()).toNumber()
-					: 0
-			)}
+				maxAmount && maxAmount >= 0 
+					? maxAmount: 0
+			);
+		}}
 	>
 		<div class="max-btn-items">
 			<h2>{asset.intoStr()}</h2>
