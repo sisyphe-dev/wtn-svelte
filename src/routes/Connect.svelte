@@ -1,15 +1,30 @@
-<script>
-	import { isLogging, isBusy, user } from '$lib/stores';
+<script lang="ts">
+	import { isLogging, isBusy, user, state } from '$lib/stores';
 	import { signIn } from '$lib/authentification';
 	import { User } from '$lib/state';
+	import type { Account } from '@dfinity/ledger-icp';
 
 	async function internetIdentityConnection() {
 		isBusy.set(true);
 
 		try {
-			const principal = await signIn();
+			const authResult = await signIn();
+
+			$state.wtnLedger = authResult.actors.wtnLedger;
+			$state.icpLedger = authResult.actors.icpLedger;
+			$state.nicpLedger = authResult.actors.nicpLedger;
+			$state.waterNeuron = authResult.actors.waterNeuron;
+
+			const user_account: Account = {
+				owner: authResult.principal,
+				subaccount: []
+			};
+			const icpBalanceE8s = await $state.icpLedger.icrc1_balance_of(user_account);
+			const nicpBalanceE8s = await $state.nicpLedger.icrc1_balance_of(user_account);
+			const wtnBalanceE8s = await $state.wtnLedger.icrc1_balance_of(user_account);
+
 			user.set(
-				new User(principal, BigInt(10_000 * 1e8), BigInt(1_500 * 1e8), BigInt(100_000 * 1e8))
+				new User({ principal: authResult.principal, icpBalanceE8s, nicpBalanceE8s, wtnBalanceE8s })
 			);
 		} catch (error) {
 			console.error('Login failed:', error);
@@ -62,7 +77,7 @@
 	}
 
 	h2 {
-		font-family: Arial;
+		font-family: var(--font-type2);
 		font-weight: 600;
 		font-size: 20px;
 	}
@@ -80,7 +95,7 @@
 
 	/* === Components === */
 	#ii-btn {
-		background: #18c7c9;
+		background: var(--main-color);
 	}
 
 	#close-btn {
@@ -92,7 +107,7 @@
 	.spinner {
 		width: 2em;
 		height: 2em;
-		border: 3px solid white;
+		border: 3px solid black;
 		border-top-color: transparent;
 		border-radius: 50%;
 		animation: spin 1s linear infinite;

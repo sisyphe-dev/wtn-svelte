@@ -1,5 +1,6 @@
 <script>
 	import { menu, user } from '$lib/stores';
+	import { logout } from '$lib/authentification';
 </script>
 
 <div class="background-menu">
@@ -19,7 +20,8 @@
 			>
 			<a
 				href="/stake"
-				on:click={() => {
+				on:click={async () => {
+					await logout();
 					user.set(undefined);
 					menu.update((_) => false);
 				}}>Disconnect</a
@@ -66,7 +68,7 @@
 		font-weight: 200;
 		text-align: start;
 		text-decoration: none;
-		font-family: Arial;
+		font-family: var(--font-type2);
 		font-weight: 200;
 	}
 

@@ -1,41 +1,128 @@
 <script lang="ts">
-	import { Asset, AssetType, displayUsFormat } from '$lib';
+	import { Asset, AssetType, computeRewards, displayUsFormat, numberToBigintE8s } from '$lib';
 	import SwapInput from './SwapInput.svelte';
 	import { Toast } from '$lib/toast';
-	import { inputValue, state, reward, user, isLogging, isConverting, toasts } from '$lib/stores';
+	import { inputValue, state, user, isLogging, isConverting, toasts } from '$lib/stores';
+	import BigNumber from 'bignumber.js';
+	import {
+		icpTransferApproved,
+		nicpTransferApproved,
+		handleStakeResult,
+		handleRetrieveResult
+	} from '$lib/ledger';
+	import type { ConversionArg } from '../../declarations/water_neuron/water_neuron.did';
+	import type { Account } from '@dfinity/ledger-icp';
+	import { onMount } from 'svelte';
 
 	let stake = true;
+	let exchangeRate: BigNumber;
+	let totalIcpDeposited: BigNumber;
+	let minimumWithdraw: BigNumber;
 
-	function computeReceiveAmount(stake: boolean): string {
-		if (stake) {
-			return `${displayUsFormat($state.exchangeRate() * $inputValue, 8)} nICP`;
+	function computeReceiveAmount(
+		stake: boolean,
+		inputValue: BigNumber,
+		exchangeRate: BigNumber
+	): BigNumber {
+		if (inputValue.isNaN()) return BigNumber(0);
+
+		if (exchangeRate) {
+			if (stake) {
+				return inputValue.multipliedBy(exchangeRate);
+			} else {
+				return inputValue.dividedBy(exchangeRate);
+			}
 		} else {
-			return `${displayUsFormat($inputValue / $state.exchangeRate(), 8)} ICP`;
+			return BigNumber(0);
 		}
 	}
 
-	export async function convert(amount: number, stake: boolean) {
-		if (!$user) return;
-		if (stake) {
-			if ($user.icpBalance() >= amount && amount > 0) {
-				$user.substractBalance(AssetType.ICP, amount);
-				$user.addBalance(AssetType.nICP, amount * $state.exchangeRate());
-				user.set($user);
-				toasts.set([...$toasts, Toast.success('Converted ICP to nICP.')]);
+	export async function convert(amount: BigNumber, stake: boolean) {
+		if (!($user && !$isConverting)) return;
+
+		isConverting.set(true);
+		if (!stake) {
+			if ($user.nicpBalance().isGreaterThanOrEqualTo(amount) && amount.isGreaterThan(0)) {
+				let amountE8s = numberToBigintE8s(amount);
+				const messageError = await nicpTransferApproved(
+					amountE8s,
+					{
+						owner: $user.principal,
+						subaccount: []
+					} as Account,
+					$state.nicpLedger
+				);
+
+				if (messageError) {
+					toasts.add(Toast.error(messageError));
+				} else {
+					amountE8s -= BigInt(10_000);
+					const conversionResult = await $state.waterNeuron.nicp_to_icp({
+						maybe_subaccount: [],
+						amount_e8s: amountE8s
+					} as ConversionArg);
+
+					let status = handleRetrieveResult(conversionResult);
+					if (status.success) {
+						toasts.add(Toast.success(status.message));
+					} else {
+						toasts.add(Toast.error(status.message));
+					}
+				}
 			} else {
-				toasts.set([...$toasts, Toast.error('Conversion failed.')]);
+				toasts.add(Toast.error('Conversion failed due to nICP balance.'));
 			}
 		} else {
-			if ($user.nicpBalance() >= amount && amount > 0) {
-				$user.substractBalance(AssetType.nICP, amount);
-				$user.addBalance(AssetType.ICP, amount / $state.exchangeRate());
-				user.set($user);
-				toasts.set([...$toasts, Toast.success('Converted nICP to ICP.')]);
+			if ($user.icpBalance().isGreaterThanOrEqualTo(amount) && amount.isGreaterThan(0)) {
+				let amountE8s = numberToBigintE8s(amount);
+				const messageError = await icpTransferApproved(
+					amountE8s,
+					{
+						owner: $user.principal,
+						subaccount: []
+					} as Account,
+					$state.icpLedger
+				);
+
+				if (messageError) {
+					toasts.add(Toast.error(messageError));
+				} else {
+					amountE8s -= BigInt(10_000);
+					const conversionResult = await $state.waterNeuron.icp_to_nicp({
+						maybe_subaccount: [],
+						amount_e8s: amountE8s
+					} as ConversionArg);
+
+					let status = handleStakeResult(conversionResult);
+					if (status.success) {
+						toasts.add(Toast.success(status.message));
+					} else {
+						toasts.add(Toast.error(status.message));
+					}
+				}
 			} else {
-				toasts.set([...$toasts, Toast.error('Conversion failed.')]);
+				toasts.add(Toast.error('Conversion failed due to ICP balance.'));
 			}
 		}
+		isConverting.set(false);
 	}
+
+	const fetchData = async () => {
+		try {
+			exchangeRate = await $state.exchangeRate();
+			totalIcpDeposited = await $state.totalIcpDeposited();
+			minimumWithdraw = BigNumber(10).multipliedBy(exchangeRate);
+		} catch (error) {
+			console.error('Error fetching data:', error);
+		}
+	};
+
+	onMount(() => {
+		fetchData();
+		const intervalId = setInterval(fetchData, 5000);
+
+		return () => clearInterval(intervalId);
+	});
 </script>
 
 <div class="main-container">
@@ -43,68 +130,101 @@
 		<button
 			class="header-btn"
 			style:text-align="start"
-			on:click={() => (stake = !stake)}
+			on:click={() => (stake = true)}
 			class:selected={stake}
 			class:not-selected={!stake}>Stake ICP</button
 		>
 		<button
 			class="header-btn"
 			style:text-align="end"
-			on:click={() => (stake = !stake)}
+			on:click={() => (stake = false)}
 			class:selected={!stake}
-			class:not-selected={stake}>Unstake ICP</button
+			class:not-selected={stake}>Unstake nICP</button
 		>
 	</div>
 	<div class="swap-container">
 		<SwapInput asset={stake ? new Asset(AssetType.ICP) : new Asset(AssetType.nICP)} />
 		<div class="paragraphs">
 			{#if stake}
-				{#if $inputValue}
-					<p style:color="white">
-						You will receive {computeReceiveAmount(stake)}
-					</p>
-				{:else}
-					<p style:color="white">You will receive 0 nICP</p>
-				{/if}
-				<p>
-					1 ICP = {displayUsFormat($state.exchangeRate())} nICP
+				<p style:color="#fa796e">
+					{#if exchangeRate}
+						You will receive {displayUsFormat(
+							computeReceiveAmount(stake, BigNumber($inputValue), exchangeRate),
+							8
+						)} nICP
+					{:else}
+						...
+					{/if}
 				</p>
-				<p class="reward">
-					Future WTN Airdrop: {$reward}{' '}
+				<p>
+					{#if exchangeRate}
+						1 ICP = {displayUsFormat(exchangeRate)} nICP
+					{:else}
+						...
+					{/if}
+				</p>
+				<div class="reward">
+					<p style:margin-right={'2.5em'}>
+						Future WTN Airdrop:
+						{#if exchangeRate && totalIcpDeposited}
+							{displayUsFormat(
+								computeRewards(
+									totalIcpDeposited,
+									computeReceiveAmount(stake, BigNumber($inputValue), exchangeRate)
+								),
+								8
+							)}
+						{:else}
+							...
+						{/if}
+					</p>
 					<img src="/tokens/WTN.png" width="30em" height="30em" alt="WTN logo" />
-				</p>
+				</div>
 			{:else}
-				{#if $inputValue}
-					<p style:color="white">
-						You will receive {computeReceiveAmount(stake)}
-					</p>
-				{:else}
-					<p style:color="white">You will receive 0 ICP</p>
-				{/if}
+				<p style:color="#fa796e">
+					{#if exchangeRate}
+						You will receive {displayUsFormat(
+							computeReceiveAmount(stake, BigNumber($inputValue), exchangeRate),
+							8
+						)} ICP
+					{:else}
+						...
+					{/if}
+				</p>
 				<p>
-					1 nICP = {displayUsFormat(1 / $state.exchangeRate())} ICP
+					{#if exchangeRate}
+						1 nICP = {displayUsFormat(BigNumber(1).dividedBy(exchangeRate))} ICP
+					{:else}
+						...
+					{/if}
 				</p>
 				<p>Waiting Time: 6 months</p>
-				<p>Minimum Withdrawal: 10 ICP</p>
+				<p>
+					{#if minimumWithdraw}
+						Minimum Withdrawal: {minimumWithdraw} nICP
+					{:else}
+						...
+					{/if}
+				</p>
 			{/if}
 		</div>
 		{#if !$user}
 			<button
 				class="swap-btn"
 				on:click={() => {
-					isLogging.update((_) => true);
+					isLogging.update(() => true);
 				}}
 			>
 				<span>Connect your wallet</span>
 			</button>
 		{:else}
-			<button class="swap-btn" on:click={() => convert($inputValue, stake)}>
+			<button class="swap-btn" on:click={() => convert(BigNumber($inputValue), stake)}>
 				{#if $isConverting}
-					<svg class="spinner" viewBox="0 0 50 50">
-						<circle class="circle" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle>
-					</svg>
+					<div class="spinner"></div>
+				{:else if stake}
+					<span>Stake</span>
 				{:else}
-					<span>Convert</span>
+					<span>Unstake</span>
 				{/if}
 			</button>
 		{/if}
@@ -114,8 +234,8 @@
 <style>
 	/* === Base Styles === */
 	p {
-		color: rgb(176, 163, 217);
-		font-family: Arial, Helvetica, sans-serif;
+		color: var(--text-color);
+		font-family: var(--font-type2);
 		font-weight: bold;
 		text-align: end;
 		margin: 0;
@@ -123,6 +243,7 @@
 
 	img {
 		padding: 0.3em;
+		position: absolute;
 	}
 
 	/* === Layout === */
@@ -132,7 +253,8 @@
 		flex-direction: column;
 		box-shadow: rgba(41, 49, 71, 0.1) 0px 8px 16px;
 		width: 30em;
-		max-width: 95vw;
+		max-width: 97vw;
+		height: auto;
 	}
 
 	.header-container {
@@ -144,12 +266,12 @@
 		display: flex;
 		flex-direction: column;
 		padding: 1em;
-		border-left: 2px solid rgb(102, 173, 255);
-		border-right: 2px solid rgb(102, 173, 255);
-		border-bottom: 2px solid rgb(102, 173, 255);
+		border-left: 2px solid var(--border-color);
+		border-right: 2px solid var(--border-color);
+		border-bottom: 2px solid var(--border-color);
 		border-bottom-left-radius: 10px;
 		border-bottom-right-radius: 10px;
-		background-color: rgb(12, 44, 76);
+		background-color: var(--background-color);
 		gap: 1em;
 	}
 
@@ -162,25 +284,25 @@
 
 	/* === Components === */
 	.header-btn {
-		font-family: Arial, Helvetica, sans-serif;
+		font-family: var(--font-type2);
 		font-size: 1.2em;
+		font-weight: bold;
 		color: white;
 		border: none;
 		color: white;
 		padding: 1em;
 		width: 100%;
-		cursor: pointer;
 	}
 
 	.reward {
-		display: flex;
+		display: inline-flex;
 		align-items: center;
 		justify-content: flex-end;
+		position: relative;
 	}
 
 	.swap-btn {
-		color: black;
-		background: #66adff;
+		background: var(--main-color);
 		min-width: 80px;
 		max-width: fit-content;
 		position: relative;
@@ -191,6 +313,10 @@
 		padding: 0 1em 0 1em;
 		max-width: none;
 		height: 4em;
+		cursor: pointer;
+		display: flex;
+		justify-content: center;
+		align-items: center;
 	}
 
 	.swap-btn:hover {
@@ -199,55 +325,36 @@
 
 	/* === Utilities === */
 	.selected {
-		border-left: 2px solid rgb(102, 173, 255);
-		border-top: 2px solid rgb(102, 173, 255);
-		border-right: 2px solid rgb(102, 173, 255);
-		background-color: rgb(12, 44, 76);
+		border-left: 2px solid var(--border-color);
+		border-top: 2px solid var(--border-color);
+		border-right: 2px solid var(--border-color);
+		background-color: var(--background-color);
 	}
 
 	.not-selected {
-		border-bottom: 2px solid rgb(102, 173, 255);
+		border-bottom: 2px solid var(--border-color);
 		background-color: #5d6b77;
 		color: #c7c7c7;
+		cursor: pointer;
 	}
 
 	/* === Animation === */
 
 	.spinner {
-		animation: rotate 2s linear infinite;
-		z-index: 2;
-		width: 40px;
-		height: 40px;
-
-		& .path {
-			stroke: #0a1623;
-			stroke-width: 7%;
-			stroke-linecap: round;
-			animation: dash 2s cubic-bezier(0.35, 0, 0.25, 1) infinite;
-		}
+		width: 2em;
+		height: 2em;
+		border: 3px solid black;
+		border-top-color: transparent;
+		border-radius: 50%;
+		animation: spin 1s linear infinite;
 	}
 
-	@keyframes rotate {
-		0% {
+	@keyframes spin {
+		from {
 			transform: rotate(0deg);
 		}
-		100% {
+		to {
 			transform: rotate(360deg);
-		}
-	}
-
-	@keyframes dash {
-		0% {
-			stroke-dasharray: 1, 150;
-			stroke-dashoffset: 0;
-		}
-		50% {
-			stroke-dasharray: 90, 150;
-			stroke-dashoffset: -35;
-		}
-		100% {
-			stroke-dasharray: 90, 150;
-			stroke-dashoffset: -124;
 		}
 	}
 </style>

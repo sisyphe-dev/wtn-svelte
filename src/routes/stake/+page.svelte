@@ -2,6 +2,7 @@
 	import { language } from '$lib/stores';
 	import StatsWidget from './StatsWidget.svelte';
 	import Swap from './Swap.svelte';
+
 	export let data;
 
 	function getContent(language: string) {
@@ -18,7 +19,7 @@
 				return [];
 		}
 	}
-	let toggledMap = getContent($language).map((_) => {
+	let toggledMap = getContent($language).map(() => {
 		return false;
 	});
 </script>
@@ -38,10 +39,10 @@
 			<img
 				width="20em"
 				height="20em"
-				src="icon/down-arrow.svg"
+				src="/icon/down-arrow.svg"
 				alt="Down arrow."
-				class:arrow-down={toggledMap[i]}
-				class:arrow-up={!toggledMap[i]}
+				class:arrow-down={!toggledMap[i]}
+				class:arrow-up={toggledMap[i]}
 			/>
 		</button>
 
@@ -95,16 +96,17 @@
 	h1 {
 		color: white;
 		font-size: 42px;
-		font-family: Arial, Helvetica, sans-serif;
+		font-family: var(--font-type1);
 	}
 
 	h2 {
 		color: white;
 		font-size: 1.5em;
+		text-align: start;
 	}
 
 	p {
-		color: rgb(176, 163, 217);
+		color: var(--text-color);
 		font-weight: 400;
 		font-family: CircularXX, sans-serif;
 		-webkit-font-smoothing: antialiased;

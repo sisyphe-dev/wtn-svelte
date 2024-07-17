@@ -1,18 +1,80 @@
-<script>
+<script lang="ts">
 	import Navbar from './Navbar.svelte';
 	import Footer from './Footer.svelte';
 	import Connect from './Connect.svelte';
 	import Send from './wallet/Send.svelte';
 	import Menu from './Menu.svelte';
-	import { isLogging, menu, isSending } from '$lib/stores';
+	import { isLogging, menu, isSelecting, user, state } from '$lib/stores';
+	import { onMount, beforeUpdate } from 'svelte';
+	import type { Account } from '@dfinity/ledger-icp';
+	import { signIn } from '$lib/authentification';
+	import { User } from '$lib/state';
+	import { AuthClient } from '@dfinity/auth-client';
 	import Toast from './Toast.svelte';
+	import { provideState } from '$lib/state';
+
+	const fetchUser = async () => {
+		try {
+			const authClient = await AuthClient.create();
+			if (!(await authClient.isAuthenticated())) {
+				return;
+			}
+
+			const authResult = await signIn();
+
+			$state.wtnLedger = authResult.actors.wtnLedger;
+			$state.icpLedger = authResult.actors.icpLedger;
+			$state.nicpLedger = authResult.actors.nicpLedger;
+			$state.waterNeuron = authResult.actors.waterNeuron;
+
+			const user_account: Account = {
+				owner: authResult.principal,
+				subaccount: []
+			};
+			const nicpBalanceE8s = await $state.nicpLedger.icrc1_balance_of(user_account);
+			const wtnBalanceE8s = await $state.wtnLedger.icrc1_balance_of(user_account);
+			const icpBalanceE8s = await $state.icpLedger.icrc1_balance_of(user_account);
+
+			user.set(
+				new User({ principal: authResult.principal, icpBalanceE8s, nicpBalanceE8s, wtnBalanceE8s })
+			);
+		} catch (error) {
+			console.error('Login failed:', error);
+		}
+	};
+
+	const initializeState = async () => {
+		state.set(await provideState());
+	};
+	onMount(() => {
+		initializeState();
+		fetchUser();
+
+		const intervalId = setInterval(async () => {
+			if ($user) {
+				const user_account: Account = {
+					owner: $user.principal,
+					subaccount: []
+				} as Account;
+
+				const icpBalance = await $state.icpLedger.icrc1_balance_of(user_account);
+				const nicpBalance = await $state.nicpLedger.icrc1_balance_of(user_account);
+				const wtnBalance = await $state.wtnLedger.icrc1_balance_of(user_account);
+				$user.icpBalanceE8s = icpBalance;
+				$user.nicpBalanceE8s = nicpBalance;
+				$user.wtnBalanceE8s = wtnBalance;
+			}
+		}, 5000);
+
+		return () => clearInterval(intervalId);
+	});
 </script>
 
 {#if $isLogging}
 	<div class="background-filter">
 		<Connect />
 	</div>
-{:else if $isSending}
+{:else if $isSelecting}
 	<div class="background-filter">
 		<Send />
 	</div>
@@ -22,15 +84,32 @@
 {:else}
 	<div class="page-container">
 		<Navbar />
-		<div class="content-container" class:filter={$isSending || $isLogging}>
+		<div class="content-container" class:filter={$isSelecting || $isLogging}>
 			<slot />
 		</div>
 		<Footer />
+		<Toast />
 	</div>
-	<Toast />
 {/if}
 
 <style>
+	/* === Variables === */
+	:root {
+		--main-color: oklab(0.88 -0.18 0.03);
+		--border-color: rgb(102, 173, 255);
+		--background-color: rgb(12, 44, 76);
+		--text-color: rgb(176, 163, 217);
+		--font-type1: 'Akrobat-black';
+		--font-type2: Arial;
+	}
+
+	@font-face {
+		font-family: 'Akrobat-black';
+		src: url('/Akrobat-Black.ttf') format('truetype');
+		font-weight: normal;
+		font-style: normal;
+	}
+
 	/* === Layout === */
 	.page-container {
 		display: flex;
@@ -49,8 +128,9 @@
 		height: fit-content;
 		min-height: 45vh;
 		width: 100%;
-		gap: 2em;
+		gap: 1.5em;
 		padding-top: 2em;
+		margin-bottom: 4em;
 		color: white;
 	}
 

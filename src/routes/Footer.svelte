@@ -1,20 +1,25 @@
 <script>
-	import { isSending, isLogging } from '$lib/stores';
+	import { isSelecting, isLogging } from '$lib/stores';
 </script>
 
-<footer class:filter={$isLogging || $isSending}>
+<footer class:filter={$isLogging || $isSelecting}>
 	<div class="central-container">
-		<a href="https://github.com/WaterNeuron" target="_blank" rel="noreferrer">
-			<img alt="Github Icon" src="landing/github-white.svg" />
+		<img alt="WTN icon" src="/tokens/WTN.png" id="wtn-icon" />
+		<a class="item--1" href="https://oc.app/assets/spinner.svg" rel="noreferrer" target="_blank">
+			<img alt="Open chat icon" src="/icon/openchat.svg" />
 		</a>
-		<div class="central-icons">
-			<a href="https://twitter.com/WaterNeuron" target="_blank" rel="noreferrer">
-				<img alt="Twitter Icon" src="landing/twitter.svg" />
+		<a class="item--5" href="https://github.com/WaterNeuron" target="_blank" rel="noreferrer">
+			<img alt="Github Icon" src="/landing/github-white.svg" />
+		</a>
+			<a class="item--3" href="https://twitter.com/WaterNeuron" target="_blank" rel="noreferrer">
+				<img alt="Twitter Icon" src="/landing/twitter.svg" />
 			</a>
-			<img alt="WTN icon" src="/WTN.png" id="wtn-icon" />
-		</div>
-		<a href="https://docs.waterneuron.fi/" rel="noreferrer" target="_blank">
-			<img alt="Git book icon" src="icon/gitbook.svg" />
+		
+		<a class="item--4" href="https://docs.waterneuron.fi/" rel="noreferrer" target="_blank">
+			<img alt="Git book icon" src="/icon/gitbook.svg" />
+		</a>
+		<a class="item--2" href="https://docs.waterneuron.fi/" rel="noreferrer" target="_blank">
+			<img alt="Telegram icon" src="/icon/telegram.svg" />
 		</a>
 	</div>
 </footer>
@@ -25,42 +30,77 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
+		justify-content: center;
 		color: white;
 		height: fit-content;
+		width: 100%;
 		padding: 0 2vw;
 		margin-bottom: 2vh;
 	}
 
 	img {
-		height: 2em;
-		width: 2em;
+		height: 30px;
+		width: 30px;
+		align-content: center;
+		justify-content: center;
 	}
 
 	/* === Layout === */
 	.central-container {
-		width: 100%;
 		display: flex;
 		justify-content: center;
 		align-items: center;
-		gap: 1em;
-		padding: 4em 0;
+		position: relative;
+		height: 7em;
+		width: 10em;
 	}
 
-	.central-icons {
-		display: flex;
-		flex-direction: column;
-		gap: 1em;
-		align-items: center;
+	a {
+		position: absolute;
+		top: 100%;
+		left: 50;
+		transform: translate(-50%, -50%);
 	}
 
 	/* === Component === */
 	#wtn-icon {
 		height: 4em;
 		width: 4em;
+		position: absolute;
 	}
 
 	/* === Utillities === */
 	.filter {
 		filter: blur(5px);
 	}
+
+	.item--1 {
+		top: 30%;
+		left: 0;
+		transform: translate(-50%, -50%);
+		}
+
+	.item--2 {
+		top: 10%;
+		left: 23%;
+		transform: translate(-50%, -50%);
+		}
+
+	.item--3 {
+		top: 0%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		}
+
+	.item--4 {
+		top: 10%;
+		right: 23%;
+		transform: translate(50%,-50%);
+		}
+
+	.item--5 {
+		top: 30%;
+		right: 0;
+		transform: translate(50%, -50%);
+		}
 </style>

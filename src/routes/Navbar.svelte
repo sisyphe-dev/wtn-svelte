@@ -1,9 +1,10 @@
 <script>
-	import { isSending, isLogging, menu, user } from '$lib/stores';
+	import { isSelecting, isLogging, menu, user } from '$lib/stores';
 	import { displayUsFormat, displayPrincipal } from '$lib';
+	import { logout } from '$lib/authentification';
 </script>
 
-<nav class:filter={$isSending || $isLogging}>
+<nav class:filter={$isSelecting || $isLogging}>
 	<a href="/stake" class="menu-selection-container">
 		<img src="/WTN.png" width="100em" height="100em" alt="WTN logo." />
 		<div class="wave-title">
@@ -24,13 +25,20 @@
 		<div class="wallet-actions-container">
 			<a href="/wallet" class="wallet-btn" id="wallet-info">
 				<h2 style:font-weight={'bold'}>{displayPrincipal($user.principal)}</h2>
-				<p>{displayUsFormat($user.icpBalance())} ICP</p>
+				<p id="special">{displayUsFormat($user.icpBalance())} ICP</p>
 				<p>{displayUsFormat($user.nicpBalance())} nICP</p>
 				<p>{displayUsFormat($user.wtnBalance())} WTN</p>
 			</a>
 			<a href="/stake">
-				<button id="disconnect-btn" class="wallet-action-btn" on:click={() => user.set(undefined)}>
-					<img src="icon/power-off.svg" width="15em" height="15em" alt="Disconnect Icon" />
+				<button
+					id="disconnect-btn"
+					class="wallet-action-btn"
+					on:click={async () => {
+						await logout();
+						user.set(undefined);
+					}}
+				>
+					<img src="/icon/power-off.svg" width="15em" height="15em" alt="Disconnect Icon" />
 				</button>
 			</a>
 			<button
@@ -92,7 +100,7 @@
 		align-items: center;
 		text-decoration: none;
 		color: inherit;
-		font-family: Arial;
+		font-family: var(--font-type2);
 	}
 
 	p,
@@ -103,6 +111,7 @@
 	}
 
 	p {
+		text-align: end;
 		font-weight: normal;
 	}
 
@@ -118,7 +127,7 @@
 	.menu-selection-container h1 {
 		font-size: 4em;
 		cursor: pointer;
-		font-family: Arial;
+		font-family: var(--font-type1);
 		position: absolute;
 	}
 
@@ -158,6 +167,9 @@
 		display: none;
 	}
 
+	#wallet-info {
+		align-items: end;
+	}
 	#wallet-info:hover {
 		background-color: #1e3466;
 	}
@@ -174,7 +186,7 @@
 
 	#blue-wave {
 		color: transparent;
-		background: linear-gradient(to right, #1c90ee, #7bedfe);
+		background: linear-gradient(to right, #3dae3c, #d6fea9);
 		background-clip: text;
 		clip-path: polygon(
 			0% 35%,

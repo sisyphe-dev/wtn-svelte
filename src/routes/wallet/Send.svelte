@@ -1,48 +1,168 @@
 <script lang="ts">
-	import { AssetType } from '$lib';
-	import { isSending, sendAsset, user, toasts } from '$lib/stores';
+	import { AssetType, displayUsFormat, numberToBigintE8s } from '$lib';
+	import { isSelecting, sendAsset, user, toasts, state, isSending } from '$lib/stores';
 	import { Toast } from '$lib/toast';
+	import BigNumber from 'bignumber.js';
+	import { type Account, AccountIdentifier } from '@dfinity/ledger-icp';
+	import { Principal } from '@dfinity/principal';
+	import {
+		handleIcrcTransferResult,
+		handleTransferResult,
+		type ConversionResult
+	} from '$lib/ledger';
+	import type {
+		Tokens,
+		TransferArgs,
+		TransferArg
+	} from '../../declarations/nns-ledger/nns-ledger.did';
 
 	let principal: string;
-	let sendAmount: number;
+	let sendAmount: BigNumber;
 
-	function isValidPrincipal(principal: string): boolean {
-		if (principal) {
-			return principal.length === 4;
-		} else {
-			return true;
+	function getReceiver(input: string): Principal | AccountIdentifier | undefined {
+		try {
+			const principal = Principal.fromText(input);
+			return principal;
+		} catch (e) {
+			if ($sendAsset.type === AssetType.ICP) {
+				try {
+					if (input.length !== 64) return undefined;
+					const accountId = AccountIdentifier.fromHex(input);
+					return accountId;
+				} catch (error) {
+					console.log(error);
+					return undefined;
+				}
+			}
+			console.log(e);
+			return undefined;
 		}
 	}
 
-	function isValidAmount(amount: number): boolean {
+	function isValidAmount(amount: BigNumber): boolean {
 		if (amount && $user) {
-			return $user.getBalance($sendAsset.type) >= amount;
+			return $user.getBalance($sendAsset.type).isGreaterThanOrEqualTo(amount);
 		} else {
 			return true;
 		}
 	}
 
-	function sendTokens(amount: number, principal: string) {
-		if (amount && principal && isValidAmount(amount) && isValidPrincipal(principal) && $user) {
-			$user.substractBalance($sendAsset.type, amount);
-			user.set($user);
-			toasts.set([...$toasts, Toast.success('Successful transfer.')]);
-		} else {
-			toasts.set([...$toasts, Toast.error('Error while sending tokens.')]);
+	async function icrcTransfer(amount: BigNumber, input: string) {
+		if ($isSending) return;
+
+		isSending.set(true);
+		if (amount && principal && isValidAmount(amount)) {
+			const amount_e8s = numberToBigintE8s(amount);
+			const receiver = getReceiver(input);
+			if (!receiver) {
+				isSending.set(false);
+				return;
+			}
+
+			let status: ConversionResult;
+			switch ($sendAsset.type) {
+				case AssetType.ICP:
+					{
+						if (receiver instanceof Principal) {
+							const transferResult = await $state.icpLedger.icrc1_transfer({
+								to: {
+									owner: receiver,
+									subaccount: []
+								} as Account,
+								fee: [],
+								memo: [],
+								from_subaccount: [],
+								created_at_time: [],
+								amount: amount_e8s
+							} as TransferArg);
+							status = handleIcrcTransferResult(transferResult);
+						} else {
+							const transferResult = await $state.icpLedger.transfer({
+								to: receiver.toUint8Array(),
+								fee: { e8s: 10000n } as Tokens,
+								memo: 0n,
+								from_subaccount: [],
+								created_at_time: [],
+								amount: { e8s: amount_e8s } as Tokens
+							} as TransferArgs);
+							status = handleTransferResult(transferResult);
+						}
+					}
+					break;
+				case AssetType.nICP:
+					{
+						const transferResult = await $state.nicpLedger.icrc1_transfer({
+							to: {
+								owner: receiver,
+								subaccount: []
+							} as Account,
+							fee: [],
+							memo: [],
+							from_subaccount: [],
+							created_at_time: [],
+							amount: amount_e8s
+						} as TransferArg);
+						status = handleIcrcTransferResult(transferResult);
+					}
+					break;
+				case AssetType.WTN:
+					{
+						const transferResult = await $state.wtnLedger.icrc1_transfer({
+							to: {
+								owner: receiver,
+								subaccount: []
+							} as Account,
+							fee: [],
+							memo: [],
+							from_subaccount: [],
+							created_at_time: [],
+							amount: amount_e8s
+						} as TransferArg);
+						status = handleIcrcTransferResult(transferResult);
+					}
+					break;
+			}
+
+			if (status.success) {
+				toasts.add(Toast.success(status.message));
+			} else {
+				toasts.add(Toast.error(status.message));
+			}
+			isSelecting.set(false);
+			isSending.set(false);
 		}
+		isSending.set(false);
+		isSelecting.set(false);
 	}
 </script>
 
 <div class="send-container">
 	<div class="header-container">
 		<h2>Send {$sendAsset.intoStr()}</h2>
-		<img alt="{$sendAsset.intoStr()} logo" src={$sendAsset.getUrl()} width="50px" height="50px" />
+		<img alt="ICP logo" src={$sendAsset.getUrl()} width="50px" height="50px" />
 	</div>
+	{#if $user}
+		<div>
+			<p>Balance</p>
+			<div style:display={'flex'}>
+				<div class="balances">
+					<span>{displayUsFormat($user.getBalance($sendAsset.type), 8)} {$sendAsset.intoStr()}</span
+					>
+					<img
+						alt="{$sendAsset.intoStr()} logo"
+						src={$sendAsset.getUrl()}
+						width="20px"
+						height="20px"
+					/>
+				</div>
+			</div>
+		</div>
+	{/if}
 	<div>
 		<p>Destination</p>
 		<input placeholder="Address" bind:value={principal} />
-		{#if !isValidPrincipal(principal)}
-			<span> Please enter a valid address. </span>
+		{#if principal && !getReceiver(principal)}
+			<span class="error"> Please enter a valid address. </span>
 		{/if}
 	</div>
 	<div>
@@ -52,14 +172,18 @@
 			<button
 				class="max-btn"
 				on:click={() => {
-					sendAmount = $user ? $user.getBalance($sendAsset.type) : 0;
+					sendAmount =
+						$user &&
+						$user.getBalance($sendAsset.type).isGreaterThanOrEqualTo($sendAsset.getTransferFee())
+							? $user.getBalance($sendAsset.type).minus($sendAsset.getTransferFee())
+							: BigNumber(0);
 				}}
 			>
 				MAX
 			</button>
 		</div>
 		{#if !isValidAmount(sendAmount)}
-			<span> Not enough treasury. </span>
+			<span class="error"> Not enough treasury. </span>
 		{/if}
 	</div>
 	<div>
@@ -70,14 +194,26 @@
 		</p>
 	</div>
 	<div class="button-container">
-		<button class="toggle-btn" on:click={() => isSending.set(false)}>Cancel</button>
-		<button
-			class="toggle-btn"
-			on:click={() => {
-				sendTokens(sendAmount, principal);
-				isSending.set(false);
-			}}>Continue</button
-		>
+		{#if $isSending}
+			<button
+				class="toggle-btn"
+				on:click={() => {
+					icrcTransfer(sendAmount, principal);
+				}}
+			>
+				<div class="spinner"></div>
+			</button>
+		{:else}
+			<button class="toggle-btn" on:click={() => isSelecting.set(false)}>Cancel</button>
+			<button
+				class="toggle-btn"
+				on:click={() => {
+					icrcTransfer(sendAmount, principal);
+				}}
+			>
+				<span>Continue</span>
+			</button>
+		{/if}
 	</div>
 </div>
 
@@ -97,13 +233,14 @@
 	}
 
 	p {
-		font-family: Arial, Helvetica, sans-serif;
+		font-family: var(--font-type2);
 	}
 
 	span {
-		font-family: Arial, Helvetica, sans-serif;
-		color: red;
+		font-family: var(--font-type2);
 		margin-left: 1em;
+		display: flex;
+		align-items: center;
 	}
 
 	/* === Layout === */
@@ -114,13 +251,13 @@
 		flex-direction: column;
 		max-width: 35em;
 		width: 80vw;
-		background: rgb(12, 44, 76);
+		background: var(--background-color);
 		color: white;
 		padding: 2em;
 		border-radius: 15px;
 		margin-left: 0.5em;
 		margin-right: 0.5em;
-		border: 2px solid rgb(102, 173, 255);
+		border: 2px solid var(--border-color);
 	}
 
 	.header-container {
@@ -128,7 +265,7 @@
 		justify-content: space-between;
 		align-items: center;
 		padding: 0 2%;
-		font-family: Arial, Helvetica, sans-serif;
+		font-family: var(--font-type2);
 	}
 
 	.button-container {
@@ -138,6 +275,10 @@
 	}
 
 	/* === Componennts === */
+	.error {
+		color: red;
+		margin-left: 1em;
+	}
 	.max-btn {
 		position: absolute;
 		right: 8%;
@@ -152,9 +293,14 @@
 		align-items: center;
 	}
 
+	.balances {
+		display: flex;
+		align-items: center;
+		gap: 0.5em;
+	}
+
 	.toggle-btn {
-		color: black;
-		background: #66adff;
+		background: var(--main-color);
 		min-width: 80px;
 		position: relative;
 		border: 2px solid black;
@@ -164,11 +310,40 @@
 		max-width: none;
 		height: 60px;
 		font-weight: bold;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+
+	.toggle-btn:hover {
+		transform: scale(0.95);
+		transition: all 0.3s;
+		box-shadow: 6px 6px 0 0 black;
 	}
 
 	input::-webkit-outer-spin-button,
 	input::-webkit-inner-spin-button {
 		-webkit-appearance: none;
 		margin: 0;
+	}
+
+	/* === Animation === */
+
+	.spinner {
+		width: 2em;
+		height: 2em;
+		border: 3px solid black;
+		border-top-color: transparent;
+		border-radius: 50%;
+		animation: spin 1s linear infinite;
+	}
+
+	@keyframes spin {
+		from {
+			transform: rotate(0deg);
+		}
+		to {
+			transform: rotate(360deg);
+		}
 	}
 </style>

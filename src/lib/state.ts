@@ -1,40 +1,48 @@
-import { AssetType, bigintE8sToNumber, numberToBigintE8s } from '$lib';
+import { AssetType, bigintE8sToNumber } from '$lib';
 import { AccountIdentifier } from '@dfinity/ledger-icp';
-import type { Principal } from '@dfinity/principal';
+import { Principal } from '@dfinity/principal';
+import BigNumber from 'bignumber.js';
+import type { _SERVICE as nicpLedgerInterface } from '../declarations/nicp_ledger/nicp_ledger.did';
+import type { _SERVICE as wtnLedgerInterface } from '../declarations/wtn_ledger/wtn_ledger.did';
+import type { _SERVICE as icpLedgerInterface } from '../declarations/nns-ledger/nns-ledger.did';
+import type { _SERVICE as waterNeuronInterface } from '../declarations/water_neuron/water_neuron.did';
+import { fetchActors, type Actors } from './authentification';
+
+interface UserProps {
+	principal: Principal;
+	icpBalanceE8s: bigint;
+	nicpBalanceE8s: bigint;
+	wtnBalanceE8s: bigint;
+}
 
 export class User {
-	public principal: string;
+	public principal: Principal;
 	public accountId: string;
-	private icpBalanceE8s: bigint;
-	private nicpBalanceE8s: bigint;
-	private wtnBalanceE8s: bigint;
+	public icpBalanceE8s: bigint;
+	public nicpBalanceE8s: bigint;
+	public wtnBalanceE8s: bigint;
 
-	constructor(
-		principal: Principal,
-		icpBalanceE8s: bigint,
-		nicpBalanceE8s: bigint,
-		wtnBalanceE8s: bigint
-	) {
-		this.principal = principal.toString();
-		this.accountId = AccountIdentifier.fromPrincipal({ principal: principal }).toHex();
-		this.icpBalanceE8s = icpBalanceE8s;
-		this.nicpBalanceE8s = nicpBalanceE8s;
-		this.wtnBalanceE8s = wtnBalanceE8s;
+	constructor(props: UserProps) {
+		this.principal = props.principal;
+		this.accountId = AccountIdentifier.fromPrincipal({ principal: props.principal }).toHex();
+		this.icpBalanceE8s = props.icpBalanceE8s;
+		this.nicpBalanceE8s = props.nicpBalanceE8s;
+		this.wtnBalanceE8s = props.wtnBalanceE8s;
 	}
 
-	icpBalance(): number {
+	icpBalance(): BigNumber {
 		return bigintE8sToNumber(this.icpBalanceE8s);
 	}
 
-	nicpBalance(): number {
+	nicpBalance(): BigNumber {
 		return bigintE8sToNumber(this.nicpBalanceE8s);
 	}
 
-	wtnBalance(): number {
+	wtnBalance(): BigNumber {
 		return bigintE8sToNumber(this.wtnBalanceE8s);
 	}
 
-	getBalance(asset: AssetType): number {
+	getBalance(asset: AssetType): BigNumber {
 		switch (asset) {
 			case AssetType.ICP:
 				return this.icpBalance();
@@ -44,86 +52,101 @@ export class User {
 				return this.wtnBalance();
 		}
 	}
-
-	addBalance(asset: AssetType, amount: number) {
-		const e8sAmount = numberToBigintE8s(amount);
-		switch (asset) {
-			case AssetType.ICP:
-				this.icpBalanceE8s += e8sAmount;
-				break;
-			case AssetType.nICP:
-				this.nicpBalanceE8s += e8sAmount;
-				break;
-			case AssetType.WTN:
-				this.wtnBalanceE8s += e8sAmount;
-				break;
-		}
-	}
-
-	substractBalance(asset: AssetType, amount: number) {
-		const e8sAmount = numberToBigintE8s(amount);
-		switch (asset) {
-			case AssetType.ICP:
-				this.icpBalanceE8s -= e8sAmount;
-				break;
-			case AssetType.nICP:
-				this.nicpBalanceE8s -= e8sAmount;
-				break;
-			case AssetType.WTN:
-				this.wtnBalanceE8s -= e8sAmount;
-				break;
-		}
-	}
 }
 
-const DAO_SHARE = 0.1;
-const APY_6M = 0.08;
-const APY_8Y = 0.15;
+const DAO_SHARE = BigNumber(0.1);
+const APY_6M = BigNumber(0.08);
+const APY_8Y = BigNumber(0.15);
 
 export class State {
 	public neuron8yStakeE8s: bigint;
 	public neuron6mStakeE8s: bigint;
-	public stakersCount: number;
-	public exchangeRateE8s: bigint;
+	public icpLedger: icpLedgerInterface;
+	public wtnLedger: wtnLedgerInterface;
+	public nicpLedger: nicpLedgerInterface;
+	public waterNeuron: waterNeuronInterface;
 
-	constructor(
-		neuron8yStakeE8s: bigint,
-		neuron6mStakeE8s: bigint,
-		stakersCount: number,
-		exchangeRateE8s: bigint
-	) {
-		this.neuron8yStakeE8s = neuron8yStakeE8s;
-		this.neuron6mStakeE8s = neuron6mStakeE8s;
-		this.stakersCount = stakersCount;
-		this.exchangeRateE8s = exchangeRateE8s;
+	constructor(actors: Actors) {
+		this.neuron8yStakeE8s = BigInt(0);
+		this.neuron6mStakeE8s = BigInt(0);
+		this.nicpLedger = actors.nicpLedger;
+		this.wtnLedger = actors.wtnLedger;
+		this.icpLedger = actors.icpLedger;
+		this.waterNeuron = actors.waterNeuron;
 	}
 
-	totalIcpDeposited(): number {
-		return this.neuron6mStake() + this.neuron8yStake();
+	async totalIcpDeposited(): Promise<BigNumber> {
+		try {
+			const neuron6mStake = await this.neuron6mStake();
+			const neuron8yStake = await this.neuron8yStake();
+			return neuron6mStake.plus(neuron8yStake);
+		} catch (e) {
+			return BigNumber(0);
+		}
 	}
 
-	neuron8yStake(): number {
-		return Number(this.neuron8yStakeE8s) / 1e8;
+	async neuron8yStake(): Promise<BigNumber> {
+		try {
+			const info = await this.waterNeuron.get_info();
+			return bigintE8sToNumber(info.neuron_8y_stake_e8s);
+		} catch (e) {
+			return BigNumber(0);
+		}
 	}
 
-	neuron6mStake(): number {
-		return Number(this.neuron6mStakeE8s) / 1e8;
+	async neuron6mStake(): Promise<BigNumber> {
+		try {
+			const info = await this.waterNeuron.get_info();
+			return bigintE8sToNumber(info.neuron_6m_stake_e8s);
+		} catch (e) {
+			return BigNumber(0);
+		}
 	}
 
-	exchangeRate(): number {
-		return Number(this.exchangeRateE8s) / 1e8;
+	async exchangeRate(): Promise<BigNumber> {
+		try {
+			const info = await this.waterNeuron.get_info();
+			return bigintE8sToNumber(info.exchange_rate);
+		} catch (e) {
+			return BigNumber(1);
+		}
 	}
 
-	apy(): number {
-		return (
-			(100 * (1 - DAO_SHARE) * (APY_6M * this.neuron6mStake() + APY_8Y * this.neuron8yStake())) /
-			this.neuron6mStake()
-		);
+	async wtnAllocation(): Promise<BigNumber> {
+		try {
+			const allocation = await this.waterNeuron.get_airdrop_allocation();
+			return bigintE8sToNumber(allocation);
+		} catch (e) {
+			return BigNumber(0);
+		}
+	}
+
+	async apy(): Promise<BigNumber> {
+		const neuron6mStake = await this.neuron6mStake();
+		const neuron8yStake = await this.neuron8yStake();
+
+		if (neuron6mStake.plus(neuron8yStake).isZero()) return BigNumber(0);
+
+		const amount6m = APY_6M.multipliedBy(neuron6mStake);
+		const amount8y = APY_8Y.multipliedBy(neuron8yStake);
+		const amountTotal = amount6m.plus(amount8y);
+		const share = BigNumber(1).minus(DAO_SHARE);
+
+		return share.multipliedBy(amountTotal).multipliedBy(BigNumber(1)).dividedBy(neuron6mStake);
+	}
+
+	async stakersCount(): Promise<Number> {
+		try {
+			const info = await this.waterNeuron.get_info();
+			return Number(info.stakers_count);
+		} catch (e) {
+			return 0;
+		}
 	}
 }
 
-export const DEFAULT_PRINCIPAL = 'dwx4w-plydf-jxgs5-uncbu-mfyds-5vjzm-oohax-gmvja-cypv7-tmbt4-dqe';
-
-export function provideState(): State {
-	return new State(BigInt(350_000 * 1e8), BigInt(1_500_000 * 1e8), 210, BigInt(1.3 * 1e8));
+export async function provideState(): Promise<State> {
+	let actors = await fetchActors();
+	let state = new State(actors);
+	return state;
 }
