@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { isLogging, isBusy, user, state } from '$lib/stores';
-	import { signIn } from '$lib/authentification';
+	import { internetIdentitySignIn, plugSignIn } from '$lib/authentification';
 	import { User } from '$lib/state';
 	import type { Account } from '@dfinity/ledger-icp';
 
@@ -8,7 +8,7 @@
 		isBusy.set(true);
 
 		try {
-			const authResult = await signIn();
+			const authResult = await internetIdentitySignIn();
 
 			$state.wtnLedger = authResult.actors.wtnLedger;
 			$state.icpLedger = authResult.actors.icpLedger;
@@ -32,10 +32,38 @@
 		}
 
 		isBusy.set(false);
-		isLogging.update((_) => false);
+		isLogging.set(false);
 	}
 
-	async function plugConnection() {}
+	async function plugConnection() {
+		isBusy.set(true);
+		try {
+			const authResult = await plugSignIn();
+
+			$state.wtnLedger = authResult.actors.wtnLedger;
+			$state.icpLedger = authResult.actors.icpLedger;
+			$state.nicpLedger = authResult.actors.nicpLedger;
+			$state.waterNeuron = authResult.actors.waterNeuron;
+			$state.wtnCanisterInfo = authResult.actors.wtnCanisterInfo;
+
+			const user_account: Account = {
+				owner: authResult.principal,
+				subaccount: []
+			};
+			const icpBalanceE8s = await $state.icpLedger.icrc1_balance_of(user_account);
+			const nicpBalanceE8s = await $state.nicpLedger.icrc1_balance_of(user_account);
+			const wtnBalanceE8s = await $state.wtnLedger.icrc1_balance_of(user_account);
+
+			user.set(
+				new User({ principal: authResult.principal, icpBalanceE8s, nicpBalanceE8s, wtnBalanceE8s })
+			);
+		} catch (error) {
+			console.error('Login failed:', error);
+		}
+
+		isBusy.set(false);
+		isLogging.set(false);
+	}
 </script>
 
 <div class="cards-container">

@@ -4,11 +4,11 @@ import { Principal } from '@dfinity/principal';
 import { HttpAgent, Actor, type Identity } from '@dfinity/agent';
 import type { _SERVICE as nicpLedgerInterface } from '../declarations/nicp_ledger/nicp_ledger.did';
 import type { _SERVICE as wtnLedgerInterface } from '../declarations/wtn_ledger/wtn_ledger.did';
+import type { _SERVICE as icpLedgerInterface } from '../declarations/nns-ledger/nns-ledger.did';
 import type {
 	CanisterInfo,
 	_SERVICE as waterNeuronInterface
 } from '../declarations/water_neuron/water_neuron.did';
-import type { _SERVICE as icpLedgerInterface } from '../declarations/nns-ledger/nns-ledger.did';
 import { idlFactory as idlFactoryNicp } from '../declarations/nicp_ledger';
 import { idlFactory as idlFactoryWtn } from '../declarations/wtn_ledger';
 import { idlFactory as idlFactoryWaterNeuron } from '../declarations/water_neuron';
@@ -45,7 +45,7 @@ export interface Actors {
 	waterNeuron: waterNeuronInterface;
 	wtnCanisterInfo: CanisterInfo;
 }
-export async function signIn(): Promise<AuthResult> {
+export async function internetIdentitySignIn(): Promise<AuthResult> {
 	return new Promise<AuthResult>(async (resolve, reject) => {
 		try {
 			const authClient = await AuthClient.create();
@@ -55,6 +55,7 @@ export async function signIn(): Promise<AuthResult> {
 					: `https://identity.${'internetcomputer.org'}`;
 
 				const authClient = await AuthClient.create();
+
 				await authClient?.login({
 					maxTimeToLive: AUTH_MAX_TIME_TO_LIVE,
 					allowPinAuthentication: false,
@@ -64,7 +65,6 @@ export async function signIn(): Promise<AuthResult> {
 							identity,
 							host: HOST
 						});
-
 						const actors = await fetchActors(agent);
 
 						resolve({
@@ -92,6 +92,64 @@ export async function signIn(): Promise<AuthResult> {
 					principal: identity.getPrincipal()
 				});
 			}
+		} catch (error) {
+			reject(error);
+		}
+	});
+}
+
+export interface LoginWindow extends Window {
+	ic: any;
+}
+declare let window: LoginWindow;
+
+export async function plugSignIn(): Promise<AuthResult> {
+	return new Promise<AuthResult>(async (resolve, reject) => {
+		try {
+			let whitelist: string[] = [
+				CANISTER_ID_ICP_LEDGER,
+				CANISTER_ID_NICP_LEDGER,
+				CANISTER_ID_WTN_LEDGER,
+				CANISTER_ID_WATER_NEURON
+			];
+			const onConnectionUpdate = () => {
+				console.log(window.ic.plug.sessionManager.sessionData);
+			};
+
+			await window.ic.plug.requestConnect({
+				whitelist,
+				host: HOST,
+				onConnectionUpdate,
+				timeout: 50000
+			});
+
+			const principal: Principal = await window.ic.plug.getPrincipal();
+
+			const waterNeuron = await window.ic.plug.createActor({
+				canisterId: CANISTER_ID_WATER_NEURON,
+				interfaceFactory: idlFactoryWaterNeuron
+			});
+
+			const nicpLedger: nicpLedgerInterface = await window.ic.plug.createActor({
+				canisterId: CANISTER_ID_NICP_LEDGER,
+				interfaceFactory: idlFactoryNicp
+			});
+
+			const icpLedger: icpLedgerInterface = await window.ic.plug.createActor({
+				canisterId: CANISTER_ID_ICP_LEDGER,
+				interfaceFactory: idlFactoryIcp
+			});
+
+			const wtnLedger: wtnLedgerInterface = await window.ic.plug.createActor({
+				canisterId: CANISTER_ID_WTN_LEDGER,
+				interfaceFactory: idlFactoryWtn
+			});
+
+			const wtnCanisterInfo = await waterNeuron.get_info();
+
+			const actors: Actors = { nicpLedger, waterNeuron, icpLedger, wtnCanisterInfo, wtnLedger };
+
+			resolve({ actors, principal });
 		} catch (error) {
 			reject(error);
 		}
