@@ -11,10 +11,10 @@
 		<a class="item--5" href="https://github.com/WaterNeuron" target="_blank" rel="noreferrer">
 			<img alt="Github Icon" src="/landing/github-white.svg" />
 		</a>
-			<a class="item--3" href="https://twitter.com/WaterNeuron" target="_blank" rel="noreferrer">
-				<img alt="Twitter Icon" src="/landing/twitter.svg" />
-			</a>
-		
+		<a class="item--3" href="https://twitter.com/WaterNeuron" target="_blank" rel="noreferrer">
+			<img alt="Twitter Icon" src="/landing/twitter.svg" />
+		</a>
+
 		<a class="item--4" href="https://docs.waterneuron.fi/" rel="noreferrer" target="_blank">
 			<img alt="Git book icon" src="/icon/gitbook.svg" />
 		</a>
@@ -75,32 +75,32 @@
 	}
 
 	.item--1 {
-		top: 30%;
-		left: 0;
+		top: 35%;
+		left: 8%;
 		transform: translate(-50%, -50%);
-		}
+	}
 
 	.item--2 {
 		top: 10%;
 		left: 23%;
 		transform: translate(-50%, -50%);
-		}
+	}
 
 	.item--3 {
 		top: 0%;
 		left: 50%;
 		transform: translate(-50%, -50%);
-		}
+	}
 
 	.item--4 {
 		top: 10%;
 		right: 23%;
-		transform: translate(50%,-50%);
-		}
+		transform: translate(50%, -50%);
+	}
 
 	.item--5 {
-		top: 30%;
-		right: 0;
+		top: 35%;
+		right: 8%;
 		transform: translate(50%, -50%);
-		}
+	}
 </style>

@@ -5,7 +5,10 @@ import BigNumber from 'bignumber.js';
 import type { _SERVICE as nicpLedgerInterface } from '../declarations/nicp_ledger/nicp_ledger.did';
 import type { _SERVICE as wtnLedgerInterface } from '../declarations/wtn_ledger/wtn_ledger.did';
 import type { _SERVICE as icpLedgerInterface } from '../declarations/nns-ledger/nns-ledger.did';
-import type { _SERVICE as waterNeuronInterface } from '../declarations/water_neuron/water_neuron.did';
+import type {
+	CanisterInfo,
+	_SERVICE as waterNeuronInterface
+} from '../declarations/water_neuron/water_neuron.did';
 import { fetchActors, type Actors } from './authentification';
 
 interface UserProps {
@@ -65,6 +68,7 @@ export class State {
 	public wtnLedger: wtnLedgerInterface;
 	public nicpLedger: nicpLedgerInterface;
 	public waterNeuron: waterNeuronInterface;
+	public wtnCanisterInfo: CanisterInfo;
 
 	constructor(actors: Actors) {
 		this.neuron8yStakeE8s = BigInt(0);
@@ -73,43 +77,25 @@ export class State {
 		this.wtnLedger = actors.wtnLedger;
 		this.icpLedger = actors.icpLedger;
 		this.waterNeuron = actors.waterNeuron;
+		this.wtnCanisterInfo = actors.wtnCanisterInfo;
 	}
 
-	async totalIcpDeposited(): Promise<BigNumber> {
-		try {
-			const neuron6mStake = await this.neuron6mStake();
-			const neuron8yStake = await this.neuron8yStake();
-			return neuron6mStake.plus(neuron8yStake);
-		} catch (e) {
-			return BigNumber(0);
-		}
+	totalIcpDeposited(): BigNumber {
+		const neuron6mStake = this.neuron6mStake();
+		const neuron8yStake = this.neuron8yStake();
+		return neuron6mStake.plus(neuron8yStake);
 	}
 
-	async neuron8yStake(): Promise<BigNumber> {
-		try {
-			const info = await this.waterNeuron.get_info();
-			return bigintE8sToNumber(info.neuron_8y_stake_e8s);
-		} catch (e) {
-			return BigNumber(0);
-		}
+	neuron8yStake(): BigNumber {
+		return bigintE8sToNumber(this.wtnCanisterInfo.neuron_8y_stake_e8s);
 	}
 
-	async neuron6mStake(): Promise<BigNumber> {
-		try {
-			const info = await this.waterNeuron.get_info();
-			return bigintE8sToNumber(info.neuron_6m_stake_e8s);
-		} catch (e) {
-			return BigNumber(0);
-		}
+	neuron6mStake(): BigNumber {
+		return bigintE8sToNumber(this.wtnCanisterInfo.neuron_6m_stake_e8s);
 	}
 
-	async exchangeRate(): Promise<BigNumber> {
-		try {
-			const info = await this.waterNeuron.get_info();
-			return bigintE8sToNumber(info.exchange_rate);
-		} catch (e) {
-			return BigNumber(1);
-		}
+	exchangeRate(): BigNumber {
+		return bigintE8sToNumber(this.wtnCanisterInfo.exchange_rate);
 	}
 
 	async wtnAllocation(): Promise<BigNumber> {
@@ -121,9 +107,9 @@ export class State {
 		}
 	}
 
-	async apy(): Promise<BigNumber> {
-		const neuron6mStake = await this.neuron6mStake();
-		const neuron8yStake = await this.neuron8yStake();
+	apy(): BigNumber {
+		const neuron6mStake = this.neuron6mStake();
+		const neuron8yStake = this.neuron8yStake();
 
 		if (neuron6mStake.plus(neuron8yStake).isZero()) return BigNumber(0);
 
@@ -135,18 +121,12 @@ export class State {
 		return share.multipliedBy(amountTotal).multipliedBy(BigNumber(1)).dividedBy(neuron6mStake);
 	}
 
-	async stakersCount(): Promise<Number> {
-		try {
-			const info = await this.waterNeuron.get_info();
-			return Number(info.stakers_count);
-		} catch (e) {
-			return 0;
-		}
+	 stakersCount(): Number {
+		return Number(this.wtnCanisterInfo.stakers_count);
 	}
 }
 
 export async function provideState(): Promise<State> {
 	let actors = await fetchActors();
-	let state = new State(actors);
-	return state;
+	return new State(actors);
 }

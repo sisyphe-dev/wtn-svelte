@@ -10,17 +10,19 @@
 
 	const fetchData = async () => {
 		try {
-			totalIcpDeposited = await $state.totalIcpDeposited();
-			apy = await $state.apy();
-			stakersCount = await $state.stakersCount();
+			totalIcpDeposited = $state.totalIcpDeposited();
+			apy = $state.apy();
+			stakersCount = $state.stakersCount();
 		} catch (error) {
 			console.error('Error fetching data:', error);
 		}
 	};
 
 	onMount(() => {
-		fetchData();
-
+		if ($state) {
+			fetchData();
+		}
+		
 		const intervalId = setInterval(fetchData, 5000);
 
 		return () => clearInterval(intervalId);

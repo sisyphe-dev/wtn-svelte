@@ -5,7 +5,7 @@
 	import Send from './wallet/Send.svelte';
 	import Menu from './Menu.svelte';
 	import { isLogging, menu, isSelecting, user, state } from '$lib/stores';
-	import { onMount, beforeUpdate } from 'svelte';
+	import { onMount } from 'svelte';
 	import type { Account } from '@dfinity/ledger-icp';
 	import { signIn } from '$lib/authentification';
 	import { User } from '$lib/state';
@@ -43,11 +43,8 @@
 		}
 	};
 
-	const initializeState = async () => {
-		state.set(await provideState());
-	};
+
 	onMount(() => {
-		initializeState();
 		fetchUser();
 
 		const intervalId = setInterval(async () => {

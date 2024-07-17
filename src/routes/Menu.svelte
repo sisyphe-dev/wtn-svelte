@@ -9,13 +9,13 @@
 			<a
 				href="/stake"
 				on:click={() => {
-					menu.update((_) => false);
+					menu.update(() => false);
 				}}>Stake</a
 			>
 			<a
 				href="/wallet"
 				on:click={() => {
-					menu.update((_) => false);
+					menu.update(() => false);
 				}}>Wallet</a
 			>
 			<a
@@ -23,14 +23,14 @@
 				on:click={async () => {
 					await logout();
 					user.set(undefined);
-					menu.update((_) => false);
+					menu.update(() => false);
 				}}>Disconnect</a
 			>
 		</div>
 
 		<button
 			on:click={() => {
-				menu.update((_) => false);
+				menu.update(() => false);
 			}}
 		>
 			<svg

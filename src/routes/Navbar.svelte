@@ -16,7 +16,7 @@
 		<button
 			class="connect-btn"
 			on:click={() => {
-				isLogging.update((_) => true);
+				isLogging.update(() => true);
 			}}
 		>
 			Connect

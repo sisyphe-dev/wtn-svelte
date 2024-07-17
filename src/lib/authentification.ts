@@ -4,7 +4,10 @@ import { Principal } from '@dfinity/principal';
 import { HttpAgent, Actor, type Identity } from '@dfinity/agent';
 import type { _SERVICE as nicpLedgerInterface } from '../declarations/nicp_ledger/nicp_ledger.did';
 import type { _SERVICE as wtnLedgerInterface } from '../declarations/wtn_ledger/wtn_ledger.did';
-import type { _SERVICE as waterNeuronInterface } from '../declarations/water_neuron/water_neuron.did';
+import type {
+	CanisterInfo,
+	_SERVICE as waterNeuronInterface
+} from '../declarations/water_neuron/water_neuron.did';
 import type { _SERVICE as icpLedgerInterface } from '../declarations/nns-ledger/nns-ledger.did';
 import { idlFactory as idlFactoryNicp } from '../declarations/nicp_ledger';
 import { idlFactory as idlFactoryWtn } from '../declarations/wtn_ledger';
@@ -40,6 +43,7 @@ export interface Actors {
 	nicpLedger: nicpLedgerInterface;
 	wtnLedger: wtnLedgerInterface;
 	waterNeuron: waterNeuronInterface;
+	wtnCanisterInfo: CanisterInfo;
 }
 export async function signIn(): Promise<AuthResult> {
 	return new Promise<AuthResult>(async (resolve, reject) => {
@@ -150,7 +154,9 @@ export function fetchActors(agent?: HttpAgent): Promise<Actors> {
 				canisterId: CANISTER_ID_WATER_NEURON
 			});
 
-			resolve({ icpLedger, wtnLedger, nicpLedger, waterNeuron });
+			const wtnCanisterInfo = await waterNeuron.get_info();
+
+			resolve({ icpLedger, wtnLedger, nicpLedger, waterNeuron, wtnCanisterInfo });
 		} catch (error) {
 			reject(error);
 		}

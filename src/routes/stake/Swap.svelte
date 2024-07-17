@@ -12,7 +12,7 @@
 	} from '$lib/ledger';
 	import type { ConversionArg } from '../../declarations/water_neuron/water_neuron.did';
 	import type { Account } from '@dfinity/ledger-icp';
-	import { onMount } from 'svelte';
+	import { onMount, afterUpdate } from 'svelte';
 
 	let stake = true;
 	let exchangeRate: BigNumber;
@@ -109,18 +109,22 @@
 
 	const fetchData = async () => {
 		try {
-			exchangeRate = await $state.exchangeRate();
-			totalIcpDeposited = await $state.totalIcpDeposited();
+			exchangeRate = $state.exchangeRate();
+			totalIcpDeposited = $state.totalIcpDeposited();
 			minimumWithdraw = BigNumber(10).multipliedBy(exchangeRate);
 		} catch (error) {
 			console.error('Error fetching data:', error);
 		}
 	};
 
-	onMount(() => {
-		fetchData();
-		const intervalId = setInterval(fetchData, 5000);
+	afterUpdate(() => {
+		if ($state) {
+			fetchData();
+		}
+	})
 
+	onMount(() => {
+		const intervalId = setInterval(fetchData, 5000);
 		return () => clearInterval(intervalId);
 	});
 </script>
