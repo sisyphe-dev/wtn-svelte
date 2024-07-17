@@ -9,10 +9,10 @@
 			<img alt="Open chat icon" src="/icon/openchat.svg" />
 		</a>
 		<a class="item--5" href="https://github.com/WaterNeuron" target="_blank" rel="noreferrer">
-			<img alt="Github Icon" src="/landing/github-white.svg" />
+			<img alt="Github Icon" src="/icon/github-white.svg" />
 		</a>
 		<a class="item--3" href="https://twitter.com/WaterNeuron" target="_blank" rel="noreferrer">
-			<img alt="Twitter Icon" src="/landing/twitter.svg" />
+			<img alt="Twitter Icon" src="/icon/twitter.svg" />
 		</a>
 
 		<a class="item--4" href="https://docs.waterneuron.fi/" rel="noreferrer" target="_blank">

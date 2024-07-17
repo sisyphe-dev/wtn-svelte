@@ -2,7 +2,7 @@
 	import { state } from '$lib/stores';
 	import { displayUsFormat } from '$lib';
 	import BigNumber from 'bignumber.js';
-	import { onMount } from 'svelte';
+	import { onMount, afterUpdate } from 'svelte';
 
 	let totalIcpDeposited: BigNumber;
 	let apy: BigNumber;
@@ -18,11 +18,14 @@
 		}
 	};
 
-	onMount(() => {
+	afterUpdate(() => {
 		if ($state) {
 			fetchData();
 		}
-		
+	})
+
+	onMount(() => {
+
 		const intervalId = setInterval(fetchData, 5000);
 
 		return () => clearInterval(intervalId);
@@ -34,27 +37,31 @@
 		<b>Total Staked</b>
 		<b>
 			{#if totalIcpDeposited}
-				{displayUsFormat(totalIcpDeposited)}
+				{displayUsFormat(totalIcpDeposited)} ICP
 			{:else}
-				{0}
+				...
 			{/if}
-			ICP
+			
 		</b>
 	</div>
 	<div class="stat-item">
 		<b>APY</b>
 		<b
 			>{#if apy}
-				{displayUsFormat(BigNumber(100).multipliedBy(apy))}
+				{displayUsFormat(BigNumber(100).multipliedBy(apy))} %
 			{:else}
-				{0}
-			{/if}%</b
+				...
+			{/if}</b
 		>
 	</div>
 	<div class="stat-item">
 		<b>Stakers</b>
 		<b>
-			{stakersCount ? stakersCount : 0}
+			{#if stakersCount || stakersCount === 0}
+				{stakersCount}
+			{:else}
+				...
+			{/if}
 		</b>
 	</div>
 </div>
