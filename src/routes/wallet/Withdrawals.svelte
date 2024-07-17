@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { bigintE8sToNumber, displayUsFormat, renderStatus } from '$lib';
 	import { state, user } from '$lib/stores';
-	import { onMount } from 'svelte';
+	import { onMount, afterUpdate } from 'svelte';
 	import type {
 		WithdrawalDetails,
 		NeuronId
@@ -19,22 +19,24 @@
 	const fetchWithdrawals = async () => {
 		if ($user) {
 			withdrawalRequests = await $state.waterNeuron.get_withdrawal_requests([$user.principal]);
+			console.log(withdrawalRequests);
 		}
 	};
+
+	afterUpdate(() => {
+		fetchWithdrawals();
+	})
 
 	onMount(() => {
 		fetchWithdrawals();
 
-		const intervalId = setInterval(async () => {
-			if ($user) {
-				withdrawalRequests = await $state.waterNeuron.get_withdrawal_requests([$user.principal]);
-			}
-		}, 5000);
+		const intervalId = setInterval(fetchWithdrawals, 5000);
 
 		return () => clearInterval(intervalId);
 	});
 </script>
 
+{#if withdrawalRequests && withdrawalRequests.length >= 1}
 <div class="withdrawals-container">
 	<h1>Withdrawal Requests</h1>
 	<table class="withdrawal-requests-table">
@@ -48,7 +50,7 @@
 			</tr>
 		</thead>
 		<tbody>
-			{#if withdrawalRequests}
+			
 				{#each withdrawalRequests as details}
 					<tr>
 						<td>{displayUsFormat(bigintE8sToNumber(details.request.nicp_burned))}</td>
@@ -73,10 +75,11 @@
 						<td>{details.request.withdrawal_id}</td>
 					</tr>
 				{/each}
-			{/if}
+		
 		</tbody>
 	</table>
 </div>
+	{/if}
 
 <style>
 	/* === Layout === */
@@ -126,7 +129,7 @@
 	/* === Responsive === */
 	@media (max-width: 767px) {
 		.withdrawals-container {
-			padding: 2em;
+			padding: 0em;
 		}
 	}
 </style>

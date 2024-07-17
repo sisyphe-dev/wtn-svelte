@@ -25,9 +25,7 @@
 	})
 
 	onMount(() => {
-
 		const intervalId = setInterval(fetchData, 5000);
-
 		return () => clearInterval(intervalId);
 	});
 </script>
