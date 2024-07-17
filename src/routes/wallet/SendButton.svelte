@@ -10,10 +10,8 @@
 	const fetchAllocation = async () => {
 		wtnAllocation = await $state.wtnAllocation();
 	};
-
 	onMount(() => {
 		fetchAllocation();
-
 		const intervalId = setInterval(fetchAllocation, 5000);
 
 		return () => clearInterval(intervalId);

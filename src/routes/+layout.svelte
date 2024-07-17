@@ -5,12 +5,13 @@
 	import Send from './wallet/Send.svelte';
 	import Menu from './Menu.svelte';
 	import { isLogging, menu, isSelecting, user, state } from '$lib/stores';
-	import { onMount } from 'svelte';
+	import { onMount, beforeUpdate } from 'svelte';
 	import type { Account } from '@dfinity/ledger-icp';
 	import { signIn } from '$lib/authentification';
 	import { User } from '$lib/state';
 	import { AuthClient } from '@dfinity/auth-client';
 	import Toast from './Toast.svelte';
+	import { provideState } from '$lib/state';
 
 	const fetchUser = async () => {
 		try {
@@ -42,7 +43,11 @@
 		}
 	};
 
+	const initializeState = async () => {
+		state.set(await provideState());
+	};
 	onMount(() => {
+		initializeState();
 		fetchUser();
 
 		const intervalId = setInterval(async () => {
@@ -125,6 +130,7 @@
 		width: 100%;
 		gap: 1.5em;
 		padding-top: 2em;
+		margin-bottom: 4em;
 		color: white;
 	}
 

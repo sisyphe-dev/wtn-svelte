@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Asset, AssetType, displayUsFormat, numberToBigintE8s } from '$lib';
+	import { AssetType, displayUsFormat, numberToBigintE8s } from '$lib';
 	import { isSelecting, sendAsset, user, toasts, state, isSending } from '$lib/stores';
 	import { Toast } from '$lib/toast';
 	import BigNumber from 'bignumber.js';
@@ -145,11 +145,17 @@
 		<div>
 			<p>Balance</p>
 			<div style:display={'flex'}>
-			<div class="balances">
-				<span>{displayUsFormat($user.getBalance($sendAsset.type), 8)} {$sendAsset.intoStr()}</span>
-				<img alt="{$sendAsset.intoStr()} logo" src={$sendAsset.getUrl()} width="20px" height="20px" />
+				<div class="balances">
+					<span>{displayUsFormat($user.getBalance($sendAsset.type), 8)} {$sendAsset.intoStr()}</span
+					>
+					<img
+						alt="{$sendAsset.intoStr()} logo"
+						src={$sendAsset.getUrl()}
+						width="20px"
+						height="20px"
+					/>
+				</div>
 			</div>
-		</div>
 		</div>
 	{/if}
 	<div>

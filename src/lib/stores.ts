@@ -17,7 +17,12 @@ export const inputValue = writable<number>();
 export const user = writable<User | undefined>(undefined);
 export const state = writable<State>();
 
-state.set(await provideState());
+async function initializeState() {
+	const providedState = await provideState();
+	state.set(providedState);
+}
+
+initializeState();
 
 function creatToasts() {
 	const { subscribe, set, update } = writable<Toast[]>([]);

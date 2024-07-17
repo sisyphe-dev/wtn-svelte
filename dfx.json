@@ -6,6 +6,13 @@
 			"type": "custom",
 			"wasm": "wasm/water_neuron.wasm"
 		},
+		"dapp_frontend": {
+			"source": ["dist"],
+			"type": "assets",
+			"frontend": {
+				"entrypoint": "dist/_app/immutable/entry/app.7804c5c6.js"
+			}
+		},
 		"internet_identity": {
 			"candid": "candid/internet_identity.did",
 			"type": "custom",

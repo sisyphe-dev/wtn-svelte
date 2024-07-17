@@ -119,7 +119,6 @@
 
 	onMount(() => {
 		fetchData();
-
 		const intervalId = setInterval(fetchData, 5000);
 
 		return () => clearInterval(intervalId);
@@ -131,14 +130,14 @@
 		<button
 			class="header-btn"
 			style:text-align="start"
-			on:click={() => (stake = !stake)}
+			on:click={() => (stake = true)}
 			class:selected={stake}
 			class:not-selected={!stake}>Stake ICP</button
 		>
 		<button
 			class="header-btn"
 			style:text-align="end"
-			on:click={() => (stake = !stake)}
+			on:click={() => (stake = false)}
 			class:selected={!stake}
 			class:not-selected={stake}>Unstake nICP</button
 		>
@@ -293,7 +292,6 @@
 		color: white;
 		padding: 1em;
 		width: 100%;
-		cursor: pointer;
 	}
 
 	.reward {
@@ -337,6 +335,7 @@
 		border-bottom: 2px solid var(--border-color);
 		background-color: #5d6b77;
 		color: #c7c7c7;
+		cursor: pointer;
 	}
 
 	/* === Animation === */
