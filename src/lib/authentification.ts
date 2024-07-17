@@ -33,7 +33,7 @@ const CANISTER_ID_ICP_LEDGER = 'ryjl3-tyaaa-aaaaa-aaaba-cai';
 const CANISTER_ID_NICP_LEDGER = 'ny7ez-6aaaa-aaaam-acc5q-cai';
 export const CANISTER_ID_WATER_NEURON = 'n76cn-tyaaa-aaaam-acc5a-cai';
 
-interface AuthResult {
+export interface AuthResult {
 	actors: Actors;
 	principal: Principal;
 }
@@ -98,30 +98,35 @@ export async function internetIdentitySignIn(): Promise<AuthResult> {
 	});
 }
 
-export interface LoginWindow extends Window {
+interface LoginWindow {
 	ic: any;
 }
-declare let window: LoginWindow;
+
+declare global {
+	interface Window extends LoginWindow {}
+  }
 
 export async function plugSignIn(): Promise<AuthResult> {
 	return new Promise<AuthResult>(async (resolve, reject) => {
 		try {
-			let whitelist: string[] = [
-				CANISTER_ID_ICP_LEDGER,
-				CANISTER_ID_NICP_LEDGER,
-				CANISTER_ID_WTN_LEDGER,
-				CANISTER_ID_WATER_NEURON
-			];
-			const onConnectionUpdate = () => {
-				console.log(window.ic.plug.sessionManager.sessionData);
-			};
+			if (!window.ic.plug.isConnected()) {
+				let whitelist: string[] = [
+					CANISTER_ID_ICP_LEDGER,
+					CANISTER_ID_NICP_LEDGER,
+					CANISTER_ID_WTN_LEDGER,
+					CANISTER_ID_WATER_NEURON
+				];
+				const onConnectionUpdate = () => {
+					console.log(window.ic.plug.sessionManager.sessionData);
+				};
 
-			await window.ic.plug.requestConnect({
-				whitelist,
-				host: HOST,
-				onConnectionUpdate,
-				timeout: 50000
-			});
+				await window.ic.plug.requestConnect({
+					whitelist,
+					host: HOST,
+					onConnectionUpdate,
+					timeout: 50000
+				});
+			}
 
 			const principal: Principal = await window.ic.plug.getPrincipal();
 
@@ -171,7 +176,7 @@ function popupCenter(width: number, height: number): string | undefined {
 	return `toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=no, copyhistory=no, width=${width}, height=${height}, top=${y}, left=${x}`;
 }
 
-export async function logout() {
+export async function internetIdentityLogout() {
 	const autClient = await AuthClient.create();
 	await autClient.logout();
 }

@@ -1,6 +1,6 @@
 <script>
 	import { menu, user } from '$lib/stores';
-	import { logout } from '$lib/authentification';
+	import { internetIdentityLogout } from '$lib/authentification';
 </script>
 
 <div class="background-menu">
@@ -21,7 +21,8 @@
 			<a
 				href="/stake"
 				on:click={async () => {
-					await logout();
+					await internetIdentityLogout();
+
 					user.set(undefined);
 					menu.update(() => false);
 				}}>Disconnect</a

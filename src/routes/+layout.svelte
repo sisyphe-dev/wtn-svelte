@@ -7,19 +7,22 @@
 	import { isLogging, menu, isSelecting, user, state } from '$lib/stores';
 	import { onMount } from 'svelte';
 	import type { Account } from '@dfinity/ledger-icp';
-	import { internetIdentitySignIn } from '$lib/authentification';
+	import { internetIdentitySignIn, plugSignIn } from '$lib/authentification';
 	import { User } from '$lib/state';
 	import { AuthClient } from '@dfinity/auth-client';
 	import Toast from './Toast.svelte';
 
 	const fetchUser = async () => {
 		try {
+			let authResult;
 			const authClient = await AuthClient.create();
-			if (!(await authClient.isAuthenticated())) {
+			if (await authClient.isAuthenticated()) {
+				authResult = await internetIdentitySignIn();
+			} else if (await window.ic.plug.isConnected()) {
+				authResult = await plugSignIn();
+			} else {
 				return;
 			}
-
-			const authResult = await internetIdentitySignIn();
 
 			$state.wtnLedger = authResult.actors.wtnLedger;
 			$state.icpLedger = authResult.actors.icpLedger;
