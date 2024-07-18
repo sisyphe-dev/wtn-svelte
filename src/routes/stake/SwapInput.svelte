@@ -10,7 +10,7 @@
 	<button
 		class="max-btn"
 		on:click={() => {
-			const maxAmount = $user?.getBalance(asset.type).minus(asset.getTransferFee()).toNumber();
+			const maxAmount = $user?.getBalance(asset.type).minus(asset.getTransferFee()).toNumber() ?? 0;
 			inputValue.set(maxAmount && maxAmount >= 0 ? maxAmount : 0);
 		}}
 	>

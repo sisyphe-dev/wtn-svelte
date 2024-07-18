@@ -177,6 +177,8 @@
 						$user.getBalance($sendAsset.type).isGreaterThanOrEqualTo($sendAsset.getTransferFee())
 							? $user.getBalance($sendAsset.type).minus($sendAsset.getTransferFee())
 							: BigNumber(0);
+
+					sendAmount = BigNumber(parseFloat(sendAmount.toNumber().toString().replace(",", ".")));
 				}}
 			>
 				MAX

@@ -83,7 +83,7 @@
 					} as Account,
 					$state.icpLedger
 				);
-
+				console.log(approval);
 				if (!approval.granted) {
 					toasts.add(Toast.error(approval.message ?? 'Unknown Error.'));
 				} else {
@@ -91,7 +91,7 @@
 						maybe_subaccount: [],
 						amount_e8s: amountE8s
 					} as ConversionArg);
-
+					console.log(conversionResult);
 					let status = handleStakeResult(conversionResult);
 					if (status.success) {
 						toasts.add(Toast.success(status.message));

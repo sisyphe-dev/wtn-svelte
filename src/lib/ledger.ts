@@ -24,39 +24,71 @@ export interface ApprovalResult {
 	message?: string;
 }
 
-function handleApproveError(error: ApproveError) {
-	if ('GenericError' in error) {
-		console.error(`Error: ${error.GenericError.message}, Code: ${error.GenericError.error_code}`);
-	} else if ('TemporarilyUnavailable' in error) {
-		console.error('Service is temporarily unavailable.');
-	} else if ('Duplicate' in error) {
-		console.error(`Duplicate transaction with block index: ${error.Duplicate.duplicate_of}`);
-	} else if ('BadFee' in error) {
-		console.error(`Bad fee. Expected fee: ${error.BadFee.expected_fee}`);
-	} else if ('AllowanceChanged' in error) {
-		console.error(
-			`Allowance changed. Current allowance: ${error.AllowanceChanged.current_allowance}`
-		);
-	} else if ('CreatedInFuture' in error) {
-		console.error(`Created in future. Ledger time: ${error.CreatedInFuture.ledger_time}`);
-	} else if ('TooOld' in error) {
-		console.error('Transaction is too old.');
-	} else if ('Expired' in error) {
-		console.error(`Transaction expired. Ledger time: ${error.Expired.ledger_time}`);
-	} else if ('InsufficientFunds' in error) {
-		console.error(`Insufficient funds. Balance: ${error.InsufficientFunds.balance}`);
-	} else {
-		console.error('Unknown error type.');
-	}
-}
-
 export function handleApproveResult(result: ApproveResult): ApprovalResult {
-	if ('Err' in result) {
-		return { granted: false, message: `Error: ${handleApproveError(result.Err)}` };
-	} else if ('Ok' in result) {
-		return { granted: true };
-	} else {
-		return { granted: false, message: DEFAULT_ERROR_MESSAGE };
+	const key = Object.keys(result)[0] as keyof ApproveResult;
+	console.log(key);
+	switch(key) {
+		case 'Ok':
+			return { granted: true };
+		case 'Err': {
+			const error = result[key];
+			const errorKey = Object.keys(result[key])[0];
+
+			switch (errorKey) {
+				case 'GenericError':
+							return {
+								granted: false,
+								message: `Generic Error: ${error[errorKey]['message']}`
+							};
+
+						case 'TemporarilyUnavailable':
+							return { granted: false, message: 'Ledger is temporarily unavailable.' };
+
+						case 'AllowanceChanged':
+							return {
+								granted: false,
+								message: `Insufficient allowance: ${bigintE8sToNumber(error[errorKey]['current_allowance'])}`
+							};
+
+						case 'Expired':
+							return {
+								granted: false,
+								message: `Approval expired: ${bigintE8sToNumber(error[errorKey]['ledger_time'])}`
+							};
+
+						case 'Duplicate':
+							return {
+								granted: false,
+								message: `Duplicate transfer of: ${error[errorKey]['duplicate_of']}`
+							};
+
+						case 'BadFee':
+							return {
+								granted: false,
+								message: `Bad fee, expected: ${bigintE8sToNumber(error[errorKey]['expected_fee'])}`
+							};
+
+						case 'CreatedInFuture':
+							return {
+								granted: false,
+								message: `Created in future: ${error[errorKey]['ledger_time']}`
+							};
+
+						case 'TooOld':
+							return { granted: false, message: `The transfer is too old.` };
+
+						case 'InsufficientFunds':
+							return {
+								granted: false,
+								message: `Insufficient funds, balance: ${bigintE8sToNumber(error[errorKey]['balance'])}`
+							};
+
+						default: 
+							return { granted: false, message: DEFAULT_ERROR_MESSAGE };
+			}
+		}
+		default: 
+			return { granted: false, message: DEFAULT_ERROR_MESSAGE };
 	}
 }
 
@@ -89,10 +121,10 @@ export async function nicpTransferApproved(
 			console.log(approveResult);
 			return handleApproveResult(approveResult);
 		} catch (error) {
-			return { granted: false, message: `${error}` };
+			return { granted: false, message: `${error}.` };
 		}
 	}
-	return { granted: false, message: DEFAULT_ERROR_MESSAGE };
+	return { granted: true};
 }
 
 export async function icpTransferApproved(
@@ -126,7 +158,7 @@ export async function icpTransferApproved(
 			return { granted: false, message: `${error}` };
 		}
 	}
-	return { granted: false, message: DEFAULT_ERROR_MESSAGE };
+	return { granted: true};
 }
 
 export interface ConversionResult {

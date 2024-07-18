@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { isLogging, isBusy, user, state, session } from '$lib/stores';
+	import { isLogging, isBusy, user, state } from '$lib/stores';
 	import { internetIdentitySignIn, plugSignIn } from '$lib/authentification';
 	import { User } from '$lib/state';
 	import type { Account } from '@dfinity/ledger-icp';
@@ -29,7 +29,6 @@
 				new User({ principal: authResult.principal, icpBalanceE8s, nicpBalanceE8s, wtnBalanceE8s })
 			);
 
-			session.set('internetIdentity');
 		} catch (error) {
 			console.error('Login failed:', error);
 		}
@@ -62,7 +61,6 @@
 			user.set(
 				new User({ principal: authResult.principal, icpBalanceE8s, nicpBalanceE8s, wtnBalanceE8s })
 			);
-			session.set('plug');
 		} catch (error) {
 			console.error('Login failed:', error);
 		}

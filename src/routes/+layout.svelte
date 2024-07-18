@@ -4,7 +4,7 @@
 	import Connect from './Connect.svelte';
 	import Send from './wallet/Send.svelte';
 	import Menu from './Menu.svelte';
-	import { isLogging, menu, isSelecting, user, state, session } from '$lib/stores';
+	import { isLogging, menu, isSelecting, user, state } from '$lib/stores';
 	import { onMount } from 'svelte';
 	import type { Account } from '@dfinity/ledger-icp';
 	import { internetIdentitySignIn, plugSignIn } from '$lib/authentification';
@@ -14,15 +14,13 @@
 
 	const fetchUser = async () => {
 		try {
-			let authResult;
 			const authClient = await AuthClient.create();
-			if ($session === 'internetIdentity' && (await authClient.isAuthenticated())) {
-				authResult = await internetIdentitySignIn();
-			} else if ($session === 'plug' && (await window.ic.plug.isConnected())) {
-				authResult = await plugSignIn();
-			} else {
-				return;
-			}
+			if (!await authClient.isAuthenticated()) return;
+			
+			
+			const authResult = await internetIdentitySignIn();
+			
+			
 
 			$state.wtnLedger = authResult.actors.wtnLedger;
 			$state.icpLedger = authResult.actors.icpLedger;
