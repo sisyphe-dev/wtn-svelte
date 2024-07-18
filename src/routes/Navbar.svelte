@@ -135,6 +135,10 @@
 		margin: 0;
 	}
 
+	.wave-title {
+		position: relative;
+	}
+
 	/* === Components === */
 	.connect-btn {
 		display: flex;

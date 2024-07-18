@@ -87,10 +87,10 @@
 			<h2>Internet Identity</h2>
 		</button>
 		{#if !isMobile}
-		<button class="login-btn" id="plug-btn" on:click={plugConnection}>
-			<img src="/icon/plug.svg" width="50em" height="50em" alt="Plug Icon." />
-			<h2>Plug Wallet</h2>
-		</button>
+			<button class="login-btn" id="plug-btn" on:click={plugConnection}>
+				<img src="/icon/plug.svg" width="50em" height="50em" alt="Plug Icon." />
+				<h2>Plug Wallet</h2>
+			</button>
 		{/if}
 	{/if}
 

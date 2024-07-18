@@ -72,7 +72,7 @@ export async function internetIdentitySignIn(): Promise<AuthResult> {
 					onError: (error) => {
 						reject(error);
 					},
-					identityProvider,
+					identityProvider
 				});
 			} else {
 				const identity: Identity = authClient?.getIdentity();

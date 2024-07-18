@@ -111,14 +111,34 @@
 	/* === Layout === */
 	.page-container {
 		display: flex;
-		overflow-x: hidden;
- 	 	overflow-y: scroll;
+		background-attachment: fixed;
+		background-size: cover;
 		flex-direction: column;
 		height: fit-content;
 		min-height: 100%;
-		width: 100%;
+		width: 100vw;
 		background: radial-gradient(farthest-corner circle at 0% 0%, rgb(18 69 89), #0f0f4d);
 	}
+
+
+.page-container::-webkit-scrollbar {
+    width: 12px; /* Width of the scrollbar */
+    background: radial-gradient(farthest-corner circle at 0% 0%, rgb(18, 69, 89), #0f0f4d); /* Match the background gradient */
+}
+
+.page-container::-webkit-scrollbar-track {
+    background: radial-gradient(farthest-corner circle at 0% 0%, rgb(18, 69, 89), #0f0f4d); /* Match the background gradient */
+}
+
+.page-container::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.5); /* Thumb color with transparency */
+    border-radius: 6px; /* Rounded corners for the thumb */
+    background-clip: padding-box;
+}
+
+.page-container::-webkit-scrollbar-corner {
+    background: radial-gradient(farthest-corner circle at 0% 0%, rgb(18, 69, 89), #0f0f4d); /* Match the background gradient */
+}
 
 	.content-container {
 		display: flex;

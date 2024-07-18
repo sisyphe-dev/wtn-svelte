@@ -19,6 +19,11 @@ import { CANISTER_ID_WATER_NEURON } from './authentification';
 
 const DEFAULT_ERROR_MESSAGE: string = 'Unknown result, please refresh the page.';
 
+export interface ApprovalResult {
+	granted: boolean;
+	message?: string;
+}
+
 function handleApproveError(error: ApproveError) {
 	if ('GenericError' in error) {
 		console.error(`Error: ${error.GenericError.message}, Code: ${error.GenericError.error_code}`);
@@ -45,13 +50,13 @@ function handleApproveError(error: ApproveError) {
 	}
 }
 
-export function handleApproveResult(result: ApproveResult): string {
+export function handleApproveResult(result: ApproveResult): ApprovalResult {
 	if ('Err' in result) {
-		return `Error: ${handleApproveError(result.Err)}`;
+		return { granted: false, message: `Error: ${handleApproveError(result.Err)}` };
 	} else if ('Ok' in result) {
-		return '';
+		return { granted: true };
 	} else {
-		return DEFAULT_ERROR_MESSAGE;
+		return { granted: false, message: DEFAULT_ERROR_MESSAGE };
 	}
 }
 
@@ -59,7 +64,7 @@ export async function nicpTransferApproved(
 	amount: bigint,
 	account: Account,
 	nicpLedger: nicpLedgerInterface
-): Promise<void | string> {
+): Promise<ApprovalResult> {
 	const spender = {
 		owner: Principal.fromText(CANISTER_ID_WATER_NEURON),
 		subaccount: []
@@ -70,31 +75,31 @@ export async function nicpTransferApproved(
 	} as AllowanceArgs);
 	const allowance = allowanceResult['allowance'];
 	if (amount > allowance) {
-		const approveResult: ApproveResult = await nicpLedger.icrc2_approve({
-			spender,
-			fee: [],
-			memo: [],
-			from_subaccount: [],
-			created_at_time: [],
-			expires_at: [],
-			expected_allowance: [],
-			amount: amount * BigInt(3)
-		} as ApproveArgs);
-		const messageError = handleApproveResult(approveResult);
-		if (messageError !== '') {
-			return messageError;
-		} else {
-			return;
+		try {
+			const approveResult: ApproveResult = await nicpLedger.icrc2_approve({
+				spender,
+				fee: [],
+				memo: [],
+				from_subaccount: [],
+				created_at_time: [],
+				expires_at: [],
+				expected_allowance: [],
+				amount: amount * BigInt(3)
+			} as ApproveArgs);
+			console.log(approveResult);
+			return handleApproveResult(approveResult);
+		} catch (error) {
+			return { granted: false, message: `${error}` };
 		}
 	}
-	return;
+	return { granted: false, message: DEFAULT_ERROR_MESSAGE };
 }
 
 export async function icpTransferApproved(
 	amount: bigint,
 	account: Account,
 	icpLedger: icpLedgerInterface
-): Promise<void | string> {
+): Promise<ApprovalResult> {
 	const spender = {
 		owner: Principal.fromText(CANISTER_ID_WATER_NEURON),
 		subaccount: []
@@ -105,24 +110,23 @@ export async function icpTransferApproved(
 	} as AllowanceArgs);
 	const allowance = allowanceResult['allowance'];
 	if (amount > allowance) {
-		const approveResult: ApproveResult = await icpLedger.icrc2_approve({
-			spender,
-			fee: [],
-			memo: [],
-			from_subaccount: [],
-			created_at_time: [],
-			expires_at: [],
-			expected_allowance: [],
-			amount: amount * BigInt(3)
-		} as ApproveArgs);
-		const messageError = handleApproveResult(approveResult);
-		if (messageError !== '') {
-			return messageError;
-		} else {
-			return;
+		try {
+			const approveResult: ApproveResult = await icpLedger.icrc2_approve({
+				spender,
+				fee: [],
+				memo: [],
+				from_subaccount: [],
+				created_at_time: [],
+				expires_at: [],
+				expected_allowance: [],
+				amount: amount * BigInt(3)
+			} as ApproveArgs);
+			return handleApproveResult(approveResult);
+		} catch (error) {
+			return { granted: false, message: `${error}` };
 		}
 	}
-	return;
+	return { granted: false, message: DEFAULT_ERROR_MESSAGE };
 }
 
 export interface ConversionResult {

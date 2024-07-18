@@ -45,7 +45,7 @@
 			if ($user.nicpBalance().isGreaterThanOrEqualTo(amount) && amount.isGreaterThan(0)) {
 				let amountE8s = numberToBigintE8s(amount);
 
-				const messageError = await nicpTransferApproved(
+				const approval = await nicpTransferApproved(
 					amountE8s,
 					{
 						owner: $user.principal,
@@ -54,8 +54,8 @@
 					$state.nicpLedger
 				);
 
-				if (messageError) {
-					toasts.add(Toast.error(messageError));
+				if (!approval.granted) {
+					toasts.add(Toast.error(approval.message ?? 'Unknown Error.'));
 				} else {
 					const conversionResult = await $state.waterNeuron.nicp_to_icp({
 						maybe_subaccount: [],
@@ -75,7 +75,7 @@
 		} else {
 			if ($user.icpBalance().isGreaterThanOrEqualTo(amount) && amount.isGreaterThan(0)) {
 				let amountE8s = numberToBigintE8s(amount);
-				const messageError = await icpTransferApproved(
+				const approval = await icpTransferApproved(
 					amountE8s,
 					{
 						owner: $user.principal,
@@ -84,8 +84,8 @@
 					$state.icpLedger
 				);
 
-				if (messageError) {
-					toasts.add(Toast.error(messageError));
+				if (!approval.granted) {
+					toasts.add(Toast.error(approval.message ?? 'Unknown Error.'));
 				} else {
 					const conversionResult = await $state.waterNeuron.icp_to_nicp({
 						maybe_subaccount: [],

@@ -35,7 +35,6 @@
 		color: white;
 		height: fit-content;
 		width: 100%;
-		padding: 0 2vw;
 		margin-bottom: 2vh;
 	}
 
