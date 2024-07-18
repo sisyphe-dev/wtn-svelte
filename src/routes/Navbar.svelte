@@ -16,7 +16,7 @@
 		<button
 			class="connect-btn"
 			on:click={() => {
-				isLogging.update(() => true);
+				isLogging.set(true);
 			}}
 		>
 			Connect
@@ -45,7 +45,7 @@
 				id="menu-btn"
 				class="wallet-action-btn"
 				on:click={() => {
-					menu.update((_) => true);
+					menu.set(true);
 				}}
 			>
 				<svg
@@ -250,6 +250,11 @@
 
 		#menu-btn {
 			display: flex;
+		}
+
+		img {
+			height: 5em;
+			width: 5em;
 		}
 	}
 </style>

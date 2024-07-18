@@ -4,7 +4,7 @@
 	import Connect from './Connect.svelte';
 	import Send from './wallet/Send.svelte';
 	import Menu from './Menu.svelte';
-	import { isLogging, menu, isSelecting, user, state } from '$lib/stores';
+	import { isLogging, menu, isSelecting, user, state, session } from '$lib/stores';
 	import { onMount } from 'svelte';
 	import type { Account } from '@dfinity/ledger-icp';
 	import { internetIdentitySignIn, plugSignIn } from '$lib/authentification';
@@ -16,9 +16,9 @@
 		try {
 			let authResult;
 			const authClient = await AuthClient.create();
-			if (await authClient.isAuthenticated()) {
+			if ($session === 'internetIdentity' && (await authClient.isAuthenticated())) {
 				authResult = await internetIdentitySignIn();
-			} else if (await window.ic.plug.isConnected()) {
+			} else if ($session === 'plug' && (await window.ic.plug.isConnected())) {
 				authResult = await plugSignIn();
 			} else {
 				return;
@@ -111,9 +111,11 @@
 	/* === Layout === */
 	.page-container {
 		display: flex;
+		overflow-x: hidden;
+ 	 	overflow-y: scroll;
 		flex-direction: column;
 		height: fit-content;
-		min-height: 100vh;
+		min-height: 100%;
 		width: 100%;
 		background: radial-gradient(farthest-corner circle at 0% 0%, rgb(18 69 89), #0f0f4d);
 	}

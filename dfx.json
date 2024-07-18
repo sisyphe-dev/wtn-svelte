@@ -34,7 +34,9 @@
 			"remote": {
 				"id": {
 					"ic": "rkp4c-7iaaa-aaaaa-aaaca-cai",
-					"local": "rkp4c-7iaaa-aaaaa-aaaca-cai"
+					"local": "rkp4c-7iaaa-aaaaa-aaaca-cai",
+					"network": "rkp4c-7iaaa-aaaaa-aaaca-cai"
+
 				}
 			},
 			"type": "custom",
@@ -46,7 +48,8 @@
 			"remote": {
 				"id": {
 					"ic": "renrk-eyaaa-aaaaa-aaada-cai",
-					"local": "renrk-eyaaa-aaaaa-aaada-cai"
+					"local": "renrk-eyaaa-aaaaa-aaada-cai",
+					"network": "renrk-eyaaa-aaaaa-aaada-cai"
 				}
 			},
 			"type": "custom",
@@ -58,7 +61,8 @@
 			"remote": {
 				"id": {
 					"ic": "rrkah-fqaaa-aaaaa-aaaaq-cai",
-					"local": "rrkah-fqaaa-aaaaa-aaaaq-cai"
+					"local": "rrkah-fqaaa-aaaaa-aaaaq-cai",
+					"network": "rrkah-fqaaa-aaaaa-aaaaq-cai"
 				}
 			},
 			"type": "custom",
@@ -70,7 +74,8 @@
 			"remote": {
 				"id": {
 					"ic": "ryjl3-tyaaa-aaaaa-aaaba-cai",
-					"local": "ryjl3-tyaaa-aaaaa-aaaba-cai"
+					"local": "ryjl3-tyaaa-aaaaa-aaaba-cai",
+					"network": "ryjl3-tyaaa-aaaaa-aaaba-cai"
 				}
 			},
 			"type": "custom",
@@ -82,7 +87,8 @@
 			"remote": {
 				"id": {
 					"ic": "rno2w-sqaaa-aaaaa-aaacq-cai",
-					"local": "rno2w-sqaaa-aaaaa-aaacq-cai"
+					"local": "rno2w-sqaaa-aaaaa-aaacq-cai",
+					"network": "rno2w-sqaaa-aaaaa-aaacq-cai"
 				}
 			},
 			"type": "custom",
@@ -94,7 +100,8 @@
 			"remote": {
 				"id": {
 					"ic": "rwlgt-iiaaa-aaaaa-aaaaa-cai",
-					"local": "rwlgt-iiaaa-aaaaa-aaaaa-cai"
+					"local": "rwlgt-iiaaa-aaaaa-aaaaa-cai",
+					"network": "rwlgt-iiaaa-aaaaa-aaaaa-cai"
 				}
 			},
 			"type": "custom",
@@ -106,7 +113,8 @@
 			"remote": {
 				"id": {
 					"ic": "r7inp-6aaaa-aaaaa-aaabq-cai",
-					"local": "r7inp-6aaaa-aaaaa-aaabq-cai"
+					"local": "r7inp-6aaaa-aaaaa-aaabq-cai",
+					"network": "r7inp-6aaaa-aaaaa-aaabq-cai"
 				}
 			},
 			"type": "custom",
@@ -118,7 +126,9 @@
 			"remote": {
 				"id": {
 					"ic": "qaa6y-5yaaa-aaaaa-aaafa-cai",
-					"local": "qaa6y-5yaaa-aaaaa-aaafa-cai"
+					"local": "qaa6y-5yaaa-aaaaa-aaafa-cai",
+					"network": "qaa6y-5yaaa-aaaaa-aaafa-cai"
+
 				}
 			},
 			"type": "custom",

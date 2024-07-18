@@ -16,6 +16,7 @@ export const inputValue = writable<number>();
 
 export const user = writable<User | undefined>(undefined);
 export const state = writable<State>();
+export const session = writable<'plug' | 'internetIdentity'>();
 
 async function initializeState() {
 	const providedState = await provideState();

@@ -1,10 +1,11 @@
 <script lang="ts">
-	import { isLogging, isBusy, user, state } from '$lib/stores';
+	import { isLogging, isBusy, user, state, session } from '$lib/stores';
 	import { internetIdentitySignIn, plugSignIn } from '$lib/authentification';
 	import { User } from '$lib/state';
 	import type { Account } from '@dfinity/ledger-icp';
 
 	async function internetIdentityConnection() {
+		if ($isBusy) return;
 		isBusy.set(true);
 
 		try {
@@ -27,6 +28,8 @@
 			user.set(
 				new User({ principal: authResult.principal, icpBalanceE8s, nicpBalanceE8s, wtnBalanceE8s })
 			);
+
+			session.set('internetIdentity');
 		} catch (error) {
 			console.error('Login failed:', error);
 		}
@@ -36,6 +39,8 @@
 	}
 
 	async function plugConnection() {
+		if ($isBusy) return;
+
 		isBusy.set(true);
 		try {
 			const authResult = await plugSignIn();
@@ -57,6 +62,7 @@
 			user.set(
 				new User({ principal: authResult.principal, icpBalanceE8s, nicpBalanceE8s, wtnBalanceE8s })
 			);
+			session.set('plug');
 		} catch (error) {
 			console.error('Login failed:', error);
 		}
@@ -64,31 +70,34 @@
 		isBusy.set(false);
 		isLogging.set(false);
 	}
+
+	const userAgent = navigator.userAgent;
+
+	const isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
 </script>
 
 <div class="cards-container">
-	<button id="ii-btn" on:click={internetIdentityConnection}>
-		{#if $isBusy}
+	{#if $isBusy}
+		<button class="login-btn">
 			<div class="spinner"></div>
-		{:else}
+		</button>
+	{:else}
+		<button class="login-btn" on:click={internetIdentityConnection}>
 			<img src="/icon/astronaut.webp" width="50em" height="50em" alt="Dfinity Astronaut." />
 			<h2>Internet Identity</h2>
-		{/if}
-	</button>
-
-	<button id="plug-btn" on:click={plugConnection}>
-		{#if $isBusy}
-			<div class="spinner"></div>
-		{:else}
+		</button>
+		{#if !isMobile}
+		<button class="login-btn" id="plug-btn" on:click={plugConnection}>
 			<img src="/icon/plug.svg" width="50em" height="50em" alt="Plug Icon." />
 			<h2>Plug Wallet</h2>
+		</button>
 		{/if}
-	</button>
+	{/if}
 
 	<button
 		id="close-btn"
 		on:click={() => {
-			isLogging.update((_) => false);
+			isLogging.set(false);
 		}}
 	>
 		<h2>Close</h2>
@@ -134,11 +143,7 @@
 	}
 
 	/* === Components === */
-	#ii-btn {
-		background: var(--main-color);
-	}
-
-	#plug-btn {
+	.login-btn {
 		background: var(--main-color);
 	}
 

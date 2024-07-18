@@ -21,6 +21,7 @@
 		<a class="item--2" href="https://docs.waterneuron.fi/" rel="noreferrer" target="_blank">
 			<img alt="Telegram icon" src="/icon/telegram.svg" />
 		</a>
+		<p>WaterNeuron</p>
 	</div>
 </footer>
 
@@ -45,6 +46,20 @@
 		justify-content: center;
 	}
 
+	p {
+		width: fit-content;
+		position: absolute;
+		bottom: -1em;
+		font-family: var(--font-type1);
+	}
+
+	a {
+		position: absolute;
+		top: 100%;
+		left: 50;
+		transform: translate(-50%, -50%);
+	}
+
 	/* === Layout === */
 	.central-container {
 		display: flex;
@@ -53,13 +68,6 @@
 		position: relative;
 		height: 7em;
 		width: 10em;
-	}
-
-	a {
-		position: absolute;
-		top: 100%;
-		left: 50;
-		transform: translate(-50%, -50%);
 	}
 
 	/* === Component === */

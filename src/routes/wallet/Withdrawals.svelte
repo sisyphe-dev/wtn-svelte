@@ -38,7 +38,7 @@
 {#if withdrawalRequests && withdrawalRequests.length >= 1}
 	<div class="withdrawals-container">
 		<h1>Withdrawal Requests</h1>
-		<table class="withdrawal-requests-table">
+		<table>
 			<thead>
 				<tr>
 					<th>nICP Burned</th>
@@ -102,8 +102,7 @@
 	table {
 		display: table;
 		border-collapse: collapse;
-		margin: 1em;
-		padding: 1em;
+		margin: 1.5em;
 		font-family: sans-serif;
 	}
 
