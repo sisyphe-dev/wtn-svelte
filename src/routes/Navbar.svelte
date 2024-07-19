@@ -1,7 +1,7 @@
 <script>
 	import { isSelecting, isLogging, menu, user } from '$lib/stores';
 	import { displayUsFormat, displayPrincipal } from '$lib';
-	import { logout } from '$lib/authentification';
+	import { internetIdentityLogout } from '$lib/authentification';
 </script>
 
 <nav class:filter={$isSelecting || $isLogging}>
@@ -16,7 +16,7 @@
 		<button
 			class="connect-btn"
 			on:click={() => {
-				isLogging.update((_) => true);
+				isLogging.set(true);
 			}}
 		>
 			Connect
@@ -34,7 +34,7 @@
 					id="disconnect-btn"
 					class="wallet-action-btn"
 					on:click={async () => {
-						await logout();
+						await internetIdentityLogout();
 						user.set(undefined);
 					}}
 				>
@@ -45,7 +45,7 @@
 				id="menu-btn"
 				class="wallet-action-btn"
 				on:click={() => {
-					menu.update((_) => true);
+					menu.set(true);
 				}}
 			>
 				<svg
@@ -133,6 +133,10 @@
 
 	.wallet-actions-container {
 		margin: 0;
+	}
+
+	.wave-title {
+		position: relative;
 	}
 
 	/* === Components === */
@@ -250,6 +254,11 @@
 
 		#menu-btn {
 			display: flex;
+		}
+
+		img {
+			height: 5em;
+			width: 5em;
 		}
 	}
 </style>

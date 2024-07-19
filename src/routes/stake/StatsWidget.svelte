@@ -2,7 +2,8 @@
 	import { state } from '$lib/stores';
 	import { displayUsFormat } from '$lib';
 	import BigNumber from 'bignumber.js';
-	import { onMount } from 'svelte';
+	import { onMount, afterUpdate } from 'svelte';
+	import { fade } from 'svelte/transition';
 
 	let totalIcpDeposited: BigNumber;
 	let apy: BigNumber;
@@ -10,49 +11,55 @@
 
 	const fetchData = async () => {
 		try {
-			totalIcpDeposited = await $state.totalIcpDeposited();
-			apy = await $state.apy();
-			stakersCount = await $state.stakersCount();
+			totalIcpDeposited = $state.totalIcpDeposited();
+			apy = $state.apy();
+			stakersCount = $state.stakersCount();
 		} catch (error) {
 			console.error('Error fetching data:', error);
 		}
 	};
 
+	afterUpdate(() => {
+		if ($state) {
+			fetchData();
+		}
+	});
+
 	onMount(() => {
-		fetchData();
-
 		const intervalId = setInterval(fetchData, 5000);
-
 		return () => clearInterval(intervalId);
 	});
 </script>
 
-<div class="stat-widget-container">
+<div class="stat-widget-container" in:fade={{ duration: 500 }}>
 	<div class="stat-item">
 		<b>Total Staked</b>
 		<b>
 			{#if totalIcpDeposited}
-				{displayUsFormat(totalIcpDeposited)}
+				{displayUsFormat(totalIcpDeposited)} ICP
 			{:else}
-				{0}
+				...
 			{/if}
-			ICP
 		</b>
 	</div>
 	<div class="stat-item">
 		<b>APY</b>
 		<b
 			>{#if apy}
-				{displayUsFormat(BigNumber(100).multipliedBy(apy))}
+				{displayUsFormat(BigNumber(100).multipliedBy(apy))} %
 			{:else}
-				{0}
-			{/if}%</b
+				...
+			{/if}</b
 		>
 	</div>
 	<div class="stat-item">
 		<b>Stakers</b>
 		<b>
-			{stakersCount ? stakersCount : 0}
+			{#if stakersCount || stakersCount === 0}
+				{stakersCount}
+			{:else}
+				...
+			{/if}
 		</b>
 	</div>
 </div>

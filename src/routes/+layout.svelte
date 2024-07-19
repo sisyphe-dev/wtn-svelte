@@ -5,22 +5,19 @@
 	import Send from './wallet/Send.svelte';
 	import Menu from './Menu.svelte';
 	import { isLogging, menu, isSelecting, user, state } from '$lib/stores';
-	import { onMount, beforeUpdate } from 'svelte';
+	import { onMount } from 'svelte';
 	import type { Account } from '@dfinity/ledger-icp';
-	import { signIn } from '$lib/authentification';
+	import { internetIdentitySignIn, plugSignIn } from '$lib/authentification';
 	import { User } from '$lib/state';
 	import { AuthClient } from '@dfinity/auth-client';
 	import Toast from './Toast.svelte';
-	import { provideState } from '$lib/state';
 
 	const fetchUser = async () => {
 		try {
 			const authClient = await AuthClient.create();
-			if (!(await authClient.isAuthenticated())) {
-				return;
-			}
+			if (!(await authClient.isAuthenticated())) return;
 
-			const authResult = await signIn();
+			const authResult = await internetIdentitySignIn();
 
 			$state.wtnLedger = authResult.actors.wtnLedger;
 			$state.icpLedger = authResult.actors.icpLedger;
@@ -43,11 +40,7 @@
 		}
 	};
 
-	const initializeState = async () => {
-		state.set(await provideState());
-	};
 	onMount(() => {
-		initializeState();
 		fetchUser();
 
 		const intervalId = setInterval(async () => {
@@ -113,11 +106,44 @@
 	/* === Layout === */
 	.page-container {
 		display: flex;
+		background-attachment: fixed;
+		background-size: cover;
 		flex-direction: column;
 		height: fit-content;
-		min-height: 100vh;
-		width: 100%;
+		min-height: 100%;
+		width: 100vw;
 		background: radial-gradient(farthest-corner circle at 0% 0%, rgb(18 69 89), #0f0f4d);
+	}
+
+	.page-container::-webkit-scrollbar {
+		width: 12px; /* Width of the scrollbar */
+		background: radial-gradient(
+			farthest-corner circle at 0% 0%,
+			rgb(18, 69, 89),
+			#0f0f4d
+		); /* Match the background gradient */
+	}
+
+	.page-container::-webkit-scrollbar-track {
+		background: radial-gradient(
+			farthest-corner circle at 0% 0%,
+			rgb(18, 69, 89),
+			#0f0f4d
+		); /* Match the background gradient */
+	}
+
+	.page-container::-webkit-scrollbar-thumb {
+		background-color: rgba(255, 255, 255, 0.5); /* Thumb color with transparency */
+		border-radius: 6px; /* Rounded corners for the thumb */
+		background-clip: padding-box;
+	}
+
+	.page-container::-webkit-scrollbar-corner {
+		background: radial-gradient(
+			farthest-corner circle at 0% 0%,
+			rgb(18, 69, 89),
+			#0f0f4d
+		); /* Match the background gradient */
 	}
 
 	.content-container {

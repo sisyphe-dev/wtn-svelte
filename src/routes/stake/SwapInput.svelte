@@ -1,26 +1,31 @@
 <script lang="ts">
-	import { Asset } from '$lib';
+	import { Asset, handleInput } from '$lib';
 	import { inputValue, user } from '$lib/stores';
+	import { fade } from 'svelte/transition';
 
 	export let asset: Asset;
 </script>
 
-<div class="input-container">
-	<input type="number" bind:value={$inputValue} placeholder="Amount" />
+<div class="input-container" in:fade={{ duration: 500 }}>
+	<input
+		type="text"
+		maxlength="20"
+		bind:value={$inputValue}
+		placeholder="Amount"
+		on:input={handleInput}
+	/>
 	<button
 		class="max-btn"
-		on:click={() =>
-			inputValue.set(
-				$user && $user.getBalance(asset.type).isGreaterThanOrEqualTo(asset.getTransferFee())
-					? $user.getBalance(asset.type).minus(asset.getTransferFee()).toNumber()
-					: 0
-			)}
+		on:click={() => {
+			const maxAmount = $user?.getBalance(asset.type).minus(asset.getTransferFee()).toNumber() ?? 0;
+			inputValue.change(maxAmount && maxAmount >= 0 ? maxAmount : 0);
+		}}
 	>
 		<div class="max-btn-items">
 			<h2>{asset.intoStr()}</h2>
 			<span>Max</span>
 		</div>
-		<img class="asset-logo" src={asset.getUrl()} alt="ICP Icon" />
+		<img class="asset-logo" src={asset.getIconPath()} alt="ICP Icon" />
 	</button>
 </div>
 

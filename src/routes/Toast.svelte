@@ -1,7 +1,7 @@
 <script>
 	import { ToastType } from '$lib/toast';
 	import { toasts } from '$lib/stores';
-	import { fade, fly } from 'svelte/transition';
+	import { fade } from 'svelte/transition';
 	import { flip } from 'svelte/animate';
 	import ErrorIcon from '$lib/icons/ErrorIcon.svelte';
 	import CloseIcon from '$lib/icons/CloseIcon.svelte';

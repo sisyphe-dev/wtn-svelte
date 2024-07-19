@@ -12,7 +12,8 @@
 	} from '$lib/ledger';
 	import type { ConversionArg } from '../../declarations/water_neuron/water_neuron.did';
 	import type { Account } from '@dfinity/ledger-icp';
-	import { onMount } from 'svelte';
+	import { onMount, afterUpdate } from 'svelte';
+	import { fade } from 'svelte/transition';
 
 	let stake = true;
 	let exchangeRate: BigNumber;
@@ -21,16 +22,16 @@
 
 	function computeReceiveAmount(
 		stake: boolean,
-		inputValue: BigNumber,
+		value: BigNumber,
 		exchangeRate: BigNumber
 	): BigNumber {
-		if (inputValue.isNaN()) return BigNumber(0);
+		if (value.isNaN()) return BigNumber(0);
 
 		if (exchangeRate) {
 			if (stake) {
-				return inputValue.multipliedBy(exchangeRate);
+				return value.multipliedBy(exchangeRate);
 			} else {
-				return inputValue.dividedBy(exchangeRate);
+				return value.dividedBy(exchangeRate);
 			}
 		} else {
 			return BigNumber(0);
@@ -44,7 +45,8 @@
 		if (!stake) {
 			if ($user.nicpBalance().isGreaterThanOrEqualTo(amount) && amount.isGreaterThan(0)) {
 				let amountE8s = numberToBigintE8s(amount);
-				const messageError = await nicpTransferApproved(
+
+				const approval = await nicpTransferApproved(
 					amountE8s,
 					{
 						owner: $user.principal,
@@ -53,10 +55,9 @@
 					$state.nicpLedger
 				);
 
-				if (messageError) {
-					toasts.add(Toast.error(messageError));
+				if (!approval.granted) {
+					toasts.add(Toast.error(approval.message ?? 'Unknown Error.'));
 				} else {
-					amountE8s -= BigInt(10_000);
 					const conversionResult = await $state.waterNeuron.nicp_to_icp({
 						maybe_subaccount: [],
 						amount_e8s: amountE8s
@@ -75,7 +76,7 @@
 		} else {
 			if ($user.icpBalance().isGreaterThanOrEqualTo(amount) && amount.isGreaterThan(0)) {
 				let amountE8s = numberToBigintE8s(amount);
-				const messageError = await icpTransferApproved(
+				const approval = await icpTransferApproved(
 					amountE8s,
 					{
 						owner: $user.principal,
@@ -83,16 +84,13 @@
 					} as Account,
 					$state.icpLedger
 				);
-
-				if (messageError) {
-					toasts.add(Toast.error(messageError));
+				if (!approval.granted) {
+					toasts.add(Toast.error(approval.message ?? 'Unknown Error.'));
 				} else {
-					amountE8s -= BigInt(10_000);
 					const conversionResult = await $state.waterNeuron.icp_to_nicp({
 						maybe_subaccount: [],
 						amount_e8s: amountE8s
 					} as ConversionArg);
-
 					let status = handleStakeResult(conversionResult);
 					if (status.success) {
 						toasts.add(Toast.success(status.message));
@@ -109,126 +107,138 @@
 
 	const fetchData = async () => {
 		try {
-			exchangeRate = await $state.exchangeRate();
-			totalIcpDeposited = await $state.totalIcpDeposited();
+			exchangeRate = $state.exchangeRate();
+			totalIcpDeposited = $state.totalIcpDeposited();
 			minimumWithdraw = BigNumber(10).multipliedBy(exchangeRate);
 		} catch (error) {
 			console.error('Error fetching data:', error);
 		}
 	};
 
-	onMount(() => {
-		fetchData();
-		const intervalId = setInterval(fetchData, 5000);
+	afterUpdate(() => {
+		if ($state) {
+			fetchData();
+		}
+	});
 
+	onMount(() => {
+		const intervalId = setInterval(fetchData, 5000);
 		return () => clearInterval(intervalId);
 	});
 </script>
 
-<div class="main-container">
-	<div class="header-container">
-		<button
-			class="header-btn"
-			style:text-align="start"
-			on:click={() => (stake = true)}
-			class:selected={stake}
-			class:not-selected={!stake}>Stake ICP</button
-		>
-		<button
-			class="header-btn"
-			style:text-align="end"
-			on:click={() => (stake = false)}
-			class:selected={!stake}
-			class:not-selected={stake}>Unstake nICP</button
-		>
-	</div>
-	<div class="swap-container">
-		<SwapInput asset={stake ? new Asset(AssetType.ICP) : new Asset(AssetType.nICP)} />
-		<div class="paragraphs">
-			{#if stake}
-				<p style:color="#fa796e">
-					{#if exchangeRate}
-						You will receive {displayUsFormat(
-							computeReceiveAmount(stake, BigNumber($inputValue), exchangeRate),
-							8
-						)} nICP
-					{:else}
-						...
-					{/if}
-				</p>
-				<p>
-					{#if exchangeRate}
-						1 ICP = {displayUsFormat(exchangeRate)} nICP
-					{:else}
-						...
-					{/if}
-				</p>
-				<div class="reward">
-					<p style:margin-right={'2.5em'}>
-						Future WTN Airdrop:
-						{#if exchangeRate && totalIcpDeposited}
-							{displayUsFormat(
-								computeRewards(
-									totalIcpDeposited,
-									computeReceiveAmount(stake, BigNumber($inputValue), exchangeRate)
-								),
+<div class="main-container" in:fade={{ duration: 500 }}>
+	{#key stake}
+		<div class="header-container">
+			<button
+				class="header-btn"
+				style:text-align="start"
+				on:click={() => {
+					stake = true;
+					inputValue.set('');
+				}}
+				class:selected={stake}
+				class:not-selected={!stake}>Stake ICP</button
+			>
+			<button
+				class="header-btn"
+				style:text-align="end"
+				on:click={() => {
+					stake = false;
+					inputValue.set('');
+				}}
+				class:selected={!stake}
+				class:not-selected={stake}>Unstake nICP</button
+			>
+		</div>
+		<div class="swap-container">
+			<SwapInput asset={stake ? Asset.fromText('ICP') : Asset.fromText('nICP')} />
+			<div class="paragraphs" in:fade={{ duration: 500 }}>
+				{#if stake}
+					<p style:color="#fa796e">
+						{#if exchangeRate}
+							You will receive {displayUsFormat(
+								computeReceiveAmount(stake, BigNumber($inputValue), exchangeRate),
 								8
-							)}
+							)} nICP
 						{:else}
 							...
 						{/if}
 					</p>
-					<img src="/tokens/WTN.png" width="30em" height="30em" alt="WTN logo" />
-				</div>
+					<p>
+						{#if exchangeRate}
+							1 ICP = {displayUsFormat(exchangeRate)} nICP
+						{:else}
+							...
+						{/if}
+					</p>
+					<div class="reward">
+						<p style:margin-right={'2.5em'}>
+							Future WTN Airdrop:
+							{#if exchangeRate && totalIcpDeposited}
+								{displayUsFormat(
+									computeRewards(
+										totalIcpDeposited,
+										computeReceiveAmount(stake, BigNumber($inputValue), exchangeRate)
+									),
+									8
+								)}
+							{:else}
+								...
+							{/if}
+						</p>
+						<img src="/tokens/WTN.png" width="30em" height="30em" alt="WTN logo" />
+					</div>
+				{:else}
+					<p style:color="#fa796e">
+						{#if exchangeRate}
+							You will receive {displayUsFormat(
+								computeReceiveAmount(stake, BigNumber($inputValue), exchangeRate),
+								8
+							)} ICP
+						{:else}
+							...
+						{/if}
+					</p>
+					<p>
+						{#if exchangeRate}
+							1 nICP = {displayUsFormat(BigNumber(1).dividedBy(exchangeRate))} ICP
+						{:else}
+							...
+						{/if}
+					</p>
+					<p>Waiting Time: 6 months</p>
+					<p>
+						{#if minimumWithdraw}
+							Minimum Withdrawal: {minimumWithdraw} nICP
+						{:else}
+							...
+						{/if}
+					</p>
+				{/if}
+			</div>
+			{#if !$user}
+				<button
+					class="swap-btn"
+					on:click={() => {
+						isLogging.update(() => true);
+					}}
+				>
+					<span>Connect your wallet</span>
+				</button>
 			{:else}
-				<p style:color="#fa796e">
-					{#if exchangeRate}
-						You will receive {displayUsFormat(
-							computeReceiveAmount(stake, BigNumber($inputValue), exchangeRate),
-							8
-						)} ICP
+				<button class="swap-btn" on:click={() => convert(BigNumber($inputValue), stake)}>
+					{#if $isConverting}
+						<div class="spinner"></div>
+					{:else if stake}
+						<span>Stake</span>
 					{:else}
-						...
+						<span>Unstake</span>
 					{/if}
-				</p>
-				<p>
-					{#if exchangeRate}
-						1 nICP = {displayUsFormat(BigNumber(1).dividedBy(exchangeRate))} ICP
-					{:else}
-						...
-					{/if}
-				</p>
-				<p>Waiting Time: 6 months</p>
-				<p>
-					{#if minimumWithdraw}
-						Minimum Withdrawal: {minimumWithdraw} nICP
-					{:else}
-						...
-					{/if}
-				</p>
+				</button>
 			{/if}
 		</div>
-		{#if !$user}
-			<button
-				class="swap-btn"
-				on:click={() => {
-					isLogging.update(() => true);
-				}}
-			>
-				<span>Connect your wallet</span>
-			</button>
-		{:else}
-			<button class="swap-btn" on:click={() => convert(BigNumber($inputValue), stake)}>
-				{#if $isConverting}
-					<div class="spinner"></div>
-				{:else if stake}
-					<span>Stake</span>
-				{:else}
-					<span>Unstake</span>
-				{/if}
-			</button>
-		{/if}
-	</div>
+	{/key}
 </div>
 
 <style>

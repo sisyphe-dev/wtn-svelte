@@ -1,7 +1,8 @@
-import type { Principal } from '@dfinity/principal';
+import { Principal } from '@dfinity/principal';
 import BigNumber from 'bignumber.js';
 import type { NeuronId, WithdrawalStatus } from '../declarations/water_neuron/water_neuron.did';
 import { DEV } from './authentification';
+import { inputValue } from './stores';
 
 export const E8S = BigNumber(10).pow(BigNumber(8));
 
@@ -47,6 +48,17 @@ export class Asset {
 		this.type = asset;
 	}
 
+	static fromText(symbol: 'WTN' | 'nICP' | 'ICP'): Asset {
+		switch (symbol) {
+			case 'WTN':
+				return new Asset(AssetType.WTN);
+			case 'nICP':
+				return new Asset(AssetType.nICP);
+			case 'ICP':
+				return new Asset(AssetType.ICP);
+		}
+	}
+
 	intoStr(): string {
 		switch (this.type) {
 			case AssetType.ICP:
@@ -60,7 +72,7 @@ export class Asset {
 		}
 	}
 
-	getUrl(): string {
+	getIconPath(): string {
 		switch (this.type) {
 			case AssetType.ICP:
 				return '/tokens/icp.webp';
@@ -68,6 +80,17 @@ export class Asset {
 				return '/tokens/nicp.png';
 			case AssetType.WTN:
 				return '/tokens/WTN.png';
+		}
+	}
+
+	getDashboardUrl(): string {
+		switch (this.type) {
+			case AssetType.ICP:
+				return 'https://dashboard.internetcomputer.org/transactions/';
+			case AssetType.nICP:
+				return '/wallet';
+			case AssetType.WTN:
+				return 'https://dashboard.internetcomputer.org/sns/jmod6-4iaaa-aaaaq-aadkq-cai/transactions';
 		}
 	}
 
@@ -126,36 +149,34 @@ export function computeRewards(alreadyDistributed: BigNumber, converting: BigNum
 }
 
 export async function renderStatus(status: WithdrawalStatus): Promise<string> {
-	if ('ConversionDone' in status) {
-		return `<p>
+	const key = Object.keys(status)[0] as keyof WithdrawalStatus;
+	switch (key) {
+		case 'ConversionDone':
+			return `<p>
 	  Conversion done at{" "}
 	  <a
 		target="_blank"
 		rel="noreferrer"
-		href={
-		  ${
-				'https://dashboard.internetcomputer.org/transaction/' +
-				status.ConversionDone.transfer_block_height
-			}
-		}
+		href={https://dashboard.internetcomputer.org/transaction/${status[key]['transfer_block_height']}}
 	  >
-		${'height ' + status.ConversionDone.transfer_block_height}
+		Height ${status[key]['transfer_block_height']}
 	  </a>
 	</p>`;
-	} else if ('NotFound' in status) {
-		return 'Not Found';
-	} else if ('WaitingToSplitNeuron' in status) {
-		return 'Waiting to Split Neuron';
-	} else if ('WaitingDissolvement' in status) {
-		if (status.WaitingDissolvement.neuron_id.id) {
-			return displayStatus(status.WaitingDissolvement.neuron_id);
-		} else {
-			return 'Waiting dissolvement';
-		}
-	} else if ('WaitingToStartDissolving' in status) {
-		return `Waiting to Start Dissolving (Neuron ID: ${status.WaitingToStartDissolving.neuron_id.id})`;
+		case 'NotFound':
+			return 'Withdrawal status not found.';
+		case 'WaitingToSplitNeuron':
+			return 'Waiting to Split Neuron';
+		case 'WaitingDissolvement':
+			if (status[key]['neuron_id']['id']) {
+				return displayStatus(status[key]['neuron_id']);
+			} else {
+				return 'Waiting dissolvement';
+			}
+		case 'WaitingToStartDissolving':
+			return `Waiting to Start Dissolving (Neuron ID: ${status[key]['neuron_id']['id']})`;
+		default:
+			return 'Unknown Status';
 	}
-	return 'Unknown Status';
 }
 
 export async function displayStatus(neuron_id: NeuronId): Promise<string> {
@@ -183,4 +204,17 @@ function displayTimeLeft(created_at: number) {
 	const hoursLeft = Math.floor((timeLeft - daysLeft * 60 * 60 * 24) / 60 / 60);
 
 	return `Dissolvement in ${daysLeft} days and ${hoursLeft} hours`;
+}
+
+export function handleInput(event: Event): void {
+	const target = event.target as HTMLInputElement;
+	const value = target.value;
+	const regex = /^[0-9]*([\.][0-9]*)?$/;
+
+	if (regex.test(value)) {
+		inputValue.set(value);
+	} else {
+		inputValue.set(value.substring(0, value.length - 1));
+		target.value = value.substring(0, value.length - 1);
+	}
 }

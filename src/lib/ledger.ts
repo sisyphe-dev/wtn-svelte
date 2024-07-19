@@ -7,8 +7,8 @@ import type {
 	ApproveResult,
 	ApproveError
 } from '../declarations/nicp_ledger/nicp_ledger.did';
-import type { Result_3, Result_4 } from '../declarations/water_neuron/water_neuron.did';
-import { bigintE8sToNumber } from '$lib';
+import type { Result_1, Result_2 } from '../declarations/water_neuron/water_neuron.did';
+import { Asset, AssetType, bigintE8sToNumber, displayUsFormat } from '$lib';
 import type {
 	TransferResult,
 	Icrc1TransferResult
@@ -19,39 +19,75 @@ import { CANISTER_ID_WATER_NEURON } from './authentification';
 
 const DEFAULT_ERROR_MESSAGE: string = 'Unknown result, please refresh the page.';
 
-function handleApproveError(error: ApproveError) {
-	if ('GenericError' in error) {
-		console.error(`Error: ${error.GenericError.message}, Code: ${error.GenericError.error_code}`);
-	} else if ('TemporarilyUnavailable' in error) {
-		console.error('Service is temporarily unavailable.');
-	} else if ('Duplicate' in error) {
-		console.error(`Duplicate transaction with block index: ${error.Duplicate.duplicate_of}`);
-	} else if ('BadFee' in error) {
-		console.error(`Bad fee. Expected fee: ${error.BadFee.expected_fee}`);
-	} else if ('AllowanceChanged' in error) {
-		console.error(
-			`Allowance changed. Current allowance: ${error.AllowanceChanged.current_allowance}`
-		);
-	} else if ('CreatedInFuture' in error) {
-		console.error(`Created in future. Ledger time: ${error.CreatedInFuture.ledger_time}`);
-	} else if ('TooOld' in error) {
-		console.error('Transaction is too old.');
-	} else if ('Expired' in error) {
-		console.error(`Transaction expired. Ledger time: ${error.Expired.ledger_time}`);
-	} else if ('InsufficientFunds' in error) {
-		console.error(`Insufficient funds. Balance: ${error.InsufficientFunds.balance}`);
-	} else {
-		console.error('Unknown error type.');
-	}
+export interface ApprovalResult {
+	granted: boolean;
+	message?: string;
 }
 
-export function handleApproveResult(result: ApproveResult): string {
-	if ('Err' in result) {
-		return `Error: ${handleApproveError(result.Err)}`;
-	} else if ('Ok' in result) {
-		return '';
-	} else {
-		return DEFAULT_ERROR_MESSAGE;
+export function handleApproveResult(result: ApproveResult): ApprovalResult {
+	const key = Object.keys(result)[0] as keyof ApproveResult;
+	switch (key) {
+		case 'Ok':
+			return { granted: true };
+		case 'Err': {
+			const error = result[key];
+			const errorKey = Object.keys(result[key])[0];
+
+			switch (errorKey) {
+				case 'GenericError':
+					return {
+						granted: false,
+						message: `Generic Error: ${error[errorKey]['message']}`
+					};
+
+				case 'TemporarilyUnavailable':
+					return { granted: false, message: 'Ledger is temporarily unavailable.' };
+
+				case 'AllowanceChanged':
+					return {
+						granted: false,
+						message: `Insufficient allowance: ${displayUsFormat(bigintE8sToNumber(error[errorKey]['current_allowance']))}`
+					};
+
+				case 'Expired':
+					return {
+						granted: false,
+						message: `Approval expired: ${error[errorKey]['ledger_time']}`
+					};
+
+				case 'Duplicate':
+					return {
+						granted: false,
+						message: `Duplicate transfer of: ${error[errorKey]['duplicate_of']}`
+					};
+
+				case 'BadFee':
+					return {
+						granted: false,
+						message: `Bad fee, expected: ${displayUsFormat(bigintE8sToNumber(error[errorKey]['expected_fee']))}`
+					};
+
+				case 'CreatedInFuture':
+					return {
+						granted: false,
+						message: `Created in future: ${error[errorKey]['ledger_time']}`
+					};
+
+				case 'TooOld':
+					return { granted: false, message: `The transfer is too old.` };
+
+				case 'InsufficientFunds':
+					return {
+						granted: false,
+						message: `Insufficient funds, balance: ${displayUsFormat(bigintE8sToNumber(error[errorKey]['balance']))}`
+					};
+
+				default:
+					return { granted: false, message: DEFAULT_ERROR_MESSAGE };
+			}
+		}
+		default:
+			return { granted: false, message: DEFAULT_ERROR_MESSAGE };
 	}
 }
 
@@ -59,7 +95,7 @@ export async function nicpTransferApproved(
 	amount: bigint,
 	account: Account,
 	nicpLedger: nicpLedgerInterface
-): Promise<void | string> {
+): Promise<ApprovalResult> {
 	const spender = {
 		owner: Principal.fromText(CANISTER_ID_WATER_NEURON),
 		subaccount: []
@@ -70,31 +106,30 @@ export async function nicpTransferApproved(
 	} as AllowanceArgs);
 	const allowance = allowanceResult['allowance'];
 	if (amount > allowance) {
-		const approveResult: ApproveResult = await nicpLedger.icrc2_approve({
-			spender,
-			fee: [],
-			memo: [],
-			from_subaccount: [],
-			created_at_time: [],
-			expires_at: [],
-			expected_allowance: [],
-			amount: amount * BigInt(3)
-		} as ApproveArgs);
-		const messageError = handleApproveResult(approveResult);
-		if (messageError !== '') {
-			return messageError;
-		} else {
-			return;
+		try {
+			const approveResult: ApproveResult = await nicpLedger.icrc2_approve({
+				spender,
+				fee: [],
+				memo: [],
+				from_subaccount: [],
+				created_at_time: [],
+				expires_at: [],
+				expected_allowance: [],
+				amount: amount * BigInt(3)
+			} as ApproveArgs);
+			return handleApproveResult(approveResult);
+		} catch (error) {
+			return { granted: false, message: `${error}.` };
 		}
 	}
-	return;
+	return { granted: true };
 }
 
 export async function icpTransferApproved(
 	amount: bigint,
 	account: Account,
 	icpLedger: icpLedgerInterface
-): Promise<void | string> {
+): Promise<ApprovalResult> {
 	const spender = {
 		owner: Principal.fromText(CANISTER_ID_WATER_NEURON),
 		subaccount: []
@@ -105,24 +140,23 @@ export async function icpTransferApproved(
 	} as AllowanceArgs);
 	const allowance = allowanceResult['allowance'];
 	if (amount > allowance) {
-		const approveResult: ApproveResult = await icpLedger.icrc2_approve({
-			spender,
-			fee: [],
-			memo: [],
-			from_subaccount: [],
-			created_at_time: [],
-			expires_at: [],
-			expected_allowance: [],
-			amount: amount * BigInt(3)
-		} as ApproveArgs);
-		const messageError = handleApproveResult(approveResult);
-		if (messageError !== '') {
-			return messageError;
-		} else {
-			return;
+		try {
+			const approveResult: ApproveResult = await icpLedger.icrc2_approve({
+				spender,
+				fee: [],
+				memo: [],
+				from_subaccount: [],
+				created_at_time: [],
+				expires_at: [],
+				expected_allowance: [],
+				amount: amount * BigInt(3)
+			} as ApproveArgs);
+			return handleApproveResult(approveResult);
+		} catch (error) {
+			return { granted: false, message: `${error}` };
 		}
 	}
-	return;
+	return { granted: true };
 }
 
 export interface ConversionResult {
@@ -130,8 +164,8 @@ export interface ConversionResult {
 	message: string;
 }
 
-export function handleStakeResult(result: Result_3): ConversionResult {
-	const key = Object.keys(result)[0] as keyof Result_4;
+export function handleStakeResult(result: Result_1): ConversionResult {
+	const key = Object.keys(result)[0] as keyof Result_1;
 	switch (key) {
 		case 'Ok':
 			return {
@@ -163,7 +197,7 @@ export function handleStakeResult(result: Result_3): ConversionResult {
 						case 'BadBurn':
 							return {
 								success: false,
-								message: `Bad burn. Minimum burn amount: ${bigintE8sToNumber(transferError[transferErrorKey]['min_burn_amount'])}`
+								message: `Bad burn. Minimum burn amount: ${displayUsFormat(bigintE8sToNumber(transferError[transferErrorKey]['min_burn_amount']))}`
 							};
 
 						case 'Duplicate':
@@ -175,7 +209,7 @@ export function handleStakeResult(result: Result_3): ConversionResult {
 						case 'BadFee':
 							return {
 								success: false,
-								message: `Bad fee, expected ${bigintE8sToNumber(transferError[transferErrorKey]['expected_fee'])}`
+								message: `Bad fee, expected ${displayUsFormat(bigintE8sToNumber(transferError[transferErrorKey]['expected_fee']))}`
 							};
 
 						case 'CreatedInFuture':
@@ -190,7 +224,7 @@ export function handleStakeResult(result: Result_3): ConversionResult {
 						case 'InsufficientFunds':
 							return {
 								success: false,
-								message: `Insufficient funds, current balance: ${bigintE8sToNumber(transferError[transferErrorKey]['balance'])}`
+								message: `Insufficient funds, current balance: ${displayUsFormat(bigintE8sToNumber(transferError[transferErrorKey]['balance']))}`
 							};
 
 						default:
@@ -200,7 +234,7 @@ export function handleStakeResult(result: Result_3): ConversionResult {
 				case 'AmountTooLow':
 					return {
 						success: false,
-						message: `Amount too low. Should be greater than ${bigintE8sToNumber(error[errorKey]['minimum_amount_e8s'])}`
+						message: `Amount too low. Should be greater than ${displayUsFormat(bigintE8sToNumber(error[errorKey]['minimum_amount_e8s']))}`
 					};
 
 				case 'TransferFromError':
@@ -220,13 +254,13 @@ export function handleStakeResult(result: Result_3): ConversionResult {
 						case 'InsufficientAllowance':
 							return {
 								success: false,
-								message: `Insufficient allowance: ${bigintE8sToNumber(transferFromError[transferFromErrorKey]['allowance'])}`
+								message: `Insufficient allowance: ${displayUsFormat(bigintE8sToNumber(transferFromError[transferFromErrorKey]['allowance']))}`
 							};
 
 						case 'BadBurn':
 							return {
 								success: false,
-								message: `Bad burn, minimum burn amount: ${bigintE8sToNumber(transferFromError[transferFromErrorKey]['min_burn_amount'])}`
+								message: `Bad burn, minimum burn amount: ${displayUsFormat(bigintE8sToNumber(transferFromError[transferFromErrorKey]['min_burn_amount']))}`
 							};
 
 						case 'Duplicate':
@@ -238,7 +272,7 @@ export function handleStakeResult(result: Result_3): ConversionResult {
 						case 'BadFee':
 							return {
 								success: false,
-								message: `Bad fee, expected: ${bigintE8sToNumber(transferFromError[transferFromErrorKey]['expected_fee'])}`
+								message: `Bad fee, expected: ${displayUsFormat(bigintE8sToNumber(transferFromError[transferFromErrorKey]['expected_fee']))}`
 							};
 
 						case 'CreatedInFuture':
@@ -253,7 +287,7 @@ export function handleStakeResult(result: Result_3): ConversionResult {
 						case 'InsufficientFunds':
 							return {
 								success: false,
-								message: `Insufficient funds, balance: ${bigintE8sToNumber(transferFromError[transferFromErrorKey]['balance'])}`
+								message: `Insufficient funds, balance: ${displayUsFormat(bigintE8sToNumber(transferFromError[transferFromErrorKey]['balance']))}`
 							};
 
 						default:
@@ -278,14 +312,14 @@ export function handleStakeResult(result: Result_3): ConversionResult {
 	}
 }
 
-export function handleRetrieveResult(result: Result_4): ConversionResult {
-	const key = Object.keys(result)[0] as keyof Result_4;
+export function handleRetrieveResult(result: Result_2): ConversionResult {
+	const key = Object.keys(result)[0] as keyof Result_2;
 
 	switch (key) {
 		case 'Ok':
 			return {
 				success: true,
-				message: `Successful conversion at block index ${result[key]['block_index']}`
+				message: `Successful conversion at block index ${result[key]['block_index']}. Follow your <a style="text-decoration: underline; color: var(--text-color);" href='/wallet'>withdrawal status</a>.`
 			};
 		case 'Err':
 			const error = result[key];
@@ -311,7 +345,7 @@ export function handleRetrieveResult(result: Result_4): ConversionResult {
 						case 'BadBurn':
 							return {
 								success: false,
-								message: `Bad burn, minimum burn amount: ${bigintE8sToNumber(transferError[transferErrorKey]['min_burn_amount'])}`
+								message: `Bad burn, minimum burn amount: ${displayUsFormat(bigintE8sToNumber(transferError[transferErrorKey]['min_burn_amount']))}`
 							};
 
 						case 'Duplicate':
@@ -323,7 +357,7 @@ export function handleRetrieveResult(result: Result_4): ConversionResult {
 						case 'BadFee':
 							return {
 								success: false,
-								message: `Bad fee, expected: ${bigintE8sToNumber(transferError[transferErrorKey]['expected_fee'])}`
+								message: `Bad fee, expected: ${displayUsFormat(bigintE8sToNumber(transferError[transferErrorKey]['expected_fee']))}`
 							};
 
 						case 'CreatedInFuture':
@@ -338,7 +372,7 @@ export function handleRetrieveResult(result: Result_4): ConversionResult {
 						case 'InsufficientFunds':
 							return {
 								success: false,
-								message: `Insufficient funds, balance: ${bigintE8sToNumber(transferError[transferErrorKey]['balance'])}`
+								message: `Insufficient funds, balance: ${displayUsFormat(bigintE8sToNumber(transferError[transferErrorKey]['balance']))}`
 							};
 
 						default:
@@ -348,7 +382,7 @@ export function handleRetrieveResult(result: Result_4): ConversionResult {
 				case 'AmountTooLow':
 					return {
 						success: false,
-						message: `Amount too low, minimum amount: ${bigintE8sToNumber(error[errorKey]['minimum_amount_e8s'])}`
+						message: `Amount too low, minimum amount: ${displayUsFormat(bigintE8sToNumber(error[errorKey]['minimum_amount_e8s']))}`
 					};
 
 				case 'TransferFromError':
@@ -368,13 +402,13 @@ export function handleRetrieveResult(result: Result_4): ConversionResult {
 						case 'InsufficientAllowance':
 							return {
 								success: false,
-								message: `Insufficient allowance, current allowance: ${bigintE8sToNumber(transferFromError[transferFromErrorKey]['allowance'])}`
+								message: `Insufficient allowance, current allowance: ${displayUsFormat(bigintE8sToNumber(transferFromError[transferFromErrorKey]['allowance']))}`
 							};
 
 						case 'BadBurn':
 							return {
 								success: false,
-								message: `Bad burn, minimum burn amount: ${bigintE8sToNumber(transferFromError[transferFromErrorKey]['min_burn_amount'])}`
+								message: `Bad burn, minimum burn amount: ${displayUsFormat(bigintE8sToNumber(transferFromError[transferFromErrorKey]['min_burn_amount']))}`
 							};
 
 						case 'Duplicate':
@@ -386,13 +420,13 @@ export function handleRetrieveResult(result: Result_4): ConversionResult {
 						case 'BadFee':
 							return {
 								success: false,
-								message: `Bad fee. Expected fee: ${bigintE8sToNumber(transferFromError[transferFromErrorKey]['expected_fee'])}`
+								message: `Bad fee. Expected fee: ${displayUsFormat(bigintE8sToNumber(transferFromError[transferFromErrorKey]['expected_fee']))}`
 							};
 
 						case 'CreatedInFuture':
 							return {
 								success: false,
-								message: `Created in future: ${bigintE8sToNumber(transferFromError[transferFromErrorKey]['ledger_time'])}`
+								message: `Created in future: ${transferFromError[transferFromErrorKey]['ledger_time']}`
 							};
 
 						case 'TooOld':
@@ -401,7 +435,7 @@ export function handleRetrieveResult(result: Result_4): ConversionResult {
 						case 'InsufficientFunds':
 							return {
 								success: false,
-								message: `Insufficient funds. Balance: ${bigintE8sToNumber(transferFromError[transferFromErrorKey]['balance'])}`
+								message: `Insufficient funds. Balance: ${displayUsFormat(bigintE8sToNumber(transferFromError[transferFromErrorKey]['balance']))}`
 							};
 
 						default:
@@ -445,7 +479,7 @@ export function handleTransferResult(result: TransferResult): ConversionResult {
 				case 'BadFee':
 					return {
 						success: false,
-						message: `Bad fee, expected: ${bigintE8sToNumber(error[errorKey]['expected_fee'])}`
+						message: `Bad fee, expected: ${displayUsFormat(bigintE8sToNumber(error[errorKey]['expected_fee']))}`
 					};
 				case 'TxDuplicate':
 					return {
@@ -461,7 +495,7 @@ export function handleTransferResult(result: TransferResult): ConversionResult {
 				case 'InsufficientFunds':
 					return {
 						success: false,
-						message: `Insufficient funds, balance: ${bigintE8sToNumber(error[errorKey]['balance'])}`
+						message: `Insufficient funds, balance: ${displayUsFormat(bigintE8sToNumber(error[errorKey]['balance']))}`
 					};
 				default:
 					return {
@@ -479,15 +513,27 @@ export function handleTransferResult(result: TransferResult): ConversionResult {
 	}
 }
 
-export function handleIcrcTransferResult(result: Icrc1TransferResult): ConversionResult {
+export function handleIcrcTransferResult(
+	result: Icrc1TransferResult,
+	asset: Asset
+): ConversionResult {
 	const key = Object.keys(result)[0] as keyof TransferResult;
 
 	switch (key) {
 		case 'Ok':
-			return {
-				success: true,
-				message: `Successful transfer at <a target='_blank' style="text-decoration: underline; color: var(--text-color);" href=https://dashboard.internetcomputer.org/transaction/${result[key]}>block index ${result[key]}</a>.`
-			};
+			switch (asset.type) {
+				case AssetType.nICP:
+					return {
+						success: true,
+						message: `Successful transfer at block index ${result[key]}.`
+					};
+				default:
+					return {
+						success: true,
+						message: `Successful transfer at <a target='_blank' style="text-decoration: underline; color: var(--text-color);" href=${asset.getDashboardUrl()}${result[key]}>block index ${result[key]}</a>.`
+					};
+			}
+
 		case 'Err': {
 			const error = result[key];
 			const errorKey = Object(error[key])[0];
@@ -498,7 +544,7 @@ export function handleIcrcTransferResult(result: Icrc1TransferResult): Conversio
 				case 'BadFee':
 					return {
 						success: false,
-						message: `Bad fee, expected: ${bigintE8sToNumber(error[errorKey]['min_burn_amount'])}`
+						message: `Bad fee, expected: ${displayUsFormat(bigintE8sToNumber(error[errorKey]['min_burn_amount']))}`
 					};
 				case 'Duplicate':
 					return {
@@ -514,7 +560,7 @@ export function handleIcrcTransferResult(result: Icrc1TransferResult): Conversio
 				case 'InsufficientFunds':
 					return {
 						success: false,
-						message: `Insufficient funds, balance: ${bigintE8sToNumber(error[errorKey]['balance'])}`
+						message: `Insufficient funds, balance: ${displayUsFormat(bigintE8sToNumber(error[errorKey]['balance']))}`
 					};
 
 				case 'GenericError':
@@ -526,7 +572,7 @@ export function handleIcrcTransferResult(result: Icrc1TransferResult): Conversio
 				case 'BadBurn':
 					return {
 						success: false,
-						message: `Bad burn, minimum burn amount: ${bigintE8sToNumber(error[errorKey]['min_burn_amount'])}`
+						message: `Bad burn, minimum burn amount: ${displayUsFormat(bigintE8sToNumber(error[errorKey]['min_burn_amount']))}`
 					};
 
 				default:

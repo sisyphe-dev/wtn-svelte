@@ -1,6 +1,6 @@
 <script>
 	import { menu, user } from '$lib/stores';
-	import { logout } from '$lib/authentification';
+	import { internetIdentityLogout } from '$lib/authentification';
 </script>
 
 <div class="background-menu">
@@ -9,28 +9,29 @@
 			<a
 				href="/stake"
 				on:click={() => {
-					menu.update((_) => false);
+					menu.update(() => false);
 				}}>Stake</a
 			>
 			<a
 				href="/wallet"
 				on:click={() => {
-					menu.update((_) => false);
+					menu.update(() => false);
 				}}>Wallet</a
 			>
 			<a
 				href="/stake"
 				on:click={async () => {
-					await logout();
+					await internetIdentityLogout();
+
 					user.set(undefined);
-					menu.update((_) => false);
+					menu.update(() => false);
 				}}>Disconnect</a
 			>
 		</div>
 
 		<button
 			on:click={() => {
-				menu.update((_) => false);
+				menu.update(() => false);
 			}}
 		>
 			<svg
@@ -76,7 +77,7 @@
 
 	.background-menu {
 		height: 100vh;
-		width: 100%;
+		width: 100vw;
 		background: radial-gradient(farthest-corner circle at 0% 0%, rgb(18 69 89), #0f0f4d);
 		z-index: 1;
 	}

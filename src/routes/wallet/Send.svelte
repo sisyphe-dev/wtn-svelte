@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { AssetType, displayUsFormat, numberToBigintE8s } from '$lib';
-	import { isSelecting, sendAsset, user, toasts, state, isSending } from '$lib/stores';
+	import { AssetType, displayUsFormat, numberToBigintE8s, handleInput, Asset, E8S } from '$lib';
+	import { isSelecting, sendAsset, user, toasts, state, isSending, inputValue } from '$lib/stores';
 	import { Toast } from '$lib/toast';
 	import BigNumber from 'bignumber.js';
 	import { type Account, AccountIdentifier } from '@dfinity/ledger-icp';
@@ -15,9 +15,9 @@
 		TransferArgs,
 		TransferArg
 	} from '../../declarations/nns-ledger/nns-ledger.did';
+	import { fade } from 'svelte/transition';
 
 	let principal: string;
-	let sendAmount: BigNumber;
 
 	function getReceiver(input: string): Principal | AccountIdentifier | undefined {
 		try {
@@ -30,35 +30,37 @@
 					const accountId = AccountIdentifier.fromHex(input);
 					return accountId;
 				} catch (error) {
-					console.log(error);
+					toasts.add(Toast.error('Unable to identify user.'));
 					return undefined;
 				}
 			}
-			console.log(e);
 			return undefined;
 		}
 	}
 
 	function isValidAmount(amount: BigNumber): boolean {
 		if (amount && $user) {
-			return $user.getBalance($sendAsset.type).isGreaterThanOrEqualTo(amount);
+			return (
+				$user.getBalance($sendAsset.type).isGreaterThanOrEqualTo(amount) &&
+				amount.isGreaterThanOrEqualTo(BigNumber(1).dividedBy(E8S))
+			);
 		} else {
 			return true;
 		}
 	}
 
 	async function icrcTransfer(amount: BigNumber, input: string) {
-		if ($isSending) return;
+		if ($isSending || amount.isNaN() || !isValidAmount(amount) || !principal) return;
 
 		isSending.set(true);
-		if (amount && principal && isValidAmount(amount)) {
-			const amount_e8s = numberToBigintE8s(amount);
-			const receiver = getReceiver(input);
-			if (!receiver) {
-				isSending.set(false);
-				return;
-			}
+		const amount_e8s = numberToBigintE8s(amount);
+		const receiver = getReceiver(input);
+		if (!receiver) {
+			isSending.set(false);
+			return;
+		}
 
+		try {
 			let status: ConversionResult;
 			switch ($sendAsset.type) {
 				case AssetType.ICP:
@@ -75,7 +77,7 @@
 								created_at_time: [],
 								amount: amount_e8s
 							} as TransferArg);
-							status = handleIcrcTransferResult(transferResult);
+							status = handleIcrcTransferResult(transferResult, Asset.fromText('ICP'));
 						} else {
 							const transferResult = await $state.icpLedger.transfer({
 								to: receiver.toUint8Array(),
@@ -102,7 +104,7 @@
 							created_at_time: [],
 							amount: amount_e8s
 						} as TransferArg);
-						status = handleIcrcTransferResult(transferResult);
+						status = handleIcrcTransferResult(transferResult, Asset.fromText('nICP'));
 					}
 					break;
 				case AssetType.WTN:
@@ -118,7 +120,7 @@
 							created_at_time: [],
 							amount: amount_e8s
 						} as TransferArg);
-						status = handleIcrcTransferResult(transferResult);
+						status = handleIcrcTransferResult(transferResult, Asset.fromText('WTN'));
 					}
 					break;
 			}
@@ -130,27 +132,31 @@
 			}
 			isSelecting.set(false);
 			isSending.set(false);
+		} catch (error) {
+			toasts.add(Toast.error(`${error}`));
 		}
-		isSending.set(false);
 		isSelecting.set(false);
+		isSending.set(false);
+		inputValue.set('');
 	}
 </script>
 
-<div class="send-container">
+<div class="send-container" transition:fade={{ duration: 100 }}>
 	<div class="header-container">
 		<h2>Send {$sendAsset.intoStr()}</h2>
-		<img alt="ICP logo" src={$sendAsset.getUrl()} width="50px" height="50px" />
+		<img alt="ICP logo" src={$sendAsset.getIconPath()} width="50px" height="50px" />
 	</div>
 	{#if $user}
 		<div>
 			<p>Balance</p>
 			<div style:display={'flex'}>
 				<div class="balances">
-					<span>{displayUsFormat($user.getBalance($sendAsset.type), 8)} {$sendAsset.intoStr()}</span
+					<span style:margin-left={'1em'}
+						>{displayUsFormat($user.getBalance($sendAsset.type), 8)} {$sendAsset.intoStr()}</span
 					>
 					<img
 						alt="{$sendAsset.intoStr()} logo"
-						src={$sendAsset.getUrl()}
+						src={$sendAsset.getIconPath()}
 						width="20px"
 						height="20px"
 					/>
@@ -160,7 +166,7 @@
 	{/if}
 	<div>
 		<p>Destination</p>
-		<input placeholder="Address" bind:value={principal} />
+		<input type="text" placeholder="Address" bind:value={principal} />
 		{#if principal && !getReceiver(principal)}
 			<span class="error"> Please enter a valid address. </span>
 		{/if}
@@ -168,22 +174,33 @@
 	<div>
 		<p>Amount</p>
 		<div class="amount-input">
-			<input type="number" placeholder="Amount" bind:value={sendAmount} />
+			<input
+				type="text"
+				maxlength="20"
+				bind:value={$inputValue}
+				placeholder="Amount"
+				on:input={handleInput}
+			/>
 			<button
 				class="max-btn"
 				on:click={() => {
-					sendAmount =
+					const amount =
 						$user &&
 						$user.getBalance($sendAsset.type).isGreaterThanOrEqualTo($sendAsset.getTransferFee())
 							? $user.getBalance($sendAsset.type).minus($sendAsset.getTransferFee())
 							: BigNumber(0);
+
+					inputValue.change(amount.toNumber());
 				}}
 			>
 				MAX
 			</button>
 		</div>
-		{#if !isValidAmount(sendAmount)}
+		{#if BigNumber($inputValue).isGreaterThanOrEqualTo($user?.getBalance($sendAsset.type) ?? BigNumber(0))}
 			<span class="error"> Not enough treasury. </span>
+		{/if}
+		{#if BigNumber($inputValue).isLessThan(BigNumber(1).dividedBy(E8S))}
+			<span class="error">Minimum amount: 0.00000001</span>
 		{/if}
 	</div>
 	<div>
@@ -195,20 +212,21 @@
 	</div>
 	<div class="button-container">
 		{#if $isSending}
-			<button
-				class="toggle-btn"
-				on:click={() => {
-					icrcTransfer(sendAmount, principal);
-				}}
-			>
+			<button class="toggle-btn">
 				<div class="spinner"></div>
 			</button>
 		{:else}
-			<button class="toggle-btn" on:click={() => isSelecting.set(false)}>Cancel</button>
 			<button
 				class="toggle-btn"
 				on:click={() => {
-					icrcTransfer(sendAmount, principal);
+					isSelecting.set(false);
+					inputValue.set('');
+				}}>Cancel</button
+			>
+			<button
+				class="toggle-btn"
+				on:click={() => {
+					icrcTransfer(BigNumber($inputValue), principal);
 				}}
 			>
 				<span>Continue</span>
@@ -238,7 +256,6 @@
 
 	span {
 		font-family: var(--font-type2);
-		margin-left: 1em;
 		display: flex;
 		align-items: center;
 	}
