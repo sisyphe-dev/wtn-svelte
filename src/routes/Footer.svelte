@@ -5,7 +5,12 @@
 <footer class:filter={$isLogging || $isSelecting}>
 	<div class="central-container">
 		<img alt="WTN icon" src="/tokens/WTN.png" id="wtn-icon" />
-		<a class="item--1" href="https://oc.app/assets/spinner.svg" rel="noreferrer" target="_blank">
+		<a
+			class="item--1"
+			href="https://oc.app/community/3fudd-diaaa-aaaar-bgmca-cai/channel/154489341794150690442253978518193726806"
+			rel="noreferrer"
+			target="_blank"
+		>
 			<img alt="Open chat icon" src="/icon/openchat.svg" />
 		</a>
 		<a class="item--5" href="https://github.com/WaterNeuron" target="_blank" rel="noreferrer">
@@ -18,7 +23,7 @@
 		<a class="item--4" href="https://docs.waterneuron.fi/" rel="noreferrer" target="_blank">
 			<img alt="Git book icon" src="/icon/gitbook.svg" />
 		</a>
-		<a class="item--2" href="https://docs.waterneuron.fi/" rel="noreferrer" target="_blank">
+		<a class="item--2" href="https://t.me/waterneuron" rel="noreferrer" target="_blank">
 			<img alt="Telegram icon" src="/icon/telegram.svg" />
 		</a>
 		<p>WaterNeuron</p>

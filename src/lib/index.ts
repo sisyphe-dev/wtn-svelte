@@ -1,7 +1,8 @@
-import type { Principal } from '@dfinity/principal';
+import { Principal } from '@dfinity/principal';
 import BigNumber from 'bignumber.js';
 import type { NeuronId, WithdrawalStatus } from '../declarations/water_neuron/water_neuron.did';
 import { DEV } from './authentification';
+import { inputValue } from './stores';
 
 export const E8S = BigNumber(10).pow(BigNumber(8));
 
@@ -47,6 +48,17 @@ export class Asset {
 		this.type = asset;
 	}
 
+	static fromText(symbol: 'WTN' | 'nICP' | 'ICP'): Asset {
+		switch (symbol) {
+			case 'WTN':
+				return new Asset(AssetType.WTN);
+			case 'nICP':
+				return new Asset(AssetType.nICP);
+			case 'ICP':
+				return new Asset(AssetType.ICP);
+		}
+	}
+
 	intoStr(): string {
 		switch (this.type) {
 			case AssetType.ICP:
@@ -60,7 +72,7 @@ export class Asset {
 		}
 	}
 
-	getUrl(): string {
+	getIconPath(): string {
 		switch (this.type) {
 			case AssetType.ICP:
 				return '/tokens/icp.webp';
@@ -68,6 +80,17 @@ export class Asset {
 				return '/tokens/nicp.png';
 			case AssetType.WTN:
 				return '/tokens/WTN.png';
+		}
+	}
+
+	getDashboardUrl(): string {
+		switch (this.type) {
+			case AssetType.ICP:
+				return 'https://dashboard.internetcomputer.org/transactions/';
+			case AssetType.nICP:
+				return '/wallet';
+			case AssetType.WTN:
+				return 'https://dashboard.internetcomputer.org/sns/jmod6-4iaaa-aaaaq-aadkq-cai/transactions';
 		}
 	}
 
@@ -183,4 +206,17 @@ function displayTimeLeft(created_at: number) {
 	const hoursLeft = Math.floor((timeLeft - daysLeft * 60 * 60 * 24) / 60 / 60);
 
 	return `Dissolvement in ${daysLeft} days and ${hoursLeft} hours`;
+}
+
+export function handleInput(event: Event): void {
+	const target = event.target as HTMLInputElement;
+	const value = target.value;
+	const regex = /^[0-9]*([\.][0-9]*)?$/;
+
+	if (regex.test(value)) {
+		inputValue.set(value);
+	} else {
+		inputValue.set(value.substring(0, value.length - 1));
+		target.value = value.substring(0, value.length - 1);
+	}
 }

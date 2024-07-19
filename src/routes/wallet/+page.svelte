@@ -1,10 +1,12 @@
 <script lang="ts">
-	import Withdrawals from './Withdrawals.svelte';
-	import { AssetType, Asset } from '$lib';
-	import { user } from '$lib/stores';
-	import SendButton from './SendButton.svelte';
-	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
+	import { user, sendAsset } from '$lib/stores';
+
+	if (!$user || !$sendAsset) goto('/stake');
+
+	import Withdrawals from './Withdrawals.svelte';
+	import { Asset } from '$lib';
+	import SendButton from './SendButton.svelte';
 	import { scale } from 'svelte/transition';
 	import CopyIcon from '$lib/icons/CopyIcon.svelte';
 
@@ -24,12 +26,6 @@
 			}, 500);
 		}
 	}
-
-	onMount(() => {
-		if (!$user) {
-			goto('/stake');
-		}
-	});
 </script>
 
 <div class="wallet-menu-container">
@@ -52,7 +48,7 @@
 				{/if}
 			</button>
 		</div>
-		<SendButton asset={new Asset(AssetType.ICP)} />
+		<SendButton asset={Asset.fromText('ICP')} />
 	</div>
 	<div class="address-container">
 		<h2>Principal Address</h2>
@@ -72,8 +68,8 @@
 				{/if}
 			</button>
 		</div>
-		<SendButton asset={new Asset(AssetType.nICP)} />
-		<SendButton asset={new Asset(AssetType.WTN)} />
+		<SendButton asset={Asset.fromText('nICP')} />
+		<SendButton asset={Asset.fromText('WTN')} />
 	</div>
 </div>
 <Withdrawals />

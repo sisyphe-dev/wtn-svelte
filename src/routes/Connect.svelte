@@ -28,7 +28,6 @@
 			user.set(
 				new User({ principal: authResult.principal, icpBalanceE8s, nicpBalanceE8s, wtnBalanceE8s })
 			);
-
 		} catch (error) {
 			console.error('Login failed:', error);
 		}

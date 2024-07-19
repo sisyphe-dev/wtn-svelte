@@ -24,7 +24,7 @@
 			{displayUsFormat($user ? $user.getBalance(asset.type) : BigNumber(0), 8)}
 			{asset.intoStr()}
 		</p>
-		<img alt="{asset.intoStr()} logo" src={asset.getUrl()} width="30px" height="30px" />
+		<img alt="{asset.intoStr()} logo" src={asset.getIconPath()} width="30px" height="30px" />
 	</div>
 	<button
 		class="swap-btn"

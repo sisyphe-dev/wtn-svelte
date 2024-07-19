@@ -1,24 +1,30 @@
 <script lang="ts">
-	import { Asset } from '$lib';
+	import { Asset, handleInput } from '$lib';
 	import { inputValue, user } from '$lib/stores';
 
 	export let asset: Asset;
 </script>
 
 <div class="input-container">
-	<input type="number" bind:value={$inputValue} placeholder="Amount" />
+	<input
+		type="text"
+		maxlength="20"
+		bind:value={$inputValue}
+		placeholder="Amount"
+		on:input={handleInput}
+	/>
 	<button
 		class="max-btn"
 		on:click={() => {
 			const maxAmount = $user?.getBalance(asset.type).minus(asset.getTransferFee()).toNumber() ?? 0;
-			inputValue.set(maxAmount && maxAmount >= 0 ? maxAmount : 0);
+			inputValue.change(maxAmount && maxAmount >= 0 ? maxAmount : 0);
 		}}
 	>
 		<div class="max-btn-items">
 			<h2>{asset.intoStr()}</h2>
 			<span>Max</span>
 		</div>
-		<img class="asset-logo" src={asset.getUrl()} alt="ICP Icon" />
+		<img class="asset-logo" src={asset.getIconPath()} alt="ICP Icon" />
 	</button>
 </div>
 

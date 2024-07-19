@@ -12,7 +12,22 @@ export const menu = writable<boolean>(false);
 
 export const language = writable<string>('en');
 export const sendAsset = writable<Asset>(new Asset(AssetType.ICP));
-export const inputValue = writable<number>();
+
+function createInputValue() {
+	const { subscribe, set } = writable<string>();
+
+	return {
+		subscribe,
+		change: (value: number) => {
+			const input = value.toString().replace(',', '.');
+			set(input);
+		},
+		set: (value: string) => set(value),
+		reset: () => set('')
+	};
+}
+
+export const inputValue = createInputValue();
 
 export const user = writable<User | undefined>(undefined);
 export const state = writable<State>();

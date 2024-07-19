@@ -116,14 +116,12 @@ export async function plugSignIn(): Promise<AuthResult> {
 					console.log(window.ic.plug.sessionManager.sessionData);
 				};
 
-				const result = await window.ic.plug.requestConnect({
+				await window.ic.plug.requestConnect({
 					whitelist,
 					host: HOST,
 					onConnectionUpdate,
 					timeout: 50000
 				});
-
-				console.log(result);
 			}
 
 			const principal: Principal = await window.ic.plug.getPrincipal();

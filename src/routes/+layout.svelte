@@ -15,12 +15,9 @@
 	const fetchUser = async () => {
 		try {
 			const authClient = await AuthClient.create();
-			if (!await authClient.isAuthenticated()) return;
-			
-			
+			if (!(await authClient.isAuthenticated())) return;
+
 			const authResult = await internetIdentitySignIn();
-			
-			
 
 			$state.wtnLedger = authResult.actors.wtnLedger;
 			$state.icpLedger = authResult.actors.icpLedger;
@@ -118,25 +115,36 @@
 		background: radial-gradient(farthest-corner circle at 0% 0%, rgb(18 69 89), #0f0f4d);
 	}
 
+	.page-container::-webkit-scrollbar {
+		width: 12px; /* Width of the scrollbar */
+		background: radial-gradient(
+			farthest-corner circle at 0% 0%,
+			rgb(18, 69, 89),
+			#0f0f4d
+		); /* Match the background gradient */
+	}
 
-.page-container::-webkit-scrollbar {
-    width: 12px; /* Width of the scrollbar */
-    background: radial-gradient(farthest-corner circle at 0% 0%, rgb(18, 69, 89), #0f0f4d); /* Match the background gradient */
-}
+	.page-container::-webkit-scrollbar-track {
+		background: radial-gradient(
+			farthest-corner circle at 0% 0%,
+			rgb(18, 69, 89),
+			#0f0f4d
+		); /* Match the background gradient */
+	}
 
-.page-container::-webkit-scrollbar-track {
-    background: radial-gradient(farthest-corner circle at 0% 0%, rgb(18, 69, 89), #0f0f4d); /* Match the background gradient */
-}
+	.page-container::-webkit-scrollbar-thumb {
+		background-color: rgba(255, 255, 255, 0.5); /* Thumb color with transparency */
+		border-radius: 6px; /* Rounded corners for the thumb */
+		background-clip: padding-box;
+	}
 
-.page-container::-webkit-scrollbar-thumb {
-    background-color: rgba(255, 255, 255, 0.5); /* Thumb color with transparency */
-    border-radius: 6px; /* Rounded corners for the thumb */
-    background-clip: padding-box;
-}
-
-.page-container::-webkit-scrollbar-corner {
-    background: radial-gradient(farthest-corner circle at 0% 0%, rgb(18, 69, 89), #0f0f4d); /* Match the background gradient */
-}
+	.page-container::-webkit-scrollbar-corner {
+		background: radial-gradient(
+			farthest-corner circle at 0% 0%,
+			rgb(18, 69, 89),
+			#0f0f4d
+		); /* Match the background gradient */
+	}
 
 	.content-container {
 		display: flex;

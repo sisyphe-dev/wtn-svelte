@@ -21,16 +21,16 @@
 
 	function computeReceiveAmount(
 		stake: boolean,
-		inputValue: BigNumber,
+		value: BigNumber,
 		exchangeRate: BigNumber
 	): BigNumber {
-		if (inputValue.isNaN()) return BigNumber(0);
+		if (value.isNaN()) return BigNumber(0);
 
 		if (exchangeRate) {
 			if (stake) {
-				return inputValue.multipliedBy(exchangeRate);
+				return value.multipliedBy(exchangeRate);
 			} else {
-				return inputValue.dividedBy(exchangeRate);
+				return value.dividedBy(exchangeRate);
 			}
 		} else {
 			return BigNumber(0);
@@ -83,7 +83,6 @@
 					} as Account,
 					$state.icpLedger
 				);
-				console.log(approval);
 				if (!approval.granted) {
 					toasts.add(Toast.error(approval.message ?? 'Unknown Error.'));
 				} else {
@@ -91,7 +90,6 @@
 						maybe_subaccount: [],
 						amount_e8s: amountE8s
 					} as ConversionArg);
-					console.log(conversionResult);
 					let status = handleStakeResult(conversionResult);
 					if (status.success) {
 						toasts.add(Toast.success(status.message));
@@ -133,20 +131,26 @@
 		<button
 			class="header-btn"
 			style:text-align="start"
-			on:click={() => (stake = true)}
+			on:click={() => {
+				stake = true;
+				inputValue.set('');
+			}}
 			class:selected={stake}
 			class:not-selected={!stake}>Stake ICP</button
 		>
 		<button
 			class="header-btn"
 			style:text-align="end"
-			on:click={() => (stake = false)}
+			on:click={() => {
+				stake = false;
+				inputValue.set('');
+			}}
 			class:selected={!stake}
 			class:not-selected={stake}>Unstake nICP</button
 		>
 	</div>
 	<div class="swap-container">
-		<SwapInput asset={stake ? new Asset(AssetType.ICP) : new Asset(AssetType.nICP)} />
+		<SwapInput asset={stake ? Asset.fromText('ICP') : Asset.fromText('nICP')} />
 		<div class="paragraphs">
 			{#if stake}
 				<p style:color="#fa796e">
