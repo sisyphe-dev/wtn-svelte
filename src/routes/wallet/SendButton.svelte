@@ -3,6 +3,7 @@
 	import { user, sendAsset, isSelecting, state } from '$lib/stores';
 	import BigNumber from 'bignumber.js';
 	import { onMount } from 'svelte';
+	import { fade } from 'svelte/transition';
 
 	export let asset;
 	let wtnAllocation: BigNumber;
@@ -18,7 +19,7 @@
 	});
 </script>
 
-<div class="token-balance-container">
+<div class="token-balance-container" in:fade={{ duration: 500 }}>
 	<div class="balance">
 		<p>
 			{displayUsFormat($user ? $user.getBalance(asset.type) : BigNumber(0), 8)}

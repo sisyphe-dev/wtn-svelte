@@ -3,6 +3,7 @@
 	import { displayUsFormat } from '$lib';
 	import BigNumber from 'bignumber.js';
 	import { onMount, afterUpdate } from 'svelte';
+	import { fade } from 'svelte/transition';
 
 	let totalIcpDeposited: BigNumber;
 	let apy: BigNumber;
@@ -30,7 +31,7 @@
 	});
 </script>
 
-<div class="stat-widget-container">
+<div class="stat-widget-container" in:fade={{ duration: 500 }}>
 	<div class="stat-item">
 		<b>Total Staked</b>
 		<b>

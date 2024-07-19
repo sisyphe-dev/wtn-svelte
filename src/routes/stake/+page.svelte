@@ -2,6 +2,7 @@
 	import { language } from '$lib/stores';
 	import StatsWidget from './StatsWidget.svelte';
 	import Swap from './Swap.svelte';
+	import { fade, slide } from 'svelte/transition';
 
 	export let data;
 
@@ -19,6 +20,7 @@
 				return [];
 		}
 	}
+
 	let toggledMap = getContent($language).map(() => {
 		return false;
 	});
@@ -26,31 +28,33 @@
 
 <StatsWidget />
 <Swap />
-<div class="faq">
-	<h1>FAQ</h1>
-	{#each getContent($language) as section, i}
-		<button
-			class="faq-btn"
-			on:click={() => {
-				toggledMap[i] = !toggledMap[i];
-			}}
-		>
-			<h2>{section.title}</h2>
-			<img
-				width="20em"
-				height="20em"
-				src="/icon/down-arrow.svg"
-				alt="Down arrow."
-				class:arrow-down={!toggledMap[i]}
-				class:arrow-up={toggledMap[i]}
-			/>
-		</button>
+{#key $language}
+	<div class="faq" in:fade={{ duration: 500 }}>
+		<h1>FAQ</h1>
+		{#each getContent($language) as section, i}
+			<button
+				class="faq-btn"
+				on:click={() => {
+					toggledMap[i] = !toggledMap[i];
+				}}
+			>
+				<h2>{section.title}</h2>
+				<img
+					width="20em"
+					height="20em"
+					src="/icon/down-arrow.svg"
+					alt="Down arrow."
+					class:arrow-down={!toggledMap[i]}
+					class:arrow-up={toggledMap[i]}
+				/>
+			</button>
 
-		{#if toggledMap[i]}
-			<p>{section.content}</p>
-		{/if}
-	{/each}
-</div>
+			{#if toggledMap[i]}
+				<p transition:slide>{section.content}</p>
+			{/if}
+		{/each}
+	</div>
+{/key}
 <div class="lang-selection">
 	<button
 		on:click={() => language.set('en')}

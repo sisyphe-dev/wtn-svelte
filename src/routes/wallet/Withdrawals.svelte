@@ -6,11 +6,16 @@
 		WithdrawalDetails,
 		NeuronId
 	} from '../../declarations/water_neuron/water_neuron.did';
+	import { fade } from 'svelte/transition';
 
 	let withdrawalRequests: WithdrawalDetails[];
-	function displayNeuronId(neuronId: [] | [NeuronId]): string {
+
+	function displayNeuronId(neuronId: [] | [NeuronId], truncate = true): string {
 		if (neuronId.length == 0) {
 			return 'Not Set';
+		} else if (truncate) {
+			const id = neuronId[0].id.toString();
+			return id.substring(0, 4) + '...' + id.substring(id.length - 5, id.length - 1);
 		} else {
 			return neuronId[0].id.toString();
 		}
@@ -33,45 +38,71 @@
 
 		return () => clearInterval(intervalId);
 	});
+
+	const userAgent = navigator.userAgent;
+	const isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
 </script>
 
 {#if withdrawalRequests && withdrawalRequests.length >= 1}
-	<div class="withdrawals-container">
+	<div class="withdrawals-container" in:fade={{ duration: 500 }}>
 		<h1>Withdrawal Requests</h1>
 		<table>
 			<thead>
-				<tr>
-					<th>nICP Burned</th>
-					<th>ICP Due</th>
-					<th>Neuron Id</th>
-					<th>Status</th>
-					<th>Id</th>
-				</tr>
+				{#if isMobile}
+					<tr>
+						<th>ICP Due</th>
+						<th>Neuron Id</th>
+					</tr>
+				{:else}
+					<tr>
+						<th>nICP Burned</th>
+						<th>ICP Due</th>
+						<th>Neuron Id</th>
+						<th>Status</th>
+						<th>Id</th>
+					</tr>
+				{/if}
 			</thead>
 			<tbody>
 				{#each withdrawalRequests as details}
-					<tr>
-						<td>{displayUsFormat(bigintE8sToNumber(details.request.nicp_burned))}</td>
-						<td>{displayUsFormat(bigintE8sToNumber(details.request.icp_due))}</td>
-						<td>
-							<a
-								target="_blank"
-								rel="noreferrer"
-								href={'https://dashboard.internetcomputer.org/neuron/' +
-									displayNeuronId(details.request.neuron_id)}
-							>
-								{displayNeuronId(details.request.neuron_id)}
-							</a>
-						</td>
-						<td
-							>{#await renderStatus(details.status)}
-								...
-							{:then status}
-								{@html status}
-							{/await}
-						</td>
-						<td>{details.request.withdrawal_id}</td>
-					</tr>
+					{#if isMobile}
+						<tr>
+							<td>{displayUsFormat(bigintE8sToNumber(details.request.icp_due))}</td>
+							<td>
+								<a
+									target="_blank"
+									rel="noreferrer"
+									href={'https://dashboard.internetcomputer.org/neuron/' +
+										displayNeuronId(details.request.neuron_id, false)}
+								>
+									{displayNeuronId(details.request.neuron_id)}
+								</a>
+							</td>
+						</tr>
+					{:else}
+						<tr>
+							<td>{displayUsFormat(bigintE8sToNumber(details.request.nicp_burned))}</td>
+							<td>{displayUsFormat(bigintE8sToNumber(details.request.icp_due))}</td>
+							<td>
+								<a
+									target="_blank"
+									rel="noreferrer"
+									href={'https://dashboard.internetcomputer.org/neuron/' +
+										displayNeuronId(details.request.neuron_id, false)}
+								>
+									{displayNeuronId(details.request.neuron_id)}
+								</a>
+							</td>
+							<td
+								>{#await renderStatus(details.status)}
+									...
+								{:then status}
+									{@html status}
+								{/await}
+							</td>
+							<td>{details.request.withdrawal_id}</td>
+						</tr>
+					{/if}
 				{/each}
 			</tbody>
 		</table>
@@ -89,8 +120,7 @@
 		display: flex;
 		flex-direction: column;
 		width: 40em;
-		max-width: 95vw;
-		overflow: auto;
+		max-width: 97vw;
 	}
 
 	/* === Base Styles ==== */

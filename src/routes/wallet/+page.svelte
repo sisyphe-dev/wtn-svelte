@@ -9,6 +9,7 @@
 	import SendButton from './SendButton.svelte';
 	import { scale } from 'svelte/transition';
 	import CopyIcon from '$lib/icons/CopyIcon.svelte';
+	import { fade } from 'svelte/transition';
 
 	let isAnimating = false;
 	let circleVisible = false;
@@ -28,7 +29,7 @@
 	}
 </script>
 
-<div class="wallet-menu-container">
+<div class="wallet-menu-container" in:fade={{ duration: 500 }}>
 	<h1>Wallet</h1>
 	<div class="address-container">
 		<h2>ICP Account Id</h2>

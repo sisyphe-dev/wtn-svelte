@@ -3,6 +3,7 @@
 	import { internetIdentitySignIn, plugSignIn } from '$lib/authentification';
 	import { User } from '$lib/state';
 	import type { Account } from '@dfinity/ledger-icp';
+	import { fade } from 'svelte/transition';
 
 	async function internetIdentityConnection() {
 		if ($isBusy) return;
@@ -69,11 +70,10 @@
 	}
 
 	const userAgent = navigator.userAgent;
-
 	const isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
 </script>
 
-<div class="cards-container">
+<div class="cards-container" in:fade={{ duration: 500 }}>
 	{#if $isBusy}
 		<button class="login-btn">
 			<div class="spinner"></div>

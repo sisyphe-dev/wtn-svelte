@@ -149,36 +149,34 @@ export function computeRewards(alreadyDistributed: BigNumber, converting: BigNum
 }
 
 export async function renderStatus(status: WithdrawalStatus): Promise<string> {
-	if ('ConversionDone' in status) {
-		return `<p>
+	const key = Object.keys(status)[0] as keyof WithdrawalStatus;
+	switch (key) {
+		case 'ConversionDone':
+			return `<p>
 	  Conversion done at{" "}
 	  <a
 		target="_blank"
 		rel="noreferrer"
-		href={
-		  ${
-				'https://dashboard.internetcomputer.org/transaction/' +
-				status.ConversionDone.transfer_block_height
-			}
-		}
+		href={https://dashboard.internetcomputer.org/transaction/${status[key]['transfer_block_height']}}
 	  >
-		${'height ' + status.ConversionDone.transfer_block_height}
+		Height ${status[key]['transfer_block_height']}
 	  </a>
 	</p>`;
-	} else if ('NotFound' in status) {
-		return 'Not Found';
-	} else if ('WaitingToSplitNeuron' in status) {
-		return 'Waiting to Split Neuron';
-	} else if ('WaitingDissolvement' in status) {
-		if (status.WaitingDissolvement.neuron_id.id) {
-			return displayStatus(status.WaitingDissolvement.neuron_id);
-		} else {
-			return 'Waiting dissolvement';
-		}
-	} else if ('WaitingToStartDissolving' in status) {
-		return `Waiting to Start Dissolving (Neuron ID: ${status.WaitingToStartDissolving.neuron_id.id})`;
+		case 'NotFound':
+			return 'Withdrawal status not found.';
+		case 'WaitingToSplitNeuron':
+			return 'Waiting to Split Neuron';
+		case 'WaitingDissolvement':
+			if (status[key]['neuron_id']['id']) {
+				return displayStatus(status[key]['neuron_id']);
+			} else {
+				return 'Waiting dissolvement';
+			}
+		case 'WaitingToStartDissolving':
+			return `Waiting to Start Dissolving (Neuron ID: ${status[key]['neuron_id']['id']})`;
+		default:
+			return 'Unknown Status';
 	}
-	return 'Unknown Status';
 }
 
 export async function displayStatus(neuron_id: NeuronId): Promise<string> {

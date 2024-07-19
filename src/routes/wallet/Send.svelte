@@ -15,6 +15,7 @@
 		TransferArgs,
 		TransferArg
 	} from '../../declarations/nns-ledger/nns-ledger.did';
+	import { fade } from 'svelte/transition';
 
 	let principal: string;
 
@@ -41,7 +42,7 @@
 		if (amount && $user) {
 			return (
 				$user.getBalance($sendAsset.type).isGreaterThanOrEqualTo(amount) &&
-				amount.isGreaterThanOrEqualTo(BigNumber(1).dividedBy(E8S)) 
+				amount.isGreaterThanOrEqualTo(BigNumber(1).dividedBy(E8S))
 			);
 		} else {
 			return true;
@@ -140,7 +141,7 @@
 	}
 </script>
 
-<div class="send-container">
+<div class="send-container" transition:fade={{ duration: 100 }}>
 	<div class="header-container">
 		<h2>Send {$sendAsset.intoStr()}</h2>
 		<img alt="ICP logo" src={$sendAsset.getIconPath()} width="50px" height="50px" />
@@ -195,7 +196,7 @@
 				MAX
 			</button>
 		</div>
-		{#if BigNumber($inputValue).isGreaterThanOrEqualTo($user?.getBalance($sendAsset.type)??BigNumber(0))}
+		{#if BigNumber($inputValue).isGreaterThanOrEqualTo($user?.getBalance($sendAsset.type) ?? BigNumber(0))}
 			<span class="error"> Not enough treasury. </span>
 		{/if}
 		{#if BigNumber($inputValue).isLessThan(BigNumber(1).dividedBy(E8S))}

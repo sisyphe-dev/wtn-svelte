@@ -77,7 +77,7 @@
 
 	.background-menu {
 		height: 100vh;
-		width: 100%;
+		width: 100vw;
 		background: radial-gradient(farthest-corner circle at 0% 0%, rgb(18 69 89), #0f0f4d);
 		z-index: 1;
 	}

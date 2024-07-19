@@ -10,7 +10,7 @@ export const isSelecting = writable<boolean>(false);
 export const isSending = writable<boolean>(false);
 export const menu = writable<boolean>(false);
 
-export const language = writable<string>('en');
+export const language = writable<'en' | 'es' | 'ja' | 'ru'>('en');
 export const sendAsset = writable<Asset>(new Asset(AssetType.ICP));
 
 function createInputValue() {

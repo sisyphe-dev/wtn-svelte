@@ -1,11 +1,12 @@
 <script lang="ts">
 	import { Asset, handleInput } from '$lib';
 	import { inputValue, user } from '$lib/stores';
+	import { fade } from 'svelte/transition';
 
 	export let asset: Asset;
 </script>
 
-<div class="input-container">
+<div class="input-container" in:fade={{ duration: 500 }}>
 	<input
 		type="text"
 		maxlength="20"

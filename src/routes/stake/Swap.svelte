@@ -13,6 +13,7 @@
 	import type { ConversionArg } from '../../declarations/water_neuron/water_neuron.did';
 	import type { Account } from '@dfinity/ledger-icp';
 	import { onMount, afterUpdate } from 'svelte';
+	import { fade } from 'svelte/transition';
 
 	let stake = true;
 	let exchangeRate: BigNumber;
@@ -126,116 +127,118 @@
 	});
 </script>
 
-<div class="main-container">
-	<div class="header-container">
-		<button
-			class="header-btn"
-			style:text-align="start"
-			on:click={() => {
-				stake = true;
-				inputValue.set('');
-			}}
-			class:selected={stake}
-			class:not-selected={!stake}>Stake ICP</button
-		>
-		<button
-			class="header-btn"
-			style:text-align="end"
-			on:click={() => {
-				stake = false;
-				inputValue.set('');
-			}}
-			class:selected={!stake}
-			class:not-selected={stake}>Unstake nICP</button
-		>
-	</div>
-	<div class="swap-container">
-		<SwapInput asset={stake ? Asset.fromText('ICP') : Asset.fromText('nICP')} />
-		<div class="paragraphs">
-			{#if stake}
-				<p style:color="#fa796e">
-					{#if exchangeRate}
-						You will receive {displayUsFormat(
-							computeReceiveAmount(stake, BigNumber($inputValue), exchangeRate),
-							8
-						)} nICP
-					{:else}
-						...
-					{/if}
-				</p>
-				<p>
-					{#if exchangeRate}
-						1 ICP = {displayUsFormat(exchangeRate)} nICP
-					{:else}
-						...
-					{/if}
-				</p>
-				<div class="reward">
-					<p style:margin-right={'2.5em'}>
-						Future WTN Airdrop:
-						{#if exchangeRate && totalIcpDeposited}
-							{displayUsFormat(
-								computeRewards(
-									totalIcpDeposited,
-									computeReceiveAmount(stake, BigNumber($inputValue), exchangeRate)
-								),
+<div class="main-container" in:fade={{ duration: 500 }}>
+	{#key stake}
+		<div class="header-container">
+			<button
+				class="header-btn"
+				style:text-align="start"
+				on:click={() => {
+					stake = true;
+					inputValue.set('');
+				}}
+				class:selected={stake}
+				class:not-selected={!stake}>Stake ICP</button
+			>
+			<button
+				class="header-btn"
+				style:text-align="end"
+				on:click={() => {
+					stake = false;
+					inputValue.set('');
+				}}
+				class:selected={!stake}
+				class:not-selected={stake}>Unstake nICP</button
+			>
+		</div>
+		<div class="swap-container">
+			<SwapInput asset={stake ? Asset.fromText('ICP') : Asset.fromText('nICP')} />
+			<div class="paragraphs" in:fade={{ duration: 500 }}>
+				{#if stake}
+					<p style:color="#fa796e">
+						{#if exchangeRate}
+							You will receive {displayUsFormat(
+								computeReceiveAmount(stake, BigNumber($inputValue), exchangeRate),
 								8
-							)}
+							)} nICP
 						{:else}
 							...
 						{/if}
 					</p>
-					<img src="/tokens/WTN.png" width="30em" height="30em" alt="WTN logo" />
-				</div>
+					<p>
+						{#if exchangeRate}
+							1 ICP = {displayUsFormat(exchangeRate)} nICP
+						{:else}
+							...
+						{/if}
+					</p>
+					<div class="reward">
+						<p style:margin-right={'2.5em'}>
+							Future WTN Airdrop:
+							{#if exchangeRate && totalIcpDeposited}
+								{displayUsFormat(
+									computeRewards(
+										totalIcpDeposited,
+										computeReceiveAmount(stake, BigNumber($inputValue), exchangeRate)
+									),
+									8
+								)}
+							{:else}
+								...
+							{/if}
+						</p>
+						<img src="/tokens/WTN.png" width="30em" height="30em" alt="WTN logo" />
+					</div>
+				{:else}
+					<p style:color="#fa796e">
+						{#if exchangeRate}
+							You will receive {displayUsFormat(
+								computeReceiveAmount(stake, BigNumber($inputValue), exchangeRate),
+								8
+							)} ICP
+						{:else}
+							...
+						{/if}
+					</p>
+					<p>
+						{#if exchangeRate}
+							1 nICP = {displayUsFormat(BigNumber(1).dividedBy(exchangeRate))} ICP
+						{:else}
+							...
+						{/if}
+					</p>
+					<p>Waiting Time: 6 months</p>
+					<p>
+						{#if minimumWithdraw}
+							Minimum Withdrawal: {minimumWithdraw} nICP
+						{:else}
+							...
+						{/if}
+					</p>
+				{/if}
+			</div>
+			{#if !$user}
+				<button
+					class="swap-btn"
+					on:click={() => {
+						isLogging.update(() => true);
+					}}
+				>
+					<span>Connect your wallet</span>
+				</button>
 			{:else}
-				<p style:color="#fa796e">
-					{#if exchangeRate}
-						You will receive {displayUsFormat(
-							computeReceiveAmount(stake, BigNumber($inputValue), exchangeRate),
-							8
-						)} ICP
+				<button class="swap-btn" on:click={() => convert(BigNumber($inputValue), stake)}>
+					{#if $isConverting}
+						<div class="spinner"></div>
+					{:else if stake}
+						<span>Stake</span>
 					{:else}
-						...
+						<span>Unstake</span>
 					{/if}
-				</p>
-				<p>
-					{#if exchangeRate}
-						1 nICP = {displayUsFormat(BigNumber(1).dividedBy(exchangeRate))} ICP
-					{:else}
-						...
-					{/if}
-				</p>
-				<p>Waiting Time: 6 months</p>
-				<p>
-					{#if minimumWithdraw}
-						Minimum Withdrawal: {minimumWithdraw} nICP
-					{:else}
-						...
-					{/if}
-				</p>
+				</button>
 			{/if}
 		</div>
-		{#if !$user}
-			<button
-				class="swap-btn"
-				on:click={() => {
-					isLogging.update(() => true);
-				}}
-			>
-				<span>Connect your wallet</span>
-			</button>
-		{:else}
-			<button class="swap-btn" on:click={() => convert(BigNumber($inputValue), stake)}>
-				{#if $isConverting}
-					<div class="spinner"></div>
-				{:else if stake}
-					<span>Stake</span>
-				{:else}
-					<span>Unstake</span>
-				{/if}
-			</button>
-		{/if}
-	</div>
+	{/key}
 </div>
 
 <style>
