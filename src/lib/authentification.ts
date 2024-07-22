@@ -49,13 +49,14 @@ export async function internetIdentitySignIn(): Promise<AuthResult> {
 			if (!(await authClient.isAuthenticated())) {
 				const identityProvider = import.meta.env.DEV
 					? `http://127.0.1:8080/?canisterId=${INTERNET_IDENTITY_CANISTER_ID}`
-					: `https://identity.${'internetcomputer.org'}`;
+					: `https://identity.${'ic0.app'}`;
 
 				const authClient = await AuthClient.create();
 
 				await authClient.login({
 					maxTimeToLive: AUTH_MAX_TIME_TO_LIVE,
-					allowPinAuthentication: false,
+					allowPinAuthentication: true,
+					derivationOrigin: 'https://n3i53-gyaaa-aaaam-acfaq-cai.icp0.io',
 					onSuccess: async () => {
 						const identity: Identity = authClient?.getIdentity();
 						const agent = new HttpAgent({
@@ -173,8 +174,8 @@ export function fetchActors(agent?: HttpAgent): Promise<Actors> {
 					host: HOST
 				});
 			}
-
 			if (process.env.DFX_NETWORK !== 'ic') {
+				
 				agent.fetchRootKey().catch((err) => {
 					console.warn(
 						'Unable to fetch root key. Check to ensure that your local replica is running'

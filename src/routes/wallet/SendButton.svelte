@@ -9,7 +9,7 @@
 	let wtnAllocation: BigNumber;
 
 	const fetchAllocation = async () => {
-		wtnAllocation = await $state.wtnAllocation();
+		if ($state) wtnAllocation = await $state.wtnAllocation();
 	};
 	onMount(() => {
 		fetchAllocation();

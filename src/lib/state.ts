@@ -64,6 +64,41 @@ const DAO_SHARE = BigNumber(0.1);
 const APY_6M = BigNumber(0.08);
 const APY_8Y = BigNumber(0.15);
 
+// /////////
+
+// import { writable, type Readable } from 'svelte/store';
+
+// interface Actors {
+// 	icpLedger: icpLedgerInterface;
+// 	wtnLedger: wtnLedgerInterface;
+// }
+
+// export type ActorsData = Actors | undefined | null;
+
+// export interface ActorsStore extends Readable<ActorsData> {
+// 	set: (actors: Actors) => void;
+// }
+
+// const initActorsStore = (): ActorsStore => {
+// 	const { subscribe, set: setStore } = writable<ActorsData>(undefined);
+
+// 	return {
+// 		subscribe,
+
+// 		set(actors) {
+// 			setStore(actors);
+// 		}
+// 	};
+// };
+
+// export const actorsStore = initActorsStore();
+
+// // $actorsStore.icpLedger
+// // $icpLedger
+
+// ///////
+
+
 export class State {
 	public neuron8yStakeE8s: bigint;
 	public neuron6mStakeE8s: bigint;
@@ -133,39 +168,3 @@ export async function provideState(): Promise<State> {
 	let actors = await fetchActors();
 	return new State(actors);
 }
-
-
-export async function fetchUser() {
-	if (state)
-		try {
-			const authClient = await AuthClient.create();
-			if (!(await authClient.isAuthenticated())) return;
-
-			const authResult = await internetIdentitySignIn();
-
-			return authResult
-			$state.wtnLedger = authResult.actors.wtnLedger;
-			$state.icpLedger = authResult.actors.icpLedger;
-			$state.nicpLedger = authResult.actors.nicpLedger;
-			$state.waterNeuron = authResult.actors.waterNeuron;
-
-			const user_account: Account = {
-				owner: authResult.principal,
-				subaccount: []
-			};
-			const nicpBalanceE8s = await $state.nicpLedger.icrc1_balance_of(user_account);
-			const wtnBalanceE8s = await $state.wtnLedger.icrc1_balance_of(user_account);
-			const icpBalanceE8s = await $state.icpLedger.icrc1_balance_of(user_account);
-
-			user.set(
-				new User({
-					principal: authResult.principal,
-					icpBalanceE8s,
-					nicpBalanceE8s,
-					wtnBalanceE8s
-				})
-			);
-		} catch (error) {
-			console.error('Login failed:', error);
-		}
-};

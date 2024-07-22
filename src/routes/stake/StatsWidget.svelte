@@ -10,13 +10,14 @@
 	let stakersCount: Number;
 
 	const fetchData = async () => {
-		try {
-			totalIcpDeposited = $state.totalIcpDeposited();
-			apy = $state.apy();
-			stakersCount = $state.stakersCount();
-		} catch (error) {
-			console.error('Error fetching data:', error);
-		}
+		if ($state)
+			try {
+				totalIcpDeposited = $state.totalIcpDeposited();
+				apy = $state.apy();
+				stakersCount = $state.stakersCount();
+			} catch (error) {
+				console.error('Error fetching data:', error);
+			}
 	};
 
 	afterUpdate(() => {

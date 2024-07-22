@@ -22,7 +22,7 @@
 	}
 
 	const fetchWithdrawals = async () => {
-		if ($user) {
+		if ($user && $state) {
 			withdrawalRequests = await $state.waterNeuron.get_withdrawal_requests([$user.principal]);
 		}
 	};

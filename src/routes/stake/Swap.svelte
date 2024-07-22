@@ -39,7 +39,7 @@
 	}
 
 	export async function convert(amount: BigNumber, stake: boolean) {
-		if (!($user && !$isConverting)) return;
+		if (!($user && !$isConverting) || !$state) return;
 
 		isConverting.set(true);
 		if (!stake) {
@@ -106,13 +106,14 @@
 	}
 
 	const fetchData = async () => {
-		try {
-			exchangeRate = $state.exchangeRate();
-			totalIcpDeposited = $state.totalIcpDeposited();
-			minimumWithdraw = BigNumber(10).multipliedBy(exchangeRate);
-		} catch (error) {
-			console.error('Error fetching data:', error);
-		}
+		if ($state)
+			try {
+				exchangeRate = $state.exchangeRate();
+				totalIcpDeposited = $state.totalIcpDeposited();
+				minimumWithdraw = BigNumber(10).multipliedBy(exchangeRate);
+			} catch (error) {
+				console.error('Error fetching data:', error);
+			}
 	};
 
 	afterUpdate(() => {

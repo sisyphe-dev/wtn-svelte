@@ -67,6 +67,16 @@
 
 		return () => clearInterval(intervalId);
 	});
+
+	// const loadBalances = async () => {
+	// 	if ($actorsStore !== null || $actorsStore !== null ) {
+	// 		return;
+	// 	}
+
+	// 	// await fetchBalance()
+	// } 
+
+	// $: $actorsStore, (async () => loadBalances($actorsStore))()
 </script>
 
 {#if $isLogging}
