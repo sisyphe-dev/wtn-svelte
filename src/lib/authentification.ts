@@ -21,7 +21,7 @@ const INTERNET_IDENTITY_CANISTER_ID = DEV
 	? 'qhbym-qaaaa-aaaaa-aaafq-cai'
 	: 'rdmx6-jaaaa-aaaaa-aaadq-cai';
 
-export const HOST = DEV ? 'http://127.0.1:8080' : 'https://ic0.app';
+export const HOST = DEV ? 'http://127.0.1:8080' : 'https://identity.ic0.app';
 
 const CANISTER_ID_WTN_LEDGER = 'jcmow-hyaaa-aaaaq-aadlq-cai';
 const CANISTER_ID_ICP_LEDGER = 'ryjl3-tyaaa-aaaaa-aaaba-cai';
