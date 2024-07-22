@@ -135,36 +135,15 @@ export async function provideState(): Promise<State> {
 }
 
 
-export async function fetchUser() {
-	if (state)
+export async function signIn(via: 'internetIdentity' | 'plug') {
 		try {
-			const authClient = await AuthClient.create();
-			if (!(await authClient.isAuthenticated())) return;
-
-			const authResult = await internetIdentitySignIn();
-
+			let authResult;
+			if (via === 'internetIdentity') {
+				authResult = await internetIdentitySignIn();
+			} else {
+				authResult = await plugSignIn();
+			}
 			return authResult
-			$state.wtnLedger = authResult.actors.wtnLedger;
-			$state.icpLedger = authResult.actors.icpLedger;
-			$state.nicpLedger = authResult.actors.nicpLedger;
-			$state.waterNeuron = authResult.actors.waterNeuron;
-
-			const user_account: Account = {
-				owner: authResult.principal,
-				subaccount: []
-			};
-			const nicpBalanceE8s = await $state.nicpLedger.icrc1_balance_of(user_account);
-			const wtnBalanceE8s = await $state.wtnLedger.icrc1_balance_of(user_account);
-			const icpBalanceE8s = await $state.icpLedger.icrc1_balance_of(user_account);
-
-			user.set(
-				new User({
-					principal: authResult.principal,
-					icpBalanceE8s,
-					nicpBalanceE8s,
-					wtnBalanceE8s
-				})
-			);
 		} catch (error) {
 			console.error('Login failed:', error);
 		}

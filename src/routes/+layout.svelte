@@ -13,37 +13,32 @@
 	import Toast from './Toast.svelte';
 
 	const fetchUser = async () => {
-		if ($state)
-			try {
-				const authClient = await AuthClient.create();
-				if (!(await authClient.isAuthenticated())) return;
+		if (!$state) return;
+		try {
+			const authClient = await AuthClient.create();
+			if (!(await authClient.isAuthenticated())) return;
 
-				const authResult = await internetIdentitySignIn();
+			const authResult = await internetIdentitySignIn();
 
-				$state.wtnLedger = authResult.actors.wtnLedger;
-				$state.icpLedger = authResult.actors.icpLedger;
-				$state.nicpLedger = authResult.actors.nicpLedger;
-				$state.waterNeuron = authResult.actors.waterNeuron;
+			$state.wtnLedger = authResult.actors.wtnLedger;
+			$state.icpLedger = authResult.actors.icpLedger;
+			$state.nicpLedger = authResult.actors.nicpLedger;
+			$state.waterNeuron = authResult.actors.waterNeuron;
 
-				const user_account: Account = {
-					owner: authResult.principal,
-					subaccount: []
-				};
-				const nicpBalanceE8s = await $state.nicpLedger.icrc1_balance_of(user_account);
-				const wtnBalanceE8s = await $state.wtnLedger.icrc1_balance_of(user_account);
-				const icpBalanceE8s = await $state.icpLedger.icrc1_balance_of(user_account);
+			const user_account: Account = {
+				owner: authResult.principal,
+				subaccount: []
+			};
+			const nicpBalanceE8s = await $state.nicpLedger.icrc1_balance_of(user_account);
+			const wtnBalanceE8s = await $state.wtnLedger.icrc1_balance_of(user_account);
+			const icpBalanceE8s = await $state.icpLedger.icrc1_balance_of(user_account);
 
-				user.set(
-					new User({
-						principal: authResult.principal,
-						icpBalanceE8s,
-						nicpBalanceE8s,
-						wtnBalanceE8s
-					})
-				);
-			} catch (error) {
-				console.error('Login failed:', error);
-			}
+			user.set(
+				new User({ principal: authResult.principal, icpBalanceE8s, nicpBalanceE8s, wtnBalanceE8s })
+			);
+		} catch (error) {
+			console.error('Login failed:', error);
+		}
 	};
 
 	onMount(() => {
