@@ -52,19 +52,28 @@ async function initializeState() {
 	return {
 		initialize: () => set(providedState),
 		signIn: async (via: 'internetIdentity' | 'plug') => {
-			const authResult = await signIn(via);
-
-			if (authResult) {
-				update((state) => {
-					state.wtnLedger = authResult.actors.wtnLedger;
-					state.icpLedger = authResult.actors.icpLedger;
-					state.nicpLedger = authResult.actors.nicpLedger;
-					state.waterNeuron = authResult.actors.waterNeuron;
-
-					return state;
-				})
+			try {
+				const authResult = await signIn(via);
+				if (authResult) {
+					update((state) => {
+						state.wtnLedger = authResult.actors.wtnLedger;
+						state.icpLedger = authResult.actors.icpLedger;
+						state.nicpLedger = authResult.actors.nicpLedger;
+						state.waterNeuron = authResult.actors.waterNeuron;
+	
+						return state;
+					})
+				}
+			} catch (error) {
+				console.log(error);
 			}
+			
+				
+			 
 		},
+		fetchUserBalance: async () => {
+
+		}, 
 	}
 }
 
