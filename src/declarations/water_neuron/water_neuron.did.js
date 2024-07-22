@@ -1,16 +1,4 @@
 export const idlFactory = ({ IDL }) => {
-	const UpgradeArg = IDL.Record({
-		governance_fee_share_e8s: IDL.Opt(IDL.Nat64)
-	});
-	const InitArg = IDL.Record({
-		wtn_ledger_id: IDL.Principal,
-		wtn_governance_id: IDL.Principal,
-		nicp_ledger_id: IDL.Principal
-	});
-	const LiquidArg = IDL.Variant({
-		Upgrade: IDL.Opt(UpgradeArg),
-		Init: InitArg
-	});
 	const TransferError = IDL.Variant({
 		GenericError: IDL.Record({
 			message: IDL.Text,
@@ -59,6 +47,14 @@ export const idlFactory = ({ IDL }) => {
 		SnsGovernanceEightYears: IDL.Null
 	});
 	const NeuronId = IDL.Record({ id: IDL.Nat64 });
+	const UpgradeArg = IDL.Record({
+		governance_fee_share_percent: IDL.Opt(IDL.Nat64)
+	});
+	const InitArg = IDL.Record({
+		wtn_ledger_id: IDL.Principal,
+		wtn_governance_id: IDL.Principal,
+		nicp_ledger_id: IDL.Principal
+	});
 	const Account = IDL.Record({
 		owner: IDL.Principal,
 		subaccount: IDL.Opt(IDL.Vec(IDL.Nat8))
@@ -129,9 +125,9 @@ export const idlFactory = ({ IDL }) => {
 		tracked_6m_stake: IDL.Nat64,
 		minimum_withdraw_amount: IDL.Nat64,
 		neuron_8y_stake_e8s: IDL.Nat64,
+		governance_fee_share_percent: IDL.Nat64,
 		neuron_8y_account: Account,
 		minimum_deposit_amount: IDL.Nat64,
-		governance_fee_share_e8s: IDL.Nat64,
 		neuron_6m_stake_e8s: IDL.Nat64,
 		exchange_rate: IDL.Nat64,
 		nicp_supply: IDL.Nat64,
@@ -218,17 +214,5 @@ export const idlFactory = ({ IDL }) => {
 	});
 };
 export const init = ({ IDL }) => {
-	const UpgradeArg = IDL.Record({
-		governance_fee_share_e8s: IDL.Opt(IDL.Nat64)
-	});
-	const InitArg = IDL.Record({
-		wtn_ledger_id: IDL.Principal,
-		wtn_governance_id: IDL.Principal,
-		nicp_ledger_id: IDL.Principal
-	});
-	const LiquidArg = IDL.Variant({
-		Upgrade: IDL.Opt(UpgradeArg),
-		Init: InitArg
-	});
-	return [LiquidArg];
+	return [];
 };

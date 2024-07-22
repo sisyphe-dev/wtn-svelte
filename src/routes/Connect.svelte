@@ -9,29 +9,35 @@
 		if ($isBusy) return;
 		isBusy.set(true);
 
-		try {
-			const authResult = await internetIdentitySignIn();
+		if ($state)
+			try {
+				const authResult = await internetIdentitySignIn();
 
-			$state.wtnLedger = authResult.actors.wtnLedger;
-			$state.icpLedger = authResult.actors.icpLedger;
-			$state.nicpLedger = authResult.actors.nicpLedger;
-			$state.waterNeuron = authResult.actors.waterNeuron;
-			$state.wtnCanisterInfo = authResult.actors.wtnCanisterInfo;
+				$state.wtnLedger = authResult.actors.wtnLedger;
+				$state.icpLedger = authResult.actors.icpLedger;
+				$state.nicpLedger = authResult.actors.nicpLedger;
+				$state.waterNeuron = authResult.actors.waterNeuron;
+				$state.wtnCanisterInfo = authResult.actors.wtnCanisterInfo;
 
-			const user_account: Account = {
-				owner: authResult.principal,
-				subaccount: []
-			};
-			const icpBalanceE8s = await $state.icpLedger.icrc1_balance_of(user_account);
-			const nicpBalanceE8s = await $state.nicpLedger.icrc1_balance_of(user_account);
-			const wtnBalanceE8s = await $state.wtnLedger.icrc1_balance_of(user_account);
+				const user_account: Account = {
+					owner: authResult.principal,
+					subaccount: []
+				};
+				const icpBalanceE8s = await $state.icpLedger.icrc1_balance_of(user_account);
+				const nicpBalanceE8s = await $state.nicpLedger.icrc1_balance_of(user_account);
+				const wtnBalanceE8s = await $state.wtnLedger.icrc1_balance_of(user_account);
 
-			user.set(
-				new User({ principal: authResult.principal, icpBalanceE8s, nicpBalanceE8s, wtnBalanceE8s })
-			);
-		} catch (error) {
-			console.error('Login failed:', error);
-		}
+				user.set(
+					new User({
+						principal: authResult.principal,
+						icpBalanceE8s,
+						nicpBalanceE8s,
+						wtnBalanceE8s
+					})
+				);
+			} catch (error) {
+				console.error('Login failed:', error);
+			}
 
 		isBusy.set(false);
 		isLogging.set(false);
@@ -41,29 +47,36 @@
 		if ($isBusy) return;
 
 		isBusy.set(true);
-		try {
-			const authResult = await plugSignIn();
 
-			$state.wtnLedger = authResult.actors.wtnLedger;
-			$state.icpLedger = authResult.actors.icpLedger;
-			$state.nicpLedger = authResult.actors.nicpLedger;
-			$state.waterNeuron = authResult.actors.waterNeuron;
-			$state.wtnCanisterInfo = authResult.actors.wtnCanisterInfo;
+		if ($state)
+			try {
+				const authResult = await plugSignIn();
 
-			const user_account: Account = {
-				owner: authResult.principal,
-				subaccount: []
-			};
-			const icpBalanceE8s = await $state.icpLedger.icrc1_balance_of(user_account);
-			const nicpBalanceE8s = await $state.nicpLedger.icrc1_balance_of(user_account);
-			const wtnBalanceE8s = await $state.wtnLedger.icrc1_balance_of(user_account);
+				$state.wtnLedger = authResult.actors.wtnLedger;
+				$state.icpLedger = authResult.actors.icpLedger;
+				$state.nicpLedger = authResult.actors.nicpLedger;
+				$state.waterNeuron = authResult.actors.waterNeuron;
+				$state.wtnCanisterInfo = authResult.actors.wtnCanisterInfo;
 
-			user.set(
-				new User({ principal: authResult.principal, icpBalanceE8s, nicpBalanceE8s, wtnBalanceE8s })
-			);
-		} catch (error) {
-			console.error('Login failed:', error);
-		}
+				const user_account: Account = {
+					owner: authResult.principal,
+					subaccount: []
+				};
+				const icpBalanceE8s = await $state.icpLedger.icrc1_balance_of(user_account);
+				const nicpBalanceE8s = await $state.nicpLedger.icrc1_balance_of(user_account);
+				const wtnBalanceE8s = await $state.wtnLedger.icrc1_balance_of(user_account);
+
+				user.set(
+					new User({
+						principal: authResult.principal,
+						icpBalanceE8s,
+						nicpBalanceE8s,
+						wtnBalanceE8s
+					})
+				);
+			} catch (error) {
+				console.error('Login failed:', error);
+			}
 
 		isBusy.set(false);
 		isLogging.set(false);

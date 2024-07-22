@@ -1,7 +1,8 @@
 import { writable } from 'svelte/store';
-import { type User, provideState, State } from './state';
+import { type User, provideState, signIn, State } from './state';
 import { Asset, AssetType } from '$lib';
 import { Toast } from './toast';
+import { subscribe } from 'diagnostics_channel';
 
 export const isLogging = writable<boolean>(false);
 export const isBusy = writable<boolean>(false);
@@ -30,11 +31,41 @@ function createInputValue() {
 export const inputValue = createInputValue();
 
 export const user = writable<User | undefined>(undefined);
-export const state = writable<State>();
+
+async function initializeUser() {
+	const {subscribe, set, update } = writable<User | undefined>();
+
+	return {
+		initialize: () => set(undefined),
+	}
+}
+
+
+
+export const state = writable<State | undefined>(undefined);
 
 async function initializeState() {
+	const {subscribe, set, update } = writable<State>();
+
 	const providedState = await provideState();
-	state.set(providedState);
+
+	return {
+		initialize: () => set(providedState),
+		signIn: async (via: 'internetIdentity' | 'plug') => {
+			const authResult = await signIn(via);
+
+			if (authResult) {
+				update((state) => {
+					state.wtnLedger = authResult.actors.wtnLedger;
+					state.icpLedger = authResult.actors.icpLedger;
+					state.nicpLedger = authResult.actors.nicpLedger;
+					state.waterNeuron = authResult.actors.waterNeuron;
+
+					return state;
+				})
+			}
+		},
+	}
 }
 
 initializeState();

@@ -1,5 +1,4 @@
 import { AuthClient } from '@dfinity/auth-client';
-import { isNullish } from '@dfinity/utils';
 import { Principal } from '@dfinity/principal';
 import { HttpAgent, Actor, type Identity } from '@dfinity/agent';
 import type { _SERVICE as nicpLedgerInterface } from '../declarations/nicp_ledger/nicp_ledger.did';
@@ -10,7 +9,6 @@ import type {
 	_SERVICE as waterNeuronInterface
 } from '../declarations/water_neuron/water_neuron.did';
 import { idlFactory as idlFactoryNicp } from '../declarations/nicp_ledger';
-import { idlFactory as idlFactoryWtn } from '../declarations/wtn_ledger';
 import { idlFactory as idlFactoryWaterNeuron } from '../declarations/water_neuron';
 import { idlFactory as idlFactoryIcp } from '../declarations/nns-ledger';
 
@@ -20,15 +18,17 @@ const AUTH_MAX_TIME_TO_LIVE = BigInt(60 * 60 * 1000 * 1000 * 1000);
 
 export const DEV = import.meta.env.DEV;
 const INTERNET_IDENTITY_CANISTER_ID = DEV
-	? 'bd3sg-teaaa-aaaaa-qaaba-cai'
+	? 'qhbym-qaaaa-aaaaa-aaafq-cai'
 	: 'rdmx6-jaaaa-aaaaa-aaadq-cai';
 
-export const HOST = 'http://127.0.1:8080';
+export const HOST = DEV ? 'http://127.0.1:8080' : 'https://ic0.app';
 
 const CANISTER_ID_WTN_LEDGER = 'jcmow-hyaaa-aaaaq-aadlq-cai';
 const CANISTER_ID_ICP_LEDGER = 'ryjl3-tyaaa-aaaaa-aaaba-cai';
-const CANISTER_ID_NICP_LEDGER = 'ny7ez-6aaaa-aaaam-acc5q-cai';
-export const CANISTER_ID_WATER_NEURON = 'n76cn-tyaaa-aaaam-acc5a-cai';
+const CANISTER_ID_NICP_LEDGER = DEV ? 'ny7ez-6aaaa-aaaam-acc5q-cai' : 'buwm7-7yaaa-aaaar-qagva-cai';
+export const CANISTER_ID_WATER_NEURON = DEV
+	? 'n76cn-tyaaa-aaaam-acc5a-cai'
+	: 'tsbvt-pyaaa-aaaar-qafva-cai';
 
 export interface AuthResult {
 	actors: Actors;
@@ -112,6 +112,7 @@ export async function plugSignIn(): Promise<AuthResult> {
 					CANISTER_ID_WTN_LEDGER,
 					CANISTER_ID_WATER_NEURON
 				];
+				console.log(whitelist);
 				const onConnectionUpdate = () => {
 					console.log(window.ic.plug.sessionManager.sessionData);
 				};
@@ -143,8 +144,10 @@ export async function plugSignIn(): Promise<AuthResult> {
 
 			const wtnLedger: wtnLedgerInterface = await window.ic.plug.createActor({
 				canisterId: CANISTER_ID_WTN_LEDGER,
-				interfaceFactory: idlFactoryWtn
+				interfaceFactory: idlFactoryNicp
 			});
+
+			console.log(wtnLedger, idlFactoryNicp, nicpLedger, waterNeuron);
 
 			const wtnCanisterInfo = await waterNeuron.get_info();
 
@@ -189,7 +192,7 @@ export function fetchActors(agent?: HttpAgent): Promise<Actors> {
 				agent,
 				canisterId: CANISTER_ID_NICP_LEDGER
 			});
-			const wtnLedger: wtnLedgerInterface = Actor.createActor(idlFactoryWtn, {
+			const wtnLedger: wtnLedgerInterface = Actor.createActor(idlFactoryNicp, {
 				agent,
 				canisterId: CANISTER_ID_WTN_LEDGER
 			});

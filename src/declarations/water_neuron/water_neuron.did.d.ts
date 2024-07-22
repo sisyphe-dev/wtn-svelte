@@ -13,9 +13,9 @@ export interface CanisterInfo {
 	tracked_6m_stake: bigint;
 	minimum_withdraw_amount: bigint;
 	neuron_8y_stake_e8s: bigint;
+	governance_fee_share_percent: bigint;
 	neuron_8y_account: Account;
 	minimum_deposit_amount: bigint;
-	governance_fee_share_e8s: bigint;
 	neuron_6m_stake_e8s: bigint;
 	exchange_rate: bigint;
 	nicp_supply: bigint;
@@ -168,7 +168,7 @@ export type TransferStatus =
 	| { Pending: PendingTransfer };
 export type Unit = { ICP: null } | { WTN: null } | { NICP: null };
 export interface UpgradeArg {
-	governance_fee_share_e8s: [] | [bigint];
+	governance_fee_share_percent: [] | [bigint];
 }
 export interface WithdrawalDetails {
 	status: WithdrawalStatus;

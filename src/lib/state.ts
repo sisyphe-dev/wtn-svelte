@@ -10,6 +10,9 @@ import type {
 	_SERVICE as waterNeuronInterface
 } from '../declarations/water_neuron/water_neuron.did';
 import { fetchActors, type Actors } from './authentification';
+import { state, user } from './stores';
+import { internetIdentitySignIn, plugSignIn } from '$lib/authentification';
+import { AuthClient } from '@dfinity/auth-client';
 
 interface UserProps {
 	principal: Principal;
@@ -130,3 +133,39 @@ export async function provideState(): Promise<State> {
 	let actors = await fetchActors();
 	return new State(actors);
 }
+
+
+export async function fetchUser() {
+	if (state)
+		try {
+			const authClient = await AuthClient.create();
+			if (!(await authClient.isAuthenticated())) return;
+
+			const authResult = await internetIdentitySignIn();
+
+			return authResult
+			$state.wtnLedger = authResult.actors.wtnLedger;
+			$state.icpLedger = authResult.actors.icpLedger;
+			$state.nicpLedger = authResult.actors.nicpLedger;
+			$state.waterNeuron = authResult.actors.waterNeuron;
+
+			const user_account: Account = {
+				owner: authResult.principal,
+				subaccount: []
+			};
+			const nicpBalanceE8s = await $state.nicpLedger.icrc1_balance_of(user_account);
+			const wtnBalanceE8s = await $state.wtnLedger.icrc1_balance_of(user_account);
+			const icpBalanceE8s = await $state.icpLedger.icrc1_balance_of(user_account);
+
+			user.set(
+				new User({
+					principal: authResult.principal,
+					icpBalanceE8s,
+					nicpBalanceE8s,
+					wtnBalanceE8s
+				})
+			);
+		} catch (error) {
+			console.error('Login failed:', error);
+		}
+};
