@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { bigintE8sToNumber, displayUsFormat, renderStatus } from '$lib';
+	import { bigintE8sToNumber, displayUsFormat, renderStatus, displayTimeLeft } from '$lib';
 	import { state, user } from '$lib/stores';
-	import { onMount, afterUpdate } from 'svelte';
+	import { onMount } from 'svelte';
 	import type {
 		WithdrawalDetails,
 		NeuronId
@@ -9,8 +9,9 @@
 	import { fade } from 'svelte/transition';
 
 	let withdrawalRequests: WithdrawalDetails[];
-	let withdrawalStatuses: {};
-
+	let withdrawalStatuses: {
+		[key: string]: string;
+	} = {};
 
 	function displayNeuronId(neuronId: [] | [NeuronId], truncate = true): string {
 		if (neuronId.length == 0) {
@@ -26,23 +27,48 @@
 	const fetchWithdrawals = async () => {
 		if ($user && $state) {
 			withdrawalRequests = await $state.waterNeuron.get_withdrawal_requests([$user.principal]);
+			await fetchStatuses();
 		}
 	};
 
 	const fetchStatuses = async () => {
 		if ($user && $state) {
-			withdrawalRequests.forEach(detail => {
-				const status = await renderStatus(detail);
-				
-			});
+			for (const detail of withdrawalRequests) {
+				const neuronId = detail.request.neuron_id;
+				if (neuronId.length !== 0) {
+					try {
+						const status = await fetchTimeLeft(neuronId[0]);
+						withdrawalStatuses[neuronId[0].id.toString()] = status;
+					} catch (e) {
+						console.error(e);
+					}
+				}
+			}
 		}
 	};
 
-	afterUpdate(() => {
+	async function fetchTimeLeft(neuron_id: NeuronId): Promise<string> {
+		if (process.env.DFX_NETWORK !== 'ic') return 'Waiting dissolvement';
+		try {
+			const response = await fetch(
+				`https://ic-api.internetcomputer.org/api/v3/neurons/${neuron_id.id}`
+			);
+			if (!response.ok) {
+				throw new Error('Network response was not ok');
+			}
+			const data = await response.json();
+			const neuron_created_at = data['created_timestamp_seconds'];
+			return displayTimeLeft(Number(neuron_created_at));
+		} catch (error) {
+			throw new Error('Failed to fetch with error: ' + error);
+		}
+	}
+
+	onMount(() => {
 		fetchWithdrawals();
 	});
 
-	$: $user, (() => fetchWithdrawals());
+	$: $user, () => fetchWithdrawals();
 
 	const userAgent = navigator.userAgent;
 	const isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
@@ -57,6 +83,7 @@
 					<tr>
 						<th>ICP Due</th>
 						<th>Neuron Id</th>
+						<th>Status</th>
 					</tr>
 				{:else}
 					<tr>
@@ -83,6 +110,11 @@
 									{displayNeuronId(details.request.neuron_id)}
 								</a>
 							</td>
+							<td>
+								{details.request.neuron_id[0]
+									? withdrawalStatuses[details.request.neuron_id[0].id.toString()]
+									: 'Waiting Dissolvement'}
+							</td>
 						</tr>
 					{:else}
 						<tr>
@@ -98,13 +130,18 @@
 									{displayNeuronId(details.request.neuron_id)}
 								</a>
 							</td>
-							<td
+							<td>
+								{details.request.neuron_id[0]
+									? withdrawalStatuses[details.request.neuron_id[0].id.toString()]
+									: 'Waiting Dissolvement'}
+							</td>
+							<!-- <td
 								>{#if renderStatus(details.status)}
 									...
 								{:then status}
 									{@html status}
 								{/await}
-							</td>
+							</td> -->
 							<td>{details.request.withdrawal_id}</td>
 						</tr>
 					{/if}

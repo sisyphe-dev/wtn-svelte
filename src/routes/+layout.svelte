@@ -11,37 +11,35 @@
 	import { signIn } from '$lib/state';
 	import { initializeState } from '$lib/stores';
 
+	async function updateBalances() {
+		if ($state && $user) {
+			const { icp, nicp, wtn } = await fetchBalances(
+				$user.principal,
+				$state.nicpLedger,
+				$state.wtnLedger,
+				$state.icpLedger
+			);
+
+			$user.icpBalanceE8s = icp;
+			$user.nicpBalanceE8s = nicp;
+			$user.wtnBalanceE8s = wtn;
+		}
+	}
+
 	onMount(() => {
 		initializeState();
-		signIn();
+		signIn().then(() => {
+			updateBalances();
+		});
 
 		const intervalId = setInterval(async () => {
 			if ($user && $state) {
-				const { icp, nicp, wtn } = await fetchBalances(
-					$user.principal,
-					$state.nicpLedger,
-					$state.wtnLedger,
-					$state.icpLedger
-				);
-
-				$user.icpBalanceE8s = icp;
-				$user.nicpBalanceE8s = nicp;
-				$user.wtnBalanceE8s = wtn;
+				await updateBalances();
 			}
 		}, 5000);
 
 		return () => clearInterval(intervalId);
 	});
-
-	// const loadBalances = async () => {
-	// 	if ($actorsStore !== null || $actorsStore !== null ) {
-	// 		return;
-	// 	}
-
-	// 	// await fetchBalance()
-	// }
-
-	// $: $actorsStore, (async () => loadBalances($actorsStore))()
 </script>
 
 {#if $isLogging}

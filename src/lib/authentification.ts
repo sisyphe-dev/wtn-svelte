@@ -64,7 +64,7 @@ export async function internetIdentitySignIn(): Promise<AuthResult> {
 							identity,
 							host: HOST
 						});
-						const actors = await fetchActors(agent);
+						const actors = await fetchActors(agent, true);
 						resolve({
 							actors,
 							principal: identity.getPrincipal()
@@ -83,7 +83,7 @@ export async function internetIdentitySignIn(): Promise<AuthResult> {
 					host: HOST
 				});
 
-				const actors = await fetchActors(agent);
+				const actors = await fetchActors(agent, true);
 
 				resolve({
 					actors,
@@ -127,30 +127,9 @@ export async function plugSignIn(): Promise<AuthResult> {
 			}
 
 			const principal: Principal = await window.ic.plug.getPrincipal();
+			const agent = window.ic.plug.agent;
 
-			const waterNeuron = await window.ic.plug.createActor({
-				canisterId: CANISTER_ID_WATER_NEURON,
-				interfaceFactory: idlFactoryWaterNeuron
-			});
-
-			const nicpLedger: nicpLedgerInterface = await window.ic.plug.createActor({
-				canisterId: CANISTER_ID_NICP_LEDGER,
-				interfaceFactory: idlFactoryNicp
-			});
-
-			const icpLedger: icpLedgerInterface = await window.ic.plug.createActor({
-				canisterId: CANISTER_ID_ICP_LEDGER,
-				interfaceFactory: idlFactoryIcp
-			});
-
-			const wtnLedger: wtnLedgerInterface = await window.ic.plug.createActor({
-				canisterId: CANISTER_ID_WTN_LEDGER,
-				interfaceFactory: idlFactoryNicp
-			});
-
-			const wtnCanisterInfo = await waterNeuron.get_info();
-
-			const actors: Actors = { nicpLedger, waterNeuron, icpLedger, wtnCanisterInfo, wtnLedger };
+			const actors = await fetchActors(agent);
 
 			resolve({ actors, principal });
 		} catch (error) {
@@ -164,7 +143,7 @@ export async function internetIdentityLogout() {
 	await autClient.logout();
 }
 
-export function fetchActors(agent?: HttpAgent): Promise<Actors> {
+export function fetchActors(agent?: HttpAgent, isInternetIdentity?: boolean): Promise<Actors> {
 	return new Promise<Actors>(async (resolve, reject) => {
 		try {
 			if (!agent) {
@@ -172,7 +151,8 @@ export function fetchActors(agent?: HttpAgent): Promise<Actors> {
 					host: HOST
 				});
 			}
-			if (process.env.DFX_NETWORK !== 'ic') {
+			if (process.env.DFX_NETWORK !== 'ic' && isInternetIdentity) {
+				console.log('fetching root key');
 				agent.fetchRootKey().catch((err) => {
 					console.warn(
 						'Unable to fetch root key. Check to ensure that your local replica is running'

@@ -148,7 +148,7 @@ export function computeRewards(alreadyDistributed: BigNumber, converting: BigNum
 	return totalRewards;
 }
 
-export async function renderStatus(status: WithdrawalStatus): Promise<string> {
+export function renderStatus(status: WithdrawalStatus): string {
 	const key = Object.keys(status)[0] as keyof WithdrawalStatus;
 	switch (key) {
 		case 'ConversionDone':
@@ -167,11 +167,13 @@ export async function renderStatus(status: WithdrawalStatus): Promise<string> {
 		case 'WaitingToSplitNeuron':
 			return 'Waiting to Split Neuron';
 		case 'WaitingDissolvement':
-			if (status[key]['neuron_id']['id']) {
-				return displayStatus(status[key]['neuron_id']);
-			} else {
-				return 'Waiting dissolvement';
-			}
+			return 'Waiting dissolvement';
+
+		// if (status[key]['neuron_id']['id']) {
+		// 	return displayStatus(status[key]['neuron_id']);
+		// } else {
+		// 	return 'Waiting dissolvement';
+		// }
 		case 'WaitingToStartDissolving':
 			return `Waiting to Start Dissolving (Neuron ID: ${status[key]['neuron_id']['id']})`;
 		default:
@@ -179,31 +181,21 @@ export async function renderStatus(status: WithdrawalStatus): Promise<string> {
 	}
 }
 
-export async function displayStatus(neuron_id: NeuronId): Promise<string> {
-	if (DEV) {
-		return 'Waiting dissolvement';
-	}
-	try {
-		const response = await fetch(`https://ic-api.internetcomputer.org/api/v3/neurons/${neuron_id.id}`);
-		if (!response.ok) {
-			throw new Error('Network response was not ok');
-		}
-		const data = await response.json();
-		const neuron_created_at = data['created_timestamp_seconds'];
-		return displayTimeLeft(Number(neuron_created_at));
-	} catch (error) {
-		throw new Error('Failed to fetch with error: ' + error);
-	}
-}
-
-function displayTimeLeft(created_at: number) {
+export function displayTimeLeft(created_at: number) {
 	const currentTimestamp = Math.floor(Date.now() / 1000);
 	const sixMonthsInSeconds = 6 * 30.44 * 24 * 60 * 60;
 	const timeLeft = created_at + sixMonthsInSeconds - currentTimestamp;
 	const daysLeft = Math.floor(timeLeft / 60 / 60 / 24);
 	const hoursLeft = Math.floor((timeLeft - daysLeft * 60 * 60 * 24) / 60 / 60);
 
-	return `Dissolvement in ${daysLeft} days and ${hoursLeft} hours`;
+	if (daysLeft > 0 && hoursLeft > 0) {
+		return `${daysLeft} days and ${hoursLeft} hours left`;
+	} else if (daysLeft > 0) {
+		return `${daysLeft} days left`;
+	} else if (hoursLeft > 0) {
+		return `${hoursLeft} hours left`;
+	}
+	return `Less than an hour left`;
 }
 
 export function handleInput(event: Event): void {

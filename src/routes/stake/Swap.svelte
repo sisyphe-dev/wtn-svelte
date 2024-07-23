@@ -68,7 +68,7 @@
 					}
 				}
 			} catch (error) {
-				toasts.add(Toast.error('Call was rejected.'))
+				toasts.add(Toast.error('Call was rejected.'));
 			}
 		} else {
 			toasts.add(Toast.error('Conversion failed due to ICP balance.'));
@@ -106,7 +106,7 @@
 					}
 				}
 			} catch (error) {
-				toasts.add(Toast.error('Call was rejected.'))
+				toasts.add(Toast.error('Call was rejected.'));
 			}
 		} else {
 			toasts.add(Toast.error('Conversion failed due to nICP balance.'));

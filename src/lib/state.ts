@@ -117,19 +117,12 @@ export async function signIn(session?: 'internetIdentity' | 'plug') {
 
 		state.set(new State(authResult.actors));
 
-		const { icp, nicp, wtn } = await fetchBalances(
-			authResult.principal,
-			authResult.actors.nicpLedger,
-			authResult.actors.wtnLedger,
-			authResult.actors.icpLedger
-		);
-
 		user.set(
 			new User({
 				principal: authResult.principal,
-				icpBalanceE8s: icp,
-				nicpBalanceE8s: nicp,
-				wtnBalanceE8s: wtn
+				icpBalanceE8s: 0n,
+				nicpBalanceE8s: 0n,
+				wtnBalanceE8s: 0n
 			})
 		);
 	} catch (error) {
@@ -220,6 +213,6 @@ export class State {
 }
 
 export async function provideState(): Promise<State> {
-	let actors = await fetchActors();
+	let actors = await fetchActors(undefined, true);
 	return new State(actors);
 }
