@@ -58,7 +58,7 @@
 			}
 			const data = await response.json();
 			const neuron_created_at = data['created_timestamp_seconds'];
-			return displayTimeLeft(Number(neuron_created_at));
+			return displayTimeLeft(Number(neuron_created_at), isMobile);
 		} catch (error) {
 			throw new Error('Failed to fetch with error: ' + error);
 		}
@@ -127,7 +127,7 @@
 									href={'https://dashboard.internetcomputer.org/neuron/' +
 										displayNeuronId(details.request.neuron_id, false)}
 								>
-									{displayNeuronId(details.request.neuron_id)}
+									{displayNeuronId(details.request.neuron_id, false)}
 								</a>
 							</td>
 							<td>
@@ -161,7 +161,7 @@
 		padding: 2em;
 		display: flex;
 		flex-direction: column;
-		width: 40em;
+		width: 44em;
 		max-width: 97vw;
 	}
 

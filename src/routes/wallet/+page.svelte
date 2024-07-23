@@ -103,7 +103,7 @@
 		padding: 2em;
 		display: flex;
 		flex-direction: column;
-		width: 40em;
+		width: 44em;
 		max-width: 80vw;
 	}
 

@@ -30,7 +30,7 @@
 	const isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
 </script>
 
-<div class="cards-container" in:fade={{ duration: 500 }}>
+<div class="cards-container" in:fade={{ duration: 500 }} class:mobile-size={isMobile}>
 	{#if $isBusy}
 		<button class="login-btn">
 			<div class="spinner"></div>
@@ -42,7 +42,7 @@
 		</button>
 		{#if !isMobile}
 			<button class="login-btn" id="plug-btn" on:click={plugConnection}>
-				<img src="/icon/plug.svg" width="50em" height="50em" alt="Plug Icon." />
+				<img src="/icon/plug.png" width="50em" height="50em" alt="Plug Icon." />
 				<h2>Plug Wallet</h2>
 			</button>
 		{/if}
@@ -124,5 +124,10 @@
 		to {
 			transform: rotate(360deg);
 		}
+	}
+
+	/* === Utilities === */
+	.mobile-size {
+		width: 90%;
 	}
 </style>

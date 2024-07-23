@@ -28,7 +28,7 @@
 
 	onMount(() => {
 		initializeState();
-		signIn().then(() => {
+		signIn('reload').then(() => {
 			updateBalances();
 		});
 

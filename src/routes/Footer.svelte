@@ -79,6 +79,7 @@
 		height: 4em;
 		width: 4em;
 		position: absolute;
+		bottom: 20px;
 	}
 
 	/* === Utillities === */

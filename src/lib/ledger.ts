@@ -6,7 +6,7 @@ import type {
 	ApproveArgs,
 	ApproveResult,
 	ApproveError
-} from '../declarations/nicp_ledger/nicp_ledger.did';
+} from '../declarations/icrc_ledger/icrc_ledger.did';
 import type { Result_1, Result_2 } from '../declarations/water_neuron/water_neuron.did';
 import { Asset, AssetType, bigintE8sToNumber, displayUsFormat } from '$lib';
 import type {
@@ -14,7 +14,7 @@ import type {
 	Icrc1TransferResult
 } from '../declarations/nns-ledger/nns-ledger.did';
 import type { _SERVICE as icpLedgerInterface } from '../declarations/nns-ledger/nns-ledger.did';
-import type { _SERVICE as nicpLedgerInterface } from '../declarations/nicp_ledger/nicp_ledger.did';
+import type { _SERVICE as nicpLedgerInterface } from '../declarations/icrc_ledger/icrc_ledger.did';
 import { CANISTER_ID_WATER_NEURON } from './authentification';
 
 const DEFAULT_ERROR_MESSAGE: string = 'Unknown result, please refresh the page.';

@@ -2,8 +2,7 @@ import { AssetType, bigintE8sToNumber } from '$lib';
 import { AccountIdentifier, type Account } from '@dfinity/ledger-icp';
 import { Principal } from '@dfinity/principal';
 import BigNumber from 'bignumber.js';
-import type { _SERVICE as nicpLedgerInterface } from '../declarations/nicp_ledger/nicp_ledger.did';
-import type { _SERVICE as wtnLedgerInterface } from '../declarations/wtn_ledger/wtn_ledger.did';
+import type { _SERVICE as icrcLedgerInterface } from '../declarations/icrc_ledger/icrc_ledger.did';
 import type { _SERVICE as icpLedgerInterface } from '../declarations/nns-ledger/nns-ledger.did';
 import type {
 	CanisterInfo,
@@ -64,55 +63,22 @@ const DAO_SHARE = BigNumber(0.1);
 const APY_6M = BigNumber(0.08);
 const APY_8Y = BigNumber(0.15);
 
-// /////////
-
-// import { writable, type Readable } from 'svelte/store';
-
-// interface Actors {
-// 	icpLedger: icpLedgerInterface;
-// 	wtnLedger: wtnLedgerInterface;
-// }
-
-// export type ActorsData = Actors | undefined | null;
-
-// export interface ActorsStore extends Readable<ActorsData> {
-// 	set: (actors: Actors) => void;
-// }
-
-// const initActorsStore = (): ActorsStore => {
-// 	const { subscribe, set: setStore } = writable<ActorsData>(undefined);
-
-// 	return {
-// 		subscribe,
-
-// 		set(actors) {
-// 			setStore(actors);
-// 		}
-// 	};
-// };
-
-// export const actorsStore = initActorsStore();
-
-// // $actorsStore.icpLedger
-// // $icpLedger
-
-// ///////
-
-export async function signIn(session?: 'internetIdentity' | 'plug') {
+export async function signIn(walletOrigin: 'internetIdentity' | 'plug' | 'reload') {
 	try {
 		let authResult: AuthResult;
 
-		if (session) {
-			if (session == 'internetIdentity') {
+		switch (walletOrigin) {
+			case 'internetIdentity':
 				authResult = await internetIdentitySignIn();
-			} else {
+				break;
+			case 'plug':
 				authResult = await plugSignIn();
-			}
-		} else {
-			const authClient = await AuthClient.create();
-			if (!(await authClient.isAuthenticated())) return;
-
-			authResult = await internetIdentitySignIn();
+				break;
+			case 'reload':
+				const authClient = await AuthClient.create();
+				if (!(await authClient.isAuthenticated())) return;
+				authResult = await internetIdentitySignIn();
+				break;
 		}
 
 		state.set(new State(authResult.actors));
@@ -132,8 +98,8 @@ export async function signIn(session?: 'internetIdentity' | 'plug') {
 
 export async function fetchBalances(
 	principal: Principal,
-	nicpLedger: nicpLedgerInterface,
-	wtnLedger: wtnLedgerInterface,
+	nicpLedger: icrcLedgerInterface,
+	wtnLedger: icrcLedgerInterface,
 	icpLedger: icpLedgerInterface
 ): Promise<{ icp: bigint; nicp: bigint; wtn: bigint }> {
 	const user_account: Account = {
@@ -151,8 +117,8 @@ export class State {
 	public neuron8yStakeE8s: bigint;
 	public neuron6mStakeE8s: bigint;
 	public icpLedger: icpLedgerInterface;
-	public wtnLedger: wtnLedgerInterface;
-	public nicpLedger: nicpLedgerInterface;
+	public wtnLedger: icrcLedgerInterface;
+	public nicpLedger: icrcLedgerInterface;
 	public waterNeuron: waterNeuronInterface;
 	public wtnCanisterInfo: CanisterInfo;
 

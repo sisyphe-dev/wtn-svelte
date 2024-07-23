@@ -1,19 +1,17 @@
 import { AuthClient } from '@dfinity/auth-client';
 import { Principal } from '@dfinity/principal';
 import { HttpAgent, Actor, type Identity } from '@dfinity/agent';
-import type { _SERVICE as nicpLedgerInterface } from '../declarations/nicp_ledger/nicp_ledger.did';
-import type { _SERVICE as wtnLedgerInterface } from '../declarations/wtn_ledger/wtn_ledger.did';
+import type { _SERVICE as icrcLedgerInterface } from '../declarations/icrc_ledger/icrc_ledger.did';
 import type { _SERVICE as icpLedgerInterface } from '../declarations/nns-ledger/nns-ledger.did';
 import type {
 	CanisterInfo,
 	_SERVICE as waterNeuronInterface
 } from '../declarations/water_neuron/water_neuron.did';
-import { idlFactory as idlFactoryNicp } from '../declarations/nicp_ledger';
+import { idlFactory as idlFactoryIcrc } from '../declarations/icrc_ledger';
 import { idlFactory as idlFactoryWaterNeuron } from '../declarations/water_neuron';
 import { idlFactory as idlFactoryIcp } from '../declarations/nns-ledger';
 
-// How long the delegation identity should remain valid?
-// e.g. BigInt(60 * 60 * 1000 * 1000 * 1000) = 1 hour in nanoseconds
+// 1 hour in nanoseconds
 const AUTH_MAX_TIME_TO_LIVE = BigInt(60 * 60 * 1000 * 1000 * 1000);
 
 export const DEV = import.meta.env.DEV;
@@ -37,8 +35,8 @@ export interface AuthResult {
 
 export interface Actors {
 	icpLedger: icpLedgerInterface;
-	nicpLedger: nicpLedgerInterface;
-	wtnLedger: wtnLedgerInterface;
+	nicpLedger: icrcLedgerInterface;
+	wtnLedger: icrcLedgerInterface;
 	waterNeuron: waterNeuronInterface;
 	wtnCanisterInfo: CanisterInfo;
 }
@@ -166,11 +164,11 @@ export function fetchActors(agent?: HttpAgent, isInternetIdentity?: boolean): Pr
 				canisterId: CANISTER_ID_ICP_LEDGER
 			});
 
-			const nicpLedger: nicpLedgerInterface = Actor.createActor(idlFactoryNicp, {
+			const nicpLedger: icrcLedgerInterface = Actor.createActor(idlFactoryIcrc, {
 				agent,
 				canisterId: CANISTER_ID_NICP_LEDGER
 			});
-			const wtnLedger: wtnLedgerInterface = Actor.createActor(idlFactoryNicp, {
+			const wtnLedger: icrcLedgerInterface = Actor.createActor(idlFactoryIcrc, {
 				agent,
 				canisterId: CANISTER_ID_WTN_LEDGER
 			});

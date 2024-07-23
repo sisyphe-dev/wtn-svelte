@@ -181,14 +181,18 @@ export function renderStatus(status: WithdrawalStatus): string {
 	}
 }
 
-export function displayTimeLeft(created_at: number) {
+export function displayTimeLeft(created_at: number, isMobile = false) {
 	const currentTimestamp = Math.floor(Date.now() / 1000);
 	const sixMonthsInSeconds = 6 * 30.44 * 24 * 60 * 60;
 	const timeLeft = created_at + sixMonthsInSeconds - currentTimestamp;
 	const daysLeft = Math.floor(timeLeft / 60 / 60 / 24);
 	const hoursLeft = Math.floor((timeLeft - daysLeft * 60 * 60 * 24) / 60 / 60);
 
-	if (daysLeft > 0 && hoursLeft > 0) {
+	if (isMobile && daysLeft > 0) {
+		return `${daysLeft} days left`;
+	} else if (isMobile && hoursLeft > 0) {
+		return `${hoursLeft} hours left`;
+	} else if (daysLeft > 0 && hoursLeft > 0) {
 		return `${daysLeft} days and ${hoursLeft} hours left`;
 	} else if (daysLeft > 0) {
 		return `${daysLeft} days left`;
