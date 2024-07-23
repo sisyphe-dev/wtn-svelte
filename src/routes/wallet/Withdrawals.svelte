@@ -9,6 +9,8 @@
 	import { fade } from 'svelte/transition';
 
 	let withdrawalRequests: WithdrawalDetails[];
+	let withdrawalStatuses: {};
+
 
 	function displayNeuronId(neuronId: [] | [NeuronId], truncate = true): string {
 		if (neuronId.length == 0) {
@@ -24,6 +26,15 @@
 	const fetchWithdrawals = async () => {
 		if ($user && $state) {
 			withdrawalRequests = await $state.waterNeuron.get_withdrawal_requests([$user.principal]);
+		}
+	};
+
+	const fetchStatuses = async () => {
+		if ($user && $state) {
+			withdrawalRequests.forEach(detail => {
+				const status = await renderStatus(detail);
+				
+			});
 		}
 	};
 
@@ -88,7 +99,7 @@
 								</a>
 							</td>
 							<td
-								>{#await renderStatus(details.status)}
+								>{#if renderStatus(details.status)}
 									...
 								{:then status}
 									{@html status}

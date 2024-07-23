@@ -184,7 +184,7 @@ export async function displayStatus(neuron_id: NeuronId): Promise<string> {
 		return 'Waiting dissolvement';
 	}
 	try {
-		const response = await fetch('https://ic-api.internetcomputer.org/api/v3/neurons/' + neuron_id);
+		const response = await fetch(`https://ic-api.internetcomputer.org/api/v3/neurons/${neuron_id.id}`);
 		if (!response.ok) {
 			throw new Error('Network response was not ok');
 		}
