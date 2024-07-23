@@ -1,5 +1,5 @@
 import { AssetType, bigintE8sToNumber } from '$lib';
-import { AccountIdentifier } from '@dfinity/ledger-icp';
+import { AccountIdentifier, type Account } from '@dfinity/ledger-icp';
 import { Principal } from '@dfinity/principal';
 import BigNumber from 'bignumber.js';
 import type { _SERVICE as nicpLedgerInterface } from '../declarations/nicp_ledger/nicp_ledger.did';
@@ -9,7 +9,7 @@ import type {
 	CanisterInfo,
 	_SERVICE as waterNeuronInterface
 } from '../declarations/water_neuron/water_neuron.did';
-import { fetchActors, type Actors } from './authentification';
+import { type AuthResult, fetchActors, type Actors } from './authentification';
 import { state, user } from './stores';
 import { internetIdentitySignIn, plugSignIn } from '$lib/authentification';
 import { AuthClient } from '@dfinity/auth-client';
@@ -98,6 +98,61 @@ const APY_8Y = BigNumber(0.15);
 
 // ///////
 
+export async function signIn(session?: 'internetIdentity' | 'plug') {
+	try {
+		let authResult: AuthResult;
+
+		if (session) {
+			if (session == 'internetIdentity') {
+				authResult = await internetIdentitySignIn();
+			} else {
+				authResult = await plugSignIn();
+			}
+		} else {
+			const authClient = await AuthClient.create();
+			if (!(await authClient.isAuthenticated())) return;
+
+			authResult = await internetIdentitySignIn();
+		}
+
+		state.set(new State(authResult.actors));
+
+		const { icp, nicp, wtn } = await fetchBalances(
+			authResult.principal,
+			authResult.actors.nicpLedger,
+			authResult.actors.wtnLedger,
+			authResult.actors.icpLedger
+		);
+
+		user.set(
+			new User({
+				principal: authResult.principal,
+				icpBalanceE8s: icp,
+				nicpBalanceE8s: nicp,
+				wtnBalanceE8s: wtn
+			})
+		);
+	} catch (error) {
+		console.error('Login failed:', error);
+	}
+}
+
+export async function fetchBalances(
+	principal: Principal,
+	nicpLedger: nicpLedgerInterface,
+	wtnLedger: wtnLedgerInterface,
+	icpLedger: icpLedgerInterface
+): Promise<{ icp: bigint; nicp: bigint; wtn: bigint }> {
+	const user_account: Account = {
+		owner: principal,
+		subaccount: []
+	};
+	const nicpBalanceE8s = await nicpLedger.icrc1_balance_of(user_account);
+	const wtnBalanceE8s = await wtnLedger.icrc1_balance_of(user_account);
+	const icpBalanceE8s = await icpLedger.icrc1_balance_of(user_account);
+
+	return { icp: icpBalanceE8s, nicp: nicpBalanceE8s, wtn: wtnBalanceE8s };
+}
 
 export class State {
 	public neuron8yStakeE8s: bigint;

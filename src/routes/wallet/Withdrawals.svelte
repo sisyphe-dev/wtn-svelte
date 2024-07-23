@@ -31,13 +31,7 @@
 		fetchWithdrawals();
 	});
 
-	onMount(() => {
-		fetchWithdrawals();
-
-		const intervalId = setInterval(fetchWithdrawals, 5000);
-
-		return () => clearInterval(intervalId);
-	});
+	$: $user, (() => fetchWithdrawals());
 
 	const userAgent = navigator.userAgent;
 	const isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);

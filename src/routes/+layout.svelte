@@ -6,62 +6,27 @@
 	import Menu from './Menu.svelte';
 	import { isLogging, menu, isSelecting, user, state } from '$lib/stores';
 	import { onMount } from 'svelte';
-	import type { Account } from '@dfinity/ledger-icp';
-	import { internetIdentitySignIn, plugSignIn } from '$lib/authentification';
-	import { User } from '$lib/state';
-	import { AuthClient } from '@dfinity/auth-client';
+	import { fetchBalances, User } from '$lib/state';
 	import Toast from './Toast.svelte';
-
-	const fetchUser = async () => {
-		if ($state)
-			try {
-				const authClient = await AuthClient.create();
-				if (!(await authClient.isAuthenticated())) return;
-
-				const authResult = await internetIdentitySignIn();
-
-				$state.wtnLedger = authResult.actors.wtnLedger;
-				$state.icpLedger = authResult.actors.icpLedger;
-				$state.nicpLedger = authResult.actors.nicpLedger;
-				$state.waterNeuron = authResult.actors.waterNeuron;
-
-				const user_account: Account = {
-					owner: authResult.principal,
-					subaccount: []
-				};
-				const nicpBalanceE8s = await $state.nicpLedger.icrc1_balance_of(user_account);
-				const wtnBalanceE8s = await $state.wtnLedger.icrc1_balance_of(user_account);
-				const icpBalanceE8s = await $state.icpLedger.icrc1_balance_of(user_account);
-
-				user.set(
-					new User({
-						principal: authResult.principal,
-						icpBalanceE8s,
-						nicpBalanceE8s,
-						wtnBalanceE8s
-					})
-				);
-			} catch (error) {
-				console.error('Login failed:', error);
-			}
-	};
+	import { signIn } from '$lib/state';
+	import { initializeState } from '$lib/stores';
 
 	onMount(() => {
-		fetchUser();
+		initializeState();
+		signIn();
 
 		const intervalId = setInterval(async () => {
 			if ($user && $state) {
-				const user_account: Account = {
-					owner: $user.principal,
-					subaccount: []
-				} as Account;
+				const { icp, nicp, wtn } = await fetchBalances(
+					$user.principal,
+					$state.nicpLedger,
+					$state.wtnLedger,
+					$state.icpLedger
+				);
 
-				const icpBalance = await $state.icpLedger.icrc1_balance_of(user_account);
-				const nicpBalance = await $state.nicpLedger.icrc1_balance_of(user_account);
-				const wtnBalance = await $state.wtnLedger.icrc1_balance_of(user_account);
-				$user.icpBalanceE8s = icpBalance;
-				$user.nicpBalanceE8s = nicpBalance;
-				$user.wtnBalanceE8s = wtnBalance;
+				$user.icpBalanceE8s = icp;
+				$user.nicpBalanceE8s = nicp;
+				$user.wtnBalanceE8s = wtn;
 			}
 		}, 5000);
 
@@ -74,7 +39,7 @@
 	// 	}
 
 	// 	// await fetchBalance()
-	// } 
+	// }
 
 	// $: $actorsStore, (async () => loadBalances($actorsStore))()
 </script>

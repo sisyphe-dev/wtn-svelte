@@ -50,7 +50,7 @@
 	}
 
 	async function icrcTransfer(amount: BigNumber, input: string) {
-		if ($isSending || amount.isNaN() || !isValidAmount(amount) || !principal) return;
+		if ($isSending || amount.isNaN() || !isValidAmount(amount) || !principal || !$state) return;
 
 		isSending.set(true);
 		const amount_e8s = numberToBigintE8s(amount);
@@ -258,6 +258,10 @@
 		font-family: var(--font-type2);
 		display: flex;
 		align-items: center;
+	}
+
+	button {
+		color: black;
 	}
 
 	/* === Layout === */

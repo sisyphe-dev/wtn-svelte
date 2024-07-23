@@ -53,10 +53,11 @@ export async function internetIdentitySignIn(): Promise<AuthResult> {
 
 				const authClient = await AuthClient.create();
 
+				const derivation = DEV ? undefined : 'https://n3i53-gyaaa-aaaam-acfaq-cai.icp0.io';
 				await authClient.login({
 					maxTimeToLive: AUTH_MAX_TIME_TO_LIVE,
 					allowPinAuthentication: true,
-					derivationOrigin: 'https://n3i53-gyaaa-aaaam-acfaq-cai.icp0.io',
+					derivationOrigin: derivation,
 					onSuccess: async () => {
 						const identity: Identity = authClient?.getIdentity();
 						const agent = new HttpAgent({
@@ -64,13 +65,13 @@ export async function internetIdentitySignIn(): Promise<AuthResult> {
 							host: HOST
 						});
 						const actors = await fetchActors(agent);
-
 						resolve({
 							actors,
 							principal: identity.getPrincipal()
 						});
 					},
 					onError: (error) => {
+						console.log('invalid');
 						reject(error);
 					},
 					identityProvider
@@ -113,7 +114,6 @@ export async function plugSignIn(): Promise<AuthResult> {
 					CANISTER_ID_WTN_LEDGER,
 					CANISTER_ID_WATER_NEURON
 				];
-				console.log(whitelist);
 				const onConnectionUpdate = () => {
 					console.log(window.ic.plug.sessionManager.sessionData);
 				};
@@ -148,8 +148,6 @@ export async function plugSignIn(): Promise<AuthResult> {
 				interfaceFactory: idlFactoryNicp
 			});
 
-			console.log(wtnLedger, idlFactoryNicp, nicpLedger, waterNeuron);
-
 			const wtnCanisterInfo = await waterNeuron.get_info();
 
 			const actors: Actors = { nicpLedger, waterNeuron, icpLedger, wtnCanisterInfo, wtnLedger };
@@ -175,7 +173,6 @@ export function fetchActors(agent?: HttpAgent): Promise<Actors> {
 				});
 			}
 			if (process.env.DFX_NETWORK !== 'ic') {
-				
 				agent.fetchRootKey().catch((err) => {
 					console.warn(
 						'Unable to fetch root key. Check to ensure that your local replica is running'

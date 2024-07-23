@@ -38,43 +38,12 @@
 		}
 	}
 
-	export async function convert(amount: BigNumber, stake: boolean) {
+	export async function icpToNicp(amount: BigNumber) {
 		if (!($user && !$isConverting) || !$state) return;
-
 		isConverting.set(true);
-		if (!stake) {
-			if ($user.nicpBalance().isGreaterThanOrEqualTo(amount) && amount.isGreaterThan(0)) {
-				let amountE8s = numberToBigintE8s(amount);
 
-				const approval = await nicpTransferApproved(
-					amountE8s,
-					{
-						owner: $user.principal,
-						subaccount: []
-					} as Account,
-					$state.nicpLedger
-				);
-
-				if (!approval.granted) {
-					toasts.add(Toast.error(approval.message ?? 'Unknown Error.'));
-				} else {
-					const conversionResult = await $state.waterNeuron.nicp_to_icp({
-						maybe_subaccount: [],
-						amount_e8s: amountE8s
-					} as ConversionArg);
-
-					let status = handleRetrieveResult(conversionResult);
-					if (status.success) {
-						toasts.add(Toast.success(status.message));
-					} else {
-						toasts.add(Toast.error(status.message));
-					}
-				}
-			} else {
-				toasts.add(Toast.error('Conversion failed due to nICP balance.'));
-			}
-		} else {
-			if ($user.icpBalance().isGreaterThanOrEqualTo(amount) && amount.isGreaterThan(0)) {
+		if ($user.icpBalance().isGreaterThanOrEqualTo(amount) && amount.isGreaterThan(0)) {
+			try {
 				let amountE8s = numberToBigintE8s(amount);
 				const approval = await icpTransferApproved(
 					amountE8s,
@@ -98,9 +67,49 @@
 						toasts.add(Toast.error(status.message));
 					}
 				}
-			} else {
-				toasts.add(Toast.error('Conversion failed due to ICP balance.'));
+			} catch (error) {
+				toasts.add(Toast.error('Call was rejected.'))
 			}
+		} else {
+			toasts.add(Toast.error('Conversion failed due to ICP balance.'));
+		}
+		isConverting.set(false);
+	}
+
+	export async function nicpToIcp(amount: BigNumber) {
+		if (!($user && !$isConverting) || !$state) return;
+		isConverting.set(true);
+
+		if ($user.nicpBalance().isGreaterThanOrEqualTo(amount) && amount.isGreaterThan(0)) {
+			try {
+				let amountE8s = numberToBigintE8s(amount);
+				const approval = await nicpTransferApproved(
+					amountE8s,
+					{
+						owner: $user.principal,
+						subaccount: []
+					} as Account,
+					$state.nicpLedger
+				);
+				if (!approval.granted) {
+					toasts.add(Toast.error(approval.message ?? 'Unknown Error.'));
+				} else {
+					const conversionResult = await $state.waterNeuron.nicp_to_icp({
+						maybe_subaccount: [],
+						amount_e8s: amountE8s
+					} as ConversionArg);
+					let status = handleRetrieveResult(conversionResult);
+					if (status.success) {
+						toasts.add(Toast.success(status.message));
+					} else {
+						toasts.add(Toast.error(status.message));
+					}
+				}
+			} catch (error) {
+				toasts.add(Toast.error('Call was rejected.'))
+			}
+		} else {
+			toasts.add(Toast.error('Conversion failed due to nICP balance.'));
 		}
 		isConverting.set(false);
 	}
@@ -228,7 +237,11 @@
 					<span>Connect your wallet</span>
 				</button>
 			{:else}
-				<button class="swap-btn" on:click={() => convert(BigNumber($inputValue), stake)}>
+				<button
+					class="swap-btn"
+					on:click={() =>
+						stake ? icpToNicp(BigNumber($inputValue)) : nicpToIcp(BigNumber($inputValue))}
+				>
 					{#if $isConverting}
 						<div class="spinner"></div>
 					{:else if stake}
@@ -255,6 +268,10 @@
 	img {
 		padding: 0.3em;
 		position: absolute;
+	}
+
+	span {
+		color: black;
 	}
 
 	/* === Layout === */

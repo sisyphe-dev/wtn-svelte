@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { isLogging, isBusy, user, state } from '$lib/stores';
 	import { internetIdentitySignIn, plugSignIn } from '$lib/authentification';
-	import { User } from '$lib/state';
+	import { signIn, User } from '$lib/state';
 	import type { Account } from '@dfinity/ledger-icp';
 	import { fade } from 'svelte/transition';
 
@@ -9,35 +9,7 @@
 		if ($isBusy) return;
 		isBusy.set(true);
 
-		if ($state)
-			try {
-				const authResult = await internetIdentitySignIn();
-
-				$state.wtnLedger = authResult.actors.wtnLedger;
-				$state.icpLedger = authResult.actors.icpLedger;
-				$state.nicpLedger = authResult.actors.nicpLedger;
-				$state.waterNeuron = authResult.actors.waterNeuron;
-				$state.wtnCanisterInfo = authResult.actors.wtnCanisterInfo;
-
-				const user_account: Account = {
-					owner: authResult.principal,
-					subaccount: []
-				};
-				const icpBalanceE8s = await $state.icpLedger.icrc1_balance_of(user_account);
-				const nicpBalanceE8s = await $state.nicpLedger.icrc1_balance_of(user_account);
-				const wtnBalanceE8s = await $state.wtnLedger.icrc1_balance_of(user_account);
-
-				user.set(
-					new User({
-						principal: authResult.principal,
-						icpBalanceE8s,
-						nicpBalanceE8s,
-						wtnBalanceE8s
-					})
-				);
-			} catch (error) {
-				console.error('Login failed:', error);
-			}
+		await signIn('internetIdentity');
 
 		isBusy.set(false);
 		isLogging.set(false);
@@ -48,35 +20,7 @@
 
 		isBusy.set(true);
 
-		if ($state)
-			try {
-				const authResult = await plugSignIn();
-
-				$state.wtnLedger = authResult.actors.wtnLedger;
-				$state.icpLedger = authResult.actors.icpLedger;
-				$state.nicpLedger = authResult.actors.nicpLedger;
-				$state.waterNeuron = authResult.actors.waterNeuron;
-				$state.wtnCanisterInfo = authResult.actors.wtnCanisterInfo;
-
-				const user_account: Account = {
-					owner: authResult.principal,
-					subaccount: []
-				};
-				const icpBalanceE8s = await $state.icpLedger.icrc1_balance_of(user_account);
-				const nicpBalanceE8s = await $state.nicpLedger.icrc1_balance_of(user_account);
-				const wtnBalanceE8s = await $state.wtnLedger.icrc1_balance_of(user_account);
-
-				user.set(
-					new User({
-						principal: authResult.principal,
-						icpBalanceE8s,
-						nicpBalanceE8s,
-						wtnBalanceE8s
-					})
-				);
-			} catch (error) {
-				console.error('Login failed:', error);
-			}
+		await signIn('plug');
 
 		isBusy.set(false);
 		isLogging.set(false);
@@ -139,6 +83,7 @@
 		font-family: var(--font-type2);
 		font-weight: 600;
 		font-size: 20px;
+		color: black;
 	}
 
 	/* === Layout === */

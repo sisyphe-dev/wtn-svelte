@@ -86,11 +86,11 @@ export class Asset {
 	getDashboardUrl(): string {
 		switch (this.type) {
 			case AssetType.ICP:
-				return 'https://dashboard.internetcomputer.org/transactions/';
+				return 'https://dashboard.internetcomputer.org/transaction/';
 			case AssetType.nICP:
 				return '/wallet';
 			case AssetType.WTN:
-				return 'https://dashboard.internetcomputer.org/sns/jmod6-4iaaa-aaaaq-aadkq-cai/transactions';
+				return 'https://dashboard.internetcomputer.org/sns/jmod6-4iaaa-aaaaq-aadkq-cai/transaction/';
 		}
 	}
 

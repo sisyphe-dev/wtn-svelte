@@ -52,6 +52,10 @@
 		font-family: var(--font-type2);
 	}
 
+	button {
+		color: black;
+	}
+
 	/* === Layout === */
 	.token-balance-container {
 		display: flex;
