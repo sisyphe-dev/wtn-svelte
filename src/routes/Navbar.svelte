@@ -185,7 +185,7 @@
 
 	/* === Animations === */
 	.wave-title:hover h1:nth-child(2) {
-		animation: wave_animation 3s ease-in-out;
+		animation: wave_animation 3s ease-in-out infinite;
 	}
 
 	#blue-wave {
