@@ -148,12 +148,12 @@ export class State {
 		return bigintE8sToNumber(this.wtnCanisterInfo.exchange_rate);
 	}
 
-	async wtnAllocation(): Promise<BigNumber> {
+	async wtnAllocation(): Promise<BigNumber | undefined> {
 		try {
 			const allocation = await this.waterNeuron.get_airdrop_allocation();
 			return bigintE8sToNumber(allocation);
 		} catch (e) {
-			return BigNumber(0);
+			console.log(e);
 		}
 	}
 

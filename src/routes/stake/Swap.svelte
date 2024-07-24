@@ -16,6 +16,7 @@
 	import { fade } from 'svelte/transition';
 
 	let stake = true;
+	let invertExchangeRate = false;
 	let exchangeRate: BigNumber;
 	let totalIcpDeposited: BigNumber;
 	let minimumWithdraw: BigNumber;
@@ -147,6 +148,7 @@
 				style:text-align="start"
 				on:click={() => {
 					stake = true;
+					invertExchangeRate = false;
 					inputValue.set('');
 				}}
 				class:selected={stake}
@@ -157,6 +159,7 @@
 				style:text-align="end"
 				on:click={() => {
 					stake = false;
+					invertExchangeRate = false;
 					inputValue.set('');
 				}}
 				class:selected={!stake}
@@ -177,12 +180,19 @@
 							...
 						{/if}
 					</p>
-					<p>
-						{#if exchangeRate}
-							1 ICP = {displayUsFormat(exchangeRate)} nICP
-						{:else}
-							...
-						{/if}
+					<p style:display="flex">
+						<button class="change-btn" on:click={() => (invertExchangeRate = !invertExchangeRate)}
+							><img alt="Change icon" src="/icon/change.svg" height="20px" width="20px" />
+						</button>
+								{#if exchangeRate}
+									{#if invertExchangeRate}
+										1 nICP = {displayUsFormat(BigNumber(1).dividedBy(exchangeRate))} ICP
+									{:else}
+										1 ICP = {displayUsFormat(exchangeRate)} nICP
+									{/if}
+								{:else}
+									...
+								{/if}
 					</p>
 					<div class="reward">
 						<p style:margin-right={'2.5em'}>
@@ -199,7 +209,7 @@
 								...
 							{/if}
 						</p>
-						<img src="/tokens/WTN.png" width="30em" height="30em" alt="WTN logo" />
+						<img src="/tokens/WTN.png" width="30em" height="30em" alt="WTN logo" class="wtn-logo" />
 					</div>
 				{:else}
 					<p style:color="#fa796e">
@@ -213,8 +223,15 @@
 						{/if}
 					</p>
 					<p>
+					<button class="change-btn" on:click={() => (invertExchangeRate = !invertExchangeRate)}
+							><img alt="Change icon" src="/icon/change.svg" height="20px" width="20px" />
+						</button>
 						{#if exchangeRate}
-							1 nICP = {displayUsFormat(BigNumber(1).dividedBy(exchangeRate))} ICP
+							{#if !invertExchangeRate}
+								1 nICP = {displayUsFormat(BigNumber(1).dividedBy(exchangeRate))} ICP
+							{:else}
+								1 ICP = {displayUsFormat(exchangeRate)} nICP
+							{/if}
 						{:else}
 							...
 						{/if}
@@ -266,11 +283,10 @@
 		font-weight: bold;
 		text-align: end;
 		margin: 0;
-	}
-
-	img {
-		padding: 0.3em;
-		position: absolute;
+		display: flex;
+		justify-content: end;
+		align-items: center;
+		gap: 0.2em;
 	}
 
 	span {
@@ -325,6 +341,21 @@
 		width: 100%;
 	}
 
+	.change-btn {
+		border: none;
+		display: flex;
+		width: fit-content;
+		height: fit-content;
+		background: transparent;
+		padding: 0;
+		margin: 0;
+	}
+
+	.wtn-logo {
+		padding: 0.3em;
+		position: absolute;
+	}
+
 	.reward {
 		display: inline-flex;
 		align-items: center;
@@ -370,6 +401,9 @@
 	}
 
 	/* === Animation === */
+	.change-btn:hover {
+		animation: invert 0.2s linear;
+	}
 
 	.spinner {
 		width: 2em;
@@ -386,6 +420,15 @@
 		}
 		to {
 			transform: rotate(360deg);
+		}
+	}
+
+	@keyframes invert {
+		from {
+			transform: rotate(0deg);
+		}
+		to {
+			transform: rotate(180deg);
 		}
 	}
 </style>
