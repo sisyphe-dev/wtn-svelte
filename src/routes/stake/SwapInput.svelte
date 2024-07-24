@@ -2,6 +2,7 @@
 	import { Asset, handleInput } from '$lib';
 	import { inputValue, user } from '$lib/stores';
 	import { fade } from 'svelte/transition';
+	import BigNumber from 'bignumber.js';
 
 	export let asset: Asset;
 </script>
@@ -17,7 +18,12 @@
 	<button
 		class="max-btn"
 		on:click={() => {
-			const maxAmount = $user?.getBalance(asset.type).minus(asset.getTransferFee()).toNumber() ?? 0;
+			const fee = BigNumber(2).multipliedBy(asset.getTransferFee());
+			const maxAmount =
+				$user
+					?.getBalance(asset.type)
+					.minus(fee)
+					.toNumber() ?? 0;
 			inputValue.change(maxAmount && maxAmount >= 0 ? maxAmount : 0);
 		}}
 	>

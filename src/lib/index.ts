@@ -1,7 +1,6 @@
 import { Principal } from '@dfinity/principal';
 import BigNumber from 'bignumber.js';
 import type { NeuronId, WithdrawalStatus } from '../declarations/water_neuron/water_neuron.did';
-import { DEV } from './authentification';
 import { inputValue } from './stores';
 
 export const E8S = BigNumber(10).pow(BigNumber(8));

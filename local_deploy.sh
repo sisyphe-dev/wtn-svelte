@@ -15,7 +15,7 @@ dfx deploy wtn_ledger --argument '(variant { Init = record { minting_account = r
 
 dfx identity use icp-ident-RqOPnjj5ERjAEnwlvfKw
 
-dfx ledger transfer --memo 0 --icp 1_000_000 0be44491707d4b564caa515730dca79f70837811dd6202b2f498b26f4e59a01c
+dfx ledger transfer --memo 0 --icp 1_000_000 ab12b22f99344f0c1a9989f85eb1ddf2dc2e84d399b1d3ae473e758e896163d4
 
 #water neuron account id: 0be44491707d4b564caa515730dca79f70837811dd6202b2f498b26f4e59a01c
 

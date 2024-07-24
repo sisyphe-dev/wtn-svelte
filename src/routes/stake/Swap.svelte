@@ -45,14 +45,16 @@
 		if ($user.icpBalance().isGreaterThanOrEqualTo(amount) && amount.isGreaterThan(0)) {
 			try {
 				let amountE8s = numberToBigintE8s(amount);
+				const approveAmount = numberToBigintE8s(amount.multipliedBy(3));
 				const approval = await icpTransferApproved(
-					amountE8s,
+					approveAmount,
 					{
 						owner: $user.principal,
 						subaccount: []
 					} as Account,
 					$state.icpLedger
 				);
+				console.log(approval);
 				if (!approval.granted) {
 					toasts.add(Toast.error(approval.message ?? 'Unknown Error.'));
 				} else {
@@ -60,6 +62,7 @@
 						maybe_subaccount: [],
 						amount_e8s: amountE8s
 					} as ConversionArg);
+					console.log(conversionResult, amountE8s);
 					let status = handleStakeResult(conversionResult);
 					if (status.success) {
 						toasts.add(Toast.success(status.message));
@@ -83,8 +86,9 @@
 		if ($user.nicpBalance().isGreaterThanOrEqualTo(amount) && amount.isGreaterThan(0)) {
 			try {
 				let amountE8s = numberToBigintE8s(amount);
+				const approveAmount = numberToBigintE8s(amount.multipliedBy(3));
 				const approval = await nicpTransferApproved(
-					amountE8s,
+					approveAmount,
 					{
 						owner: $user.principal,
 						subaccount: []
@@ -239,8 +243,9 @@
 			{:else}
 				<button
 					class="swap-btn"
-					on:click={() =>
-						stake ? icpToNicp(BigNumber($inputValue)) : nicpToIcp(BigNumber($inputValue))}
+					on:click={() =>{
+						console.log($inputValue);
+						stake ? icpToNicp(BigNumber($inputValue)) : nicpToIcp(BigNumber($inputValue))}}
 				>
 					{#if $isConverting}
 						<div class="spinner"></div>
