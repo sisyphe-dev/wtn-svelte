@@ -1,6 +1,6 @@
 import { Principal } from '@dfinity/principal';
 import BigNumber from 'bignumber.js';
-import type { NeuronId, WithdrawalStatus } from '../declarations/water_neuron/water_neuron.did';
+import type { WithdrawalStatus } from '../declarations/water_neuron/water_neuron.did';
 import { inputValue } from './stores';
 
 export const E8S = BigNumber(10).pow(BigNumber(8));
@@ -145,6 +145,23 @@ export function computeRewards(alreadyDistributed: BigNumber, converting: BigNum
 	}
 
 	return totalRewards;
+}
+
+export function nicpLeftUntilNextTier(alreadyDistributed: BigNumber): { nicpLeft: BigNumber, rate: BigNumber } {
+	let cumulativeAmount = BigNumber(alreadyDistributed);
+
+	for (const [threshold, rate] of TIERS) {
+		const nicpThreshold = BigNumber(threshold);
+		const allocationRate = BigNumber(rate);
+		if (cumulativeAmount.isGreaterThan(nicpThreshold)) {
+			cumulativeAmount = cumulativeAmount.minus(nicpThreshold);
+			continue;
+		}
+		const nicpLeftBeforeNextTier = nicpThreshold.minus(cumulativeAmount);
+		return { nicpLeft: nicpLeftBeforeNextTier, rate: allocationRate};
+	}
+
+	return { nicpLeft: BigNumber(0), rate: BigNumber(0)};
 }
 
 export function renderStatus(status: WithdrawalStatus): string {

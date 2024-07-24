@@ -69,7 +69,6 @@ export async function internetIdentitySignIn(): Promise<AuthResult> {
 						});
 					},
 					onError: (error) => {
-						console.log('invalid');
 						reject(error);
 					},
 					identityProvider

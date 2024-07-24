@@ -5,7 +5,8 @@ import {
 	bigintE8sToNumber,
 	TIERS,
 	EXPECTED_INITIAL_BALANCE,
-	computeRewards
+	computeRewards,
+	nicpLeftUntilNextTier, 
 } from '$lib';
 import BigNumber from 'bignumber.js';
 
@@ -45,5 +46,19 @@ describe('computeRewards', () => {
 			0
 		);
 		expect(BigNumber(total).eq(EXPECTED_INITIAL_BALANCE)).toBeTruthy();
+	});
+});
+
+describe('nicpLeftUntilNextTier', () => {
+	it('should return the number of nICP to be minted before the next tier allocation.', () => {
+		const totalThresholds = TIERS.reduce((acc, [threshold, _]) => acc + threshold.toNumber(), 0);
+		expect(nicpLeftUntilNextTier(BigNumber(20_000)).nicpLeft.eq(BigNumber(60_000))).toBeTruthy();
+		expect(nicpLeftUntilNextTier(BigNumber(0)).nicpLeft.eq(BigNumber(80_000))).toBeTruthy();
+		expect(nicpLeftUntilNextTier(BigNumber(0)).rate.eq(BigNumber(8))).toBeTruthy();
+		expect(nicpLeftUntilNextTier(BigNumber(250_000)).nicpLeft.eq(BigNumber(310_000))).toBeTruthy();
+		expect(nicpLeftUntilNextTier(BigNumber(0)).rate.eq(BigNumber(2))).toBeTruthy();
+		expect(nicpLeftUntilNextTier(BigNumber(totalThresholds)).nicpLeft.isZero()).toBeTruthy();
+		expect(nicpLeftUntilNextTier(BigNumber(totalThresholds)).rate.isZero()).toBeTruthy();
+
 	});
 });
