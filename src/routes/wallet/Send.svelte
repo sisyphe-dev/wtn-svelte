@@ -186,8 +186,7 @@
 				on:click={() => {
 					const fee = BigNumber(2).multipliedBy($sendAsset.getTransferFee());
 					const amount =
-						$user &&
-						$user.getBalance($sendAsset.type).isGreaterThanOrEqualTo(fee)
+						$user && $user.getBalance($sendAsset.type).isGreaterThanOrEqualTo(fee)
 							? $user.getBalance($sendAsset.type).minus(fee)
 							: BigNumber(0);
 

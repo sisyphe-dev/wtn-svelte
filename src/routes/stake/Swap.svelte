@@ -241,8 +241,9 @@
 			{:else}
 				<button
 					class="swap-btn"
-					on:click={() =>{
-						stake ? icpToNicp(BigNumber($inputValue)) : nicpToIcp(BigNumber($inputValue))}}
+					on:click={() => {
+						stake ? icpToNicp(BigNumber($inputValue)) : nicpToIcp(BigNumber($inputValue));
+					}}
 				>
 					{#if $isConverting}
 						<div class="spinner"></div>

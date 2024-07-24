@@ -19,11 +19,7 @@
 		class="max-btn"
 		on:click={() => {
 			const fee = BigNumber(2).multipliedBy(asset.getTransferFee());
-			const maxAmount =
-				$user
-					?.getBalance(asset.type)
-					.minus(fee)
-					.toNumber() ?? 0;
+			const maxAmount = $user?.getBalance(asset.type).minus(fee).toNumber() ?? 0;
 			inputValue.change(maxAmount && maxAmount >= 0 ? maxAmount : 0);
 		}}
 	>

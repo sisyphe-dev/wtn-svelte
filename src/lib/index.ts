@@ -147,7 +147,10 @@ export function computeRewards(alreadyDistributed: BigNumber, converting: BigNum
 	return totalRewards;
 }
 
-export function nicpLeftUntilNextTier(alreadyDistributed: BigNumber): { nicpLeft: BigNumber, rate: BigNumber } {
+export function nicpLeftUntilNextTier(alreadyDistributed: BigNumber): {
+	nicpLeft: BigNumber;
+	rate: BigNumber;
+} {
 	let cumulativeAmount = BigNumber(alreadyDistributed);
 
 	for (const [threshold, rate] of TIERS) {
@@ -158,10 +161,10 @@ export function nicpLeftUntilNextTier(alreadyDistributed: BigNumber): { nicpLeft
 			continue;
 		}
 		const nicpLeftBeforeNextTier = nicpThreshold.minus(cumulativeAmount);
-		return { nicpLeft: nicpLeftBeforeNextTier, rate: allocationRate};
+		return { nicpLeft: nicpLeftBeforeNextTier, rate: allocationRate };
 	}
 
-	return { nicpLeft: BigNumber(0), rate: BigNumber(0)};
+	return { nicpLeft: BigNumber(0), rate: BigNumber(0) };
 }
 
 export function renderStatus(status: WithdrawalStatus): string {

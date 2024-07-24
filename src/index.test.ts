@@ -6,7 +6,7 @@ import {
 	TIERS,
 	EXPECTED_INITIAL_BALANCE,
 	computeRewards,
-	nicpLeftUntilNextTier, 
+	nicpLeftUntilNextTier
 } from '$lib';
 import BigNumber from 'bignumber.js';
 
@@ -59,6 +59,5 @@ describe('nicpLeftUntilNextTier', () => {
 		expect(nicpLeftUntilNextTier(BigNumber(0)).rate.eq(BigNumber(2))).toBeTruthy();
 		expect(nicpLeftUntilNextTier(BigNumber(totalThresholds)).nicpLeft.isZero()).toBeTruthy();
 		expect(nicpLeftUntilNextTier(BigNumber(totalThresholds)).rate.isZero()).toBeTruthy();
-
 	});
 });
