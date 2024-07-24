@@ -133,9 +133,7 @@ export class State {
 	}
 
 	totalIcpDeposited(): BigNumber {
-		const neuron6mStake = this.neuron6mStake();
-		const neuron8yStake = this.neuron8yStake();
-		return neuron6mStake.plus(neuron8yStake);
+		return bigintE8sToNumber(this.wtnCanisterInfo.total_icp_deposited);
 	}
 
 	neuron8yStake(): BigNumber {
