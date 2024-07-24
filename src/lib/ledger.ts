@@ -439,7 +439,7 @@ export function handleRetrieveResult(result: Result_2): ConversionResult {
 							};
 
 						default:
-							return { success: false, message: 'Unknown transferfrom error.' };
+							return { success: false, message: DEFAULT_ERROR_MESSAGE };
 					}
 
 				case 'GuardError':
@@ -500,7 +500,7 @@ export function handleTransferResult(result: TransferResult): ConversionResult {
 				default:
 					return {
 						success: false,
-						message: `Unknown Error. Try again and verify the Account Id.`
+						message: DEFAULT_ERROR_MESSAGE
 					};
 			}
 		}
@@ -517,7 +517,7 @@ export function handleIcrcTransferResult(
 	result: Icrc1TransferResult,
 	asset: Asset
 ): ConversionResult {
-	const key = Object.keys(result)[0] as keyof TransferResult;
+	const key = Object.keys(result)[0] as keyof Icrc1TransferResult;
 
 	switch (key) {
 		case 'Ok':
@@ -578,7 +578,7 @@ export function handleIcrcTransferResult(
 				default:
 					return {
 						success: false,
-						message: `Unknown Error. Try again and verify the Account Id.`
+						message: DEFAULT_ERROR_MESSAGE
 					};
 			}
 		}
