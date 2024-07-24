@@ -36,8 +36,8 @@
 	<div class="stat-item">
 		<b>Total Staked</b>
 		<b>
-			{#if totalIcpDeposited}
-				{displayUsFormat(totalIcpDeposited)} ICP
+			{#if $state}
+				{displayUsFormat($state.neuron8yStake().plus($state.neuron6mStake()))} ICP
 			{:else}
 				...
 			{/if}
