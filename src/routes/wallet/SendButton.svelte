@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { AssetType, displayUsFormat } from '$lib';
+	import { AssetType, displayUsFormat, isMobile } from '$lib';
 	import { user, sendAsset, isSelecting, state } from '$lib/stores';
 	import BigNumber from 'bignumber.js';
 	import { onMount } from 'svelte';
@@ -36,7 +36,11 @@
 	>
 	{#if asset.type === AssetType.WTN}
 		<p class="airdrop-allocation">
+			{#if isMobile}
+				Airdrop:
+			{:else}
 			Airdrop Allocation:
+			{/if}
 			{#if wtnAllocation}
 				{displayUsFormat(wtnAllocation)}
 			{:else}

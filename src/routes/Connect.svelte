@@ -4,6 +4,7 @@
 	import { signIn, User } from '$lib/state';
 	import type { Account } from '@dfinity/ledger-icp';
 	import { fade } from 'svelte/transition';
+	import { isMobile } from '$lib';
 
 	async function internetIdentityConnection() {
 		if ($isBusy) return;
@@ -25,9 +26,6 @@
 		isBusy.set(false);
 		isLogging.set(false);
 	}
-
-	const userAgent = navigator.userAgent;
-	const isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
 </script>
 
 <div class="cards-container" in:fade={{ duration: 500 }} class:mobile-size={isMobile}>
