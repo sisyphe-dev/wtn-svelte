@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { selectedAsset, inReceivingMenu } from '$lib/stores';
-    import { fade } from 'svelte/transition';
+	import { fade } from 'svelte/transition';
 </script>
 
 <div class="receive-container" transition:fade={{ duration: 100 }}>
@@ -9,7 +9,12 @@
 		<img alt="ICP logo" src={$selectedAsset.getIconPath()} width="50px" height="50px" />
 	</div>
 
-	<button class="toggle-btn" on:click={() => {inReceivingMenu.set(false)}}>
+	<button
+		class="toggle-btn"
+		on:click={() => {
+			inReceivingMenu.set(false);
+		}}
+	>
 		<span>Finish</span>
 	</button>
 </div>

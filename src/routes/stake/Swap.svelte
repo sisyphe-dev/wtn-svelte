@@ -155,7 +155,7 @@
 					inputValue.set('');
 				}}
 				class:selected={stake}
-				class:not-selected={!stake}>Stake ICP</button
+				class:not-selected={!stake}><h2 class="header-txt" style:left="5%">Stake ICP</h2></button
 			>
 			<button
 				class="header-btn"
@@ -167,7 +167,7 @@
 					inputValue.set('');
 				}}
 				class:selected={!stake}
-				class:not-selected={stake}>Unstake nICP</button
+				class:not-selected={stake}><h2 class="header-txt" style:right="5%">Unstake nICP</h2></button
 			>
 		</div>
 		<div class="swap-container">
@@ -297,6 +297,15 @@
 		color: black;
 	}
 
+	h2 {
+		font-family: var(--font-type2);
+		font-size: 17px;
+		font-weight: bold;
+		color: white;
+		position: absolute;
+		top: 0.2em;
+	}
+
 	/* === Layout === */
 	.main-container {
 		display: flex;
@@ -311,6 +320,7 @@
 	.header-container {
 		display: flex;
 		justify-content: space-between;
+		position: relative;
 	}
 
 	.swap-container {
@@ -335,14 +345,10 @@
 
 	/* === Components === */
 	.header-btn {
-		font-family: var(--font-type2);
-		font-size: 1.2em;
-		font-weight: bold;
-		color: white;
 		border: none;
 		color: white;
-		padding: 1em;
 		width: 100%;
+		height: 4em;
 	}
 
 	.change-btn {

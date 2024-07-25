@@ -5,7 +5,7 @@
 	if (!$user || !$selectedAsset) goto('/stake');
 
 	import Withdrawals from './Withdrawals.svelte';
-	import { Asset } from '$lib';
+	import { Asset, isMobile } from '$lib';
 	import SendButton from './SendButton.svelte';
 	import { scale } from 'svelte/transition';
 	import CopyIcon from '$lib/icons/CopyIcon.svelte';
