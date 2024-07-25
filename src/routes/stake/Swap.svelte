@@ -184,15 +184,15 @@
 						<button class="change-btn" on:click={() => (invertExchangeRate = !invertExchangeRate)}
 							><img alt="Change icon" src="/icon/change.svg" height="20px" width="20px" />
 						</button>
-								{#if exchangeRate}
-									{#if invertExchangeRate}
-										1 nICP = {displayUsFormat(BigNumber(1).dividedBy(exchangeRate))} ICP
-									{:else}
-										1 ICP = {displayUsFormat(exchangeRate)} nICP
-									{/if}
-								{:else}
-									...
-								{/if}
+						{#if exchangeRate}
+							{#if invertExchangeRate}
+								1 nICP = {displayUsFormat(BigNumber(1).dividedBy(exchangeRate))} ICP
+							{:else}
+								1 ICP = {displayUsFormat(exchangeRate)} nICP
+							{/if}
+						{:else}
+							...
+						{/if}
 					</p>
 					<div class="reward">
 						<p style:margin-right={'2.5em'}>
@@ -223,7 +223,7 @@
 						{/if}
 					</p>
 					<p>
-					<button class="change-btn" on:click={() => (invertExchangeRate = !invertExchangeRate)}
+						<button class="change-btn" on:click={() => (invertExchangeRate = !invertExchangeRate)}
 							><img alt="Change icon" src="/icon/change.svg" height="20px" width="20px" />
 						</button>
 						{#if exchangeRate}
