@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { AssetType, displayUsFormat, isMobile } from '$lib';
-	import { user, selectedAsset, inSendingMenu, state, isReceiving } from '$lib/stores';
+	import { user, selectedAsset, inSendingMenu, state, inReceivingMenu } from '$lib/stores';
 	import BigNumber from 'bignumber.js';
 	import { onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
@@ -30,24 +30,23 @@
 		<img alt="{asset.intoStr()} logo" src={asset.getIconPath()} width="30px" height="30px" />
 	</div>
 	<div class="btns-container">
-	
-	
-	<button
-		class="action-btn"
-		on:click={() => {
-			inSendingMenu.set(true);
-			selectedAsset.set(asset);
-		}}>
-		<QRCodeScannerIcon />
-		</button
-	>
-	<button
-		class="action-btn"
-		on:click={() => {
-			inSendingMenu.set(true);
-			selectedAsset.set(asset);
-		}}>
-		<UpIcon />
+		<button
+			class="action-btn"
+			on:click={() => {
+				inReceivingMenu.set(true);
+				selectedAsset.set(asset);
+			}}
+		>
+			<QRCodeScannerIcon />
+		</button>
+		<button
+			class="action-btn"
+			on:click={() => {
+				inSendingMenu.set(true);
+				selectedAsset.set(asset);
+			}}
+		>
+			<UpIcon />
 		</button>
 	</div>
 	{#if asset.type === AssetType.WTN}
@@ -82,7 +81,7 @@
 	}
 
 	.btns-container {
-		display: flex; 
+		display: flex;
 		gap: 0.5em;
 		align-items: center;
 	}
@@ -112,6 +111,5 @@
 	}
 
 	.action-btn:hover {
-
 	}
 </style>

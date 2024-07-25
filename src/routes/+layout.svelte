@@ -4,7 +4,8 @@
 	import Connect from './Connect.svelte';
 	import Send from './wallet/Send.svelte';
 	import Menu from './Menu.svelte';
-	import { isLogging, menu, inSendingMenu, user, state } from '$lib/stores';
+	import Receive from './wallet/Receive.svelte';
+	import { isLogging, menu, inSendingMenu, inReceivingMenu, user, state } from '$lib/stores';
 	import { onMount } from 'svelte';
 	import { fetchBalances, User } from '$lib/state';
 	import Toast from './Toast.svelte';
@@ -45,13 +46,17 @@
 	<div class="background-filter">
 		<Send />
 	</div>
+{:else if $inReceivingMenu}
+	<div class="background-filter">
+		<Receive />
+	</div>
 {/if}
 {#if $menu}
 	<Menu />
 {:else}
 	<div class="page-container">
 		<Navbar />
-		<div class="content-container" class:filter={$inSendingMenu || $isLogging}>
+		<div class="content-container" class:filter={$inReceivingMenu || $inSendingMenu || $isLogging}>
 			<slot />
 		</div>
 		<Footer />

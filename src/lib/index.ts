@@ -242,5 +242,5 @@ export const isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera
 
 export type QrCreatorConfig = QrCreator.Config;
 export type QrCreateClass = {
-  render: (config: QrCreatorConfig, $element: HTMLElement) => void;
+	render: (config: QrCreatorConfig, $element: HTMLElement) => void;
 };

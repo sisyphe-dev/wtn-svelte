@@ -18,7 +18,7 @@
 	import { fade } from 'svelte/transition';
 
 	let principal: string;
-	let isSending = false; 
+	let isSending = false;
 
 	function getReceiver(input: string): Principal | AccountIdentifier | undefined {
 		try {
@@ -153,7 +153,8 @@
 			<div style:display={'flex'}>
 				<div class="balances">
 					<span style:margin-left={'1em'}
-						>{displayUsFormat($user.getBalance($selectedAsset.type), 8)} {$selectedAsset.intoStr()}</span
+						>{displayUsFormat($user.getBalance($selectedAsset.type), 8)}
+						{$selectedAsset.intoStr()}</span
 					>
 					<img
 						alt="{$selectedAsset.intoStr()} logo"
@@ -324,6 +325,7 @@
 	.toggle-btn {
 		background: var(--main-color);
 		min-width: 80px;
+		border-radius: 8px;
 		position: relative;
 		border: 2px solid black;
 		font-size: 16px;

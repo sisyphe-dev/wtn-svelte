@@ -7,7 +7,7 @@ export const isLogging = writable<boolean>(false);
 export const isBusy = writable<boolean>(false);
 export const isConverting = writable<boolean>(false);
 export const inSendingMenu = writable<boolean>(false);
-export const isReceivingMenu = writable<boolean>(false);
+export const inReceivingMenu = writable<boolean>(false);
 export const menu = writable<boolean>(false);
 
 export const language = writable<'en' | 'es' | 'ja' | 'ru'>('en');
