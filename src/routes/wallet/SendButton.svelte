@@ -39,7 +39,7 @@
 			{#if isMobile}
 				Airdrop:
 			{:else}
-			Airdrop Allocation:
+				Airdrop Allocation:
 			{/if}
 			{#if wtnAllocation}
 				{displayUsFormat(wtnAllocation)}

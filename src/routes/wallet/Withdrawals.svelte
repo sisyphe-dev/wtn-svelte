@@ -1,5 +1,11 @@
 <script lang="ts">
-	import { bigintE8sToNumber, displayUsFormat, renderStatus, displayTimeLeft, isMobile } from '$lib';
+	import {
+		bigintE8sToNumber,
+		displayUsFormat,
+		renderStatus,
+		displayTimeLeft,
+		isMobile
+	} from '$lib';
 	import { state, user } from '$lib/stores';
 	import { onMount } from 'svelte';
 	import type {
