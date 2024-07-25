@@ -14,7 +14,10 @@
 	async function updateBalances() {
 		if ($state && $user) {
 			const { icp, nicp, wtn } = await fetchBalances(
-				$user.principal
+				$user.principal,
+				$state.nicpLedger,
+				$state.wtnLedger,
+				$state.icpLedger
 			);
 
 			$user.icpBalanceE8s = icp;
