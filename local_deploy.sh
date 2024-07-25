@@ -2,8 +2,8 @@ dfx identity use default
 
 dfx nns install
 
-cp /Users/ulyssekaz/sisyphe/wtn_svelte/wasm/governance-canister_test.wasm /Users/ulyssekaz/.cache/dfinity/versions/0.16.1/wasms/governance-canister_test.wasm
-cp /Users/ulyssekaz/sisyphe/wtn_svelte/wasm/governance-canister_test.wasm /Users/ulyssekaz/.cache/dfinity/versions/0.16.1/wasms/governance-canister.wasm
+# cp /Users/ulyssekaz/sisyphe/wtn_svelte/wasm/governance-canister_test.wasm /Users/ulyssekaz/.cache/dfinity/versions/0.16.1/wasms/governance-canister_test.wasm
+# cp /Users/ulyssekaz/sisyphe/wtn_svelte/wasm/governance-canister_test.wasm /Users/ulyssekaz/.cache/dfinity/versions/0.16.1/wasms/governance-canister.wasm
 
 dfx canister create water_neuron --specified-id n76cn-tyaaa-aaaam-acc5a-cai
 dfx canister create nicp_ledger --specified-id ny7ez-6aaaa-aaaam-acc5q-cai
@@ -15,8 +15,8 @@ dfx deploy wtn_ledger --argument '(variant { Init = record { minting_account = r
 
 dfx identity use icp-ident-RqOPnjj5ERjAEnwlvfKw
 
-dfx ledger transfer --memo 0 --icp 1_000_000 ab12b22f99344f0c1a9989f85eb1ddf2dc2e84d399b1d3ae473e758e896163d4
+dfx ledger transfer --memo 0 --icp 1_000_000 765e6310b047b593549600ddeaef71c27d6b4b06fd7d70ba0d3d4da9d1880103
 
-#water neuron account id: 0be44491707d4b564caa515730dca79f70837811dd6202b2f498b26f4e59a01c
+# water neuron account id: 0be44491707d4b564caa515730dca79f70837811dd6202b2f498b26f4e59a01c
 
 

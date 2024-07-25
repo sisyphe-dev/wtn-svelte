@@ -44,7 +44,7 @@
 			{#if wtnAllocation}
 				{displayUsFormat(wtnAllocation)}
 			{:else}
-				...
+				-/-
 			{/if} WTN
 		</p>
 	{/if}

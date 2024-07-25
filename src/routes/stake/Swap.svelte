@@ -179,12 +179,12 @@
 								8
 							)} nICP
 						{:else}
-							...
+							-/-
 						{/if}
 					</p>
 					<p style:display="flex">
 						<button class="change-btn" on:click={() => (invertExchangeRate = !invertExchangeRate)}
-							><img alt="Change icon" src="/icon/change.svg" height="20px" width="20px" />
+							><img alt="Change icon" src="/icon/change.svg" height="25px" width="25px" />
 						</button>
 						{#if exchangeRate}
 							{#if invertExchangeRate}
@@ -193,7 +193,7 @@
 								1 ICP = {displayUsFormat(exchangeRate)} nICP
 							{/if}
 						{:else}
-							...
+							-/-
 						{/if}
 					</p>
 					<div class="reward">
@@ -208,7 +208,7 @@
 									8
 								)}
 							{:else}
-								...
+								-/-
 							{/if}
 						</p>
 						<img src="/tokens/WTN.png" width="30em" height="30em" alt="WTN logo" class="wtn-logo" />
@@ -221,12 +221,12 @@
 								8
 							)} ICP
 						{:else}
-							...
+							-/-
 						{/if}
 					</p>
 					<p>
 						<button class="change-btn" on:click={() => (invertExchangeRate = !invertExchangeRate)}
-							><img alt="Change icon" src="/icon/change.svg" height="20px" width="20px" />
+							><img alt="Change icon" src="/icon/change.svg" height="25px" width="25px" />
 						</button>
 						{#if exchangeRate}
 							{#if !invertExchangeRate}
@@ -235,7 +235,7 @@
 								1 ICP = {displayUsFormat(exchangeRate)} nICP
 							{/if}
 						{:else}
-							...
+							-/-
 						{/if}
 					</p>
 					<p>Waiting Time: 6 months</p>
@@ -243,7 +243,7 @@
 						{#if minimumWithdraw}
 							Minimum Amount: {minimumWithdraw} nICP
 						{:else}
-							...
+							-/-
 						{/if}
 					</p>
 				{/if}
@@ -404,7 +404,8 @@
 
 	/* === Animation === */
 	.change-btn:hover {
-		animation: invert 0.2s linear;
+		transform: scale(1.2);
+		animation: invert 0.5s ease;
 	}
 
 	.spinner {
@@ -427,10 +428,10 @@
 
 	@keyframes invert {
 		from {
-			transform: rotate(0deg);
+			transform: scale(1);
 		}
 		to {
-			transform: rotate(180deg);
+			transform: scale(1.2);
 		}
 	}
 </style>

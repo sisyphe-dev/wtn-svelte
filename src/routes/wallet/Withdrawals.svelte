@@ -138,7 +138,7 @@
 							</td>
 							<!-- <td
 								>{#if renderStatus(details.status)}
-									...
+									-/-
 								{:then status}
 									{@html status}
 								{/await}
