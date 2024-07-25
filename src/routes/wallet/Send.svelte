@@ -308,6 +308,7 @@
 		background: none;
 		color: white;
 		border: none;
+		cursor: pointer;
 	}
 
 	.amount-input {

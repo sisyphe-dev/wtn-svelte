@@ -359,6 +359,7 @@
 		background: transparent;
 		padding: 0;
 		margin: 0;
+		cursor: pointer;
 	}
 
 	.wtn-logo {
