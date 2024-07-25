@@ -74,7 +74,7 @@
 				toasts.add(Toast.error('Call was rejected.'));
 			}
 		} else {
-			toasts.add(Toast.error('Conversion failed due to ICP balance.'));
+			toasts.add(Toast.error('Sorry, there are not enough funds in this account.'));
 		}
 		isConverting.set(false);
 	}
@@ -114,7 +114,7 @@
 				toasts.add(Toast.error('Call was rejected.'));
 			}
 		} else {
-			toasts.add(Toast.error('Conversion failed due to nICP balance.'));
+			toasts.add(Toast.error('Sorry, there are not enough funds in this account.'));
 		}
 		isConverting.set(false);
 	}
@@ -241,7 +241,7 @@
 					<p>Waiting Time: 6 months</p>
 					<p>
 						{#if minimumWithdraw}
-							Minimum Withdrawal: {minimumWithdraw} nICP
+							Minimum Amount: {minimumWithdraw} nICP
 						{:else}
 							...
 						{/if}
