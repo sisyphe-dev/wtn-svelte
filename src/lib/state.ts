@@ -97,7 +97,7 @@ export async function signIn(walletOrigin: 'internetIdentity' | 'plug' | 'reload
 }
 
 export async function fetchBalances(
-	principal: Principal,
+	principal: Principal
 ): Promise<{ icp: bigint; nicp: bigint; wtn: bigint }> {
 	const user_account: Account = {
 		owner: principal,
