@@ -97,18 +97,18 @@ export async function signIn(walletOrigin: 'internetIdentity' | 'plug' | 'reload
 }
 
 export async function fetchBalances(
-	principal: Principal,
-	nicpLedger: icrcLedgerInterface,
-	wtnLedger: icrcLedgerInterface,
-	icpLedger: icpLedgerInterface
+	principal: Principal
 ): Promise<{ icp: bigint; nicp: bigint; wtn: bigint }> {
 	const user_account: Account = {
 		owner: principal,
 		subaccount: []
 	};
-	const nicpBalanceE8s = await nicpLedger.icrc1_balance_of(user_account);
-	const wtnBalanceE8s = await wtnLedger.icrc1_balance_of(user_account);
-	const icpBalanceE8s = await icpLedger.icrc1_balance_of(user_account);
+
+	const actors = await fetchActors(undefined, true);
+
+	const nicpBalanceE8s = await actors.nicpLedger.icrc1_balance_of(user_account);
+	const wtnBalanceE8s = await actors.wtnLedger.icrc1_balance_of(user_account);
+	const icpBalanceE8s = await actors.icpLedger.icrc1_balance_of(user_account);
 
 	return { icp: icpBalanceE8s, nicp: nicpBalanceE8s, wtn: wtnBalanceE8s };
 }
@@ -148,12 +148,12 @@ export class State {
 		return bigintE8sToNumber(this.wtnCanisterInfo.exchange_rate);
 	}
 
-	async wtnAllocation(): Promise<BigNumber> {
+	async wtnAllocation(): Promise<BigNumber | undefined> {
 		try {
 			const allocation = await this.waterNeuron.get_airdrop_allocation();
 			return bigintE8sToNumber(allocation);
 		} catch (e) {
-			return BigNumber(0);
+			console.log('Error while fetching airdrop allocation:', e);
 		}
 	}
 

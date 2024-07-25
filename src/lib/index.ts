@@ -233,3 +233,8 @@ export function handleInput(event: Event): void {
 		target.value = value.substring(0, value.length - 1);
 	}
 }
+
+const userAgent = navigator.userAgent;
+export const isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+	userAgent
+);

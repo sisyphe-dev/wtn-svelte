@@ -16,6 +16,7 @@
 	import { fade } from 'svelte/transition';
 
 	let stake = true;
+	let invertExchangeRate = false;
 	let exchangeRate: BigNumber;
 	let totalIcpDeposited: BigNumber;
 	let minimumWithdraw: BigNumber;
@@ -69,10 +70,11 @@
 					}
 				}
 			} catch (error) {
+				console.log('icpToNicp error:', error);
 				toasts.add(Toast.error('Call was rejected.'));
 			}
 		} else {
-			toasts.add(Toast.error('Conversion failed due to ICP balance.'));
+			toasts.add(Toast.error('Sorry, there are not enough funds in this account.'));
 		}
 		isConverting.set(false);
 	}
@@ -108,10 +110,11 @@
 					}
 				}
 			} catch (error) {
+				console.log('nicpToIcp error:', error);
 				toasts.add(Toast.error('Call was rejected.'));
 			}
 		} else {
-			toasts.add(Toast.error('Conversion failed due to nICP balance.'));
+			toasts.add(Toast.error('Sorry, there are not enough funds in this account.'));
 		}
 		isConverting.set(false);
 	}
@@ -147,6 +150,7 @@
 				style:text-align="start"
 				on:click={() => {
 					stake = true;
+					invertExchangeRate = false;
 					inputValue.set('');
 				}}
 				class:selected={stake}
@@ -157,6 +161,7 @@
 				style:text-align="end"
 				on:click={() => {
 					stake = false;
+					invertExchangeRate = false;
 					inputValue.set('');
 				}}
 				class:selected={!stake}
@@ -174,14 +179,21 @@
 								8
 							)} nICP
 						{:else}
-							...
+							-/-
 						{/if}
 					</p>
-					<p>
+					<p style:display="flex">
+						<button class="change-btn" on:click={() => (invertExchangeRate = !invertExchangeRate)}
+							><img alt="Change icon" src="/icon/change.svg" height="25px" width="25px" />
+						</button>
 						{#if exchangeRate}
-							1 ICP = {displayUsFormat(exchangeRate)} nICP
+							{#if invertExchangeRate}
+								1 nICP = {displayUsFormat(BigNumber(1).dividedBy(exchangeRate))} ICP
+							{:else}
+								1 ICP = {displayUsFormat(exchangeRate)} nICP
+							{/if}
 						{:else}
-							...
+							-/-
 						{/if}
 					</p>
 					<div class="reward">
@@ -196,10 +208,10 @@
 									8
 								)}
 							{:else}
-								...
+								-/-
 							{/if}
 						</p>
-						<img src="/tokens/WTN.png" width="30em" height="30em" alt="WTN logo" />
+						<img src="/tokens/WTN.png" width="30em" height="30em" alt="WTN logo" class="wtn-logo" />
 					</div>
 				{:else}
 					<p style:color="#fa796e">
@@ -209,22 +221,29 @@
 								8
 							)} ICP
 						{:else}
-							...
+							-/-
 						{/if}
 					</p>
 					<p>
+						<button class="change-btn" on:click={() => (invertExchangeRate = !invertExchangeRate)}
+							><img alt="Change icon" src="/icon/change.svg" height="25px" width="25px" />
+						</button>
 						{#if exchangeRate}
-							1 nICP = {displayUsFormat(BigNumber(1).dividedBy(exchangeRate))} ICP
+							{#if !invertExchangeRate}
+								1 nICP = {displayUsFormat(BigNumber(1).dividedBy(exchangeRate))} ICP
+							{:else}
+								1 ICP = {displayUsFormat(exchangeRate)} nICP
+							{/if}
 						{:else}
-							...
+							-/-
 						{/if}
 					</p>
 					<p>Waiting Time: 6 months</p>
 					<p>
 						{#if minimumWithdraw}
-							Minimum Withdrawal: {minimumWithdraw} nICP
+							Minimum Amount: {minimumWithdraw} nICP
 						{:else}
-							...
+							-/-
 						{/if}
 					</p>
 				{/if}
@@ -266,11 +285,10 @@
 		font-weight: bold;
 		text-align: end;
 		margin: 0;
-	}
-
-	img {
-		padding: 0.3em;
-		position: absolute;
+		display: flex;
+		justify-content: end;
+		align-items: center;
+		gap: 0.2em;
 	}
 
 	span {
@@ -325,6 +343,21 @@
 		width: 100%;
 	}
 
+	.change-btn {
+		border: none;
+		display: flex;
+		width: fit-content;
+		height: fit-content;
+		background: transparent;
+		padding: 0;
+		margin: 0;
+	}
+
+	.wtn-logo {
+		padding: 0.3em;
+		position: absolute;
+	}
+
 	.reward {
 		display: inline-flex;
 		align-items: center;
@@ -370,6 +403,10 @@
 	}
 
 	/* === Animation === */
+	.change-btn:hover {
+		transform: scale(1.2);
+		animation: invert 0.5s ease;
+	}
 
 	.spinner {
 		width: 2em;
@@ -386,6 +423,15 @@
 		}
 		to {
 			transform: rotate(360deg);
+		}
+	}
+
+	@keyframes invert {
+		from {
+			transform: scale(1);
+		}
+		to {
+			transform: scale(1.2);
 		}
 	}
 </style>
