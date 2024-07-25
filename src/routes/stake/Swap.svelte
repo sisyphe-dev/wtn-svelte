@@ -70,6 +70,7 @@
 					}
 				}
 			} catch (error) {
+				console.log(error);
 				toasts.add(Toast.error('Call was rejected.'));
 			}
 		} else {
@@ -109,6 +110,7 @@
 					}
 				}
 			} catch (error) {
+				console.log(error);
 				toasts.add(Toast.error('Call was rejected.'));
 			}
 		} else {

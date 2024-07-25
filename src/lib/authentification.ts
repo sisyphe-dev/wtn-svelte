@@ -135,7 +135,7 @@ export async function internetIdentityLogout() {
 	await autClient.logout();
 }
 
-export function fetchActors(agent?: HttpAgent, isInternetIdentity?: boolean): Promise<Actors> {
+export function fetchActors(agent?: HttpAgent, isInternetIdentity=false): Promise<Actors> {
 	return new Promise<Actors>(async (resolve, reject) => {
 		try {
 			if (!agent) {

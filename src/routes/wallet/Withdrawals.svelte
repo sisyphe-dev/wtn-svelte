@@ -73,8 +73,6 @@
 	onMount(() => {
 		fetchWithdrawals();
 	});
-
-	$: $user, () => fetchWithdrawals();
 </script>
 
 {#if withdrawalRequests && withdrawalRequests.length >= 1}
