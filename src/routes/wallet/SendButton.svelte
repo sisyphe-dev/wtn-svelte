@@ -1,9 +1,11 @@
 <script lang="ts">
 	import { AssetType, displayUsFormat, isMobile } from '$lib';
-	import { user, sendAsset, isSelecting, state } from '$lib/stores';
+	import { user, selectedAsset, inSendingMenu, state, isReceiving } from '$lib/stores';
 	import BigNumber from 'bignumber.js';
 	import { onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
+	import QRCodeScannerIcon from '$lib/icons/QRCodeScannerIcon.svelte';
+	import UpIcon from '$lib/icons/UpIcon.svelte';
 
 	export let asset;
 	let wtnAllocation: BigNumber;
@@ -27,13 +29,27 @@
 		</p>
 		<img alt="{asset.intoStr()} logo" src={asset.getIconPath()} width="30px" height="30px" />
 	</div>
+	<div class="btns-container">
+	
+	
 	<button
-		class="swap-btn"
+		class="action-btn"
 		on:click={() => {
-			isSelecting.set(true);
-			sendAsset.set(asset);
-		}}>Send</button
+			inSendingMenu.set(true);
+			selectedAsset.set(asset);
+		}}>
+		<QRCodeScannerIcon />
+		</button
 	>
+	<button
+		class="action-btn"
+		on:click={() => {
+			inSendingMenu.set(true);
+			selectedAsset.set(asset);
+		}}>
+		<UpIcon />
+		</button>
+	</div>
 	{#if asset.type === AssetType.WTN}
 		<p class="airdrop-allocation">
 			{#if isMobile}
@@ -56,16 +72,19 @@
 		font-family: var(--font-type2);
 	}
 
-	button {
-		color: black;
-	}
-
 	/* === Layout === */
 	.token-balance-container {
 		display: flex;
 		justify-content: space-between;
 		position: relative;
 		margin-left: 1em;
+		align-items: center;
+	}
+
+	.btns-container {
+		display: flex; 
+		gap: 0.5em;
+		align-items: center;
 	}
 
 	/* === Components ==== */
@@ -84,21 +103,15 @@
 		font-family: var(--font-type2);
 	}
 
-	.swap-btn {
-		border: 2px solid black;
-		box-shadow: 3px 3px 0 0 black;
-		background-color: var(--main-color);
-		align-items: center;
-		padding: 0 2em;
-		font-weight: bold;
-		justify-content: center;
-		cursor: pointer;
+	.action-btn {
+		border: none;
+		background: transparent;
 		display: flex;
+		cursor: pointer;
+		color: var(--main-color);
 	}
 
-	.swap-btn:hover {
-		transform: scale(0.95);
-		transition: all 0.3s;
-		box-shadow: 6px 6px 0 0 black;
+	.action-btn:hover {
+
 	}
 </style>

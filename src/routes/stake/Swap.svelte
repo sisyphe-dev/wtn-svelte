@@ -148,6 +148,7 @@
 			<button
 				class="header-btn"
 				style:text-align="start"
+				style:border-top-left-radius="8px"
 				on:click={() => {
 					stake = true;
 					invertExchangeRate = false;
@@ -159,6 +160,7 @@
 			<button
 				class="header-btn"
 				style:text-align="end"
+				style:border-top-right-radius="8px"
 				on:click={() => {
 					stake = false;
 					invertExchangeRate = false;
@@ -371,6 +373,7 @@
 		max-width: fit-content;
 		position: relative;
 		border: 2px solid black;
+		border-radius: 8px;
 		font-size: 16px;
 		font-weight: bold;
 		box-shadow: 3px 3px 0 0 black;

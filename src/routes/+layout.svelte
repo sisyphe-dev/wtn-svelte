@@ -4,7 +4,7 @@
 	import Connect from './Connect.svelte';
 	import Send from './wallet/Send.svelte';
 	import Menu from './Menu.svelte';
-	import { isLogging, menu, isSelecting, user, state } from '$lib/stores';
+	import { isLogging, menu, inSendingMenu, user, state } from '$lib/stores';
 	import { onMount } from 'svelte';
 	import { fetchBalances, User } from '$lib/state';
 	import Toast from './Toast.svelte';
@@ -41,7 +41,7 @@
 	<div class="background-filter">
 		<Connect />
 	</div>
-{:else if $isSelecting}
+{:else if $inSendingMenu}
 	<div class="background-filter">
 		<Send />
 	</div>
@@ -51,7 +51,7 @@
 {:else}
 	<div class="page-container">
 		<Navbar />
-		<div class="content-container" class:filter={$isSelecting || $isLogging}>
+		<div class="content-container" class:filter={$inSendingMenu || $isLogging}>
 			<slot />
 		</div>
 		<Footer />

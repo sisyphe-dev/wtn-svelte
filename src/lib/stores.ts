@@ -6,12 +6,12 @@ import { Toast } from './toast';
 export const isLogging = writable<boolean>(false);
 export const isBusy = writable<boolean>(false);
 export const isConverting = writable<boolean>(false);
-export const isSelecting = writable<boolean>(false);
-export const isSending = writable<boolean>(false);
+export const inSendingMenu = writable<boolean>(false);
+export const isReceivingMenu = writable<boolean>(false);
 export const menu = writable<boolean>(false);
 
 export const language = writable<'en' | 'es' | 'ja' | 'ru'>('en');
-export const sendAsset = writable<Asset>(new Asset(AssetType.ICP));
+export const selectedAsset = writable<Asset>(new Asset(AssetType.ICP));
 
 function createInputValue() {
 	const { subscribe, set } = writable<string>();

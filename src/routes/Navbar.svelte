@@ -1,10 +1,10 @@
 <script>
-	import { isSelecting, isLogging, menu, user } from '$lib/stores';
+	import { inSendingMenu, isLogging, menu, user } from '$lib/stores';
 	import { displayUsFormat, displayPrincipal } from '$lib';
 	import { internetIdentityLogout } from '$lib/authentification';
 </script>
 
-<nav class:filter={$isSelecting || $isLogging}>
+<nav class:filter={$inSendingMenu || $isLogging}>
 	<a href="/stake" class="menu-selection-container">
 		<img src="/WTN.png" width="100em" height="100em" alt="WTN logo." />
 		<div class="wave-title">

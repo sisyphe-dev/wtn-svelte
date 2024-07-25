@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { user, sendAsset } from '$lib/stores';
+	import { user, selectedAsset } from '$lib/stores';
 
-	if (!$user || !$sendAsset) goto('/stake');
+	if (!$user || !$selectedAsset) goto('/stake');
 
 	import Withdrawals from './Withdrawals.svelte';
 	import { Asset } from '$lib';

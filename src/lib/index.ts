@@ -2,6 +2,7 @@ import { Principal } from '@dfinity/principal';
 import BigNumber from 'bignumber.js';
 import type { WithdrawalStatus } from '../declarations/water_neuron/water_neuron.did';
 import { inputValue } from './stores';
+import QrCreator from 'qr-creator';
 
 export const E8S = BigNumber(10).pow(BigNumber(8));
 
@@ -238,3 +239,8 @@ const userAgent = navigator.userAgent;
 export const isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
 	userAgent
 );
+
+export type QrCreatorConfig = QrCreator.Config;
+export type QrCreateClass = {
+  render: (config: QrCreatorConfig, $element: HTMLElement) => void;
+};
