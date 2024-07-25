@@ -10,9 +10,9 @@
 		QrCreator.render(
 			{
 				text: `${$selectedAsset.intoStr() === 'ICP' ? $user.accountId : $user.principal}`,
-				radius: 0.5, // 0.0 to 0.5
-				ecLevel: 'L', // L, M, Q, H
-				fill: 'oklab(0.88 -0.18 0.03)',
+				radius: 0.0, // 0.0 to 0.5
+				ecLevel: 'H', // L, M, Q, H
+				fill: 'rgb(12, 44, 76)',
 				background: null,
 				size: 1000 // in pixels
 			},
@@ -111,7 +111,11 @@
 		font-size: 16px;
 	}
 
-
+    canvas {
+        background: oklab(0.88 -0.18 0.03);
+        padding: 1em;
+        border-radius: 8px;
+    }
 	/* === Layout === */
 	.receive-container {
 		position: fixed;
