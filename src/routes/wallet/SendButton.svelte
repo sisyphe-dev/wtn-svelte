@@ -31,43 +31,43 @@
 	</div>
 	<div class="btns-container">
 		{#if isMobile}
-		<button
-			class="mobile-action-btn"
-			on:click={() => {
-				inReceivingMenu.set(true);
-				selectedAsset.set(asset);
-			}}
-		>
-			<QRCodeScannerIcon />
-		</button>
-		<button
-			class="mobile-action-btn"
-			on:click={() => {
-				inSendingMenu.set(true);
-				selectedAsset.set(asset);
-			}}
-		>
-			<UpIcon />
-		</button>
+			<button
+				class="mobile-action-btn"
+				on:click={() => {
+					inReceivingMenu.set(true);
+					selectedAsset.set(asset);
+				}}
+			>
+				<QRCodeScannerIcon />
+			</button>
+			<button
+				class="mobile-action-btn"
+				on:click={() => {
+					inSendingMenu.set(true);
+					selectedAsset.set(asset);
+				}}
+			>
+				<UpIcon />
+			</button>
 		{:else}
-		<button
-			class="action-btn"
-			on:click={() => {
-				inReceivingMenu.set(true);
-				selectedAsset.set(asset);
-			}}
-		>
-			Receive
-		</button>
-		<button
-			class="action-btn"
-			on:click={() => {
-				inSendingMenu.set(true);
-				selectedAsset.set(asset);
-			}}
-		>
-			Send
-		</button>
+			<button
+				class="action-btn"
+				on:click={() => {
+					inReceivingMenu.set(true);
+					selectedAsset.set(asset);
+				}}
+			>
+				Receive
+			</button>
+			<button
+				class="action-btn"
+				on:click={() => {
+					inSendingMenu.set(true);
+					selectedAsset.set(asset);
+				}}
+			>
+				Send
+			</button>
 		{/if}
 	</div>
 	{#if asset.type === AssetType.WTN}
@@ -103,7 +103,6 @@
 
 	.btns-container {
 		display: flex;
-		gap: 0.5em;
 		align-items: center;
 	}
 
@@ -147,10 +146,11 @@
 		justify-content: center;
 		align-items: center;
 		cursor: pointer;
+		margin-right: 1em;
 	}
 
 	.action-btn:hover {
-transform: scale(0.95);
+		transform: scale(0.95);
 		transition: all 0.3s;
 		box-shadow: 6px 6px 0 0 black;
 	}
