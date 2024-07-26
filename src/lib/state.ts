@@ -8,10 +8,21 @@ import type {
 	CanisterInfo,
 	_SERVICE as waterNeuronInterface
 } from '../declarations/water_neuron/water_neuron.did';
-import { type AuthResult, fetchActors, type Actors } from './authentification';
+import {
+	type AuthResult,
+	fetchActors,
+	type Actors,
+	internetIdentitySignIn,
+	plugSignIn,
+	HOST,
+	CANISTER_ID_WATER_NEURON
+} from './authentification';
 import { state, user } from './stores';
-import { internetIdentitySignIn, plugSignIn } from '$lib/authentification';
 import { AuthClient } from '@dfinity/auth-client';
+import { HttpAgent, Actor, makeNonceTransform } from '@dfinity/agent';
+import { Ed25519KeyIdentity } from '@dfinity/identity';
+import { idlFactory as idlFactoryWaterNeuron } from '../declarations/water_neuron';
+import { IDL } from '@dfinity/candid';
 
 interface UserProps {
 	principal: Principal;
@@ -113,6 +124,32 @@ export async function fetchBalances(
 	return { icp: icpBalanceE8s, nicp: nicpBalanceE8s, wtn: wtnBalanceE8s };
 }
 
+async function createSecp256k1IdentityActor(
+	canisterId: Principal,
+	idl: IDL.InterfaceFactory
+): Promise<any> {
+	const dummyIdentity = Ed25519KeyIdentity.generate();
+
+	const dummyAgent = Promise.resolve(new HttpAgent({ host: HOST, identity: dummyIdentity })).then(async (agent) => {
+		if (process.env.DFX_NETWORK !== 'ic') {
+			console.log('fetching root key');
+			agent.fetchRootKey().catch((err) => {
+				console.warn(
+					'Unable to fetch root key. Check to ensure that your local replica is running'
+				);
+				console.error(err);
+			});
+		}
+		agent.addTransform('query', makeNonceTransform());
+		return agent;
+	});
+
+	return Actor.createActor(idl, {
+		canisterId,
+		agent: await dummyAgent
+	}) as any;
+}
+
 export class State {
 	public neuron8yStakeE8s: bigint;
 	public neuron6mStakeE8s: bigint;
@@ -148,9 +185,13 @@ export class State {
 		return bigintE8sToNumber(this.wtnCanisterInfo.exchange_rate);
 	}
 
-	async wtnAllocation(): Promise<BigNumber | undefined> {
+	async wtnAllocation(principal: Principal): Promise<BigNumber | undefined> {
 		try {
-			const allocation = await this.waterNeuron.get_airdrop_allocation([]);
+			const waterNeuron = await createSecp256k1IdentityActor(
+				Principal.fromText(CANISTER_ID_WATER_NEURON),
+				idlFactoryWaterNeuron
+			);
+			const allocation = await waterNeuron.get_airdrop_allocation([principal]);
 			return bigintE8sToNumber(allocation);
 		} catch (e) {
 			console.log('Error while fetching airdrop allocation:', e);

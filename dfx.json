@@ -4,9 +4,16 @@
 		"water_neuron": {
 			"candid": "candid/water_neuron.did",
 			"type": "custom",
-			"wasm": "wasm/water_neuron.wasm"
+			"wasm": "wasm/waterneuron.wasm.gz"
 		},
 		"dapp_frontend": {
+			"source": ["dist"],
+			"type": "assets",
+			"frontend": {
+				"entrypoint": "dist/index.html"
+			}
+		},
+		"staging_frontend": {
 			"source": ["dist"],
 			"type": "assets",
 			"frontend": {
