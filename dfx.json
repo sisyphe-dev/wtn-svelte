@@ -13,6 +13,13 @@
 				"entrypoint": "dist/index.html"
 			}
 		},
+		"staging_frontend": {
+			"source": ["dist"],
+			"type": "assets",
+			"frontend": {
+				"entrypoint": "dist/index.html"
+			}
+		},
 		"nicp_ledger": {
 			"candid": "candid/ledger.did",
 			"type": "custom",
