@@ -130,7 +130,7 @@ async function createSecp256k1IdentityActor(
 ): Promise<any> {
 	const identity = Ed25519KeyIdentity.generate();
 
-	const agent = Promise.resolve(new HttpAgent({ host: HOST, identity })).then(async (agent) => {
+	const dummyAgent = Promise.resolve(new HttpAgent({ host: HOST, identity })).then(async (agent) => {
 		if (process.env.DFX_NETWORK !== 'ic') {
 			console.log('fetching root key');
 			agent.fetchRootKey().catch((err) => {
@@ -146,7 +146,7 @@ async function createSecp256k1IdentityActor(
 
 	return Actor.createActor(idl, {
 		canisterId,
-		agent: await agent
+		agent: await dummyAgent
 	}) as any;
 }
 
