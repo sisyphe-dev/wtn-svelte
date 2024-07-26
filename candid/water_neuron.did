@@ -145,7 +145,7 @@ type WithdrawalStatus = variant {
 type WithdrawalSuccess = record { block_index : nat; withdrawal_id : nat64 };
 service : (LiquidArg) -> {
   claim_airdrop : () -> (Result);
-  get_airdrop_allocation : () -> (nat64) query;
+  get_airdrop_allocation : (opt principal) -> (nat64) query;
   get_events : (GetEventsArg) -> (GetEventsResult) query;
   get_info : () -> (CanisterInfo) query;
   get_transfer_statuses : (vec nat64) -> (vec TransferStatus) query;

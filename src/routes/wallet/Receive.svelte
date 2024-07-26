@@ -39,7 +39,7 @@
 
 <div class="receive-container" transition:fade={{ duration: 100 }}>
 	<div class="header-container">
-		<h2>Receive {$selectedAsset.intoStr()}</h2>
+		<h3>Receive {$selectedAsset.intoStr()}</h3>
 		<img alt="ICP logo" src={$selectedAsset.getIconPath()} width="50px" height="50px" />
 	</div>
 	<div class="qr-code-container">
