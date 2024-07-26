@@ -102,6 +102,7 @@
 
 	dialog {
 		display: flex;
+		justify-content: center;
 		background: none;
 		height: fit-content;
 		min-height: 100%;
