@@ -103,10 +103,12 @@
 	dialog {
 		display: flex;
 		background: none;
-		justify-content: center;
 		height: fit-content;
 		min-height: 100%;
-		width: 100dvw;
+		min-width: 100dvw;
+		border: none;
+		padding: 0;
+		margin: 0;
 		border: none;
 	}
 
@@ -142,11 +144,12 @@
 		flex-direction: column;
 		justify-content: center;
 		align-items: center;
-		max-width: 80vw;
+		max-width: 90dvw;
 		width: 35em;
 		background: var(--background-color);
 		color: white;
 		padding: 2em;
+		margin: 0.3em;
 		border-radius: 15px;
 		border: 2px solid var(--border-color);
 		gap: 1em;

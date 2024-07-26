@@ -268,7 +268,9 @@
 		justify-content: center;
 		height: fit-content;
 		min-height: 100%;
-		width: 100dvw;
+		min-width: 100dvw;
+		padding: 0;
+		margin: 0;
 		border: none;
 	}
 
