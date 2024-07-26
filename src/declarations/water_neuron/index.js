@@ -120,6 +120,7 @@ export const idlFactory = ({ IDL }) => {
 	});
 	const CanisterInfo = IDL.Record({
 		neuron_6m_account: Account,
+		latest_distribution_icp_per_vp: IDL.Opt(IDL.Float64),
 		neuron_id_6m: IDL.Opt(NeuronId),
 		neuron_id_8y: IDL.Opt(NeuronId),
 		tracked_6m_stake: IDL.Nat64,
@@ -182,6 +183,7 @@ export const idlFactory = ({ IDL }) => {
 		amount_e8s: IDL.Nat64
 	});
 	const DepositSuccess = IDL.Record({
+		nicp_amount: IDL.Opt(IDL.Nat64),
 		block_index: IDL.Nat,
 		transfer_id: IDL.Nat64
 	});
@@ -191,7 +193,8 @@ export const idlFactory = ({ IDL }) => {
 	});
 	const WithdrawalSuccess = IDL.Record({
 		block_index: IDL.Nat,
-		withdrawal_id: IDL.Nat64
+		withdrawal_id: IDL.Nat64,
+		icp_amount: IDL.Opt(IDL.Nat64)
 	});
 	const Result_2 = IDL.Variant({
 		Ok: WithdrawalSuccess,
@@ -199,7 +202,7 @@ export const idlFactory = ({ IDL }) => {
 	});
 	return IDL.Service({
 		claim_airdrop: IDL.Func([], [Result], []),
-		get_airdrop_allocation: IDL.Func([], [IDL.Nat64], ['query']),
+		get_airdrop_allocation: IDL.Func([IDL.Opt(IDL.Principal)], [IDL.Nat64], ['query']),
 		get_events: IDL.Func([GetEventsArg], [GetEventsResult], ['query']),
 		get_info: IDL.Func([], [CanisterInfo], ['query']),
 		get_transfer_statuses: IDL.Func([IDL.Vec(IDL.Nat64)], [IDL.Vec(TransferStatus)], ['query']),
