@@ -128,9 +128,9 @@ async function createSecp256k1IdentityActor(
 	canisterId: Principal,
 	idl: IDL.InterfaceFactory
 ): Promise<any> {
-	const identity = Ed25519KeyIdentity.generate();
+	const dummyIdentity = Ed25519KeyIdentity.generate();
 
-	const dummyAgent = Promise.resolve(new HttpAgent({ host: HOST, identity })).then(async (agent) => {
+	const dummyAgent = Promise.resolve(new HttpAgent({ host: HOST, identity: dummyIdentity })).then(async (agent) => {
 		if (process.env.DFX_NETWORK !== 'ic') {
 			console.log('fetching root key');
 			agent.fetchRootKey().catch((err) => {
