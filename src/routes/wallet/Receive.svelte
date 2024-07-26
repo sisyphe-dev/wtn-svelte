@@ -103,7 +103,7 @@
 	p {
 		font-family: var(--font-type2);
 		overflow-wrap: anywhere;
-		font-size: 15px;
+		font-size: 14px;
 	}
 
 	h3 {
@@ -148,7 +148,7 @@
 	.principal-container {
 		margin-left: 1em;
 		display: flex;
-		justify-content: start;
+		justify-content: center;
 		width: 100%;
 		align-items: center;
 		gap: 1em;
