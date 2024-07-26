@@ -111,11 +111,11 @@
 		font-size: 16px;
 	}
 
-    canvas {
-        background: oklab(0.88 -0.18 0.03);
-        padding: 1em;
-        border-radius: 8px;
-    }
+	canvas {
+		background: oklab(0.88 -0.18 0.03);
+		padding: 1em;
+		border-radius: 8px;
+	}
 	/* === Layout === */
 	.receive-container {
 		position: fixed;
@@ -154,12 +154,12 @@
 		gap: 1em;
 	}
 
-    .qr-code-container {
-        position: relative;
-        width: 100%;
-        display: flex;
-        justify-content: center;
-    }
+	.qr-code-container {
+		position: relative;
+		width: 100%;
+		display: flex;
+		justify-content: center;
+	}
 	/* === Components === */
 
 	.finish-btn {
@@ -190,12 +190,11 @@
 		width: 268px;
 	}
 
-    #wtn-logo {
-        position: absolute;
-        top: 50%;
-        transform: translate(0, -50%);
-    }
-
+	#wtn-logo {
+		position: absolute;
+		top: 50%;
+		transform: translate(0, -50%);
+	}
 
 	.copy-btn {
 		background-color: transparent;
