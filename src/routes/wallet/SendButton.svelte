@@ -19,6 +19,9 @@
 
 		return () => clearInterval(intervalId);
 	});
+
+	let receivingMenu = document.getElementById('receiverDialog');
+	console.log(receivingMenu);
 </script>
 
 <div class="token-balance-container" in:fade={{ duration: 500 }}>

@@ -1,6 +1,15 @@
 <script lang="ts">
-	import { AssetType, displayUsFormat, numberToBigintE8s, handleInput, Asset, E8S } from '$lib';
+	import {
+		AssetType,
+		displayUsFormat,
+		numberToBigintE8s,
+		handleInput,
+		Asset,
+		E8S,
+		isContainerHigher
+	} from '$lib';
 	import { inSendingMenu, selectedAsset, user, toasts, state, inputValue } from '$lib/stores';
+	import { onMount } from 'svelte';
 	import { Toast } from '$lib/toast';
 	import BigNumber from 'bignumber.js';
 	import { type Account, AccountIdentifier } from '@dfinity/ledger-icp';
@@ -19,6 +28,13 @@
 
 	let principal: string;
 	let isSending = false;
+	let isHigher = false;
+
+	onMount(() => {
+		let sendingDialog = document.getElementById('senderDialog');
+		sendingDialog.showModal();
+		isHigher = isContainerHigher('send');
+	});
 
 	function getReceiver(input: string): Principal | AccountIdentifier | undefined {
 		try {
@@ -142,103 +158,120 @@
 	}
 </script>
 
-<div class="send-container" transition:fade={{ duration: 100 }}>
-	<div class="header-container">
-		<h2>Send {$selectedAsset.intoStr()}</h2>
-		<img alt="ICP logo" src={$selectedAsset.getIconPath()} width="50px" height="50px" />
-	</div>
-	{#if $user}
-		<div>
-			<p>Balance</p>
-			<div style:display={'flex'}>
-				<div class="balances">
-					<span style:margin-left={'1em'}
-						>{displayUsFormat($user.getBalance($selectedAsset.type), 8)}
-						{$selectedAsset.intoStr()}</span
-					>
-					<img
-						alt="{$selectedAsset.intoStr()} logo"
-						src={$selectedAsset.getIconPath()}
-						width="20px"
-						height="20px"
-					/>
+<dialog id="senderDialog" style:align-items={isHigher ? 'flex-start' : 'center'}>
+	<div class="send-container" transition:fade={{ duration: 100 }}>
+		<div class="header-container">
+			<h2>Send {$selectedAsset.intoStr()}</h2>
+			<img alt="ICP logo" src={$selectedAsset.getIconPath()} width="50px" height="50px" />
+		</div>
+		{#if $user}
+			<div>
+				<p>Balance</p>
+				<div style:display={'flex'}>
+					<div class="balances">
+						<span style:margin-left={'1em'}
+							>{displayUsFormat($user.getBalance($selectedAsset.type), 8)}
+							{$selectedAsset.intoStr()}</span
+						>
+						<img
+							alt="{$selectedAsset.intoStr()} logo"
+							src={$selectedAsset.getIconPath()}
+							width="20px"
+							height="20px"
+						/>
+					</div>
 				</div>
 			</div>
-		</div>
-	{/if}
-	<div>
-		<p>Destination</p>
-		<input type="text" placeholder="Address" bind:value={principal} />
-		{#if principal && !getReceiver(principal)}
-			<span class="error"> Please enter a valid address. </span>
 		{/if}
-	</div>
-	<div>
-		<p>Amount</p>
-		<div class="amount-input">
-			<input
-				type="text"
-				maxlength="20"
-				bind:value={$inputValue}
-				placeholder="Amount"
-				on:input={handleInput}
-			/>
-			<button
-				class="max-btn"
-				on:click={() => {
-					const fee = BigNumber(2).multipliedBy($selectedAsset.getTransferFee());
-					const amount =
-						$user && $user.getBalance($selectedAsset.type).isGreaterThanOrEqualTo(fee)
-							? $user.getBalance($selectedAsset.type).minus(fee)
-							: BigNumber(0);
+		<div>
+			<p>Destination</p>
+			<input type="text" placeholder="Address" bind:value={principal} />
+			{#if principal && !getReceiver(principal)}
+				<span class="error"> Please enter a valid address. </span>
+			{/if}
+		</div>
+		<div>
+			<p>Amount</p>
+			<div class="amount-input">
+				<input
+					type="text"
+					maxlength="20"
+					bind:value={$inputValue}
+					placeholder="Amount"
+					on:input={handleInput}
+				/>
+				<button
+					class="max-btn"
+					on:click={() => {
+						const fee = BigNumber(2).multipliedBy($selectedAsset.getTransferFee());
+						const amount =
+							$user && $user.getBalance($selectedAsset.type).isGreaterThanOrEqualTo(fee)
+								? $user.getBalance($selectedAsset.type).minus(fee)
+								: BigNumber(0);
 
-					inputValue.change(amount.toNumber() && amount.toNumber() >= 0 ? amount.toNumber() : 0);
-				}}
-			>
-				MAX
-			</button>
+						inputValue.change(amount.toNumber() && amount.toNumber() >= 0 ? amount.toNumber() : 0);
+					}}
+				>
+					MAX
+				</button>
+			</div>
+			{#if BigNumber($inputValue).isGreaterThanOrEqualTo($user?.getBalance($selectedAsset.type) ?? BigNumber(0))}
+				<span class="error"> Not enough treasury. </span>
+			{/if}
+			{#if BigNumber($inputValue).isLessThan(BigNumber(1).dividedBy(E8S))}
+				<span class="error">Minimum amount: 0.00000001</span>
+			{/if}
 		</div>
-		{#if BigNumber($inputValue).isGreaterThanOrEqualTo($user?.getBalance($selectedAsset.type) ?? BigNumber(0))}
-			<span class="error"> Not enough treasury. </span>
-		{/if}
-		{#if BigNumber($inputValue).isLessThan(BigNumber(1).dividedBy(E8S))}
-			<span class="error">Minimum amount: 0.00000001</span>
-		{/if}
+		<div>
+			<p>Transfer Fee</p>
+			<p style:padding-left="1em">
+				{$selectedAsset.getTransferFee()}
+				{$selectedAsset.intoStr()}
+			</p>
+		</div>
+		<div class="button-container">
+			{#if isSending}
+				<button class="toggle-btn">
+					<div class="spinner"></div>
+				</button>
+			{:else}
+				<button
+					class="toggle-btn"
+					on:click={() => {
+						inSendingMenu.set(false);
+						inputValue.set('');
+					}}>Cancel</button
+				>
+				<button
+					class="toggle-btn"
+					on:click={() => {
+						icrcTransfer(BigNumber($inputValue), principal);
+					}}
+				>
+					<span>Continue</span>
+				</button>
+			{/if}
+		</div>
 	</div>
-	<div>
-		<p>Transfer Fee</p>
-		<p style:padding-left="1em">
-			{$selectedAsset.getTransferFee()}
-			{$selectedAsset.intoStr()}
-		</p>
-	</div>
-	<div class="button-container">
-		{#if isSending}
-			<button class="toggle-btn">
-				<div class="spinner"></div>
-			</button>
-		{:else}
-			<button
-				class="toggle-btn"
-				on:click={() => {
-					inSendingMenu.set(false);
-					inputValue.set('');
-				}}>Cancel</button
-			>
-			<button
-				class="toggle-btn"
-				on:click={() => {
-					icrcTransfer(BigNumber($inputValue), principal);
-				}}
-			>
-				<span>Continue</span>
-			</button>
-		{/if}
-	</div>
-</div>
+</dialog>
 
 <style>
 	/* === Base Styles === */
+
+	::backdrop {
+		backdrop-filter: blur(10px);
+	}
+
+	dialog {
+		display: flex;
+		background: none;
+		justify-content: center;
+		height: fit-content;
+		min-height: 100%;
+		width: 100dvw;
+		border: none;
+	}
+
 	input {
 		border: none;
 		padding-left: 0.4em;
@@ -268,18 +301,15 @@
 
 	/* === Layout === */
 	.send-container {
-		position: fixed;
-		z-index: 1;
 		display: flex;
 		flex-direction: column;
+		height: fit-content;
 		max-width: 35em;
 		width: 80vw;
 		background: var(--background-color);
 		color: white;
 		padding: 2em;
 		border-radius: 15px;
-		margin-left: 0.5em;
-		margin-right: 0.5em;
 		border: 2px solid var(--border-color);
 	}
 

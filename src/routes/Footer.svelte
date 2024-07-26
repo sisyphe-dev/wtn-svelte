@@ -1,8 +1,8 @@
 <script>
-	import { inSendingMenu, inReceivingMenu, isLogging } from '$lib/stores';
+	import { isLogging } from '$lib/stores';
 </script>
 
-<footer class:filter={$isLogging || $inSendingMenu || $inReceivingMenu}>
+<footer class:filter={$isLogging }>
 	<div class="central-container">
 		<img alt="WTN icon" src="/tokens/WTN.png" id="wtn-icon" />
 		<a

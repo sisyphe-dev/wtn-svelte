@@ -303,7 +303,9 @@
 		font-weight: bold;
 		color: white;
 		position: absolute;
-		top: 0.2em;
+		top: 2.25em;
+		margin: 0;
+		transform: translate(0px, -100%);
 	}
 
 	/* === Layout === */
@@ -348,7 +350,7 @@
 		border: none;
 		color: white;
 		width: 100%;
-		height: 4em;
+		height: 4.5em;
 	}
 
 	.change-btn {

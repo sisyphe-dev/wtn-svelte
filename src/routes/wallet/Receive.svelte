@@ -2,11 +2,16 @@
 	import { selectedAsset, inReceivingMenu, user } from '$lib/stores';
 	import CopyIcon from '$lib/icons/CopyIcon.svelte';
 	import { fade, scale } from 'svelte/transition';
-	import { AssetType } from '$lib';
+	import { AssetType, isContainerHigher } from '$lib';
 	import { onMount } from 'svelte';
 	import QrCreator from 'qr-creator';
 
+	let isHigher = false;
 	onMount(() => {
+		let receivingDialog = document.getElementById('receiverDialog');
+		receivingDialog.showModal();
+		isHigher = isContainerHigher('receive');
+
 		QrCreator.render(
 			{
 				text: `${$selectedAsset.intoStr() === 'ICP' ? $user.accountId : $user.principal}`,
@@ -37,58 +42,73 @@
 	}
 </script>
 
-<div class="receive-container" transition:fade={{ duration: 100 }}>
-	<div class="header-container">
-		<h3>Receive {$selectedAsset.intoStr()}</h3>
-		<img alt="ICP logo" src={$selectedAsset.getIconPath()} width="50px" height="50px" />
+<dialog id="receiverDialog" style:align-items={isHigher ? 'flex-start' : 'center'}>
+	<div class="receive-container" transition:fade={{ duration: 100 }}>
+		<div class="header-container">
+			<h3>Receive {$selectedAsset.intoStr()}</h3>
+			<img alt="ICP logo" src={$selectedAsset.getIconPath()} width="50px" height="50px" />
+		</div>
+		<div class="qr-code-container">
+			<canvas id="qr-code" />
+			<img id="wtn-logo" src="/WTN.png" width="70px" height="70px" alt="WTN logo." />
+		</div>
+		<div class="principal-container">
+			{#if $selectedAsset.intoStr() === 'ICP'}
+				<p>{$user?.accountId}</p>
+				<button
+					class="copy-btn"
+					on:click={() => {
+						handleAnimation();
+						navigator.clipboard.writeText($user ? $user.accountId : '');
+					}}
+				>
+					<CopyIcon />
+					{#if circleVisible}
+						<div class="circle" transition:scale={{ duration: 500 }}></div>
+					{/if}
+				</button>
+			{:else}
+				<p>{$user?.principal}</p>
+				<button
+					class="copy-btn"
+					on:click={() => {
+						handleAnimation();
+						navigator.clipboard.writeText($user ? $user.principal : '');
+					}}
+				>
+					<CopyIcon />
+					{#if circleVisible}
+						<div class="circle" transition:scale={{ duration: 500 }}></div>
+					{/if}
+				</button>
+			{/if}
+		</div>
+		<button
+			class="finish-btn"
+			on:click={() => {
+				inReceivingMenu.set(false);
+			}}
+		>
+			<span>Finish</span>
+		</button>
 	</div>
-	<div class="qr-code-container">
-		<canvas id="qr-code" />
-		<img id="wtn-logo" src="/WTN.png" width="70px" height="70px" alt="WTN logo." />
-	</div>
-	<div class="principal-container">
-		{#if $selectedAsset.intoStr() === 'ICP'}
-			<p>{$user?.accountId}</p>
-			<button
-				class="copy-btn"
-				on:click={() => {
-					handleAnimation();
-					navigator.clipboard.writeText($user ? $user.accountId : '');
-				}}
-			>
-				<CopyIcon />
-				{#if circleVisible}
-					<div class="circle" transition:scale={{ duration: 500 }}></div>
-				{/if}
-			</button>
-		{:else}
-			<p>{$user?.principal}</p>
-			<button
-				class="copy-btn"
-				on:click={() => {
-					handleAnimation();
-					navigator.clipboard.writeText($user ? $user.principal : '');
-				}}
-			>
-				<CopyIcon />
-				{#if circleVisible}
-					<div class="circle" transition:scale={{ duration: 500 }}></div>
-				{/if}
-			</button>
-		{/if}
-	</div>
-	<button
-		class="finish-btn"
-		on:click={() => {
-			inReceivingMenu.set(false);
-		}}
-	>
-		<span>Finish</span>
-	</button>
-</div>
+</dialog>
 
 <style>
 	/* === Base Styles === */
+	::backdrop {
+		backdrop-filter: blur(10px);
+	}
+
+	dialog {
+		display: flex;
+		background: none;
+		justify-content: center;
+		height: fit-content;
+		min-height: 100%;
+		width: 100dvw;
+		border: none;
+	}
 
 	span {
 		font-family: var(--font-type2);
@@ -118,8 +138,6 @@
 	}
 	/* === Layout === */
 	.receive-container {
-		position: fixed;
-		z-index: 1;
 		display: flex;
 		flex-direction: column;
 		justify-content: center;
@@ -130,10 +148,10 @@
 		color: white;
 		padding: 2em;
 		border-radius: 15px;
-		margin-left: 0.5em;
-		margin-right: 0.5em;
 		border: 2px solid var(--border-color);
 		gap: 1em;
+		height: fit-content;
+		overflow-x: hidden;
 	}
 
 	.header-container {
