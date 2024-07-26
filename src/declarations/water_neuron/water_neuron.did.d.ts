@@ -8,6 +8,7 @@ export interface Account {
 }
 export interface CanisterInfo {
 	neuron_6m_account: Account;
+	latest_distribution_icp_per_vp: [] | [number];
 	neuron_id_6m: [] | [NeuronId];
 	neuron_id_8y: [] | [NeuronId];
 	tracked_6m_stake: bigint;
@@ -35,6 +36,7 @@ export type ConversionError =
 	| { TransferFromError: TransferFromError }
 	| { GuardError: { guard_error: GuardError } };
 export interface DepositSuccess {
+	nicp_amount: [] | [bigint];
 	block_index: bigint;
 	transfer_id: bigint;
 }
@@ -194,10 +196,11 @@ export type WithdrawalStatus =
 export interface WithdrawalSuccess {
 	block_index: bigint;
 	withdrawal_id: bigint;
+	icp_amount: [] | [bigint];
 }
 export interface _SERVICE {
 	claim_airdrop: ActorMethod<[], Result>;
-	get_airdrop_allocation: ActorMethod<[], bigint>;
+	get_airdrop_allocation: ActorMethod<[[] | [Principal]], bigint>;
 	get_events: ActorMethod<[GetEventsArg], GetEventsResult>;
 	get_info: ActorMethod<[], CanisterInfo>;
 	get_transfer_statuses: ActorMethod<[BigUint64Array | bigint[]], Array<TransferStatus>>;
