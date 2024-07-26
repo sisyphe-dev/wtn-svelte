@@ -124,40 +124,29 @@ export async function fetchBalances(
 	return { icp: icpBalanceE8s, nicp: nicpBalanceE8s, wtn: wtnBalanceE8s };
 }
 
-const identity = Ed25519KeyIdentity.generate();
-export const principal = identity.getPrincipal();
-
-const agent = Promise.resolve(new HttpAgent({ host: HOST, identity })).then(async (agent) => {
-	await agent.fetchRootKey();
-	agent.addTransform('query', makeNonceTransform());
-	return agent;
-});
-
 async function createSecp256k1IdentityActor(
 	canisterId: Principal,
-	idl: IDL.InterfaceFactory,
-	seed?: number
+	idl: IDL.InterfaceFactory
 ): Promise<any> {
-	let seed1: Uint8Array | undefined;
-	if (seed) {
-		seed1 = new Uint8Array(new Array(32).fill(0));
-		seed1[0] = seed;
-	}
+	const identity = Ed25519KeyIdentity.generate();
 
-	const identity = Ed25519KeyIdentity.generate(seed1);
-	const agent1 = new HttpAgent({ source: await agent, identity });
-
-	if (process.env.DFX_NETWORK !== 'ic') {
-		console.log('fetching root key');
-		agent1.fetchRootKey().catch((err) => {
-			console.warn('Unable to fetch root key. Check to ensure that your local replica is running');
-			console.error(err);
-		});
-	}
+	const agent = Promise.resolve(new HttpAgent({ host: HOST, identity })).then(async (agent) => {
+		if (process.env.DFX_NETWORK !== 'ic') {
+			console.log('fetching root key');
+			agent.fetchRootKey().catch((err) => {
+				console.warn(
+					'Unable to fetch root key. Check to ensure that your local replica is running'
+				);
+				console.error(err);
+			});
+		}
+		agent.addTransform('query', makeNonceTransform());
+		return agent;
+	});
 
 	return Actor.createActor(idl, {
 		canisterId,
-		agent: agent1
+		agent: await agent
 	}) as any;
 }
 
