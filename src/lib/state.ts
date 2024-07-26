@@ -11,8 +11,10 @@ import type {
 import { type AuthResult, fetchActors, type Actors, internetIdentitySignIn, plugSignIn, HOST, CANISTER_ID_WATER_NEURON } from './authentification';
 import { state, user } from './stores';
 import { AuthClient } from '@dfinity/auth-client';
-import { HttpAgent, Actor } from '@dfinity/agent';
+import { HttpAgent, Actor, makeNonceTransform } from '@dfinity/agent';
+import { Ed25519KeyIdentity } from '@dfinity/identity';
 import { idlFactory as idlFactoryWaterNeuron } from '../declarations/water_neuron';
+import { IDL } from '@dfinity/candid';
 
 interface UserProps {
 	principal: Principal;
@@ -114,6 +116,49 @@ export async function fetchBalances(
 	return { icp: icpBalanceE8s, nicp: nicpBalanceE8s, wtn: wtnBalanceE8s };
 }
 
+const identity = Ed25519KeyIdentity.generate();
+export const principal = identity.getPrincipal();
+
+const agent = Promise.resolve(new HttpAgent({ host: HOST, identity })).then(
+  async agent => {
+    await agent.fetchRootKey();
+    agent.addTransform("query", makeNonceTransform());
+    return agent;
+  },
+);
+
+
+async function createSecp256k1IdentityActor(
+	canisterId: Principal,
+	idl: IDL.InterfaceFactory,
+	seed?: number,
+  ): Promise<any> {
+	let seed1: Uint8Array | undefined;
+	if (seed) {
+	  seed1 = new Uint8Array(new Array(32).fill(0));
+	  seed1[0] = seed;
+	}
+  
+	const identity = Ed25519KeyIdentity.generate(seed1);
+	const agent1 = new HttpAgent({ source: await agent, identity });
+
+	if (process.env.DFX_NETWORK !== 'ic') {
+		console.log('fetching root key');
+		agent1.fetchRootKey().catch((err) => {
+			console.warn(
+				'Unable to fetch root key. Check to ensure that your local replica is running'
+			);
+			console.error(err);
+		});
+	}
+
+	
+	return Actor.createActor(idl, {
+	  canisterId,
+	  agent: agent1,
+	}) as any;
+  }
+
 export class State {
 	public neuron8yStakeE8s: bigint;
 	public neuron6mStakeE8s: bigint;
@@ -151,25 +196,7 @@ export class State {
 
 	async wtnAllocation(principal: Principal): Promise<BigNumber | undefined> {
 		try {
-			const agent = new HttpAgent({
-				host: HOST
-			});
-
-			if (process.env.DFX_NETWORK !== 'ic') {
-				console.log('fetching root key');
-				agent.fetchRootKey().catch((err) => {
-					console.warn(
-						'Unable to fetch root key. Check to ensure that your local replica is running'
-					);
-					console.error(err);
-				});
-			}
-
-			const waterNeuron: waterNeuronInterface = Actor.createActor(idlFactoryWaterNeuron, {
-				agent,
-				canisterId: CANISTER_ID_WATER_NEURON
-			});
-
+			const waterNeuron = await createSecp256k1IdentityActor(Principal.fromText(CANISTER_ID_WATER_NEURON), idlFactoryWaterNeuron);
 			const allocation = await waterNeuron.get_airdrop_allocation([principal]);
 			return bigintE8sToNumber(allocation);
 		} catch (e) {
