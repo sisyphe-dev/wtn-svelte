@@ -8,10 +8,11 @@ import type {
 	CanisterInfo,
 	_SERVICE as waterNeuronInterface
 } from '../declarations/water_neuron/water_neuron.did';
-import { type AuthResult, fetchActors, type Actors } from './authentification';
+import { type AuthResult, fetchActors, type Actors, internetIdentitySignIn, plugSignIn, HOST, CANISTER_ID_WATER_NEURON } from './authentification';
 import { state, user } from './stores';
-import { internetIdentitySignIn, plugSignIn } from '$lib/authentification';
 import { AuthClient } from '@dfinity/auth-client';
+import { HttpAgent, Actor } from '@dfinity/agent';
+import { idlFactory as idlFactoryWaterNeuron } from '../declarations/water_neuron';
 
 interface UserProps {
 	principal: Principal;
@@ -148,9 +149,28 @@ export class State {
 		return bigintE8sToNumber(this.wtnCanisterInfo.exchange_rate);
 	}
 
-	async wtnAllocation(): Promise<BigNumber | undefined> {
+	async wtnAllocation(principal: Principal): Promise<BigNumber | undefined> {
 		try {
-			const allocation = await this.waterNeuron.get_airdrop_allocation();
+			const agent = new HttpAgent({
+				host: HOST
+			});
+
+			if (process.env.DFX_NETWORK !== 'ic') {
+				console.log('fetching root key');
+				agent.fetchRootKey().catch((err) => {
+					console.warn(
+						'Unable to fetch root key. Check to ensure that your local replica is running'
+					);
+					console.error(err);
+				});
+			}
+
+			const waterNeuron: waterNeuronInterface = Actor.createActor(idlFactoryWaterNeuron, {
+				agent,
+				canisterId: CANISTER_ID_WATER_NEURON
+			});
+
+			const allocation = await waterNeuron.get_airdrop_allocation([principal]);
 			return bigintE8sToNumber(allocation);
 		} catch (e) {
 			console.log('Error while fetching airdrop allocation:', e);
