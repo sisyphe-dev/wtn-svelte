@@ -43,13 +43,9 @@
 		<Connect />
 	</div>
 {:else if $inSendingMenu}
-	<div class="background-filter">
-		<Send />
-	</div>
+	<Send />
 {:else if $inReceivingMenu}
-	<div class="background-filter">
-		<Receive />
-	</div>
+	<Receive />
 {/if}
 {#if $menu}
 	<Menu />
@@ -85,8 +81,6 @@
 	/* === Layout === */
 	.page-container {
 		display: flex;
-		background-attachment: fixed;
-		background-size: cover;
 		flex-direction: column;
 		height: fit-content;
 		min-height: 100%;

@@ -238,3 +238,21 @@ const userAgent = navigator.userAgent;
 export const isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
 	userAgent
 );
+
+export function isContainerHigher(type: 'receive' | 'send'): boolean {
+	let name: string;
+	switch (type) {
+		case 'receive':
+			name = '.receive-container';
+			break;
+		case 'send':
+			name = '.send-container';
+			break;
+	}
+	const container: HTMLDivElement | null = document.querySelector(name);
+	if (container === null) return false;
+	const containerHeight = container.offsetHeight;
+	const viewportHeight = window.innerHeight;
+
+	return containerHeight >= viewportHeight;
+}
