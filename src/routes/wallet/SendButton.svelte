@@ -19,7 +19,7 @@
 
 		return () => clearInterval(intervalId);
 	});
-	</script>
+</script>
 
 <div class="token-balance-container" in:fade={{ duration: 500 }}>
 	<div class="balance">

@@ -2,7 +2,7 @@
 	import { isLogging } from '$lib/stores';
 </script>
 
-<footer class:filter={$isLogging }>
+<footer class:filter={$isLogging}>
 	<div class="central-container">
 		<img alt="WTN icon" src="/tokens/WTN.png" id="wtn-icon" />
 		<a
