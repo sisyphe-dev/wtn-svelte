@@ -130,19 +130,21 @@ async function createSecp256k1IdentityActor(
 ): Promise<any> {
 	const dummyIdentity = Ed25519KeyIdentity.generate();
 
-	const dummyAgent = Promise.resolve(new HttpAgent({ host: HOST, identity: dummyIdentity })).then(async (agent) => {
-		if (process.env.DFX_NETWORK !== 'ic') {
-			console.log('fetching root key');
-			agent.fetchRootKey().catch((err) => {
-				console.warn(
-					'Unable to fetch root key. Check to ensure that your local replica is running'
-				);
-				console.error(err);
-			});
+	const dummyAgent = Promise.resolve(new HttpAgent({ host: HOST, identity: dummyIdentity })).then(
+		async (agent) => {
+			if (process.env.DFX_NETWORK !== 'ic') {
+				console.log('fetching root key');
+				agent.fetchRootKey().catch((err) => {
+					console.warn(
+						'Unable to fetch root key. Check to ensure that your local replica is running'
+					);
+					console.error(err);
+				});
+			}
+			agent.addTransform('query', makeNonceTransform());
+			return agent;
 		}
-		agent.addTransform('query', makeNonceTransform());
-		return agent;
-	});
+	);
 
 	return Actor.createActor(idl, {
 		canisterId,
