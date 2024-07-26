@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { AssetType, displayUsFormat, numberToBigintE8s, handleInput, Asset, E8S } from '$lib';
-	import { isSelecting, sendAsset, user, toasts, state, isSending, inputValue } from '$lib/stores';
+	import { inSendingMenu, selectedAsset, user, toasts, state, inputValue } from '$lib/stores';
 	import { Toast } from '$lib/toast';
 	import BigNumber from 'bignumber.js';
 	import { type Account, AccountIdentifier } from '@dfinity/ledger-icp';
@@ -18,13 +18,14 @@
 	import { fade } from 'svelte/transition';
 
 	let principal: string;
+	let isSending = false;
 
 	function getReceiver(input: string): Principal | AccountIdentifier | undefined {
 		try {
 			const principal = Principal.fromText(input);
 			return principal;
 		} catch (e) {
-			if ($sendAsset.type === AssetType.ICP) {
+			if ($selectedAsset.type === AssetType.ICP) {
 				try {
 					if (input.length !== 64) return undefined;
 					const accountId = AccountIdentifier.fromHex(input);
@@ -41,7 +42,7 @@
 	function isValidAmount(amount: BigNumber): boolean {
 		if (amount && $user) {
 			return (
-				$user.getBalance($sendAsset.type).isGreaterThanOrEqualTo(amount) &&
+				$user.getBalance($selectedAsset.type).isGreaterThanOrEqualTo(amount) &&
 				amount.isGreaterThanOrEqualTo(BigNumber(1).dividedBy(E8S))
 			);
 		} else {
@@ -50,19 +51,19 @@
 	}
 
 	async function icrcTransfer(amount: BigNumber, input: string) {
-		if ($isSending || amount.isNaN() || !isValidAmount(amount) || !principal || !$state) return;
+		if (isSending || amount.isNaN() || !isValidAmount(amount) || !principal || !$state) return;
 
-		isSending.set(true);
+		isSending = true;
 		const amount_e8s = numberToBigintE8s(amount);
 		const receiver = getReceiver(input);
 		if (!receiver) {
-			isSending.set(false);
+			isSending = false;
 			return;
 		}
 
 		try {
 			let status: ConversionResult;
-			switch ($sendAsset.type) {
+			switch ($selectedAsset.type) {
 				case AssetType.ICP:
 					{
 						if (receiver instanceof Principal) {
@@ -130,21 +131,21 @@
 			} else {
 				toasts.add(Toast.error(status.message));
 			}
-			isSelecting.set(false);
-			isSending.set(false);
+			inSendingMenu.set(false);
+			isSending = false;
 		} catch (error) {
 			toasts.add(Toast.error(`${error}`));
 		}
-		isSelecting.set(false);
-		isSending.set(false);
+		inSendingMenu.set(false);
+		isSending = false;
 		inputValue.set('');
 	}
 </script>
 
 <div class="send-container" transition:fade={{ duration: 100 }}>
 	<div class="header-container">
-		<h2>Send {$sendAsset.intoStr()}</h2>
-		<img alt="ICP logo" src={$sendAsset.getIconPath()} width="50px" height="50px" />
+		<h2>Send {$selectedAsset.intoStr()}</h2>
+		<img alt="ICP logo" src={$selectedAsset.getIconPath()} width="50px" height="50px" />
 	</div>
 	{#if $user}
 		<div>
@@ -152,11 +153,12 @@
 			<div style:display={'flex'}>
 				<div class="balances">
 					<span style:margin-left={'1em'}
-						>{displayUsFormat($user.getBalance($sendAsset.type), 8)} {$sendAsset.intoStr()}</span
+						>{displayUsFormat($user.getBalance($selectedAsset.type), 8)}
+						{$selectedAsset.intoStr()}</span
 					>
 					<img
-						alt="{$sendAsset.intoStr()} logo"
-						src={$sendAsset.getIconPath()}
+						alt="{$selectedAsset.intoStr()} logo"
+						src={$selectedAsset.getIconPath()}
 						width="20px"
 						height="20px"
 					/>
@@ -184,10 +186,10 @@
 			<button
 				class="max-btn"
 				on:click={() => {
-					const fee = BigNumber(2).multipliedBy($sendAsset.getTransferFee());
+					const fee = BigNumber(2).multipliedBy($selectedAsset.getTransferFee());
 					const amount =
-						$user && $user.getBalance($sendAsset.type).isGreaterThanOrEqualTo(fee)
-							? $user.getBalance($sendAsset.type).minus(fee)
+						$user && $user.getBalance($selectedAsset.type).isGreaterThanOrEqualTo(fee)
+							? $user.getBalance($selectedAsset.type).minus(fee)
 							: BigNumber(0);
 
 					inputValue.change(amount.toNumber() && amount.toNumber() >= 0 ? amount.toNumber() : 0);
@@ -196,7 +198,7 @@
 				MAX
 			</button>
 		</div>
-		{#if BigNumber($inputValue).isGreaterThanOrEqualTo($user?.getBalance($sendAsset.type) ?? BigNumber(0))}
+		{#if BigNumber($inputValue).isGreaterThanOrEqualTo($user?.getBalance($selectedAsset.type) ?? BigNumber(0))}
 			<span class="error"> Not enough treasury. </span>
 		{/if}
 		{#if BigNumber($inputValue).isLessThan(BigNumber(1).dividedBy(E8S))}
@@ -206,12 +208,12 @@
 	<div>
 		<p>Transfer Fee</p>
 		<p style:padding-left="1em">
-			{$sendAsset.getTransferFee()}
-			{$sendAsset.intoStr()}
+			{$selectedAsset.getTransferFee()}
+			{$selectedAsset.intoStr()}
 		</p>
 	</div>
 	<div class="button-container">
-		{#if $isSending}
+		{#if isSending}
 			<button class="toggle-btn">
 				<div class="spinner"></div>
 			</button>
@@ -219,7 +221,7 @@
 			<button
 				class="toggle-btn"
 				on:click={() => {
-					isSelecting.set(false);
+					inSendingMenu.set(false);
 					inputValue.set('');
 				}}>Cancel</button
 			>
@@ -306,6 +308,7 @@
 		background: none;
 		color: white;
 		border: none;
+		cursor: pointer;
 	}
 
 	.amount-input {
@@ -323,6 +326,7 @@
 	.toggle-btn {
 		background: var(--main-color);
 		min-width: 80px;
+		border-radius: 8px;
 		position: relative;
 		border: 2px solid black;
 		font-size: 16px;
@@ -334,6 +338,7 @@
 		display: flex;
 		justify-content: center;
 		align-items: center;
+		cursor: pointer;
 	}
 
 	.toggle-btn:hover {

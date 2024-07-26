@@ -13,6 +13,9 @@
 		NeuronId
 	} from '../../declarations/water_neuron/water_neuron.did';
 	import { fade } from 'svelte/transition';
+	import { HttpAgent, Actor } from '@dfinity/agent';
+	import { CANISTER_ID_WATER_NEURON, HOST } from '$lib/authentification';
+	import { idlFactory as idlFactoryWaterNeuron } from '$lib/../declarations/water_neuron';
 
 	let withdrawalRequests: WithdrawalDetails[];
 	let withdrawalStatuses: {
@@ -32,7 +35,26 @@
 
 	const fetchWithdrawals = async () => {
 		if ($user && $state) {
-			withdrawalRequests = await $state.waterNeuron.get_withdrawal_requests([$user.principal]);
+			const agent = new HttpAgent({
+				host: HOST
+			});
+
+			const waterNeuron: waterNeuronInterface = Actor.createActor(idlFactoryWaterNeuron, {
+				agent,
+				canisterId: CANISTER_ID_WATER_NEURON
+			});
+
+			if (process.env.DFX_NETWORK !== 'ic') {
+				console.log('fetching root key');
+				agent.fetchRootKey().catch((err) => {
+					console.warn(
+						'Unable to fetch root key. Check to ensure that your local replica is running'
+					);
+					console.error(err);
+				});
+			}
+
+			withdrawalRequests = await waterNeuron.get_withdrawal_requests([$user.principal]);
 			await fetchStatuses();
 		}
 	};

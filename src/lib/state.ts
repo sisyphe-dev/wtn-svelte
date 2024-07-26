@@ -150,7 +150,7 @@ export class State {
 
 	async wtnAllocation(): Promise<BigNumber | undefined> {
 		try {
-			const allocation = await this.waterNeuron.get_airdrop_allocation();
+			const allocation = await this.waterNeuron.get_airdrop_allocation([]);
 			return bigintE8sToNumber(allocation);
 		} catch (e) {
 			console.log('Error while fetching airdrop allocation:', e);

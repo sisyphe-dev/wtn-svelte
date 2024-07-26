@@ -1,9 +1,11 @@
 <script lang="ts">
 	import { AssetType, displayUsFormat, isMobile } from '$lib';
-	import { user, sendAsset, isSelecting, state } from '$lib/stores';
+	import { user, selectedAsset, inSendingMenu, state, inReceivingMenu } from '$lib/stores';
 	import BigNumber from 'bignumber.js';
 	import { onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
+	import QRCodeScannerIcon from '$lib/icons/QRCodeScannerIcon.svelte';
+	import UpIcon from '$lib/icons/UpIcon.svelte';
 
 	export let asset;
 	let wtnAllocation: BigNumber;
@@ -27,13 +29,47 @@
 		</p>
 		<img alt="{asset.intoStr()} logo" src={asset.getIconPath()} width="30px" height="30px" />
 	</div>
-	<button
-		class="swap-btn"
-		on:click={() => {
-			isSelecting.set(true);
-			sendAsset.set(asset);
-		}}>Send</button
-	>
+	<div class="btns-container">
+		{#if isMobile}
+			<button
+				class="mobile-action-btn"
+				on:click={() => {
+					inReceivingMenu.set(true);
+					selectedAsset.set(asset);
+				}}
+			>
+				<QRCodeScannerIcon />
+			</button>
+			<button
+				class="mobile-action-btn"
+				on:click={() => {
+					inSendingMenu.set(true);
+					selectedAsset.set(asset);
+				}}
+			>
+				<UpIcon />
+			</button>
+		{:else}
+			<button
+				class="action-btn"
+				on:click={() => {
+					inReceivingMenu.set(true);
+					selectedAsset.set(asset);
+				}}
+			>
+				Receive
+			</button>
+			<button
+				class="action-btn"
+				on:click={() => {
+					inSendingMenu.set(true);
+					selectedAsset.set(asset);
+				}}
+			>
+				Send
+			</button>
+		{/if}
+	</div>
 	{#if asset.type === AssetType.WTN}
 		<p class="airdrop-allocation">
 			{#if isMobile}
@@ -56,16 +92,18 @@
 		font-family: var(--font-type2);
 	}
 
-	button {
-		color: black;
-	}
-
 	/* === Layout === */
 	.token-balance-container {
 		display: flex;
 		justify-content: space-between;
 		position: relative;
 		margin-left: 1em;
+		align-items: center;
+	}
+
+	.btns-container {
+		display: flex;
+		align-items: center;
 	}
 
 	/* === Components ==== */
@@ -84,19 +122,34 @@
 		font-family: var(--font-type2);
 	}
 
-	.swap-btn {
-		border: 2px solid black;
-		box-shadow: 3px 3px 0 0 black;
-		background-color: var(--main-color);
-		align-items: center;
-		padding: 0 2em;
-		font-weight: bold;
-		justify-content: center;
-		cursor: pointer;
+	.mobile-action-btn {
+		border: none;
+		background: transparent;
 		display: flex;
+		cursor: pointer;
+		color: var(--main-color);
 	}
 
-	.swap-btn:hover {
+	.action-btn {
+		background: var(--main-color);
+		min-width: 80px;
+		border-radius: 8px;
+		position: relative;
+		border: 2px solid black;
+		font-size: 14px;
+		box-shadow: 3px 3px 0 0 black;
+		padding: 0 1em 0 1em;
+		max-width: none;
+		height: 3em;
+		font-weight: bold;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		cursor: pointer;
+		margin-right: 1em;
+	}
+
+	.action-btn:hover {
 		transform: scale(0.95);
 		transition: all 0.3s;
 		box-shadow: 6px 6px 0 0 black;

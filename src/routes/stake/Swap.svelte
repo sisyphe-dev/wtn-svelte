@@ -148,24 +148,26 @@
 			<button
 				class="header-btn"
 				style:text-align="start"
+				style:border-top-left-radius="8px"
 				on:click={() => {
 					stake = true;
 					invertExchangeRate = false;
 					inputValue.set('');
 				}}
 				class:selected={stake}
-				class:not-selected={!stake}>Stake ICP</button
+				class:not-selected={!stake}><h2 class="header-txt" style:left="5%">Stake ICP</h2></button
 			>
 			<button
 				class="header-btn"
 				style:text-align="end"
+				style:border-top-right-radius="8px"
 				on:click={() => {
 					stake = false;
 					invertExchangeRate = false;
 					inputValue.set('');
 				}}
 				class:selected={!stake}
-				class:not-selected={stake}>Unstake nICP</button
+				class:not-selected={stake}><h2 class="header-txt" style:right="5%">Unstake nICP</h2></button
 			>
 		</div>
 		<div class="swap-container">
@@ -295,6 +297,15 @@
 		color: black;
 	}
 
+	h2 {
+		font-family: var(--font-type2);
+		font-size: 17px;
+		font-weight: bold;
+		color: white;
+		position: absolute;
+		top: 0.2em;
+	}
+
 	/* === Layout === */
 	.main-container {
 		display: flex;
@@ -309,6 +320,7 @@
 	.header-container {
 		display: flex;
 		justify-content: space-between;
+		position: relative;
 	}
 
 	.swap-container {
@@ -333,14 +345,10 @@
 
 	/* === Components === */
 	.header-btn {
-		font-family: var(--font-type2);
-		font-size: 1.2em;
-		font-weight: bold;
-		color: white;
 		border: none;
 		color: white;
-		padding: 1em;
 		width: 100%;
+		height: 4em;
 	}
 
 	.change-btn {
@@ -351,6 +359,7 @@
 		background: transparent;
 		padding: 0;
 		margin: 0;
+		cursor: pointer;
 	}
 
 	.wtn-logo {
@@ -371,6 +380,7 @@
 		max-width: fit-content;
 		position: relative;
 		border: 2px solid black;
+		border-radius: 8px;
 		font-size: 16px;
 		font-weight: bold;
 		box-shadow: 3px 3px 0 0 black;
