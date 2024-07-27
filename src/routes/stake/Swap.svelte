@@ -213,7 +213,13 @@
 								-/-
 							{/if}
 						</p>
-						<img src="/tokens/WTN.png" width="30em" height="30em" alt="WTN logo" class="wtn-logo" />
+						<img
+							src="/tokens/WTN.webp"
+							width="30em"
+							height="30em"
+							alt="WTN logo"
+							class="wtn-logo"
+						/>
 					</div>
 				{:else}
 					<p style:color="#fa796e">

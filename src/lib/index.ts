@@ -76,9 +76,9 @@ export class Asset {
 			case AssetType.ICP:
 				return '/tokens/icp.webp';
 			case AssetType.nICP:
-				return '/tokens/nicp.png';
+				return '/tokens/nicp.webp';
 			case AssetType.WTN:
-				return '/tokens/WTN.png';
+				return '/tokens/WTN.webp';
 		}
 	}
 
