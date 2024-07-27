@@ -4,7 +4,7 @@
 
 <footer class:filter={$isLogging}>
 	<div class="central-container">
-		<img alt="WTN icon" src="/tokens/WTN.png" id="wtn-icon" />
+		<img alt="WTN icon" src="/tokens/WTN.webp" id="wtn-icon" />
 		<a
 			class="item--1"
 			href="https://oc.app/community/3fudd-diaaa-aaaar-bgmca-cai/channel/154489341794150690442253978518193726806"

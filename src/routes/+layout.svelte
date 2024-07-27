@@ -123,9 +123,10 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		justify-content: center;
+		justify-content: start;
 		height: fit-content;
 		min-height: 45vh;
+		flex-grow: 1;
 		width: 100%;
 		gap: 1.5em;
 		padding-top: 2em;

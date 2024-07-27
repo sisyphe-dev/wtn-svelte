@@ -50,7 +50,7 @@
 		</div>
 		<div class="qr-code-container">
 			<canvas id="qr-code" />
-			<img id="wtn-logo" src="/WTN.png" width="70px" height="70px" alt="WTN logo." />
+			<img id="wtn-logo" src="/tokens/WTN.webp" width="70px" height="70px" alt="WTN logo." />
 		</div>
 		<div class="principal-container">
 			{#if $selectedAsset.intoStr() === 'ICP'}
@@ -83,14 +83,16 @@
 				</button>
 			{/if}
 		</div>
-		<button
-			class="finish-btn"
-			on:click={() => {
-				inReceivingMenu.set(false);
-			}}
-		>
-			<span>Finish</span>
-		</button>
+		<div class="finish-container">
+			<button
+				class="finish-btn"
+				on:click={() => {
+					inReceivingMenu.set(false);
+				}}
+			>
+				<span>Finish</span>
+			</button>
+		</div>
 	</div>
 </dialog>
 
@@ -182,6 +184,14 @@
 		display: flex;
 		justify-content: center;
 	}
+
+	.finish-container {
+		display: flex;
+		justify-content: end;
+		width: 100%;
+		padding-right: 1em;
+	}
+
 	/* === Components === */
 
 	.finish-btn {
