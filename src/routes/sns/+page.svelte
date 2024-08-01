@@ -116,8 +116,8 @@
 
 	h2 {
 		color: white;
-		font-size: 16px;
-		font-family: var(--font-type2);
+		font-size: 20px;
+		font-family: var(--font-type1);
 		margin: 0;
 	}
 
@@ -155,7 +155,6 @@
 		flex-direction: column;
 		width: 20%;
 		align-items: center;
-		overflow-y: scroll;
 		gap: 1em;
 		padding: 1em;
 		background-color: #183f66;
@@ -175,7 +174,7 @@
 		width: 80%;
 		overflow-x: scroll;
 		align-items: center;
-		justify-content: center;
+		justify-content: space-between;
 	}
 
 	.account-container {
@@ -186,8 +185,9 @@
 	/* === Component === */
 	.sns-listing {
 		display: flex;
+		overflow-y: scroll;
 		width: 100%;
-		max-height: 80%;
+		flex-grow: 1;
 		flex-direction: column;
 		margin: 0;
 		padding: 0;
@@ -202,7 +202,7 @@
 		border-radius: 8px;
 		background-color: rgba(107, 249, 201, 0.5);
 		cursor: pointer;
-		color: black;
+		color: white;
 	}
 	.sns-btn-selection:hover {
 		display: flex;
@@ -212,7 +212,7 @@
 		border-radius: 8px;
 		background-color: rgba(107, 249, 201, 0.5);
 		cursor: pointer;
-		color: black;
+		color: white;
 	}
 
 	.sns-btn-selection {
