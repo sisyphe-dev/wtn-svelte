@@ -6,7 +6,7 @@
 
 	export let data;
 	let accountId: string;
-	let selectedSns = 'custom';
+	let selectedSns = 'Custom';
 
 	function notifyIcpDeposit() {
 		alert('notify_icp_deposit button clicked!');
@@ -41,13 +41,12 @@
 
 <div class="sns-container">
 	<div class="sns-selection-container">
-		<h2 id="section-header">Select SNS DAO</h2>
 		<div class="sns-listing">
 			<div class="sns-btn-container">
 				<button
-					class:sns-btn-selection={selectedSns !== 'custom'}
-					class:sns-btn-selected={selectedSns === 'custom'}
-					on:click={() => (selectedSns = 'custom')}>Custom</button
+					class:sns-btn-selection={selectedSns !== 'Custom'}
+					class:sns-btn-selected={selectedSns === 'Custom'}
+					on:click={() => (selectedSns = 'Custom')}>Custom</button
 				>
 			</div>
 			{#each data.sns as sns}
@@ -65,33 +64,9 @@
 		</div>
 	</div>
 	<div class="boomerang-container">
-		<h1>Stake SNS Treasury</h1>
+		<h1>Stake {selectedSns} Treasury</h1>
 		<div>
-			<h2>Step 1:</h2>
-			<p>Make an ICP Treasury proposal to the following account identifier.</p>
-			<div class="account-container">
-				<h2>{accountId}</h2>
-				<button
-					class="copy-btn"
-					on:click={() => {
-						handleAnimation();
-						navigator.clipboard.writeText(accountId);
-					}}
-				>
-					<CopyIcon />
-					{#if circleVisible}
-						<div class="circle" transition:scale={{ duration: 500 }}></div>
-					{/if}
-				</button>
-			</div>
-		</div>
-		<div>
-			<h2>Step 2:</h2>
-			<button on:click={notifyIcpDeposit} class="swap-btn">Notify ICP Deposit</button>
-		</div>
-		<div>
-			<h2>Step 3:</h2>
-			<button on:click={retrieveNicp} class="swap-btn">Retrieve nICP</button>
+			
 		</div>
 	</div>
 </div>
@@ -146,7 +121,7 @@
 		border-radius: 10px;
 		display: flex;
 		width: 60em;
-		max-height: 90dvh;
+		max-height: 80dvh;
 		max-width: 80vw;
 	}
 
@@ -172,8 +147,8 @@
 		display: flex;
 		flex-direction: column;
 		width: 80%;
-		overflow-x: scroll;
-		align-items: center;
+		align-items: start;
+		padding: 2em;
 		justify-content: space-between;
 	}
 
