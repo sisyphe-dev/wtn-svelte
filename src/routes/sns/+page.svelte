@@ -46,7 +46,7 @@
 				},
 				document.querySelector('#qr-code-sns')
 			);
-		} else if (principal && isValid){
+		} else if (principal && isValid) {
 			QrCreator.render(
 				{
 					text: `${accountId}`,
@@ -103,70 +103,82 @@
 		</div>
 	</div>
 	{#key selectedSns}
-	<div class="boomerang-container" in:fade={{ duration: 500 }}>
-		<h1>Stake {selectedSns} Treasury</h1>
-		<nav>
-			<button class="step-btn" class:selected-step={selectedStep === 'Step1'}>Step 1 </button>
-			<button class="step-btn">Step 2 </button>
-			<button class="step-btn">Step 3 </button>
-		</nav>
-		{#if selectedStep === 'Step1'}
-			<div class="step1-container">
-				<div class="instruction-container">
-					<span class="round">1</span>
-					<span>Make an ICP Treasury proposal to the following account identifier.</span>
-				</div>
-				{#if selectedSns !== 'Custom'}
-					<div class="qr-code-container">
-						<canvas id="qr-code-sns" />
-						<img id="wtn-logo" src="/tokens/WTN.webp" width="70px" height="70px" alt="WTN logo." />
+		<div class="boomerang-container" in:fade={{ duration: 500 }}>
+			<h1>Stake {selectedSns} Treasury</h1>
+			<nav>
+				<button class="step-btn" class:selected-step={selectedStep === 'Step1'}>Step 1 </button>
+				<button class="step-btn">Step 2 </button>
+				<button class="step-btn">Step 3 </button>
+			</nav>
+			{#if selectedStep === 'Step1'}
+				<div class="step1-container">
+					<div class="instruction-container">
+						<span class="round">1</span>
+						<span>Make an ICP Treasury proposal to the following account identifier.</span>
 					</div>
-					<div class="principal-container">
-						<p>{accountId}</p>
-						<button
-							class="copy-btn"
-							on:click={() => {
-								handleAnimation();
-								navigator.clipboard.writeText(accountId);
-							}}
-						>
-							<CopyIcon />
-							{#if circleVisible}
-								<div class="circle" transition:scale={{ duration: 500 }}></div>
-							{/if}
-						</button>
-					</div>
-				{:else}
-					<div class="input-container">
-						<input type="text" placeholder="Principal" bind:value={principal} />
-					</div>
-					
+					{#if selectedSns !== 'Custom'}
+						<div class="receive-container">
+							<div class="qr-code-container">
+								<canvas id="qr-code-sns" />
+								<img
+									id="wtn-logo"
+									src="/tokens/WTN.webp"
+									width="70px"
+									height="70px"
+									alt="WTN logo."
+								/>
+							</div>
+							<div class="principal-container">
+								<p>{accountId}</p>
+								<button
+									class="copy-btn"
+									on:click={() => {
+										handleAnimation();
+										navigator.clipboard.writeText(accountId);
+									}}
+								>
+									<CopyIcon />
+									{#if circleVisible}
+										<div class="circle" transition:scale={{ duration: 500 }}></div>
+									{/if}
+								</button>
+							</div>
+						</div>
+					{:else}
+						<div class="input-container">
+							<input type="text" placeholder="Principal" bind:value={principal} />
+						</div>
 						{#if isValid && principal}
-						<div class="qr-code-container" transition:fade={{ duration: 500 }}>
-							<canvas id="qr-code-sns" />
-							<img id="wtn-logo" src="/tokens/WTN.webp" width="70px" height="70px" alt="WTN logo." />
-						</div>
-						<div class="principal-container" transition:fade={{ duration: 500 }}>
-							<p>{accountId}</p>
-							<button
-								class="copy-btn"
-								on:click={() => {
-									handleAnimation();
-									navigator.clipboard.writeText(accountId);
-								}}
-							>
-								<CopyIcon />
-								{#if circleVisible}
-									<div class="circle" transition:scale={{ duration: 500 }}></div>
-								{/if}
-							</button>
-						</div>
+							<div class="qr-code-container" transition:fade={{ duration: 500 }}>
+								<canvas id="qr-code-sns" />
+								<img
+									id="wtn-logo"
+									src="/tokens/WTN.webp"
+									width="70px"
+									height="70px"
+									alt="WTN logo."
+								/>
+							</div>
+							<div class="principal-container" transition:fade={{ duration: 500 }}>
+								<p>{accountId}</p>
+								<button
+									class="copy-btn"
+									on:click={() => {
+										handleAnimation();
+										navigator.clipboard.writeText(accountId);
+									}}
+								>
+									<CopyIcon />
+									{#if circleVisible}
+										<div class="circle" transition:scale={{ duration: 500 }}></div>
+									{/if}
+								</button>
+							</div>
 						{/if}
-					
-				{/if}
-			</div>
-		{/if}
-	</div>
+					{/if}
+				</div>
+			{/if}
+		</div>
 	{/key}
 </div>
 
@@ -303,6 +315,15 @@
 		width: 100%;
 		border: none;
 		gap: 2em;
+	}
+
+	.receive-container {
+		display: flex;
+		flex-direction: column;
+		gap: 2em; 
+		align-items: center;
+		justify-content: center;
+		flex-grow: 1;
 	}
 
 	.header-container {
