@@ -66,6 +66,7 @@
 		--main-color: oklab(0.88 -0.18 0.03);
 		--border-color: rgb(102, 173, 255);
 		--background-color: rgb(12, 44, 76);
+		--orange: rgb(250, 121, 110);
 		--text-color: rgb(176, 163, 217);
 		--font-type1: 'Akrobat-black';
 		--font-type2: Arial;

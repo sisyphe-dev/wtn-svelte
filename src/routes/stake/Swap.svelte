@@ -222,7 +222,7 @@
 						/>
 					</div>
 				{:else}
-					<p style:color="#fa796e">
+					<p style:color="var(--orange)">
 						{#if exchangeRate}
 							You will receive {displayUsFormat(
 								computeReceiveAmount(stake, BigNumber($inputValue), exchangeRate),

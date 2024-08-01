@@ -1,8 +1,10 @@
 <script>
 	import CopyIcon from '$lib/icons/CopyIcon.svelte';
 	import { fade, scale } from 'svelte/transition';
+	import StatsWidget from '../stake/StatsWidget.svelte';
+	import sns from './sns.json';
 
-	let selectedOption = 'openchat';
+	let selectedOption = sns[0].name;
 	let accountId = 'fa6bcd917e5e1605f38ebfc3c50a4a59830236c8e2308f59ffa42000d69b2e21';
 
 	function notifyIcpDeposit() {
@@ -30,19 +32,23 @@
 	}
 </script>
 
+<StatsWidget />
+
 <div class="wallet-menu-container">
-	<h1>Stake SNS Treasury</h1>
-	<div>
-		<label for="options">Select SNS DAO:</label>
-		<select bind:value={selectedOption} id="options" class="swap-btn">
-			<option value="openchat">OpenChat</option>
-			<option value="catalyze">Catalyze</option>
-			<option value="boom">Boom DAO</option>
+	<div class="title">
+		<h1>Stake</h1>
+		<select bind:value={selectedOption} id="options" class="swap-btn select-dao">
+			{#each sns as item}
+				<option value={item.name}>{item.name} </option>
+			{/each}
 		</select>
+		<h1>ICP Treasury</h1>
 	</div>
-	<div>
-		<h2>Step 1:</h2>
+	<div class="step-container">
+		<span class="round">1</span>
 		<p>Make an ICP Treasury proposal to the following account identifier.</p>
+	</div>
+	<div class="step-container">
 		<div class="account-container">
 			<h2>{accountId}</h2>
 			<button
@@ -59,12 +65,12 @@
 			</button>
 		</div>
 	</div>
-	<div>
-		<h2>Step 2:</h2>
+	<div class="step-container">
+		<span class="round">2</span>
 		<button on:click={notifyIcpDeposit} class="swap-btn">Notify ICP Deposit</button>
 	</div>
-	<div>
-		<h2>Step 3:</h2>
+	<div class="step-container">
+		<span class="round">3</span>
 		<button on:click={retrieveNicp} class="swap-btn">Retrieve nICP</button>
 	</div>
 </div>
@@ -82,6 +88,16 @@
 		max-width: 80vw;
 		align-items: left;
 		text-align: left;
+	}
+
+	.step-container {
+		display: flex;
+		gap: 1em;
+		align-items: center;
+	}
+
+	.select-dao {
+		text-align: center;
 	}
 
 	.swap-btn {
@@ -103,6 +119,12 @@
 		align-items: center;
 	}
 
+	.title {
+		display: flex;
+		align-items: center;
+		align-self: center;
+	}
+
 	h2 {
 		color: white;
 		font-size: 16px;
@@ -117,7 +139,8 @@
 		align-self: center;
 	}
 
-	p {
+	p,
+	label {
 		font-family: var(--font-type2);
 		color: white;
 	}
@@ -163,5 +186,19 @@
 		top: 50%;
 		left: 50%;
 		transform: translate(-50%, -50%);
+	}
+
+	.round {
+		width: 22px;
+		height: 22px;
+
+		color: var(--text-color);
+
+		border-radius: 50%;
+
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		border: 1px solid var(--text-color);
 	}
 </style>
