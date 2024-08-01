@@ -3,10 +3,12 @@
 	import { fade, scale } from 'svelte/transition';
 	import { boomerang } from '$lib/../declarations/boomerang';
 	import { Principal } from '@dfinity/principal';
-	import { onMount } from 'svelte';
+	import { afterUpdate } from 'svelte';
 
 	export let data;
 	let accountId: string;
+	let principal: string;
+	let isValid = true;
 	let selectedSns = 'Custom';
 	let selectedStep: 'Step1' | 'Step2' | 'Step3' = 'Step1';
 
@@ -15,27 +17,48 @@
 	}
 
 	const setAccountId = (principal: string) => {
-		boomerang.get_staking_account_id(Principal.fromText(principal)).then((account) => {
-			accountId = account;
-		});
+		try {
+			boomerang.get_staking_account_id(Principal.fromText(principal)).then((account) => {
+				accountId = account;
+				isValid = true;
+			});
+		} catch (error) {
+			isValid = false;
+		}
 	};
+
+	$: principal, setAccountId(principal);
 
 	function retrieveNicp() {
 		alert('retrieve_nicp button clicked!');
 	}
 
-	onMount(() => {
-		QrCreator.render(
-			{
-				text: `${accountId}`,
-				radius: 0.0, // 0.0 to 0.5
-				ecLevel: 'H', // L, M, Q, H
-				fill: 'rgb(12, 44, 76)',
-				background: null,
-				size: 1000 // in pixels
-			},
-			document.querySelector('#qr-code-sns')
-		);
+	afterUpdate(() => {
+		if (selectedSns !== 'Custom') {
+			QrCreator.render(
+				{
+					text: `${accountId}`,
+					radius: 0.0, // 0.0 to 0.5
+					ecLevel: 'H', // L, M, Q, H
+					fill: 'rgb(12, 44, 76)',
+					background: null,
+					size: 1000 // in pixels
+				},
+				document.querySelector('#qr-code-sns')
+			);
+		} else if (principal && isValid){
+			QrCreator.render(
+				{
+					text: `${accountId}`,
+					radius: 0.0, // 0.0 to 0.5
+					ecLevel: 'H', // L, M, Q, H
+					fill: 'rgb(12, 44, 76)',
+					background: null,
+					size: 1000 // in pixels
+				},
+				document.querySelector('#qr-code-sns')
+			);
+		}
 	});
 
 	let isAnimating = false;
@@ -55,13 +78,13 @@
 	}
 </script>
 
-<div class="sns-container">
+<div class="sns-container" transition:fade>
 	<div class="sns-selection-container">
 		<div class="sns-listing">
 			<div class="sns-btn-container">
 				<button
 					class="sns-btn-selection"
-					class:selected={selectedSns === 'Custom'}
+					class:selected-sns={selectedSns === 'Custom'}
 					on:click={() => (selectedSns = 'Custom')}>Custom</button
 				>
 			</div>
@@ -69,7 +92,7 @@
 				<div class="sns-btn-container">
 					<button
 						class="sns-btn-selection"
-						class:selected={selectedSns === sns.name}
+						class:selected-sns={selectedSns === sns.name}
 						on:click={() => {
 							selectedSns = sns.name;
 							setAccountId(sns.governance_id);
@@ -79,43 +102,72 @@
 			{/each}
 		</div>
 	</div>
-	<div class="boomerang-container">
+	{#key selectedSns}
+	<div class="boomerang-container" in:fade={{ duration: 500 }}>
 		<h1>Stake {selectedSns} Treasury</h1>
 		<nav>
-			<button class="step-btn">Step 1 </button>
+			<button class="step-btn" class:selected-step={selectedStep === 'Step1'}>Step 1 </button>
 			<button class="step-btn">Step 2 </button>
 			<button class="step-btn">Step 3 </button>
 		</nav>
 		{#if selectedStep === 'Step1'}
-		<div class="step1-container">
-			<div class="receive-container" transition:fade={{ duration: 100 }}>
-				<div class="header-container">
-					<h3>Receive ICP</h3>
-					<img alt="ICP logo" src="/tokens/icp.webp" width="50px" height="50px" />
+			<div class="step1-container">
+				<div class="instruction-container">
+					<span class="round">1</span>
+					<span>Make an ICP Treasury proposal to the following account identifier.</span>
 				</div>
-				<div class="qr-code-container">
-					<canvas id="qr-code-sns" />
-					<img id="wtn-logo" src="/tokens/WTN.webp" width="40px" height="40px" alt="WTN logo." />
-				</div>
-				<div class="principal-container">
-					<p>{accountId}</p>
-					<button
-						class="copy-btn"
-						on:click={() => {
-							handleAnimation();
-							navigator.clipboard.writeText(accountId);
-						}}
-					>
-						<CopyIcon />
-						{#if circleVisible}
-							<div class="circle" transition:scale={{ duration: 500 }}></div>
+				{#if selectedSns !== 'Custom'}
+					<div class="qr-code-container">
+						<canvas id="qr-code-sns" />
+						<img id="wtn-logo" src="/tokens/WTN.webp" width="70px" height="70px" alt="WTN logo." />
+					</div>
+					<div class="principal-container">
+						<p>{accountId}</p>
+						<button
+							class="copy-btn"
+							on:click={() => {
+								handleAnimation();
+								navigator.clipboard.writeText(accountId);
+							}}
+						>
+							<CopyIcon />
+							{#if circleVisible}
+								<div class="circle" transition:scale={{ duration: 500 }}></div>
+							{/if}
+						</button>
+					</div>
+				{:else}
+					<div class="input-container">
+						<input type="text" placeholder="Principal" bind:value={principal} />
+					</div>
+					
+						{#if isValid && principal}
+						<div class="qr-code-container" transition:fade={{ duration: 500 }}>
+							<canvas id="qr-code-sns" />
+							<img id="wtn-logo" src="/tokens/WTN.webp" width="70px" height="70px" alt="WTN logo." />
+						</div>
+						<div class="principal-container" transition:fade={{ duration: 500 }}>
+							<p>{accountId}</p>
+							<button
+								class="copy-btn"
+								on:click={() => {
+									handleAnimation();
+									navigator.clipboard.writeText(accountId);
+								}}
+							>
+								<CopyIcon />
+								{#if circleVisible}
+									<div class="circle" transition:scale={{ duration: 500 }}></div>
+								{/if}
+							</button>
+						</div>
 						{/if}
-					</button>
-				</div>
-			</div>
+					
+				{/if}
 			</div>
 		{/if}
 	</div>
+	{/key}
 </div>
 
 <style>
@@ -159,13 +211,24 @@
 		display: flex;
 		width: 100%;
 		justify-content: space-around;
-		border-bottom: 2px solid black;
 	}
 
 	canvas {
 		background: oklab(0.88 -0.18 0.03);
 		padding: 0.5em;
 		border-radius: 8px;
+	}
+
+	input {
+		border: none;
+		padding-left: 0.4em;
+		height: 3em;
+		font-size: 16px;
+		color: white;
+		background: rgb(30, 52, 102);
+		outline: none;
+		width: 13em;
+		border-radius: 0.4em;
 	}
 
 	/* === Layout === */
@@ -203,7 +266,7 @@
 		width: 80%;
 		align-items: start;
 		justify-content: start;
-		gap: 1em;
+		gap: 2em;
 	}
 
 	.account-container {
@@ -212,7 +275,6 @@
 	}
 
 	.principal-container {
-		margin-left: 1em;
 		display: flex;
 		align-items: center;
 	}
@@ -232,28 +294,15 @@
 
 	.step1-container {
 		display: flex;
-		justify-content: center;
+		flex-direction: column;
+		justify-content: start;
 		background: none;
+		align-items: center;
 		height: fit-content;
 		height: 100%;
 		width: 100%;
 		border: none;
-	}
-
-	.receive-container {
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
-		max-width: 90dvw;
-		width: 35em;
-		background: var(--background-color);
-		color: white;
-		padding: 2em;
-		margin: 0.3em;
-		gap: 1em;
-		height: fit-content;
-		overflow-x: hidden;
+		gap: 2em;
 	}
 
 	.header-container {
@@ -263,6 +312,14 @@
 		padding: 0 2%;
 		width: 100%;
 		font-family: var(--font-type2);
+	}
+
+	.input-container {
+		width: 100%;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
 	}
 
 	/* === Component === */
@@ -348,8 +405,8 @@
 	}
 
 	#qr-code-sns {
-		height: 100px;
-		width: 100px;
+		height: 268px;
+		width: 268px;
 	}
 
 	#wtn-logo {
@@ -376,8 +433,12 @@
 	}
 
 	/* === Utilities === */
-	.selected {
+	.selected-sns {
 		border: 2px solid var(--main-color);
 		background-color: rgba(107, 249, 201, 0.5);
+	}
+
+	.selected-step {
+		background-color: #1e3466;
 	}
 </style>

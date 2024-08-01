@@ -38,8 +38,8 @@
 
 	function getReceiver(input: string): Principal | AccountIdentifier | undefined {
 		try {
-			const principal = Principal.fromText(input);
-			return principal;
+			const p = Principal.fromText(input);
+			return p;
 		} catch (e) {
 			if ($selectedAsset.type === AssetType.ICP) {
 				try {
