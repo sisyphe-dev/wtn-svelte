@@ -1,12 +1,21 @@
-<script>
+<script lang="ts">
 	import CopyIcon from '$lib/icons/CopyIcon.svelte';
 	import { fade, scale } from 'svelte/transition';
+	import { boomerang } from '$lib/../declarations/boomerang';
+	import { Principal } from '@dfinity/principal';
 
-	let selectedOption = 'openchat';
-	let accountId = 'fa6bcd917e5e1605f38ebfc3c50a4a59830236c8e2308f59ffa42000d69b2e21';
+	export let data;
+	let principal: string;
+	let accountId: string;
 
 	function notifyIcpDeposit() {
 		alert('notify_icp_deposit button clicked!');
+	}
+
+	const setAccountId = () => {
+		boomerang.get_staking_account_id(Principal.fromText(principal)).then((account) => {
+			accountId = account;
+		});
 	}
 
 	function retrieveNicp() {
@@ -30,16 +39,19 @@
 	}
 </script>
 
-<div class="wallet-menu-container">
-	<h1>Stake SNS Treasury</h1>
-	<div>
-		<label for="options">Select SNS DAO:</label>
-		<select bind:value={selectedOption} id="options" class="swap-btn">
-			<option value="openchat">OpenChat</option>
-			<option value="catalyze">Catalyze</option>
-			<option value="boom">Boom DAO</option>
-		</select>
+<div class="sns-container">
+	<div class="sns-selection-container">
+		<h2 id="section-header">Select SNS DAO</h2>
+		<div class="sns-listing">
+			{#each data.sns as sns}
+			<div class="sns-btn-container">
+			<button class="sns-btn-selection">{sns.name}</button>
+			</div>
+			{/each}
+		</div>
 	</div>
+	<div class="boomerang-container">
+	<h1>Stake SNS Treasury</h1>
 	<div>
 		<h2>Step 1:</h2>
 		<p>Make an ICP Treasury proposal to the following account identifier.</p>
@@ -67,21 +79,101 @@
 		<h2>Step 3:</h2>
 		<button on:click={retrieveNicp} class="swap-btn">Retrieve nICP</button>
 	</div>
+	</div>
 </div>
 
 <style>
-	.wallet-menu-container {
+	/* === Base Styles === */ 
+	h2 {
+		color: white;
+		font-size: 16px;
+		font-family: var(--font-type2);
+		margin: 0;
+	}
+
+	h1 {
+		color: white;
+		font-size: 26px;
+		font-family: var(--font-type1);
+		align-self: center;
+	}
+
+	p {
+		font-family: var(--font-type2);
+		color: white;
+	}
+
+	select,
+	button {
+		margin: 10px;
+		padding: 10px;
+		font-size: 16px;
+	}
+
+	/* === Layout === */ 
+	.sns-container {
 		background-color: #0c2c4c;
 		border: 2px solid #66adff;
 		border-radius: 10px;
-		color: white;
-		padding: 2em;
 		display: flex;
-		flex-direction: column;
 		width: 44em;
+		max-height: 90dvh;
 		max-width: 80vw;
-		align-items: left;
-		text-align: left;
+	}
+
+	.sns-selection-container {
+		display: flex; 
+		flex-direction: column;
+		width: 20%;
+		height: 100%;
+		align-items: center; 
+		justify-content: space-between; 
+		overflow-y: scroll;
+		gap: 1em;
+		background-color: #183f66;
+		border-radius: 10px;
+	}
+
+	.sns-btn-container {
+		width: 100%;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+
+	}
+
+	.boomerang-container{
+		display: flex; 
+		flex-direction: column;
+		flex-grow: 1; 
+		align-items: center;
+		justify-content: center;
+	}
+
+	.account-container {
+		display: flex;
+		align-items: center;
+	}
+
+	/* === Component === */ 
+	.sns-listing {
+		display: flex;
+		width: 100%;
+		max-height: 80%;
+		flex-direction: column;
+		margin: 0;
+		padding: 0;
+		gap: 1em;
+	
+	}
+
+	.sns-btn-selection {
+		display: flex;
+		width: 100%;
+		justify-content: center;
+		border: 2px solid var(--main-color);
+		border-radius: 8px;
+		background-color: rgba(107, 249, 201, 0.8);
 	}
 
 	.swap-btn {
@@ -103,40 +195,6 @@
 		align-items: center;
 	}
 
-	h2 {
-		color: white;
-		font-size: 16px;
-		font-family: var(--font-type2);
-		margin: 0;
-	}
-
-	h1 {
-		color: white;
-		font-size: 26px;
-		font-family: var(--font-type1);
-		align-self: center;
-	}
-
-	p {
-		font-family: var(--font-type2);
-		color: white;
-	}
-
-	.container {
-		max-width: 800px;
-		margin: 0 auto;
-		text-align: center;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-	}
-	select,
-	button {
-		margin: 10px;
-		padding: 10px;
-		font-size: 16px;
-	}
-
 	.copy-btn {
 		background-color: transparent;
 		border: none;
@@ -147,11 +205,6 @@
 		font-weight: bold;
 		display: flex;
 		position: relative;
-	}
-
-	.account-container {
-		display: flex;
-		align-items: center;
 	}
 
 	.circle {
