@@ -5,18 +5,18 @@
 	import { Principal } from '@dfinity/principal';
 
 	export let data;
-	let principal: string;
 	let accountId: string;
+	let selectedSns = 'custom';
 
 	function notifyIcpDeposit() {
 		alert('notify_icp_deposit button clicked!');
 	}
 
-	const setAccountId = () => {
+	const setAccountId = (principal: string) => {
 		boomerang.get_staking_account_id(Principal.fromText(principal)).then((account) => {
 			accountId = account;
 		});
-	}
+	};
 
 	function retrieveNicp() {
 		alert('retrieve_nicp button clicked!');
@@ -43,47 +43,77 @@
 	<div class="sns-selection-container">
 		<h2 id="section-header">Select SNS DAO</h2>
 		<div class="sns-listing">
-			{#each data.sns as sns}
 			<div class="sns-btn-container">
-			<button class="sns-btn-selection">{sns.name}</button>
+				<button
+					class:sns-btn-selection={selectedSns !== 'custom'}
+					class:sns-btn-selected={selectedSns === 'custom'}
+					on:click={() => (selectedSns = 'custom')}>Custom</button
+				>
 			</div>
+			{#each data.sns as sns}
+				<div class="sns-btn-container">
+					<button
+						class:sns-btn-selection={selectedSns !== sns.name}
+						class:sns-btn-selected={selectedSns === sns.name}
+						on:click={() => {
+							selectedSns = sns.name;
+							setAccountId(sns.governance_id);
+						}}>{sns.name}</button
+					>
+				</div>
 			{/each}
 		</div>
 	</div>
 	<div class="boomerang-container">
-	<h1>Stake SNS Treasury</h1>
-	<div>
-		<h2>Step 1:</h2>
-		<p>Make an ICP Treasury proposal to the following account identifier.</p>
-		<div class="account-container">
-			<h2>{accountId}</h2>
-			<button
-				class="copy-btn"
-				on:click={() => {
-					handleAnimation();
-					navigator.clipboard.writeText(accountId);
-				}}
-			>
-				<CopyIcon />
-				{#if circleVisible}
-					<div class="circle" transition:scale={{ duration: 500 }}></div>
-				{/if}
-			</button>
+		<h1>Stake SNS Treasury</h1>
+		<div>
+			<h2>Step 1:</h2>
+			<p>Make an ICP Treasury proposal to the following account identifier.</p>
+			<div class="account-container">
+				<h2>{accountId}</h2>
+				<button
+					class="copy-btn"
+					on:click={() => {
+						handleAnimation();
+						navigator.clipboard.writeText(accountId);
+					}}
+				>
+					<CopyIcon />
+					{#if circleVisible}
+						<div class="circle" transition:scale={{ duration: 500 }}></div>
+					{/if}
+				</button>
+			</div>
 		</div>
-	</div>
-	<div>
-		<h2>Step 2:</h2>
-		<button on:click={notifyIcpDeposit} class="swap-btn">Notify ICP Deposit</button>
-	</div>
-	<div>
-		<h2>Step 3:</h2>
-		<button on:click={retrieveNicp} class="swap-btn">Retrieve nICP</button>
-	</div>
+		<div>
+			<h2>Step 2:</h2>
+			<button on:click={notifyIcpDeposit} class="swap-btn">Notify ICP Deposit</button>
+		</div>
+		<div>
+			<h2>Step 3:</h2>
+			<button on:click={retrieveNicp} class="swap-btn">Retrieve nICP</button>
+		</div>
 	</div>
 </div>
 
 <style>
-	/* === Base Styles === */ 
+	/* === Base Styles === */
+	div::-webkit-scrollbar {
+		display: none;
+	}
+
+	div::-webkit-scrollbar-track {
+		display: none;
+	}
+
+	div::-webkit-scrollbar-thumb {
+		display: none;
+	}
+
+	div::-webkit-scrollbar-corner {
+		display: none;
+	}
+
 	h2 {
 		color: white;
 		font-size: 16px;
@@ -103,33 +133,31 @@
 		color: white;
 	}
 
-	select,
 	button {
 		margin: 10px;
 		padding: 10px;
 		font-size: 16px;
 	}
 
-	/* === Layout === */ 
+	/* === Layout === */
 	.sns-container {
 		background-color: #0c2c4c;
 		border: 2px solid #66adff;
 		border-radius: 10px;
 		display: flex;
-		width: 44em;
+		width: 60em;
 		max-height: 90dvh;
 		max-width: 80vw;
 	}
 
 	.sns-selection-container {
-		display: flex; 
+		display: flex;
 		flex-direction: column;
 		width: 20%;
-		height: 100%;
-		align-items: center; 
-		justify-content: space-between; 
+		align-items: center;
 		overflow-y: scroll;
 		gap: 1em;
+		padding: 1em;
 		background-color: #183f66;
 		border-radius: 10px;
 	}
@@ -139,13 +167,13 @@
 		display: flex;
 		justify-content: center;
 		align-items: center;
-
 	}
 
-	.boomerang-container{
-		display: flex; 
+	.boomerang-container {
+		display: flex;
 		flex-direction: column;
-		flex-grow: 1; 
+		width: 80%;
+		overflow-x: scroll;
 		align-items: center;
 		justify-content: center;
 	}
@@ -155,7 +183,7 @@
 		align-items: center;
 	}
 
-	/* === Component === */ 
+	/* === Component === */
 	.sns-listing {
 		display: flex;
 		width: 100%;
@@ -164,16 +192,37 @@
 		margin: 0;
 		padding: 0;
 		gap: 1em;
-	
 	}
 
-	.sns-btn-selection {
+	.sns-btn-selected {
 		display: flex;
 		width: 100%;
 		justify-content: center;
 		border: 2px solid var(--main-color);
 		border-radius: 8px;
-		background-color: rgba(107, 249, 201, 0.8);
+		background-color: rgba(107, 249, 201, 0.5);
+		cursor: pointer;
+		color: black;
+	}
+	.sns-btn-selection:hover {
+		display: flex;
+		width: 100%;
+		justify-content: center;
+		border: 2px solid transparent;
+		border-radius: 8px;
+		background-color: rgba(107, 249, 201, 0.5);
+		cursor: pointer;
+		color: black;
+	}
+
+	.sns-btn-selection {
+		border: 2px solid transparent;
+		color: white;
+		background: none;
+		cursor: pointer;
+		display: flex;
+		width: 100%;
+		justify-content: center;
 	}
 
 	.swap-btn {
