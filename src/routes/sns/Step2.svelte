@@ -46,6 +46,9 @@
 	</div>
 	{#if $selectedSns === 'Custom'}
 		<div class="input-container">
+			<span style:color="var(--main-color)"
+					>Please specify principal:</span
+				>
 			<input type="text" placeholder="Principal" bind:value={principal} />
 		</div>
 		{#if principal && isValid(principal)}
@@ -56,10 +59,6 @@
 			{:else}
 				<button on:click={notifyIcpDeposit}>Confirm</button>
 			{/if}
-		{:else}
-			<span in:fade={{ duration: 500 }} style:color="var(--main-color)"
-				>Please specify principal.</span
-			>
 		{/if}
 	{:else}
 		<div class="fetched-info-container">
@@ -121,7 +120,7 @@
 		color: white;
 		background: rgb(30, 52, 102);
 		outline: none;
-		width: 13em;
+		width: 15em;
 		border-radius: 0.4em;
 	}
 
@@ -155,6 +154,14 @@
 		display: flex;
 		gap: 1em;
 	}
+
+	.input-container {
+		display: flex; 
+		gap: 1em;
+		width: 100%;
+		justify-content: center;
+		align-items: center;
+			}
 
 	/* === Utilities === */
 	.round {

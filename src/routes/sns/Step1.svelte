@@ -94,14 +94,17 @@
 		</div>
 	{:else}
 		<div class="input-container">
+			<span style:color="var(--main-color)"
+					>Please specify principal:</span
+				>
 			<input type="text" placeholder="Principal" bind:value={principal} />
 		</div>
 		{#if accountId !== undefined}
-			<div class="qr-code-container" transition:fade={{ duration: 500 }}>
+			<div class="qr-code-container">
 				<canvas id="qr-code-sns" />
 				<img id="wtn-logo" src="/tokens/WTN.webp" width="25px" height="25px" alt="WTN logo." />
 			</div>
-			<div class="principal-container" transition:fade={{ duration: 500 }}>
+			<div class="principal-container">
 				<p>{accountId}</p>
 				<button
 					on:click={() => {
@@ -115,8 +118,6 @@
 					{/if}
 				</button>
 			</div>
-		{:else}
-			<span style:color="var(--main-color)">Please specify principal.</span>
 		{/if}
 	{/if}
 </div>
@@ -161,7 +162,7 @@
 		color: white;
 		background: rgb(30, 52, 102);
 		outline: none;
-		width: 13em;
+		width: 15em;
 		border-radius: 0.4em;
 	}
 
@@ -213,13 +214,12 @@
 	}
 
 	.input-container {
+		display: flex; 
+		gap: 1em;
 		width: 100%;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
 		justify-content: center;
-	}
-
+		align-items: center;
+			}
 	/* === Component === */
 	#qr-code-sns {
 		height: 100px;
