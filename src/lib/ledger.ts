@@ -7,7 +7,18 @@ import type {
 	ApproveResult,
 	ApproveError
 } from '../declarations/icrc_ledger/icrc_ledger.did';
-import type { Result_1, Result_2 } from '../declarations/water_neuron/water_neuron.did';
+import type {
+	ConversionError,
+	Result_1 as IcpToNicpResult,
+	Result_2 as NicpToIcpResult,
+	TransferError,
+	TransferFromError
+} from '../declarations/water_neuron/water_neuron.did';
+import type {
+	BoomerangError,
+	Result_1 as SnsIcpDepositResult,
+	Result_2 as SnsRetrieveNicpResult
+} from '../declarations/boomerang/boomerang.did';
 import { Asset, AssetType, bigintE8sToNumber, displayUsFormat } from '$lib';
 import type {
 	TransferResult,
@@ -19,75 +30,78 @@ import { CANISTER_ID_WATER_NEURON } from './authentification';
 
 const DEFAULT_ERROR_MESSAGE: string = 'Unknown result, please refresh the page.';
 
-export interface ApprovalResult {
-	granted: boolean;
-	message?: string;
+export interface ToastResult {
+	success: boolean;
+	message: string;
 }
 
-export function handleApproveResult(result: ApproveResult): ApprovalResult {
+function handleApproveError(error: ApproveError) {
+	const key = Object.keys(error)[0] as keyof ApproveError;
+
+	switch (key) {
+		case 'GenericError':
+			return {
+				success: false,
+				message: `Generic Error: ${error[key]['message']}`
+			};
+
+		case 'TemporarilyUnavailable':
+			return { success: false, message: 'Ledger is temporarily unavailable.' };
+
+		case 'AllowanceChanged':
+			return {
+				success: false,
+				message: `Insufficient allowance: ${displayUsFormat(bigintE8sToNumber(error[key]['current_allowance']))}`
+			};
+
+		case 'Expired':
+			return {
+				success: false,
+				message: `Approval expired: ${error[key]['ledger_time']}`
+			};
+
+		case 'Duplicate':
+			return {
+				success: false,
+				message: `Duplicate transfer of: ${error[key]['duplicate_of']}`
+			};
+
+		case 'BadFee':
+			return {
+				success: false,
+				message: `Bad fee, expected: ${displayUsFormat(bigintE8sToNumber(error[key]['expected_fee']))}`
+			};
+
+		case 'CreatedInFuture':
+			return {
+				success: false,
+				message: `Created in future: ${error[key]['ledger_time']}`
+			};
+
+		case 'TooOld':
+			return { success: false, message: `The transfer is too old.` };
+
+		case 'InsufficientFunds':
+			return {
+				success: false,
+				message: `Insufficient funds, balance: ${displayUsFormat(bigintE8sToNumber(error[key]['balance']))}`
+			};
+
+		default:
+			return { success: false, message: DEFAULT_ERROR_MESSAGE };
+	}
+}
+
+export function handleApproveResult(result: ApproveResult): ToastResult {
 	const key = Object.keys(result)[0] as keyof ApproveResult;
 	switch (key) {
 		case 'Ok':
-			return { granted: true };
+			return { success: true, message: '' };
 		case 'Err': {
-			const error = result[key];
-			const errorKey = Object.keys(result[key])[0];
-
-			switch (errorKey) {
-				case 'GenericError':
-					return {
-						granted: false,
-						message: `Generic Error: ${error[errorKey]['message']}`
-					};
-
-				case 'TemporarilyUnavailable':
-					return { granted: false, message: 'Ledger is temporarily unavailable.' };
-
-				case 'AllowanceChanged':
-					return {
-						granted: false,
-						message: `Insufficient allowance: ${displayUsFormat(bigintE8sToNumber(error[errorKey]['current_allowance']))}`
-					};
-
-				case 'Expired':
-					return {
-						granted: false,
-						message: `Approval expired: ${error[errorKey]['ledger_time']}`
-					};
-
-				case 'Duplicate':
-					return {
-						granted: false,
-						message: `Duplicate transfer of: ${error[errorKey]['duplicate_of']}`
-					};
-
-				case 'BadFee':
-					return {
-						granted: false,
-						message: `Bad fee, expected: ${displayUsFormat(bigintE8sToNumber(error[errorKey]['expected_fee']))}`
-					};
-
-				case 'CreatedInFuture':
-					return {
-						granted: false,
-						message: `Created in future: ${error[errorKey]['ledger_time']}`
-					};
-
-				case 'TooOld':
-					return { granted: false, message: `The transfer is too old.` };
-
-				case 'InsufficientFunds':
-					return {
-						granted: false,
-						message: `Insufficient funds, balance: ${displayUsFormat(bigintE8sToNumber(error[errorKey]['balance']))}`
-					};
-
-				default:
-					return { granted: false, message: DEFAULT_ERROR_MESSAGE };
-			}
+			return handleApproveError(result[key]);
 		}
 		default:
-			return { granted: false, message: DEFAULT_ERROR_MESSAGE };
+			return { success: false, message: DEFAULT_ERROR_MESSAGE };
 	}
 }
 
@@ -95,7 +109,7 @@ export async function nicpTransferApproved(
 	amount: bigint,
 	account: Account,
 	nicpLedger: nicpLedgerInterface
-): Promise<ApprovalResult> {
+): Promise<ToastResult> {
 	const spender = {
 		owner: Principal.fromText(CANISTER_ID_WATER_NEURON),
 		subaccount: []
@@ -119,17 +133,17 @@ export async function nicpTransferApproved(
 			} as ApproveArgs);
 			return handleApproveResult(approveResult);
 		} catch (error) {
-			return { granted: false, message: `${error}.` };
+			return { success: false, message: `${error}.` };
 		}
 	}
-	return { granted: true };
+	return { success: true, message: '' };
 }
 
 export async function icpTransferApproved(
 	amount: bigint,
 	account: Account,
 	icpLedger: icpLedgerInterface
-): Promise<ApprovalResult> {
+): Promise<ToastResult> {
 	const spender = {
 		owner: Principal.fromText(CANISTER_ID_WATER_NEURON),
 		subaccount: []
@@ -153,19 +167,155 @@ export async function icpTransferApproved(
 			} as ApproveArgs);
 			return handleApproveResult(approveResult);
 		} catch (error) {
-			return { granted: false, message: `${error}` };
+			return { success: false, message: `${error}` };
 		}
 	}
-	return { granted: true };
+	return { success: true, message: '' };
 }
 
-export interface ConversionResult {
-	success: boolean;
-	message: string;
+function handleTransferError(error: TransferError) {
+	const key = Object.keys(error)[0] as keyof TransferError;
+
+	switch (key) {
+		case 'GenericError':
+			return {
+				success: false,
+				message: `Generic Error: ${error[key]['message']}`
+			};
+
+		case 'TemporarilyUnavailable':
+			return { success: false, message: 'Ledger is temporarily unavailable.' };
+
+		case 'BadBurn':
+			return {
+				success: false,
+				message: `Bad burn. Minimum burn amount: ${displayUsFormat(bigintE8sToNumber(error[key]['min_burn_amount']))}`
+			};
+
+		case 'Duplicate':
+			return {
+				success: false,
+				message: `Duplicate transfer of: ${error[key]['duplicate_of']}`
+			};
+
+		case 'BadFee':
+			return {
+				success: false,
+				message: `Bad fee, expected ${displayUsFormat(bigintE8sToNumber(error[key]['expected_fee']))}`
+			};
+
+		case 'CreatedInFuture':
+			return {
+				success: false,
+				message: `Created in future: ${error[key]['ledger_time']}`
+			};
+
+		case 'TooOld':
+			return { success: false, message: `The transfer is too old.` };
+
+		case 'InsufficientFunds':
+			return {
+				success: false,
+				message: `Insufficient funds, current balance: ${displayUsFormat(bigintE8sToNumber(error[key]['balance']))}`
+			};
+
+		default:
+			return { success: false, message: DEFAULT_ERROR_MESSAGE };
+	}
 }
 
-export function handleStakeResult(result: Result_1): ConversionResult {
-	const key = Object.keys(result)[0] as keyof Result_1;
+function handleTransferFromError(error: TransferFromError) {
+	const key = Object.keys(error)[0] as keyof TransferFromError;
+
+	switch (key) {
+		case 'GenericError':
+			return {
+				success: false,
+				message: `Generic Error: ${error[key]['message']}`
+			};
+
+		case 'TemporarilyUnavailable':
+			return { success: false, message: 'Ledger is temporarily unavailable.' };
+
+		case 'InsufficientAllowance':
+			return {
+				success: false,
+				message: `Insufficient allowance: ${displayUsFormat(bigintE8sToNumber(error[key]['allowance']))}`
+			};
+
+		case 'BadBurn':
+			return {
+				success: false,
+				message: `Bad burn, minimum burn amount: ${displayUsFormat(bigintE8sToNumber(error[key]['min_burn_amount']))}`
+			};
+
+		case 'Duplicate':
+			return {
+				success: false,
+				message: `Duplicate transfer of: ${error[key]['duplicate_of']}`
+			};
+
+		case 'BadFee':
+			return {
+				success: false,
+				message: `Bad fee, expected: ${displayUsFormat(bigintE8sToNumber(error[key]['expected_fee']))}`
+			};
+
+		case 'CreatedInFuture':
+			return {
+				success: false,
+				message: `Created in future: ${error[key]['ledger_time']}`
+			};
+
+		case 'TooOld':
+			return { success: false, message: `The transfer is too old.` };
+
+		case 'InsufficientFunds':
+			return {
+				success: false,
+				message: `Insufficient funds, balance: ${displayUsFormat(bigintE8sToNumber(error[key]['balance']))}`
+			};
+
+		default:
+			return { success: false, message: 'Unknown transferfrom error.' };
+	}
+}
+
+function handleConversionError(error: ConversionError): ToastResult {
+	const errorKey = Object.keys(error)[0] as keyof ConversionError;
+
+	switch (errorKey) {
+		case 'GenericError':
+			return { success: false, message: `Generic Error: ${error[errorKey]['message']}` };
+
+		case 'TransferError':
+			return handleTransferError(error[errorKey]);
+
+		case 'AmountTooLow':
+			return {
+				success: false,
+				message: `Amount too low. Should be greater than ${displayUsFormat(bigintE8sToNumber(error[errorKey]['minimum_amount_e8s']))}`
+			};
+
+		case 'TransferFromError':
+			return handleTransferFromError(error[errorKey]);
+		case 'GuardError':
+			const guardErrorKey = Object.keys(error[errorKey])[0];
+
+			switch (guardErrorKey) {
+				case 'AlreadyProcessing':
+					return { success: false, message: `Conversion already processing.` };
+				case 'TooManyConcurrentRequests':
+					return { success: false, message: `Too many concurrent requests.` };
+			}
+
+		default:
+			return { success: false, message: DEFAULT_ERROR_MESSAGE };
+	}
+}
+
+export function handleStakeResult(result: IcpToNicpResult): ToastResult {
+	const key = Object.keys(result)[0] as keyof IcpToNicpResult;
 	switch (key) {
 		case 'Ok':
 			return {
@@ -173,147 +323,14 @@ export function handleStakeResult(result: Result_1): ConversionResult {
 				message: `Successful conversion at <a target='_blank' style="text-decoration: underline; color: var(--text-color);" href=https://dashboard.internetcomputer.org/transaction/${result[key]['block_index']}>block index ${result[key]['block_index']}</a>.`
 			};
 		case 'Err':
-			const error = result[key];
-			const errorKey = Object.keys(result[key])[0];
-
-			switch (errorKey) {
-				case 'GenericError':
-					return { success: false, message: `Generic Error: ${error[errorKey]['message']}` };
-
-				case 'TransferError':
-					const transferError = error[errorKey];
-					const transferErrorKey = Object.keys(error[errorKey])[0];
-
-					switch (transferErrorKey) {
-						case 'GenericError':
-							return {
-								success: false,
-								message: `Generic Error: ${transferError[transferErrorKey]['message']}`
-							};
-
-						case 'TemporarilyUnavailable':
-							return { success: false, message: 'Ledger is temporarily unavailable.' };
-
-						case 'BadBurn':
-							return {
-								success: false,
-								message: `Bad burn. Minimum burn amount: ${displayUsFormat(bigintE8sToNumber(transferError[transferErrorKey]['min_burn_amount']))}`
-							};
-
-						case 'Duplicate':
-							return {
-								success: false,
-								message: `Duplicate transfer of: ${transferError[transferErrorKey]['duplicate_of']}`
-							};
-
-						case 'BadFee':
-							return {
-								success: false,
-								message: `Bad fee, expected ${displayUsFormat(bigintE8sToNumber(transferError[transferErrorKey]['expected_fee']))}`
-							};
-
-						case 'CreatedInFuture':
-							return {
-								success: false,
-								message: `Created in future: ${transferError[transferErrorKey]['ledger_time']}`
-							};
-
-						case 'TooOld':
-							return { success: false, message: `The transfer is too old.` };
-
-						case 'InsufficientFunds':
-							return {
-								success: false,
-								message: `Insufficient funds, current balance: ${displayUsFormat(bigintE8sToNumber(transferError[transferErrorKey]['balance']))}`
-							};
-
-						default:
-							return { success: false, message: 'Unknown transferfrom error.' };
-					}
-
-				case 'AmountTooLow':
-					return {
-						success: false,
-						message: `Amount too low. Should be greater than ${displayUsFormat(bigintE8sToNumber(error[errorKey]['minimum_amount_e8s']))}`
-					};
-
-				case 'TransferFromError':
-					const transferFromError = error[errorKey];
-					const transferFromErrorKey = Object.keys(error[errorKey])[0];
-
-					switch (transferFromErrorKey) {
-						case 'GenericError':
-							return {
-								success: false,
-								message: `Generic Error: ${transferFromError[transferFromErrorKey]['message']}`
-							};
-
-						case 'TemporarilyUnavailable':
-							return { success: false, message: 'Ledger is temporarily unavailable.' };
-
-						case 'InsufficientAllowance':
-							return {
-								success: false,
-								message: `Insufficient allowance: ${displayUsFormat(bigintE8sToNumber(transferFromError[transferFromErrorKey]['allowance']))}`
-							};
-
-						case 'BadBurn':
-							return {
-								success: false,
-								message: `Bad burn, minimum burn amount: ${displayUsFormat(bigintE8sToNumber(transferFromError[transferFromErrorKey]['min_burn_amount']))}`
-							};
-
-						case 'Duplicate':
-							return {
-								success: false,
-								message: `Duplicate transfer of: ${transferFromError[transferFromErrorKey]['duplicate_of']}`
-							};
-
-						case 'BadFee':
-							return {
-								success: false,
-								message: `Bad fee, expected: ${displayUsFormat(bigintE8sToNumber(transferFromError[transferFromErrorKey]['expected_fee']))}`
-							};
-
-						case 'CreatedInFuture':
-							return {
-								success: false,
-								message: `Created in future: ${transferFromError[transferFromErrorKey]['ledger_time']}`
-							};
-
-						case 'TooOld':
-							return { success: false, message: `The transfer is too old.` };
-
-						case 'InsufficientFunds':
-							return {
-								success: false,
-								message: `Insufficient funds, balance: ${displayUsFormat(bigintE8sToNumber(transferFromError[transferFromErrorKey]['balance']))}`
-							};
-
-						default:
-							return { success: false, message: 'Unknown transferfrom error.' };
-					}
-
-				case 'GuardError':
-					const guardErrorKey = Object.keys(error[errorKey])[0];
-
-					switch (guardErrorKey) {
-						case 'AlreadyProcessing':
-							return { success: false, message: `Conversion already processing.` };
-						case 'TooManyConcurrentRequests':
-							return { success: false, message: `Too many concurrent requests.` };
-					}
-
-				default:
-					return { success: false, message: DEFAULT_ERROR_MESSAGE };
-			}
+			return handleConversionError(result[key]);
 		default:
-			return { success: false, message: 'Unknown Error.' };
+			return { success: false, message: DEFAULT_ERROR_MESSAGE };
 	}
 }
 
-export function handleRetrieveResult(result: Result_2): ConversionResult {
-	const key = Object.keys(result)[0] as keyof Result_2;
+export function handleRetrieveResult(result: NicpToIcpResult): ToastResult {
+	const key = Object.keys(result)[0] as keyof NicpToIcpResult;
 
 	switch (key) {
 		case 'Ok':
@@ -322,145 +339,71 @@ export function handleRetrieveResult(result: Result_2): ConversionResult {
 				message: `Successful conversion at block index ${result[key]['block_index']}. Follow your <a style="text-decoration: underline; color: var(--text-color);" href='/wallet'>withdrawal status</a>.`
 			};
 		case 'Err':
-			const error = result[key];
-			const errorKey = Object.keys(result[key])[0];
-			switch (errorKey) {
-				case 'GenericError':
-					return { success: false, message: `Generic Error: ${error[errorKey]['message']}` };
-
-				case 'TransferError':
-					const transferError = error[errorKey];
-					const transferErrorKey = Object.keys(error[errorKey])[0];
-
-					switch (transferErrorKey) {
-						case 'GenericError':
-							return {
-								success: false,
-								message: `Generic Error: ${transferError[transferErrorKey]['message']}`
-							};
-
-						case 'TemporarilyUnavailable':
-							return { success: false, message: 'Ledger is temporarily unavailable.' };
-
-						case 'BadBurn':
-							return {
-								success: false,
-								message: `Bad burn, minimum burn amount: ${displayUsFormat(bigintE8sToNumber(transferError[transferErrorKey]['min_burn_amount']))}`
-							};
-
-						case 'Duplicate':
-							return {
-								success: false,
-								message: `Duplicate, already occurring transfer: ${transferError[transferErrorKey]['duplicate_of']}`
-							};
-
-						case 'BadFee':
-							return {
-								success: false,
-								message: `Bad fee, expected: ${displayUsFormat(bigintE8sToNumber(transferError[transferErrorKey]['expected_fee']))}`
-							};
-
-						case 'CreatedInFuture':
-							return {
-								success: false,
-								message: `Created in future: ${transferError[transferErrorKey]['ledger_time']}`
-							};
-
-						case 'TooOld':
-							return { success: false, message: `Transfer is too old.` };
-
-						case 'InsufficientFunds':
-							return {
-								success: false,
-								message: `Insufficient funds, balance: ${displayUsFormat(bigintE8sToNumber(transferError[transferErrorKey]['balance']))}`
-							};
-
-						default:
-							return { success: false, message: 'Unknown transferfrom error.' };
-					}
-
-				case 'AmountTooLow':
-					return {
-						success: false,
-						message: `Amount too low, minimum amount: ${displayUsFormat(bigintE8sToNumber(error[errorKey]['minimum_amount_e8s']))}`
-					};
-
-				case 'TransferFromError':
-					const transferFromError = error[errorKey][0];
-					const transferFromErrorKey = Object.keys(error[errorKey][0])[0];
-
-					switch (transferFromErrorKey) {
-						case 'GenericError':
-							return {
-								success: false,
-								message: `Generic Error: ${transferFromError[transferFromErrorKey]['message']}`
-							};
-
-						case 'TemporarilyUnavailable':
-							return { success: false, message: 'Ledger is temporarily unavailable.' };
-
-						case 'InsufficientAllowance':
-							return {
-								success: false,
-								message: `Insufficient allowance, current allowance: ${displayUsFormat(bigintE8sToNumber(transferFromError[transferFromErrorKey]['allowance']))}`
-							};
-
-						case 'BadBurn':
-							return {
-								success: false,
-								message: `Bad burn, minimum burn amount: ${displayUsFormat(bigintE8sToNumber(transferFromError[transferFromErrorKey]['min_burn_amount']))}`
-							};
-
-						case 'Duplicate':
-							return {
-								success: false,
-								message: `Duplicate. Already occurring transfer: ${transferFromError[transferFromErrorKey]['duplicate_of']}`
-							};
-
-						case 'BadFee':
-							return {
-								success: false,
-								message: `Bad fee. Expected fee: ${displayUsFormat(bigintE8sToNumber(transferFromError[transferFromErrorKey]['expected_fee']))}`
-							};
-
-						case 'CreatedInFuture':
-							return {
-								success: false,
-								message: `Created in future: ${transferFromError[transferFromErrorKey]['ledger_time']}`
-							};
-
-						case 'TooOld':
-							return { success: false, message: `The transfer is too old.` };
-
-						case 'InsufficientFunds':
-							return {
-								success: false,
-								message: `Insufficient funds. Balance: ${displayUsFormat(bigintE8sToNumber(transferFromError[transferFromErrorKey]['balance']))}`
-							};
-
-						default:
-							return { success: false, message: DEFAULT_ERROR_MESSAGE };
-					}
-
-				case 'GuardError':
-					const guardErrorKey = Object.keys(error[errorKey])[0];
-
-					switch (guardErrorKey) {
-						case 'AlreadyProcessing':
-							return { success: false, message: `Guard Error. Conversion already processing.` };
-						case 'TooManyConcurrentRequests':
-							return { success: false, message: `Guard Error. Too many concurrent requests.` };
-					}
-
-				default:
-					return { success: false, message: DEFAULT_ERROR_MESSAGE };
-			}
+			return handleConversionError(result[key]);
 		default:
-			return { success: false, message: 'Unknown Error.' };
+			return { success: false, message: DEFAULT_ERROR_MESSAGE };
 	}
 }
 
-export function handleTransferResult(result: TransferResult): ConversionResult {
+function handleBoomerangError(error: BoomerangError): ToastResult {
+	const key = Object.keys(error)[0] as keyof BoomerangError;
+
+	switch (key) {
+		case 'GenericError':
+			return { success: false, message: `Generic Error: ${error[key]['message']}` };
+
+		case 'TransferError':
+			return handleTransferError(error[key]);
+
+		case 'ConversionError':
+			return handleConversionError(error[key]);
+
+		case 'ApproveError':
+			return handleApproveError(error[key]);
+
+		case 'NotEnoughICP':
+			return { success: false, message: `Sorry, there are not enough funds in this account.` };
+
+		default:
+			return { success: false, message: DEFAULT_ERROR_MESSAGE };
+	}
+}
+
+export function handleSnsIcpDepositResult(result: SnsIcpDepositResult): ToastResult {
+	const key = Object.keys(result)[0] as keyof SnsIcpDepositResult;
+
+	switch (key) {
+		case 'Ok':
+			return {
+				success: true,
+				message: `Successful conversion at <a target='_blank' style="text-decoration: underline; color: var(--text-color);" href=https://dashboard.internetcomputer.org/transaction/${result[key]['block_index']}>block index ${result[key]['block_index']}</a>.`
+			};
+		case 'Err':
+			return handleBoomerangError(result[key]);
+
+		default:
+			return { success: false, message: DEFAULT_ERROR_MESSAGE };
+	}
+}
+
+export function handleSnsRetrieveNicpResult(result: SnsRetrieveNicpResult): ToastResult {
+	const key = Object.keys(result)[0] as keyof SnsRetrieveNicpResult;
+
+	switch (key) {
+		case 'Ok':
+			return {
+				success: true,
+				message: `Successful conversion at <a target='_blank' style="text-decoration: underline; color: var(--text-color);" href="/wallet">block index ${result[key]['block_index']}</a>.`
+			};
+		case 'Err':
+			return handleBoomerangError(result[key]);
+
+		default:
+			return { success: false, message: DEFAULT_ERROR_MESSAGE };
+	}
+}
+
+export function handleTransferResult(result: TransferResult): ToastResult {
 	const key = Object.keys(result)[0] as keyof TransferResult;
 
 	switch (key) {
@@ -469,54 +412,18 @@ export function handleTransferResult(result: TransferResult): ConversionResult {
 				success: true,
 				message: `Successful transfer at <a target='_blank' style="text-decoration: underline; color: var(--text-color);" href=https://dashboard.internetcomputer.org/transaction/${result[key]}>block index ${result[key]}</a>.`
 			};
-		case 'Err': {
-			const error = result[key];
-			const errorKey = Object(error[key])[0];
-
-			switch (errorKey) {
-				case 'TxTooOld':
-					return { success: false, message: `The transfer is too old.` };
-				case 'BadFee':
-					return {
-						success: false,
-						message: `Bad fee, expected: ${displayUsFormat(bigintE8sToNumber(error[errorKey]['expected_fee']))}`
-					};
-				case 'TxDuplicate':
-					return {
-						success: false,
-						message: `Duplicate, already occurring transfer: ${error[errorKey]['duplicate_of']}`
-					};
-				case 'TxCreatedInFuture':
-					return {
-						success: false,
-						message: `The transfer is created in future.`
-					};
-
-				case 'InsufficientFunds':
-					return {
-						success: false,
-						message: `Insufficient funds, balance: ${displayUsFormat(bigintE8sToNumber(error[errorKey]['balance']))}`
-					};
-				default:
-					return {
-						success: false,
-						message: DEFAULT_ERROR_MESSAGE
-					};
-			}
-		}
+		case 'Err':
+			return handleTransferError(result[key]);
 
 		default:
 			return {
 				success: false,
-				message: `Unknown Error. Try again.`
+				message: DEFAULT_ERROR_MESSAGE
 			};
 	}
 }
 
-export function handleIcrcTransferResult(
-	result: Icrc1TransferResult,
-	asset: Asset
-): ConversionResult {
+export function handleIcrcTransferResult(result: Icrc1TransferResult, asset: Asset): ToastResult {
 	const key = Object.keys(result)[0] as keyof Icrc1TransferResult;
 
 	switch (key) {
@@ -534,54 +441,8 @@ export function handleIcrcTransferResult(
 					};
 			}
 
-		case 'Err': {
-			const error = result[key];
-			const errorKey = Object(error[key])[0];
-
-			switch (errorKey) {
-				case 'TooOld':
-					return { success: false, message: `The transfer is too old.` };
-				case 'BadFee':
-					return {
-						success: false,
-						message: `Bad fee, expected: ${displayUsFormat(bigintE8sToNumber(error[errorKey]['min_burn_amount']))}`
-					};
-				case 'Duplicate':
-					return {
-						success: false,
-						message: `Duplicate transfer of: ${error[errorKey]['duplicate_of']}`
-					};
-				case 'CreatedInFuture':
-					return {
-						success: false,
-						message: `Created in future: ${error[errorKey]['ledger_time']}`
-					};
-
-				case 'InsufficientFunds':
-					return {
-						success: false,
-						message: `Insufficient funds, balance: ${displayUsFormat(bigintE8sToNumber(error[errorKey]['balance']))}`
-					};
-
-				case 'GenericError':
-					return { success: false, message: `Generic Error: ${error[errorKey]['message']}` };
-
-				case 'TemporarilyUnavailable':
-					return { success: false, message: 'Ledger is temporarily unavailable.' };
-
-				case 'BadBurn':
-					return {
-						success: false,
-						message: `Bad burn, minimum burn amount: ${displayUsFormat(bigintE8sToNumber(error[errorKey]['min_burn_amount']))}`
-					};
-
-				default:
-					return {
-						success: false,
-						message: DEFAULT_ERROR_MESSAGE
-					};
-			}
-		}
+		case 'Err':
+			return handleTransferFromError(result[key]);
 
 		default:
 			return {

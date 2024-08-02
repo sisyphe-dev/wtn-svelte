@@ -1,9 +1,11 @@
 <script lang="ts">
 	import { boomerang } from '$lib/../declarations/boomerang';
 	import { Principal } from '@dfinity/principal';
-	import { selectedSns, snsPrincipal, toasts } from '$lib/stores';
+	import { selectedSns, snsPrincipal, toasts, isBusy } from '$lib/stores';
 	import { fade } from 'svelte/transition';
 	import { onMount } from 'svelte';
+	import { handleSnsIcpDepositResult } from '$lib/ledger';
+	import { Toast } from '$lib/toast';
 
 	let principal: string;
 	let amount: number;
@@ -17,12 +19,20 @@
 		}
 	}
 
-	const notifyIcpDeposit = () => {
+	const notifyIcpDeposit = async () => {
+		if ($isBusy) return;
 		try {
+			isBusy.set(true);
 			const input = $selectedSns === 'Custom' ? principal : $snsPrincipal;
-			boomerang.notify_icp_deposit(Principal.fromText(input)).then((result) => {
-				console.log(result);
-			});
+			const boomerangResult = await boomerang.notify_icp_deposit(Principal.fromText(input));
+
+			const result = handleSnsIcpDepositResult(boomerangResult);
+			if (result.success) {
+				toasts.add(Toast.success(result.message));
+			} else {
+				toasts.add(Toast.error(result.message));
+			}
+			isBusy.set(false);
 		} catch (error) {
 			console.log(error);
 		}
@@ -39,9 +49,13 @@
 			<input type="text" placeholder="Principal" bind:value={principal} />
 		</div>
 		{#if principal && isValid(principal)}
-			<div class="balance-container" in:fade={{ duration: 500 }}>
+			{#if $isBusy}
+				<button>
+					<div class="spinner"></div>
+				</button>
+			{:else}
 				<button on:click={notifyIcpDeposit}>Confirm</button>
-			</div>
+			{/if}
 		{:else}
 			<span in:fade={{ duration: 500 }} style:color="var(--main-color)"
 				>Please specify principal.</span
@@ -53,7 +67,13 @@
 			<p style:color="var(--main-color)">{$snsPrincipal}</p>
 		</div>
 		<div class="balance-container">
-			<button on:click={notifyIcpDeposit}>Confirm</button>
+			{#if $isBusy}
+				<button>
+					<div class="spinner"></div>
+				</button>
+			{:else}
+				<button on:click={notifyIcpDeposit}>Confirm</button>
+			{/if}
 		</div>
 	{/if}
 </div>
@@ -78,7 +98,8 @@
 		border-radius: 8px;
 		font-size: 16px;
 		box-shadow: 3px 3px 0 0 black;
-		padding: 0.5em 1em;
+		width: 10em;
+		height: 4em;
 		font-size: 16px;
 		font-weight: bold;
 		display: flex;
@@ -135,13 +156,6 @@
 		gap: 1em;
 	}
 
-	/* === Component === */
-	.balance {
-		display: flex;
-		align-items: center;
-		gap: 5px;
-	}
-
 	/* === Utilities === */
 	.round {
 		border-radius: 50%;
@@ -153,5 +167,25 @@
 		font-weight: bold;
 		text-align: center;
 		font-family: var(--font-type2);
+	}
+
+	/* === Animation === */
+
+	.spinner {
+		width: 2em;
+		height: 2em;
+		border: 3px solid black;
+		border-top-color: transparent;
+		border-radius: 50%;
+		animation: spin 1s linear infinite;
+	}
+
+	@keyframes spin {
+		from {
+			transform: rotate(0deg);
+		}
+		to {
+			transform: rotate(360deg);
+		}
 	}
 </style>
