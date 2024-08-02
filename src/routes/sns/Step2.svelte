@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { boomerang } from '$lib/../declarations/boomerang';
 	import { Principal } from '@dfinity/principal';
-	import { selectedSns, snsPrincipal } from '$lib/stores';
+	import { selectedSns, snsPrincipal, toasts } from '$lib/stores';
 	import { fade } from 'svelte/transition';
 	import { onMount } from 'svelte';
 
@@ -20,7 +20,9 @@
 	const notifyIcpDeposit = () => {
 		try {
 			const input = $selectedSns === 'Custom' ? principal : $snsPrincipal;
-			boomerang.notify_icp_deposit(Principal.fromText(input)).then((result) => {});
+			boomerang.notify_icp_deposit(Principal.fromText(input)).then((result) => {
+				console.log(result);
+			});
 		} catch (error) {
 			console.log(error);
 		}
