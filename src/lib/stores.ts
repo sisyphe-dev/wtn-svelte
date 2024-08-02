@@ -12,6 +12,7 @@ export const menu = writable<boolean>(false);
 
 export const language = writable<'en' | 'es' | 'ja' | 'ru'>('en');
 export const selectedAsset = writable<Asset>(new Asset(AssetType.ICP));
+export const selectedSns = writable<{}>({ name: 'Custom', governance_id: undefined });
 
 function createInputValue() {
 	const { subscribe, set } = writable<string>();
