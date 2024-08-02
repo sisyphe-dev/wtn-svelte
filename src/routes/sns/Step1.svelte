@@ -66,7 +66,7 @@
 	});
 </script>
 
-<div class="step1-container">
+<div class="step1-container" in:fade={{ duration: 500 }}>
 	<div class="instruction-container">
 		<span class="round">1</span>
 		<span>Make an ICP Treasury proposal to the following account identifier.</span>
@@ -116,7 +116,7 @@
 				</button>
 			</div>
 		{:else}
-			<span style:color="red">Specify principal</span>
+			<span style:color="var(--main-color)">Please specify principal.</span>
 		{/if}
 	{/if}
 </div>
