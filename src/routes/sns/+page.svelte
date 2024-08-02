@@ -67,6 +67,7 @@
 		display: flex;
 		width: 100%;
 		justify-content: space-around;
+		gap: 1em;
 	}
 
 	button {
@@ -104,6 +105,7 @@
 		align-items: start;
 		justify-content: start;
 		gap: 2em;
+		padding: 1em;
 	}
 
 	/* === Utilities === */

@@ -75,7 +75,7 @@
 		<div class="receive-container">
 			<div class="qr-code-container">
 				<canvas id="qr-code-sns" />
-				<img id="wtn-logo" src="/tokens/WTN.webp" width="70px" height="70px" alt="WTN logo." />
+				<img id="wtn-logo" src="/tokens/WTN.webp" width="25px" height="25px" alt="WTN logo." />
 			</div>
 			<div class="principal-container">
 				<p>{accountId}</p>
@@ -99,7 +99,7 @@
 		{#if accountId !== undefined}
 			<div class="qr-code-container" transition:fade={{ duration: 500 }}>
 				<canvas id="qr-code-sns" />
-				<img id="wtn-logo" src="/tokens/WTN.webp" width="70px" height="70px" alt="WTN logo." />
+				<img id="wtn-logo" src="/tokens/WTN.webp" width="25px" height="25px" alt="WTN logo." />
 			</div>
 			<div class="principal-container" transition:fade={{ duration: 500 }}>
 				<p>{accountId}</p>
@@ -179,7 +179,6 @@
 		background: none;
 		align-items: center;
 		height: fit-content;
-		height: 100%;
 		width: 100%;
 		border: none;
 		gap: 2em;
@@ -194,7 +193,8 @@
 	.principal-container {
 		display: flex;
 		align-items: center;
-		width: 80%;
+		width: 100%;
+		justify-content: center;
 	}
 
 	.qr-code-container {
@@ -210,7 +210,6 @@
 		gap: 2em;
 		align-items: center;
 		justify-content: center;
-		flex-grow: 1;
 	}
 
 	.input-container {
@@ -223,8 +222,8 @@
 
 	/* === Component === */
 	#qr-code-sns {
-		height: 268px;
-		width: 268px;
+		height: 100px;
+		width: 100px;
 	}
 
 	.circle {

@@ -4,7 +4,6 @@
 	import { selectedSns, snsPrincipal } from '$lib/stores';
 	import { fade } from 'svelte/transition';
 
-
 	let principal: string;
 
 	function isValid(principal) {
@@ -28,7 +27,7 @@
 	}
 </script>
 
-<div class="step2-container"  in:fade={{ duration: 500 }}>
+<div class="step2-container" in:fade={{ duration: 500 }}>
 	<div class="instruction-container">
 		<span class="round">3</span>
 		<span>Retrieve Nicp.</span>
@@ -38,27 +37,19 @@
 			<input type="text" placeholder="Principal" bind:value={principal} />
 		</div>
 		{#if principal && isValid(principal)}
-			<div class="balance-container"  transition:fade={{ duration: 500 }}>
-				<div class="balance">
-					<p>
-						Amount to retrieve: {0} nICP
-					</p>
-					<img alt="NICP logo" src="/tokens/nicp.webp" width="30px" height="30px" />
-				</div>
-				<button on:click={retrieveNicp}>Confirm</button>
+			<div class="balance-container" transition:fade={{ duration: 500 }}>
+				<button on:click={retrieveNicp}>Retrieve</button>
 			</div>
 		{:else}
 			<span style:color="var(--main-color)">Please specify principal.</span>
 		{/if}
 	{:else}
+		<div class="fetched-info-container">
+			<p>You are using the following principal:</p>
+			<p style:color="var(--main-color)">{$snsPrincipal}</p>
+		</div>
 		<div class="balance-container">
-			<div class="balance">
-				<p>
-					Amount to retrieve: {0} nICP
-				</p>
-				<img alt="NICP logo" src="/tokens/nicp.webp" width="30px" height="30px" />
-			</div>
-			<button on:click={retrieveNicp}>Confirm</button>
+			<button on:click={retrieveNicp}>Retrieve</button>
 		</div>
 	{/if}
 </div>
@@ -134,6 +125,11 @@
 		gap: 1em;
 		justify-content: center;
 		align-items: center;
+	}
+
+	.fetched-info-container {
+		display: flex;
+		gap: 1em;
 	}
 
 	/* === Component === */

@@ -3,9 +3,10 @@
 	import { Principal } from '@dfinity/principal';
 	import { selectedSns, snsPrincipal } from '$lib/stores';
 	import { fade } from 'svelte/transition';
-
+	import { onMount } from 'svelte';
 
 	let principal: string;
+	let amount: number;
 
 	function isValid(principal) {
 		try {
@@ -26,7 +27,7 @@
 	};
 </script>
 
-<div class="step2-container"  in:fade={{ duration: 500 }}>
+<div class="step2-container" in:fade={{ duration: 500 }}>
 	<div class="instruction-container">
 		<span class="round">2</span>
 		<span>Confirm your deposit.</span>
@@ -36,26 +37,20 @@
 			<input type="text" placeholder="Principal" bind:value={principal} />
 		</div>
 		{#if principal && isValid(principal)}
-			<div class="balance-container"  in:fade={{ duration: 500 }}>
-				<div class="balance">
-					<p>
-						Amount to deposit: {0} ICP
-					</p>
-					<img alt="ICP logo" src="/tokens/icp.webp" width="30px" height="30px" />
-				</div>
+			<div class="balance-container" in:fade={{ duration: 500 }}>
 				<button on:click={notifyIcpDeposit}>Confirm</button>
 			</div>
 		{:else}
-			<span  in:fade={{ duration: 500 }} style:color="var(--main-color)">Please specify principal.</span>
+			<span in:fade={{ duration: 500 }} style:color="var(--main-color)"
+				>Please specify principal.</span
+			>
 		{/if}
 	{:else}
+		<div class="fetched-info-container">
+			<p>You are using the following principal:</p>
+			<p style:color="var(--main-color)">{$snsPrincipal}</p>
+		</div>
 		<div class="balance-container">
-			<div class="balance">
-				<p>
-					Amount to deposit: {0} ICP
-				</p>
-				<img alt="ICP logo" src="/tokens/icp.webp" width="30px" height="30px" />
-			</div>
 			<button on:click={notifyIcpDeposit}>Confirm</button>
 		</div>
 	{/if}
@@ -114,7 +109,6 @@
 		justify-content: start;
 		background: none;
 		align-items: center;
-		height: fit-content;
 		height: 100%;
 		width: 100%;
 		border: none;
@@ -132,6 +126,11 @@
 		gap: 1em;
 		justify-content: center;
 		align-items: center;
+	}
+
+	.fetched-info-container {
+		display: flex;
+		gap: 1em;
 	}
 
 	/* === Component === */

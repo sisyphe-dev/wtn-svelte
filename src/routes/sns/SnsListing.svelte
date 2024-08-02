@@ -84,7 +84,7 @@
 		display: flex;
 		overflow-y: scroll;
 		width: 100%;
-		height: 45em;
+		max-height: 30em;
 		flex-direction: column;
 		margin: 0;
 		padding: 0;
