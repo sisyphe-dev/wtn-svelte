@@ -18,10 +18,12 @@
 	}
 
 	async function retrieveNicp() {
+		if ($isBusy) return;
 		try {
 			isBusy.set(true);
 			const input = $selectedSns === 'Custom' ? principal : $snsPrincipal;
-			const retrieveResult = boomerang.retrieve_nicp(Principal.fromText(input));
+			console.log(input);
+			const retrieveResult = await boomerang.retrieve_nicp(Principal.fromText(input));
 
 			const result = await handleSnsRetrieveNicpResult(retrieveResult);
 			if (result.success) {
@@ -32,6 +34,8 @@
 			isBusy.set(false);
 		} catch (error) {
 			console.log(error);
+			toasts.add(Toast.error("Call failed."));
+			isBusy.set(false);
 		}
 	}
 </script>

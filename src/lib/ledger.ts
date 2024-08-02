@@ -393,7 +393,7 @@ export function handleSnsRetrieveNicpResult(result: SnsRetrieveNicpResult): Toas
 		case 'Ok':
 			return {
 				success: true,
-				message: `Successful conversion at <a target='_blank' style="text-decoration: underline; color: var(--text-color);" href="/wallet">block index ${result[key]['block_index']}</a>.`
+				message: `Successful conversion at <a target='_blank' style="text-decoration: underline; color: var(--text-color);" href="/wallet">block index ${result[key]}</a>.`
 			};
 		case 'Err':
 			return handleBoomerangError(result[key]);
