@@ -1,6 +1,9 @@
 <script lang="ts">
 	import SnsListing from './SnsListing.svelte';
 	import Step1 from './Step1.svelte';
+	import Step2 from './Step2.svelte';
+	import Step3 from './Step3.svelte';
+
 	import { fade, scale } from 'svelte/transition';
 	import { selectedSns } from '$lib/stores';
 
@@ -19,14 +22,33 @@
 	<SnsListing {data} />
 	{#key $selectedSns}
 		<div class="boomerang-container" in:fade={{ duration: 500 }}>
-			<h1>Stake {$selectedSns.name} Treasury</h1>
+			<h1>Stake {$selectedSns} Treasury</h1>
 			<nav>
-				<button class="step-btn" class:selected-step={selectedStep === 'Step1'}>Step 1 </button>
-				<button class="step-btn">Step 2 </button>
-				<button class="step-btn">Step 3 </button>
+				<button
+					class="step-btn"
+					class:selected-step={selectedStep === 'Step1'}
+					on:click={() => (selectedStep = 'Step1')}
+					>Step 1
+				</button>
+				<button
+					class="step-btn"
+					class:selected-step={selectedStep === 'Step2'}
+					on:click={() => (selectedStep = 'Step2')}
+					>Step 2
+				</button>
+				<button
+					class="step-btn"
+					class:selected-step={selectedStep === 'Step3'}
+					on:click={() => (selectedStep = 'Step3')}
+					>Step 3
+				</button>
 			</nav>
 			{#if selectedStep === 'Step1'}
 				<Step1 />
+			{:else if selectedStep === 'Step2'}
+				<Step2 />
+			{:else}
+				<Step3 />
 			{/if}
 		</div>
 	{/key}

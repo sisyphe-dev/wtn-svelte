@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { selectedSns } from '$lib/stores';
+	import { selectedSns, snsPrincipal } from '$lib/stores';
 
 	export let data;
 </script>
@@ -9,18 +9,21 @@
 		<div class="sns-btn-container">
 			<button
 				class="sns-btn-selection"
-				class:selected-sns={$selectedSns.name === 'Custom'}
-				on:click={() => selectedSns.set({ name: 'Custom', governance_id: undefined })}
-				>Custom</button
+				class:selected-sns={$selectedSns === 'Custom'}
+				on:click={() => {
+					selectedSns.set('Custom');
+					snsPrincipal.set('');
+				}}>Custom</button
 			>
 		</div>
 		{#each data.sns as sns}
 			<div class="sns-btn-container">
 				<button
 					class="sns-btn-selection"
-					class:selected-sns={$selectedSns.name === sns.name}
+					class:selected-sns={$selectedSns === sns.name}
 					on:click={() => {
-						selectedSns.set({ name: sns.name, governance_id: sns.governance_id });
+						selectedSns.set(sns.name);
+						snsPrincipal.set(sns.governance_id);
 					}}>{sns.name}</button
 				>
 			</div>

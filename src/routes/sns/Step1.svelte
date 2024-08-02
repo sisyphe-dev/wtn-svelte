@@ -1,27 +1,35 @@
 <script lang="ts">
 	import CopyIcon from '$lib/icons/CopyIcon.svelte';
-	import { selectedSns } from '$lib/stores';
-	import { afterUpdate, onMount } from 'svelte';
+	import { selectedSns, snsPrincipal } from '$lib/stores';
+	import { onMount, afterUpdate } from 'svelte';
 	import { fade, scale } from 'svelte/transition';
 	import { boomerang } from '$lib/../declarations/boomerang';
 	import { Principal } from '@dfinity/principal';
 
 	let accountId: string;
 	let principal: string;
-	let isValid = true;
 
-	const setAccountId = (principal: string) => {
+	const setAccountId = async (principal: string) => {
 		try {
 			boomerang.get_staking_account_id(Principal.fromText(principal)).then((account) => {
 				accountId = account;
-				isValid = true;
 			});
-		} catch (error) {
-			isValid = false;
-		}
+		} catch (error) {}
 	};
 
-	$: principal, setAccountId(principal);
+	async function renderQrCode(accountId: string) {
+		QrCreator.render(
+			{
+				text: `${accountId}`,
+				radius: 0.0, // 0.0 to 0.5
+				ecLevel: 'H', // L, M, Q, H
+				fill: 'rgb(12, 44, 76)',
+				background: null,
+				size: 1000 // in pixels
+			},
+			document.querySelector('#qr-code-sns')
+		);
+	}
 
 	let isAnimating = false;
 	let circleVisible = false;
@@ -39,36 +47,22 @@
 		}
 	}
 
-	afterUpdate(() => {
-		if ($selectedSns.name !== 'Custom') {
-			QrCreator.render(
-				{
-					text: `${accountId}`,
-					radius: 0.0, // 0.0 to 0.5
-					ecLevel: 'H', // L, M, Q, H
-					fill: 'rgb(12, 44, 76)',
-					background: null,
-					size: 1000 // in pixels
-				},
-				document.querySelector('#qr-code-sns')
-			);
-		} else if (principal && isValid) {
-			QrCreator.render(
-				{
-					text: `${accountId}`,
-					radius: 0.0, // 0.0 to 0.5
-					ecLevel: 'H', // L, M, Q, H
-					fill: 'rgb(12, 44, 76)',
-					background: null,
-					size: 1000 // in pixels
-				},
-				document.querySelector('#qr-code-sns')
-			);
+	onMount(() => {
+		if ($selectedSns !== 'Custom') {
+			setAccountId($snsPrincipal);
 		}
 	});
 
-	onMount(() => {
-		setAccountId($selectedSns.governance_id);
+	$: {
+		if (principal) {
+			setAccountId(principal);
+		}
+	}
+
+	afterUpdate(() => {
+		if (accountId !== undefined) {
+			renderQrCode(accountId);
+		}
 	});
 </script>
 
@@ -77,7 +71,7 @@
 		<span class="round">1</span>
 		<span>Make an ICP Treasury proposal to the following account identifier.</span>
 	</div>
-	{#if $selectedSns.name !== 'Custom'}
+	{#if $selectedSns !== 'Custom'}
 		<div class="receive-container">
 			<div class="qr-code-container">
 				<canvas id="qr-code-sns" />
@@ -102,7 +96,7 @@
 		<div class="input-container">
 			<input type="text" placeholder="Principal" bind:value={principal} />
 		</div>
-		{#if isValid && principal}
+		{#if accountId !== undefined}
 			<div class="qr-code-container" transition:fade={{ duration: 500 }}>
 				<canvas id="qr-code-sns" />
 				<img id="wtn-logo" src="/tokens/WTN.webp" width="70px" height="70px" alt="WTN logo." />
@@ -121,6 +115,8 @@
 					{/if}
 				</button>
 			</div>
+		{:else}
+			<span style:color="red">Specify principal</span>
 		{/if}
 	{/if}
 </div>
@@ -226,18 +222,6 @@
 	}
 
 	/* === Component === */
-	.round {
-		border-radius: 50%;
-		color: var(--text-color);
-		border: 2px solid;
-		width: 1em;
-		height: fit-content;
-		padding: 0.2em;
-		font-weight: bold;
-		text-align: center;
-		font-family: var(--font-type2);
-	}
-
 	#qr-code-sns {
 		height: 268px;
 		width: 268px;
@@ -255,4 +239,15 @@
 	}
 
 	/* === Utilities === */
+	.round {
+		border-radius: 50%;
+		color: var(--text-color);
+		border: 2px solid;
+		width: 1em;
+		height: fit-content;
+		padding: 0.2em;
+		font-weight: bold;
+		text-align: center;
+		font-family: var(--font-type2);
+	}
 </style>
