@@ -161,16 +161,18 @@
 		width: 100%;
 		justify-content: center;
 		align-items: center;
-			}
+	}
 
 	/* === Utilities === */
 	.round {
 		border-radius: 50%;
 		color: var(--text-color);
 		border: 2px solid;
-		width: 1em;
-		height: fit-content;
-		padding: 0.2em;
+		width: 1.5em;
+		height: 1.5em;
+		display: flex;
+		justify-content: center;
+		align-items: center;
 		font-weight: bold;
 		text-align: center;
 		font-family: var(--font-type2);
@@ -193,6 +195,23 @@
 		}
 		to {
 			transform: rotate(360deg);
+		}
+	}
+
+	@media (max-width: 678px) {
+		.step2-container {
+			width: 90%;
+		}
+		
+		span {
+			text-align: center;
+			width: 80%;
+		}
+
+		.fetched-info-container{
+			flex-direction: column;
+			gap: 0;
+			align-items: center;
 		}
 	}
 </style>

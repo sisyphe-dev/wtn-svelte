@@ -103,4 +103,32 @@
 		border: 2px solid var(--main-color);
 		background-color: rgba(107, 249, 201, 0.5);
 	}
+
+
+	@media (max-width: 767px) {
+		.sns-selection-container {
+			width: 100%;
+			height: 5em;
+			flex-direction: row;
+			padding: 0;
+		}
+
+		.sns-listing {
+			overflow-x: scroll;
+			overflow-y: hidden;
+			flex-direction: row;
+			margin-left: 1em;
+		}
+
+		button {
+		display: flex;
+		width: 10em;
+		justify-content: center;
+		padding: 1em;
+		font-size: 16px;
+		border-radius: 8px;
+		border: 2px solid transparent;
+		background: none;
+	}
+	}
 </style>

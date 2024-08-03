@@ -61,6 +61,7 @@
 		font-size: 26px;
 		font-family: var(--font-type1);
 		align-self: center;
+		text-align: center;
 	}
 
 	nav {
@@ -93,9 +94,10 @@
 		border: 2px solid #66adff;
 		border-radius: 10px;
 		display: flex;
+		justify-content: center;
 		width: 60em;
 		height: fit-content;
-		max-width: 80vw;
+		max-width: 95dvw;
 	}
 
 	.boomerang-container {
@@ -111,5 +113,25 @@
 	/* === Utilities === */
 	.selected-step {
 		background-color: #1e3466;
+	}
+
+	@media (max-width: 767px) {
+		.sns-container {
+			flex-direction: column;
+			justify-content: start;
+			height: 40em;
+		}
+
+		.boomerang-container {
+			width: 100%;
+			padding: 0 0 1em 0;
+			gap: 1em;
+			align-items: center;
+		}
+
+		nav {
+			max-width: 95%;
+			justify-content: center;
+		}
 	}
 </style>
