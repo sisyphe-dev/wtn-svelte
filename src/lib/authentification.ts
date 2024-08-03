@@ -104,19 +104,18 @@ declare global {
 export async function plugSignIn(): Promise<AuthResult> {
 	return new Promise<AuthResult>(async (resolve, reject) => {
 		try {
-			if (!(await window.ic.plug.isConnected())) {
-				let whitelist: string[] = [
-					CANISTER_ID_ICP_LEDGER,
-					CANISTER_ID_NICP_LEDGER,
-					CANISTER_ID_WTN_LEDGER,
-					CANISTER_ID_WATER_NEURON
-				];
+			let whitelist: string[] = [
+				CANISTER_ID_ICP_LEDGER,
+				CANISTER_ID_NICP_LEDGER,
+				CANISTER_ID_WTN_LEDGER,
+				CANISTER_ID_WATER_NEURON
+			];
 
-				await window.ic.plug.requestConnect({
-					whitelist,
-					host: HOST
-				});
-			}
+			await window.ic.plug.requestConnect({
+				whitelist,
+				host: HOST
+			});
+			
 
 			const principal: Principal = await window.ic.plug.getPrincipal();
 			const agent = window.ic.plug.agent;
