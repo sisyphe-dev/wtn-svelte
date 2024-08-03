@@ -17,8 +17,8 @@
 	import {
 		handleIcrcTransferResult,
 		handleTransferResult,
-		type ConversionResult
-	} from '$lib/ledger';
+		type ToastResult
+	} from '$lib/result';
 	import type {
 		Tokens,
 		TransferArgs,
@@ -78,7 +78,7 @@
 		}
 
 		try {
-			let status: ConversionResult;
+			let status: ToastResult;
 			switch ($selectedAsset.type) {
 				case AssetType.ICP:
 					{

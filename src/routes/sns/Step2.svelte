@@ -4,7 +4,7 @@
 	import { selectedSns, snsPrincipal, toasts, isBusy } from '$lib/stores';
 	import { fade } from 'svelte/transition';
 	import { onMount } from 'svelte';
-	import { handleSnsIcpDepositResult } from '$lib/ledger';
+	import { handleSnsIcpDepositResult } from '$lib/result';
 	import { Toast } from '$lib/toast';
 
 	let principal: string;

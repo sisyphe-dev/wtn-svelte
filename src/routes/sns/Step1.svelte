@@ -14,7 +14,9 @@
 			boomerang.get_staking_account_id(Principal.fromText(principal)).then((account) => {
 				accountId = account;
 			});
-		} catch (error) {}
+		} catch (error) {
+			console.log(error);
+		}
 	};
 
 	let isAnimating = false;

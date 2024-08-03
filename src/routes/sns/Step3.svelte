@@ -3,7 +3,7 @@
 	import { Principal } from '@dfinity/principal';
 	import { selectedSns, snsPrincipal, isBusy, toasts } from '$lib/stores';
 	import { fade } from 'svelte/transition';
-	import { handleSnsRetrieveNicpResult } from '$lib/ledger';
+	import { handleSnsRetrieveNicpResult } from '$lib/result';
 	import { Toast } from '$lib/toast';
 
 	let principal: string;

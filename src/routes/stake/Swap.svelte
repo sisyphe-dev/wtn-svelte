@@ -8,8 +8,9 @@
 		icpTransferApproved,
 		nicpTransferApproved,
 		handleStakeResult,
-		handleRetrieveResult
-	} from '$lib/ledger';
+		handleRetrieveResult,
+		DEFAULT_ERROR_MESSAGE
+	} from '$lib/result';
 	import type { ConversionArg } from '../../declarations/water_neuron/water_neuron.did';
 	import type { Account } from '@dfinity/ledger-icp';
 	import { onMount, afterUpdate } from 'svelte';
@@ -55,8 +56,9 @@
 					} as Account,
 					$state.icpLedger
 				);
-				if (!approval.granted) {
-					toasts.add(Toast.error(approval.message ?? 'Unknown Error.'));
+				console.log(approval);	
+				if (!approval.success) {
+					toasts.add(Toast.error(approval.message ?? DEFAULT_ERROR_MESAGE));
 				} else {
 					const conversionResult = await $state.waterNeuron.icp_to_nicp({
 						maybe_subaccount: [],
@@ -95,7 +97,7 @@
 					} as Account,
 					$state.nicpLedger
 				);
-				if (!approval.granted) {
+				if (!approval.success) {
 					toasts.add(Toast.error(approval.message ?? 'Unknown Error.'));
 				} else {
 					const conversionResult = await $state.waterNeuron.nicp_to_icp({

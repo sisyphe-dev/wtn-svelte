@@ -9,13 +9,6 @@
 
 	export let data;
 	let selectedStep: 'Step1' | 'Step2' | 'Step3' = 'Step1';
-
-	function notifyIcpDeposit() {
-		alert('notify_icp_deposit button clicked!');
-	}
-	function retrieveNicp() {
-		alert('retrieve_nicp button clicked!');
-	}
 </script>
 
 <div class="sns-container" transition:fade>
