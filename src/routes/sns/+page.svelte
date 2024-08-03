@@ -95,7 +95,7 @@
 		border-radius: 10px;
 		display: flex;
 		justify-content: center;
-		width: 60em;
+		width: 45em;
 		height: fit-content;
 		max-width: 95dvw;
 	}
@@ -119,7 +119,7 @@
 		.sns-container {
 			flex-direction: column;
 			justify-content: start;
-			height: 40em;
+			height: 30em;
 		}
 
 		.boomerang-container {

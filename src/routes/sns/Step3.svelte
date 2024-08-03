@@ -64,7 +64,7 @@
 		{/if}
 	{:else}
 		<div class="fetched-info-container">
-			<p>You are using the following principal:</p>
+			<p style:font-weight="lighter">You are using the following principal:</p>
 			<p style:color="var(--main-color)">{$snsPrincipal}</p>
 		</div>
 		{#if $isBusy}
@@ -88,6 +88,7 @@
 	p {
 		font-family: var(--font-type2);
 		font-weight: bold;
+		margin: 0.2em;
 	}
 
 	button {
@@ -142,6 +143,7 @@
 		display: flex;
 		align-items: center;
 		gap: 1em;
+		height: 2em;
 	}
 
 	.balance-container {
@@ -201,18 +203,21 @@
 
 	@media (max-width: 678px) {
 		.step3-container {
-			width: 90%;
+			width: 95%;
 		}
 
 		span {
 			text-align: center;
-			width: 80%;
 		}
 
 		.fetched-info-container{
 			flex-direction: column;
 			gap: 0;
 			align-items: center;
+		}
+
+		.input-container {
+			gap: 0;
 		}
 	}
 </style>

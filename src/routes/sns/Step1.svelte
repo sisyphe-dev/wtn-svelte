@@ -17,20 +17,6 @@
 		} catch (error) {}
 	};
 
-	async function renderQrCode(accountId: string) {
-		QrCreator.render(
-			{
-				text: `${accountId}`,
-				radius: 0.0, // 0.0 to 0.5
-				ecLevel: 'H', // L, M, Q, H
-				fill: 'rgb(12, 44, 76)',
-				background: null,
-				size: 1000 // in pixels
-			},
-			document.querySelector('#qr-code-sns')
-		);
-	}
-
 	let isAnimating = false;
 	let circleVisible = false;
 
@@ -58,25 +44,19 @@
 			setAccountId(principal);
 		}
 	}
-
-	afterUpdate(() => {
-		if (accountId !== undefined) {
-			renderQrCode(accountId);
-		}
-	});
 </script>
 
 <div class="step1-container" in:fade={{ duration: 500 }}>
 	<div class="instruction-container">
 		<span class="round">1</span>
-		<span>Make an ICP Treasury proposal to the following account identifier.</span>
+		<span class="instruction">Make an ICP Treasury proposal to the following account identifier.</span>
 	</div>
 	{#if $selectedSns !== 'Custom'}
-		<div class="receive-container">
-			<div class="qr-code-container">
-				<canvas id="qr-code-sns" />
-				<img id="wtn-logo" src="/tokens/WTN.webp" width="25px" height="25px" alt="WTN logo." />
+	<div class="fetched-info-container">
+				<p style:font-weight="lighter">You are using the following principal:</p>
+				<p style:color="var(--main-color)">{$snsPrincipal}</p>
 			</div>
+		<div class="receive-container">
 			<div class="principal-container">
 				<p>{accountId}</p>
 				<button
@@ -100,10 +80,6 @@
 			<input type="text" placeholder="Principal" bind:value={principal} />
 		</div>
 		{#if accountId !== undefined}
-			<div class="qr-code-container">
-				<canvas id="qr-code-sns" />
-				<img id="wtn-logo" src="/tokens/WTN.webp" width="25px" height="25px" alt="WTN logo." />
-			</div>
 			<div class="principal-container">
 				<p>{accountId}</p>
 				<button
@@ -130,12 +106,6 @@
 		font-family: var(--font-type2);
 	}
 
-	img {
-		position: absolute;
-		top: 50%;
-		transform: translate(0, -50%);
-	}
-
 	button {
 		background-color: transparent;
 		border: none;
@@ -148,11 +118,6 @@
 		position: relative;
 	}
 
-	canvas {
-		background: oklab(0.88 -0.18 0.03);
-		padding: 0.5em;
-		border-radius: 8px;
-	}
 
 	input {
 		border: none;
@@ -170,6 +135,7 @@
 		font-family: var(--font-type2);
 		overflow-wrap: anywhere;
 		font-weight: bold;
+		margin: 0.2em;
 	}
 
 	/* === Layout === */
@@ -189,19 +155,14 @@
 		display: flex;
 		align-items: center;
 		gap: 1em;
+		height: 2em;
 	}
 
 	.principal-container {
 		display: flex;
 		align-items: center;
 		width: 100%;
-		justify-content: center;
-	}
-
-	.qr-code-container {
-		position: relative;
-		width: 100%;
-		display: flex;
+		height: 4em;
 		justify-content: center;
 	}
 
@@ -220,13 +181,13 @@
 		justify-content: center;
 		align-items: center;
 	}
-	
-	/* === Component === */
-	#qr-code-sns {
-		height: 100px;
-		width: 100px;
+
+	.fetched-info-container {
+		display: flex;
+		gap: 1em;
 	}
 
+	/* === Component === */
 	.circle {
 		position: absolute;
 		border-radius: 50%;
@@ -236,6 +197,10 @@
 		top: 50%;
 		left: 50%;
 		transform: translate(-50%, -50%);
+	}
+
+	.instruction {
+		width: 80%;
 	}
 
 	/* === Utilities === */
@@ -256,12 +221,11 @@
 
 	@media (max-width: 767px) {
 		.step1-container {
-			width: 90%;
+			width: 95%;
 		}
 
 		span {
 			text-align: center;
-			width: 80%;
 		}
 
 		.instruction-container {
@@ -270,6 +234,16 @@
 
 		p {
 			text-align: center;
+		}
+
+		.fetched-info-container{
+			flex-direction: column;
+			gap: 0;
+			align-items: center;
+		}
+
+		.input-container {
+			gap: 0;
 		}
 	}
 </style>
