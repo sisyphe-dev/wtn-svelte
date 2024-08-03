@@ -104,7 +104,6 @@
 		background-color: rgba(107, 249, 201, 0.5);
 	}
 
-
 	@media (max-width: 767px) {
 		.sns-selection-container {
 			width: 100%;
@@ -121,14 +120,14 @@
 		}
 
 		button {
-		display: flex;
-		width: 10em;
-		justify-content: center;
-		padding: 1em;
-		font-size: 16px;
-		border-radius: 8px;
-		border: 2px solid transparent;
-		background: none;
-	}
+			display: flex;
+			width: 10em;
+			justify-content: center;
+			padding: 1em;
+			font-size: 16px;
+			border-radius: 8px;
+			border: 2px solid transparent;
+			background: none;
+		}
 	}
 </style>

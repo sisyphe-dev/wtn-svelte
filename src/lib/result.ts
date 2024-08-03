@@ -5,7 +5,8 @@ import type {
 	Account,
 	ApproveArgs,
 	ApproveResult,
-	ApproveError
+	ApproveError,
+	_SERVICE as nicpLedgerInterface
 } from '../declarations/icrc_ledger/icrc_ledger.did';
 import type {
 	ConversionError,
@@ -18,14 +19,9 @@ import type {
 	BoomerangError,
 	Result_1 as SnsIcpDepositResult,
 	Result_2 as SnsRetrieveNicpResult
-} from '../declarations/boomerang/boomerang.did';
+} from '../declarations/boomerang.did';
 import { Asset, AssetType, bigintE8sToNumber, displayUsFormat } from '$lib';
-import type {
-	TransferResult,
-	Icrc1TransferResult
-} from '../declarations/nns-ledger/nns-ledger.did';
-import type { _SERVICE as icpLedgerInterface } from '../declarations/nns-ledger/nns-ledger.did';
-import type { _SERVICE as nicpLedgerInterface } from '../declarations/icrc_ledger/icrc_ledger.did';
+import type { TransferResult, Icrc1TransferResult, _SERVICE as icpLedgerInterface } from '../declarations/icp_ledger/icp_ledger.did';
 import { CANISTER_ID_WATER_NEURON } from './authentification';
 
 export const DEFAULT_ERROR_MESSAGE: string = 'Unknown result, please refresh the page.';

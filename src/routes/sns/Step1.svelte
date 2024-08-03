@@ -1,17 +1,17 @@
 <script lang="ts">
 	import CopyIcon from '$lib/icons/CopyIcon.svelte';
-	import { selectedSns, snsPrincipal } from '$lib/stores';
+	import { selectedSns, snsPrincipal, canisters } from '$lib/stores';
 	import { onMount, afterUpdate } from 'svelte';
 	import { fade, scale } from 'svelte/transition';
-	import { boomerang } from '$lib/../declarations/boomerang';
 	import { Principal } from '@dfinity/principal';
 
 	let accountId: string;
 	let principal: string;
 
 	const setAccountId = async (principal: string) => {
+		if (!$canisters) return;
 		try {
-			boomerang.get_staking_account_id(Principal.fromText(principal)).then((account) => {
+			$canisters.boomerang.get_staking_account_id(Principal.fromText(principal)).then((account) => {
 				accountId = account;
 			});
 		} catch (error) {
@@ -51,13 +51,15 @@
 <div class="step1-container" in:fade={{ duration: 500 }}>
 	<div class="instruction-container">
 		<span class="round">1</span>
-		<span class="instruction">Make an ICP Treasury proposal to the following account identifier.</span>
+		<span class="instruction"
+			>Make an ICP Treasury proposal to the following account identifier.</span
+		>
 	</div>
 	{#if $selectedSns !== 'Custom'}
-	<div class="fetched-info-container">
-				<p style:font-weight="lighter">You are using the following principal:</p>
-				<p style:color="var(--main-color)">{$snsPrincipal}</p>
-			</div>
+		<div class="fetched-info-container">
+			<p style:font-weight="lighter">You are using the following principal:</p>
+			<p style:color="var(--main-color)">{$snsPrincipal}</p>
+		</div>
 		<div class="receive-container">
 			<div class="principal-container">
 				<p>{accountId}</p>
@@ -76,9 +78,7 @@
 		</div>
 	{:else}
 		<div class="input-container">
-			<span style:color="var(--main-color)"
-					>Please specify principal:</span
-				>
+			<span style:color="var(--main-color)">Please specify principal:</span>
 			<input type="text" placeholder="Principal" bind:value={principal} />
 		</div>
 		{#if accountId !== undefined}
@@ -119,7 +119,6 @@
 		display: flex;
 		position: relative;
 	}
-
 
 	input {
 		border: none;
@@ -177,7 +176,7 @@
 	}
 
 	.input-container {
-		display: flex; 
+		display: flex;
 		gap: 1em;
 		width: 100%;
 		justify-content: center;
@@ -220,7 +219,6 @@
 		font-family: var(--font-type2);
 	}
 
-
 	@media (max-width: 767px) {
 		.step1-container {
 			width: 95%;
@@ -238,7 +236,7 @@
 			text-align: center;
 		}
 
-		.fetched-info-container{
+		.fetched-info-container {
 			flex-direction: column;
 			gap: 0;
 			align-items: center;

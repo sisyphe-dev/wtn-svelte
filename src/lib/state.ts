@@ -3,33 +3,17 @@ import { AccountIdentifier, type Account } from '@dfinity/ledger-icp';
 import { Principal } from '@dfinity/principal';
 import BigNumber from 'bignumber.js';
 import type { _SERVICE as icrcLedgerInterface } from '../declarations/icrc_ledger/icrc_ledger.did';
-import type { _SERVICE as icpLedgerInterface } from '../declarations/nns-ledger/nns-ledger.did';
+import type { _SERVICE as icpLedgerInterface } from '../declarations/icp_ledger/icp_ledger.did';
+import type { _SERVICE as boomerangInterface } from '../declarations/boomerang/boomerang.did';
 import type {
 	CanisterInfo,
-	_SERVICE as waterNeuronInterface
+	_SERVICE as waterNeuronInterface,
 } from '../declarations/water_neuron/water_neuron.did';
-import {
-	type AuthResult,
-	fetchActors,
-	type Actors,
-	internetIdentitySignIn,
-	plugSignIn,
-	HOST,
-	CANISTER_ID_WATER_NEURON
-} from './authentification';
-import { state, user } from './stores';
-import { AuthClient } from '@dfinity/auth-client';
+import { idlFactory as idlFactoryWaterNeuron } from '../declarations/water_neuron';
+import { HOST, CANISTER_ID_WATER_NEURON, type Actors } from './authentification';
 import { HttpAgent, Actor, makeNonceTransform } from '@dfinity/agent';
 import { Ed25519KeyIdentity } from '@dfinity/identity';
-import { idlFactory as idlFactoryWaterNeuron } from '../declarations/water_neuron';
 import { IDL } from '@dfinity/candid';
-
-interface UserProps {
-	principal: Principal;
-	icpBalanceE8s: bigint;
-	nicpBalanceE8s: bigint;
-	wtnBalanceE8s: bigint;
-}
 
 export class User {
 	public principal: Principal;
@@ -37,13 +21,15 @@ export class User {
 	public icpBalanceE8s: bigint;
 	public nicpBalanceE8s: bigint;
 	public wtnBalanceE8s: bigint;
+	public wtnAllocationE8s: bigint;
 
-	constructor(props: UserProps) {
-		this.principal = props.principal;
-		this.accountId = AccountIdentifier.fromPrincipal({ principal: props.principal }).toHex();
-		this.icpBalanceE8s = props.icpBalanceE8s;
-		this.nicpBalanceE8s = props.nicpBalanceE8s;
-		this.wtnBalanceE8s = props.wtnBalanceE8s;
+	constructor(principal: Principal) {
+		this.principal = principal;
+		this.accountId = AccountIdentifier.fromPrincipal({ principal }).toHex();
+		this.icpBalanceE8s = 0n;
+		this.nicpBalanceE8s = 0n;
+		this.wtnBalanceE8s = 0n;
+		this.wtnAllocationE8s = 0n;
 	}
 
 	icpBalance(): BigNumber {
@@ -56,6 +42,10 @@ export class User {
 
 	wtnBalance(): BigNumber {
 		return bigintE8sToNumber(this.wtnBalanceE8s);
+	}
+
+	wtnAllocation(): BigNumber {
+		return bigintE8sToNumber(this.wtnAllocationE8s);
 	}
 
 	getBalance(asset: AssetType): BigNumber {
@@ -73,56 +63,6 @@ export class User {
 const DAO_SHARE = BigNumber(0.1);
 const APY_6M = BigNumber(0.08);
 const APY_8Y = BigNumber(0.15);
-
-export async function signIn(walletOrigin: 'internetIdentity' | 'plug' | 'reload') {
-	try {
-		let authResult: AuthResult;
-
-		switch (walletOrigin) {
-			case 'internetIdentity':
-				authResult = await internetIdentitySignIn();
-				break;
-			case 'plug':
-				authResult = await plugSignIn();
-				break;
-			case 'reload':
-				const authClient = await AuthClient.create();
-				if (!(await authClient.isAuthenticated())) return;
-				authResult = await internetIdentitySignIn();
-				break;
-		}
-
-		state.set(new State(authResult.actors));
-
-		user.set(
-			new User({
-				principal: authResult.principal,
-				icpBalanceE8s: 0n,
-				nicpBalanceE8s: 0n,
-				wtnBalanceE8s: 0n
-			})
-		);
-	} catch (error) {
-		console.error('Login failed:', error);
-	}
-}
-
-export async function fetchBalances(
-	principal: Principal
-): Promise<{ icp: bigint; nicp: bigint; wtn: bigint }> {
-	const user_account: Account = {
-		owner: principal,
-		subaccount: []
-	};
-
-	const actors = await fetchActors(undefined, true);
-
-	const nicpBalanceE8s = await actors.nicpLedger.icrc1_balance_of(user_account);
-	const wtnBalanceE8s = await actors.wtnLedger.icrc1_balance_of(user_account);
-	const icpBalanceE8s = await actors.icpLedger.icrc1_balance_of(user_account);
-
-	return { icp: icpBalanceE8s, nicp: nicpBalanceE8s, wtn: wtnBalanceE8s };
-}
 
 async function createSecp256k1IdentityActor(
 	canisterId: Principal,
@@ -152,52 +92,89 @@ async function createSecp256k1IdentityActor(
 	}) as any;
 }
 
-export class State {
-	public neuron8yStakeE8s: bigint;
-	public neuron6mStakeE8s: bigint;
+export async function fetchWtnAllocation(principal: Principal): Promise<BigNumber | undefined> {
+	try {
+		const waterNeuron = await createSecp256k1IdentityActor(
+			Principal.fromText(CANISTER_ID_WATER_NEURON),
+			idlFactoryWaterNeuron
+		);
+		const allocation = await waterNeuron.get_airdrop_allocation([principal]);
+		return bigintE8sToNumber(allocation);
+	} catch (e) {
+		console.log('Error while fetching airdrop allocation:', e);
+	}
+}
+
+export class Canisters {
 	public icpLedger: icpLedgerInterface;
 	public wtnLedger: icrcLedgerInterface;
 	public nicpLedger: icrcLedgerInterface;
 	public waterNeuron: waterNeuronInterface;
-	public wtnCanisterInfo: CanisterInfo;
+	public boomerang: boomerangInterface;
 
 	constructor(actors: Actors) {
-		this.neuron8yStakeE8s = BigInt(0);
-		this.neuron6mStakeE8s = BigInt(0);
 		this.nicpLedger = actors.nicpLedger;
 		this.wtnLedger = actors.wtnLedger;
 		this.icpLedger = actors.icpLedger;
 		this.waterNeuron = actors.waterNeuron;
-		this.wtnCanisterInfo = actors.wtnCanisterInfo;
+		this.boomerang = actors.boomerang;
+	}
+}
+
+export async function fetchIcpBalance(
+	principal: Principal,
+	icpLedger: icpLedgerInterface
+): Promise<bigint> {
+	const user_account: Account = {
+		owner: principal,
+		subaccount: []
+	};
+	return await icpLedger.icrc1_balance_of(user_account);
+}
+
+export async function fetchNicpBalance(
+	principal: Principal,
+	nicpLedger: icrcLedgerInterface
+): Promise<bigint> {
+	const user_account: Account = {
+		owner: principal,
+		subaccount: []
+	};
+	return await nicpLedger.icrc1_balance_of(user_account);
+}
+
+export async function fetchWtnBalance(
+	principal: Principal,
+	wtnLedger: icrcLedgerInterface
+): Promise<bigint> {
+	const user_account: Account = {
+		owner: principal,
+		subaccount: []
+	};
+	return await wtnLedger.icrc1_balance_of(user_account);
+}
+
+export class WaterNeuronInfo {
+	public info: CanisterInfo;
+
+	constructor(wtnCanisterInfo: CanisterInfo) {
+		this.info = wtnCanisterInfo;
 	}
 
 	totalIcpDeposited(): BigNumber {
-		return bigintE8sToNumber(this.wtnCanisterInfo.total_icp_deposited);
+		return bigintE8sToNumber(this.info.total_icp_deposited);
 	}
 
 	neuron8yStake(): BigNumber {
-		return bigintE8sToNumber(this.wtnCanisterInfo.neuron_8y_stake_e8s);
+		return bigintE8sToNumber(this.info.neuron_8y_stake_e8s);
 	}
 
 	neuron6mStake(): BigNumber {
-		return bigintE8sToNumber(this.wtnCanisterInfo.neuron_6m_stake_e8s);
+		return bigintE8sToNumber(this.info.neuron_6m_stake_e8s);
 	}
 
 	exchangeRate(): BigNumber {
-		return bigintE8sToNumber(this.wtnCanisterInfo.exchange_rate);
-	}
-
-	async wtnAllocation(principal: Principal): Promise<BigNumber | undefined> {
-		try {
-			const waterNeuron = await createSecp256k1IdentityActor(
-				Principal.fromText(CANISTER_ID_WATER_NEURON),
-				idlFactoryWaterNeuron
-			);
-			const allocation = await waterNeuron.get_airdrop_allocation([principal]);
-			return bigintE8sToNumber(allocation);
-		} catch (e) {
-			console.log('Error while fetching airdrop allocation:', e);
-		}
+		return bigintE8sToNumber(this.info.exchange_rate);
 	}
 
 	apy(): BigNumber {
@@ -215,11 +192,6 @@ export class State {
 	}
 
 	stakersCount(): Number {
-		return Number(this.wtnCanisterInfo.stakers_count);
+		return Number(this.info.stakers_count);
 	}
-}
-
-export async function provideState(): Promise<State> {
-	let actors = await fetchActors(undefined, true);
-	return new State(actors);
 }

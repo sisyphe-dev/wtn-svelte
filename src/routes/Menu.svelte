@@ -1,5 +1,5 @@
 <script>
-	import { menu, user } from '$lib/stores';
+	import { inMobileMenu, user } from '$lib/stores';
 	import { internetIdentityLogout } from '$lib/authentification';
 </script>
 
@@ -9,13 +9,13 @@
 			<a
 				href="/stake"
 				on:click={() => {
-					menu.update(() => false);
+					inMobileMenu.set(false);
 				}}>Stake</a
 			>
 			<a
 				href="/wallet"
 				on:click={() => {
-					menu.update(() => false);
+					inMobileMenu.set(false);
 				}}>Wallet</a
 			>
 			<a
@@ -24,14 +24,14 @@
 					await internetIdentityLogout();
 
 					user.set(undefined);
-					menu.update(() => false);
+					inMobileMenu.set(false);
 				}}>Disconnect</a
 			>
 		</div>
 
 		<button
 			on:click={() => {
-				menu.update(() => false);
+				inMobileMenu.set(false);
 			}}
 		>
 			<svg

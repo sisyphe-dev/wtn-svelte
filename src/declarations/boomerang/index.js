@@ -1,39 +1,103 @@
-import { Actor, HttpAgent } from '@dfinity/agent';
-
-// Imports and re-exports candid interface
-import { idlFactory } from './boomerang.did.js';
-export { idlFactory } from './boomerang.did.js';
-
-/* CANISTER_ID is replaced by webpack based on node environment
- * Note: canister environment variable will be standardized as
- * process.env.CANISTER_ID_<CANISTER_NAME_UPPERCASE>
- * beginning in dfx 0.15.0
- */
-export const canisterId = process.env.CANISTER_ID_BOOMERANG || process.env.BOOMERANG_CANISTER_ID;
-
-export const createActor = (canisterId, options = {}) => {
-	const agent = options.agent || new HttpAgent({ ...options.agentOptions });
-
-	if (options.agent && options.agentOptions) {
-		console.warn(
-			'Detected both agent and agentOptions passed to createActor. Ignoring agentOptions and proceeding with the provided agent.'
-		);
-	}
-
-	// Fetch root key for certificate validation during development
-	if (process.env.DFX_NETWORK !== 'ic') {
-		agent.fetchRootKey().catch((err) => {
-			console.warn('Unable to fetch root key. Check to ensure that your local replica is running');
-			console.error(err);
-		});
-	}
-
-	// Creates an actor with using the candid interface and the HttpAgent
-	return Actor.createActor(idlFactory, {
-		agent,
-		canisterId,
-		...options.actorOptions
-	});
+export const idlFactory = ({ IDL }) => {
+  const CanisterIds = IDL.Record({
+    'icp_ledger_id' : IDL.Principal,
+    'water_neuron_id' : IDL.Principal,
+    'wtn_ledger_id' : IDL.Principal,
+    'nicp_ledger_id' : IDL.Principal,
+  });
+  const Account = IDL.Record({
+    'owner' : IDL.Principal,
+    'subaccount' : IDL.Opt(IDL.Vec(IDL.Nat8)),
+  });
+  const DepositSuccess = IDL.Record({
+    'nicp_amount' : IDL.Opt(IDL.Nat64),
+    'block_index' : IDL.Nat,
+    'transfer_id' : IDL.Nat64,
+  });
+  const TransferError = IDL.Variant({
+    'GenericError' : IDL.Record({
+      'message' : IDL.Text,
+      'error_code' : IDL.Nat,
+    }),
+    'TemporarilyUnavailable' : IDL.Null,
+    'BadBurn' : IDL.Record({ 'min_burn_amount' : IDL.Nat }),
+    'Duplicate' : IDL.Record({ 'duplicate_of' : IDL.Nat }),
+    'BadFee' : IDL.Record({ 'expected_fee' : IDL.Nat }),
+    'CreatedInFuture' : IDL.Record({ 'ledger_time' : IDL.Nat64 }),
+    'TooOld' : IDL.Null,
+    'InsufficientFunds' : IDL.Record({ 'balance' : IDL.Nat }),
+  });
+  const TransferFromError = IDL.Variant({
+    'GenericError' : IDL.Record({
+      'message' : IDL.Text,
+      'error_code' : IDL.Nat,
+    }),
+    'TemporarilyUnavailable' : IDL.Null,
+    'InsufficientAllowance' : IDL.Record({ 'allowance' : IDL.Nat }),
+    'BadBurn' : IDL.Record({ 'min_burn_amount' : IDL.Nat }),
+    'Duplicate' : IDL.Record({ 'duplicate_of' : IDL.Nat }),
+    'BadFee' : IDL.Record({ 'expected_fee' : IDL.Nat }),
+    'CreatedInFuture' : IDL.Record({ 'ledger_time' : IDL.Nat64 }),
+    'TooOld' : IDL.Null,
+    'InsufficientFunds' : IDL.Record({ 'balance' : IDL.Nat }),
+  });
+  const GuardError = IDL.Variant({
+    'AlreadyProcessing' : IDL.Null,
+    'TooManyConcurrentRequests' : IDL.Null,
+  });
+  const ConversionError = IDL.Variant({
+    'GenericError' : IDL.Record({ 'code' : IDL.Int32, 'message' : IDL.Text }),
+    'TransferError' : TransferError,
+    'AmountTooLow' : IDL.Record({ 'minimum_amount_e8s' : IDL.Nat64 }),
+    'TransferFromError' : TransferFromError,
+    'GuardError' : IDL.Record({ 'guard_error' : GuardError }),
+  });
+  const ApproveError = IDL.Variant({
+    'GenericError' : IDL.Record({
+      'message' : IDL.Text,
+      'error_code' : IDL.Nat,
+    }),
+    'TemporarilyUnavailable' : IDL.Null,
+    'Duplicate' : IDL.Record({ 'duplicate_of' : IDL.Nat }),
+    'BadFee' : IDL.Record({ 'expected_fee' : IDL.Nat }),
+    'AllowanceChanged' : IDL.Record({ 'current_allowance' : IDL.Nat }),
+    'CreatedInFuture' : IDL.Record({ 'ledger_time' : IDL.Nat64 }),
+    'TooOld' : IDL.Null,
+    'Expired' : IDL.Record({ 'ledger_time' : IDL.Nat64 }),
+    'InsufficientFunds' : IDL.Record({ 'balance' : IDL.Nat }),
+  });
+  const BoomerangError = IDL.Variant({
+    'GenericError' : IDL.Record({ 'code' : IDL.Int32, 'message' : IDL.Text }),
+    'TransferError' : TransferError,
+    'ConversionError' : ConversionError,
+    'ApproveError' : ApproveError,
+    'NotEnoughICP' : IDL.Null,
+  });
+  const Result = IDL.Variant({ 'Ok' : DepositSuccess, 'Err' : BoomerangError });
+  const WithdrawalSuccess = IDL.Record({
+    'block_index' : IDL.Nat,
+    'withdrawal_id' : IDL.Nat64,
+  });
+  const Result_1 = IDL.Variant({
+    'Ok' : WithdrawalSuccess,
+    'Err' : BoomerangError,
+  });
+  const Result_2 = IDL.Variant({ 'Ok' : IDL.Nat, 'Err' : BoomerangError });
+  return IDL.Service({
+    'get_staking_account_id' : IDL.Func([IDL.Principal], [IDL.Text], ['query']),
+    'get_unstaking_account' : IDL.Func([IDL.Principal], [Account], ['query']),
+    'notify_icp_deposit' : IDL.Func([IDL.Principal], [Result], []),
+    'notify_nicp_deposit' : IDL.Func([IDL.Principal], [Result_1], []),
+    'retrieve_nicp' : IDL.Func([IDL.Principal], [Result_2], []),
+    'try_retrieve_icp' : IDL.Func([IDL.Principal], [Result_2], []),
+  });
 };
-
-export const boomerang = canisterId ? createActor(canisterId) : undefined;
+export const init = ({ IDL }) => {
+  const CanisterIds = IDL.Record({
+    'icp_ledger_id' : IDL.Principal,
+    'water_neuron_id' : IDL.Principal,
+    'wtn_ledger_id' : IDL.Principal,
+    'nicp_ledger_id' : IDL.Principal,
+  });
+  return [CanisterIds];
+};

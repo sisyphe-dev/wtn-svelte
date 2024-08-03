@@ -1,7 +1,6 @@
 <script lang="ts">
-	import { boomerang } from '$lib/../declarations/boomerang';
 	import { Principal } from '@dfinity/principal';
-	import { selectedSns, snsPrincipal, toasts, isBusy } from '$lib/stores';
+	import { selectedSns, snsPrincipal, toasts, isBusy, canisters } from '$lib/stores';
 	import { fade } from 'svelte/transition';
 	import { onMount } from 'svelte';
 	import { handleSnsIcpDepositResult } from '$lib/result';
@@ -20,11 +19,11 @@
 	}
 
 	const notifyIcpDeposit = async () => {
-		if ($isBusy) return;
+		if ($isBusy || !$canisters) return;
 		try {
 			isBusy.set(true);
 			const input = $selectedSns === 'Custom' ? principal : $snsPrincipal;
-			const boomerangResult = await boomerang.notify_icp_deposit(Principal.fromText(input));
+			const boomerangResult = await $canisters.boomerang.notify_icp_deposit(Principal.fromText(input));
 
 			const result = handleSnsIcpDepositResult(boomerangResult);
 			if (result.success) {
@@ -46,9 +45,7 @@
 	</div>
 	{#if $selectedSns === 'Custom'}
 		<div class="input-container">
-			<span style:color="var(--main-color)"
-					>Please specify principal:</span
-				>
+			<span style:color="var(--main-color)">Please specify principal:</span>
 			<input type="text" placeholder="Principal" bind:value={principal} />
 		</div>
 		{#if principal && isValid(principal)}
@@ -158,7 +155,7 @@
 	}
 
 	.input-container {
-		display: flex; 
+		display: flex;
 		gap: 1em;
 		width: 100%;
 		justify-content: center;
@@ -209,7 +206,7 @@
 			text-align: center;
 		}
 
-		.fetched-info-container{
+		.fetched-info-container {
 			flex-direction: column;
 			gap: 0;
 			align-items: center;

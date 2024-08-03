@@ -1,7 +1,6 @@
 <script lang="ts">
-	import { boomerang } from '$lib/../declarations/boomerang';
 	import { Principal } from '@dfinity/principal';
-	import { selectedSns, snsPrincipal, isBusy, toasts } from '$lib/stores';
+	import { selectedSns, snsPrincipal, isBusy, toasts, canisters} from '$lib/stores';
 	import { fade } from 'svelte/transition';
 	import { handleSnsRetrieveNicpResult } from '$lib/result';
 	import { Toast } from '$lib/toast';
@@ -18,12 +17,12 @@
 	}
 
 	async function retrieveNicp() {
-		if ($isBusy) return;
+		if ($isBusy || !$canisters) return;
 		try {
 			isBusy.set(true);
 			const input = $selectedSns === 'Custom' ? principal : $snsPrincipal;
 			console.log(input);
-			const retrieveResult = await boomerang.retrieve_nicp(Principal.fromText(input));
+			const retrieveResult = await $canisters.boomerang.retrieve_nicp(Principal.fromText(input));
 
 			const result = await handleSnsRetrieveNicpResult(retrieveResult);
 			if (result.success) {
@@ -34,7 +33,7 @@
 			isBusy.set(false);
 		} catch (error) {
 			console.log(error);
-			toasts.add(Toast.error("Call failed."));
+			toasts.add(Toast.error('Call failed.'));
 			isBusy.set(false);
 		}
 	}
@@ -47,9 +46,7 @@
 	</div>
 	{#if $selectedSns === 'Custom'}
 		<div class="input-container">
-			<span style:color="var(--main-color)"
-					>Please specify principal:</span
-				>
+			<span style:color="var(--main-color)">Please specify principal:</span>
 			<input type="text" placeholder="Principal" bind:value={principal} />
 		</div>
 		{#if principal && isValid(principal)}
@@ -60,7 +57,6 @@
 			{:else}
 				<button on:click={retrieveNicp}>Retrieve</button>
 			{/if}
-
 		{/if}
 	{:else}
 		<div class="fetched-info-container">
@@ -146,20 +142,13 @@
 		height: 2em;
 	}
 
-	.balance-container {
-		display: flex;
-		gap: 1em;
-		justify-content: center;
-		align-items: center;
-	}
-
 	.fetched-info-container {
 		display: flex;
 		gap: 1em;
 	}
 
 	.input-container {
-		display: flex; 
+		display: flex;
 		gap: 1em;
 		width: 100%;
 		justify-content: center;
@@ -210,7 +199,7 @@
 			text-align: center;
 		}
 
-		.fetched-info-container{
+		.fetched-info-container {
 			flex-direction: column;
 			gap: 0;
 			align-items: center;

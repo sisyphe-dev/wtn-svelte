@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { isLogging, isBusy, user, state } from '$lib/stores';
-	import { internetIdentitySignIn, plugSignIn } from '$lib/authentification';
-	import { signIn, User } from '$lib/state';
+	import { isLogging, isBusy, user } from '$lib/stores';
+	import { internetIdentitySignIn, plugSignIn, signIn } from '$lib/authentification';
+	import { User } from '$lib/state';
 	import type { Account } from '@dfinity/ledger-icp';
 	import { fade } from 'svelte/transition';
 	import { isMobile } from '$lib';

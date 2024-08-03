@@ -5,32 +5,37 @@
 	import Send from './wallet/Send.svelte';
 	import Menu from './Menu.svelte';
 	import Receive from './wallet/Receive.svelte';
-	import { isLogging, menu, inSendingMenu, inReceivingMenu, user, state } from '$lib/stores';
+	import { isLogging, inMobileMenu, inSendingMenu, inReceivingMenu, user, canisters, waterNeuronInfo } from '$lib/stores';
 	import { onMount } from 'svelte';
-	import { fetchBalances, User } from '$lib/state';
+	import { WaterNeuronInfo, User, fetchIcpBalance, fetchNicpBalance, fetchWtnBalance, fetchWtnAllocation } from '$lib/state';
+	import { signIn } from '$lib/authentification'
 	import Toast from './Toast.svelte';
-	import { signIn } from '$lib/state';
-	import { initializeState } from '$lib/stores';
 
 	async function updateBalances() {
-		if ($state && $user) {
-			const { icp, nicp, wtn } = await fetchBalances($user.principal);
+		if ($canisters && $user) {
+			$user.icpBalanceE8s = await fetchIcpBalance($user.principal, $canisters.icpLedger);
+			$user.nicpBalanceE8s = await fetchNicpBalance($user.principal, $canisters.nicpLedger);
+			$user.wtnBalanceE8s = await fetchWtnBalance($user.principal, $canisters.wtnLedger);
+			$user.wtnAllocationE8s = await fetchWtnAllocation($user.principal);
+		}
+	}
 
-			$user.icpBalanceE8s = icp;
-			$user.nicpBalanceE8s = nicp;
-			$user.wtnBalanceE8s = wtn;
+	async function updateWaterNeuronInfo() {
+		if ($canisters) {
+			waterNeuronInfo.set(new WaterNeuronInfo(await $canisters.waterNeuron.get_info()));
 		}
 	}
 
 	onMount(() => {
-		initializeState();
 		signIn('reload').then(() => {
 			updateBalances();
+			updateWaterNeuronInfo();
 		});
 
 		const intervalId = setInterval(async () => {
-			if ($user && $state) {
+			if ($waterNeuronInfo && $canisters) {
 				await updateBalances();
+				await updateWaterNeuronInfo();
 			}
 		}, 5000);
 
@@ -47,7 +52,7 @@
 {:else if $inReceivingMenu}
 	<Receive />
 {/if}
-{#if $menu}
+{#if $inMobileMenu}
 	<Menu />
 {:else}
 	<div class="page-container">

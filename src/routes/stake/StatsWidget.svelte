@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { state } from '$lib/stores';
+	import { waterNeuronInfo } from '$lib/stores';
 	import { displayUsFormat } from '$lib';
 	import BigNumber from 'bignumber.js';
 	import { onMount, afterUpdate } from 'svelte';
@@ -10,18 +10,18 @@
 	let stakersCount: Number;
 
 	const fetchData = async () => {
-		if ($state)
+		if ($waterNeuronInfo)
 			try {
-				totalIcpDeposited = $state.totalIcpDeposited();
-				apy = $state.apy();
-				stakersCount = $state.stakersCount();
+				totalIcpDeposited = $waterNeuronInfo.totalIcpDeposited();
+				apy = $waterNeuronInfo.apy();
+				stakersCount = $waterNeuronInfo.stakersCount();
 			} catch (error) {
 				console.error('Error fetching data:', error);
 			}
 	};
 
 	afterUpdate(() => {
-		if ($state) {
+		if ($waterNeuronInfo) {
 			fetchData();
 		}
 	});
@@ -36,8 +36,8 @@
 	<div class="stat-item">
 		<b>Total Staked</b>
 		<b>
-			{#if $state}
-				{displayUsFormat($state.neuron8yStake().plus($state.neuron6mStake()))} ICP
+			{#if $waterNeuronInfo}
+				{displayUsFormat($waterNeuronInfo.neuron8yStake().plus($waterNeuronInfo.neuron6mStake()))} ICP
 			{:else}
 				...
 			{/if}

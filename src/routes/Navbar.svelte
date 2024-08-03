@@ -1,5 +1,5 @@
 <script>
-	import { isLogging, menu, user } from '$lib/stores';
+	import { isLogging, inMobileMenu, user } from '$lib/stores';
 	import { displayUsFormat, displayPrincipal } from '$lib';
 	import { internetIdentityLogout } from '$lib/authentification';
 </script>
@@ -45,7 +45,7 @@
 				id="menu-btn"
 				class="wallet-action-btn"
 				on:click={() => {
-					menu.set(true);
+					inMobileMenu.set(true);
 				}}
 			>
 				<svg

@@ -1,15 +1,17 @@
 import { AuthClient } from '@dfinity/auth-client';
 import { Principal } from '@dfinity/principal';
 import { HttpAgent, Actor, type Identity } from '@dfinity/agent';
-import type { _SERVICE as icrcLedgerInterface } from '../declarations/icrc_ledger/icrc_ledger.did';
-import type { _SERVICE as icpLedgerInterface } from '../declarations/nns-ledger/nns-ledger.did';
-import type {
-	CanisterInfo,
-	_SERVICE as waterNeuronInterface
-} from '../declarations/water_neuron/water_neuron.did';
-import { idlFactory as idlFactoryIcrc } from '../declarations/icrc_ledger';
-import { idlFactory as idlFactoryWaterNeuron } from '../declarations/water_neuron';
-import { idlFactory as idlFactoryIcp } from '../declarations/nns-ledger';
+import {idlFactory as idlFactoryIcrc} from '../declarations/icrc_ledger';
+import 	type { _SERVICE as icrcLedgerInterface } from '../declarations/icrc_ledger/icrc_ledger.did'
+import {idlFactory as idlFactoryIcp} from '../declarations/icp_ledger';
+import 	type { _SERVICE as icpLedgerInterface } from '../declarations/icp_ledger/icp_ledger.did'
+import {idlFactory as idlFactoryWaterNeuron} from '../declarations/water_neuron';
+import 	type { _SERVICE as waterNeuronInterface } from '../declarations/water_neuron/water_neuron.did'
+import {idlFactory as idlFactoryBoomerang} from '../declarations/boomerang';
+import 	type { _SERVICE as boomerangInterface } from '../declarations/boomerang/boomerang.did'
+
+import { user, canisters } from './stores';
+import { Canisters, User } from './state';
 
 // 1 hour in nanoseconds
 const AUTH_MAX_TIME_TO_LIVE = BigInt(60 * 60 * 1000 * 1000 * 1000);
@@ -39,8 +41,9 @@ export interface Actors {
 	nicpLedger: icrcLedgerInterface;
 	wtnLedger: icrcLedgerInterface;
 	waterNeuron: waterNeuronInterface;
-	wtnCanisterInfo: CanisterInfo;
+	boomerang: boomerangInterface;
 }
+
 export async function internetIdentitySignIn(): Promise<AuthResult> {
 	return new Promise<AuthResult>(async (resolve, reject) => {
 		try {
@@ -116,7 +119,6 @@ export async function plugSignIn(): Promise<AuthResult> {
 				whitelist,
 				host: HOST
 			});
-			
 
 			const principal: Principal = await window.ic.plug.getPrincipal();
 			const agent = window.ic.plug.agent;
@@ -128,6 +130,36 @@ export async function plugSignIn(): Promise<AuthResult> {
 			reject(error);
 		}
 	});
+}
+
+export async function signIn(walletOrigin: 'internetIdentity' | 'plug' | 'reload') {
+	try {
+		let authResult: AuthResult;
+
+		switch (walletOrigin) {
+			case 'internetIdentity':
+				authResult = await internetIdentitySignIn();
+				break;
+			case 'plug':
+				authResult = await plugSignIn();
+				break;
+			case 'reload':
+				const authClient = await AuthClient.create();
+				if (!(await authClient.isAuthenticated())) {
+					const actors = await fetchActors(undefined, true);
+					canisters.set(new Canisters(actors));
+					return;
+				} else {
+
+				}
+				authResult = await internetIdentitySignIn();
+				break;
+		}
+		canisters.set(new Canisters(authResult.actors));
+		user.set(new User(authResult.principal));
+	} catch (error) {
+		console.error('Login failed:', error);
+	}
 }
 
 export async function internetIdentityLogout() {
@@ -170,10 +202,12 @@ export function fetchActors(agent?: HttpAgent, isInternetIdentity = false): Prom
 				agent,
 				canisterId: CANISTER_ID_WATER_NEURON
 			});
+			const boomerang: boomerangInterface = Actor.createActor(idlFactoryBoomerang, {
+				agent,
+				canisterId: CANISTER_ID_BOOMERANG
+			});
 
-			const wtnCanisterInfo = await waterNeuron.get_info();
-
-			resolve({ icpLedger, wtnLedger, nicpLedger, waterNeuron, wtnCanisterInfo });
+			resolve({ icpLedger, wtnLedger, nicpLedger, waterNeuron, boomerang });
 		} catch (error) {
 			reject(error);
 		}
