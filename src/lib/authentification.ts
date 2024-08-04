@@ -1,14 +1,14 @@
 import { AuthClient } from '@dfinity/auth-client';
 import { Principal } from '@dfinity/principal';
 import { HttpAgent, Actor, type Identity } from '@dfinity/agent';
-import {idlFactory as idlFactoryIcrc} from '../declarations/icrc_ledger';
-import 	type { _SERVICE as icrcLedgerInterface } from '../declarations/icrc_ledger/icrc_ledger.did'
-import {idlFactory as idlFactoryIcp} from '../declarations/icp_ledger';
-import 	type { _SERVICE as icpLedgerInterface } from '../declarations/icp_ledger/icp_ledger.did'
-import {idlFactory as idlFactoryWaterNeuron} from '../declarations/water_neuron';
-import 	type { _SERVICE as waterNeuronInterface } from '../declarations/water_neuron/water_neuron.did'
-import {idlFactory as idlFactoryBoomerang} from '../declarations/boomerang';
-import 	type { _SERVICE as boomerangInterface } from '../declarations/boomerang/boomerang.did'
+import { idlFactory as idlFactoryIcrc } from '../declarations/icrc_ledger';
+import type { _SERVICE as icrcLedgerInterface } from '../declarations/icrc_ledger/icrc_ledger.did';
+import { idlFactory as idlFactoryIcp } from '../declarations/icp_ledger';
+import type { _SERVICE as icpLedgerInterface } from '../declarations/icp_ledger/icp_ledger.did';
+import { idlFactory as idlFactoryWaterNeuron } from '../declarations/water_neuron';
+import type { _SERVICE as waterNeuronInterface } from '../declarations/water_neuron/water_neuron.did';
+import { idlFactory as idlFactoryBoomerang } from '../declarations/boomerang';
+import type { _SERVICE as boomerangInterface } from '../declarations/boomerang/boomerang.did';
 
 import { user, canisters } from './stores';
 import { Canisters, User } from './state';
@@ -150,7 +150,6 @@ export async function signIn(walletOrigin: 'internetIdentity' | 'plug' | 'reload
 					canisters.set(new Canisters(actors));
 					return;
 				} else {
-
 				}
 				authResult = await internetIdentitySignIn();
 				break;

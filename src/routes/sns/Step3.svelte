@@ -1,28 +1,17 @@
 <script lang="ts">
 	import { Principal } from '@dfinity/principal';
-	import { selectedSns, snsPrincipal, isBusy, toasts, canisters} from '$lib/stores';
+	import { selectedSns, snsPrincipal, isBusy, toasts, canisters } from '$lib/stores';
 	import { fade } from 'svelte/transition';
 	import { handleSnsRetrieveNicpResult } from '$lib/result';
 	import { Toast } from '$lib/toast';
-
-	let principal: string;
-
-	function isValid(principal) {
-		try {
-			const p = Principal.fromText(principal);
-			return true;
-		} catch (error) {
-			return false;
-		}
-	}
 
 	async function retrieveNicp() {
 		if ($isBusy || !$canisters) return;
 		try {
 			isBusy.set(true);
-			const input = $selectedSns === 'Custom' ? principal : $snsPrincipal;
-			console.log(input);
-			const retrieveResult = await $canisters.boomerang.retrieve_nicp(Principal.fromText(input));
+			const retrieveResult = await $canisters.boomerang.retrieve_nicp(
+				Principal.fromText($snsPrincipal)
+			);
 
 			const result = await handleSnsRetrieveNicpResult(retrieveResult);
 			if (result.success) {
@@ -44,32 +33,12 @@
 		<span class="round">3</span>
 		<span>Retrieve Nicp.</span>
 	</div>
-	{#if $selectedSns === 'Custom'}
-		<div class="input-container">
-			<span style:color="var(--main-color)">Please specify principal:</span>
-			<input type="text" placeholder="Principal" bind:value={principal} />
-		</div>
-		{#if principal && isValid(principal)}
-			{#if $isBusy}
-				<button>
-					<div class="spinner"></div>
-				</button>
-			{:else}
-				<button on:click={retrieveNicp}>Retrieve</button>
-			{/if}
-		{/if}
+	{#if $isBusy}
+		<button>
+			<div class="spinner"></div>
+		</button>
 	{:else}
-		<div class="fetched-info-container">
-			<p style:font-weight="lighter">You are using the following principal:</p>
-			<p style:color="var(--main-color)">{$snsPrincipal}</p>
-		</div>
-		{#if $isBusy}
-			<button>
-				<div class="spinner"></div>
-			</button>
-		{:else}
-			<button on:click={retrieveNicp}>Retrieve</button>
-		{/if}
+		<button on:click={retrieveNicp}>Retrieve</button>
 	{/if}
 </div>
 

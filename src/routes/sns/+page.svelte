@@ -16,33 +16,9 @@
 	{#key $selectedSns}
 		<div class="boomerang-container" in:fade={{ duration: 500 }}>
 			<h1>Stake {$selectedSns} Treasury</h1>
-			<nav>
-				<button
-					class="step-btn"
-					class:selected-step={selectedStep === 'Step1'}
-					on:click={() => (selectedStep = 'Step1')}
-					>Step 1
-				</button>
-				<button
-					class="step-btn"
-					class:selected-step={selectedStep === 'Step2'}
-					on:click={() => (selectedStep = 'Step2')}
-					>Step 2
-				</button>
-				<button
-					class="step-btn"
-					class:selected-step={selectedStep === 'Step3'}
-					on:click={() => (selectedStep = 'Step3')}
-					>Step 3
-				</button>
-			</nav>
-			{#if selectedStep === 'Step1'}
-				<Step1 />
-			{:else if selectedStep === 'Step2'}
-				<Step2 />
-			{:else}
-				<Step3 />
-			{/if}
+			<Step1 />
+			<Step2 />
+			<Step3 />
 		</div>
 	{/key}
 </div>

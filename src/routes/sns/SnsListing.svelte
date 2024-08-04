@@ -6,16 +6,6 @@
 
 <div class="sns-selection-container">
 	<div class="sns-listing">
-		<div class="sns-btn-container">
-			<button
-				class="sns-btn-selection"
-				class:selected-sns={$selectedSns === 'Custom'}
-				on:click={() => {
-					selectedSns.set('Custom');
-					snsPrincipal.set('');
-				}}>Custom</button
-			>
-		</div>
 		{#each data.sns as sns}
 			<div class="sns-btn-container">
 				<button

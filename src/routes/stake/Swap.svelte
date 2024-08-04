@@ -2,7 +2,15 @@
 	import { Asset, AssetType, computeRewards, displayUsFormat, numberToBigintE8s } from '$lib';
 	import SwapInput from './SwapInput.svelte';
 	import { Toast } from '$lib/toast';
-	import { inputValue, waterNeuronInfo, canisters, user, isLogging, isConverting, toasts } from '$lib/stores';
+	import {
+		inputValue,
+		waterNeuronInfo,
+		canisters,
+		user,
+		isLogging,
+		isConverting,
+		toasts
+	} from '$lib/stores';
 	import BigNumber from 'bignumber.js';
 	import {
 		icpTransferApproved,

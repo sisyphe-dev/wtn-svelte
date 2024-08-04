@@ -1,14 +1,14 @@
 <script lang="ts">
 	import CopyIcon from '$lib/icons/CopyIcon.svelte';
 	import { selectedSns, snsPrincipal, canisters } from '$lib/stores';
-	import { onMount, afterUpdate } from 'svelte';
+	import { afterUpdate } from 'svelte';
 	import { fade, scale } from 'svelte/transition';
 	import { Principal } from '@dfinity/principal';
 
 	let accountId: string;
-	let principal: string;
 
 	const setAccountId = async (principal: string) => {
+		console.log(principal, $canisters);
 		if (!$canisters) return;
 		try {
 			$canisters.boomerang.get_staking_account_id(Principal.fromText(principal)).then((account) => {
@@ -35,17 +35,9 @@
 		}
 	}
 
-	onMount(() => {
-		if ($selectedSns !== 'Custom') {
-			setAccountId($snsPrincipal);
-		}
+	afterUpdate(() => {
+		setAccountId($snsPrincipal);
 	});
-
-	$: {
-		if (principal) {
-			setAccountId(principal);
-		}
-	}
 </script>
 
 <div class="step1-container" in:fade={{ duration: 500 }}>
@@ -55,49 +47,30 @@
 			>Make an ICP Treasury proposal to the following account identifier.</span
 		>
 	</div>
-	{#if $selectedSns !== 'Custom'}
-		<div class="fetched-info-container">
-			<p style:font-weight="lighter">You are using the following principal:</p>
-			<p style:color="var(--main-color)">{$snsPrincipal}</p>
-		</div>
-		<div class="receive-container">
-			<div class="principal-container">
+	<div class="fetched-info-container">
+		<p style:font-weight="lighter">You are using the following principal:</p>
+		<p style:color="var(--main-color)">{$snsPrincipal}</p>
+	</div>
+	<div class="receive-container">
+		<div class="principal-container">
+			{#if accountId}
 				<p>{accountId}</p>
-				<button
-					on:click={() => {
-						handleAnimation();
-						navigator.clipboard.writeText(accountId);
-					}}
-				>
-					<CopyIcon />
-					{#if circleVisible}
-						<div class="circle" transition:scale={{ duration: 500 }}></div>
-					{/if}
-				</button>
-			</div>
+			{:else}
+				<p>-/-</p>
+			{/if}
+			<button
+				on:click={() => {
+					handleAnimation();
+					navigator.clipboard.writeText(accountId);
+				}}
+			>
+				<CopyIcon />
+				{#if circleVisible}
+					<div class="circle" transition:scale={{ duration: 500 }}></div>
+				{/if}
+			</button>
 		</div>
-	{:else}
-		<div class="input-container">
-			<span style:color="var(--main-color)">Please specify principal:</span>
-			<input type="text" placeholder="Principal" bind:value={principal} />
-		</div>
-		{#if accountId !== undefined}
-			<div class="principal-container">
-				<p>{accountId}</p>
-				<button
-					on:click={() => {
-						handleAnimation();
-						navigator.clipboard.writeText(accountId);
-					}}
-				>
-					<CopyIcon />
-					{#if circleVisible}
-						<div class="circle" transition:scale={{ duration: 500 }}></div>
-					{/if}
-				</button>
-			</div>
-		{/if}
-	{/if}
+	</div>
 </div>
 
 <style>

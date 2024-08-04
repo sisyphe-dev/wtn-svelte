@@ -6,24 +6,13 @@
 	import { handleSnsIcpDepositResult } from '$lib/result';
 	import { Toast } from '$lib/toast';
 
-	let principal: string;
-	let amount: number;
-
-	function isValid(principal) {
-		try {
-			const p = Principal.fromText(principal);
-			return true;
-		} catch (error) {
-			return false;
-		}
-	}
-
 	const notifyIcpDeposit = async () => {
 		if ($isBusy || !$canisters) return;
 		try {
 			isBusy.set(true);
-			const input = $selectedSns === 'Custom' ? principal : $snsPrincipal;
-			const boomerangResult = await $canisters.boomerang.notify_icp_deposit(Principal.fromText(input));
+			const boomerangResult = await $canisters.boomerang.notify_icp_deposit(
+				Principal.fromText($snsPrincipal)
+			);
 
 			const result = handleSnsIcpDepositResult(boomerangResult);
 			if (result.success) {
@@ -43,35 +32,19 @@
 		<span class="round">2</span>
 		<span>Confirm your deposit.</span>
 	</div>
-	{#if $selectedSns === 'Custom'}
-		<div class="input-container">
-			<span style:color="var(--main-color)">Please specify principal:</span>
-			<input type="text" placeholder="Principal" bind:value={principal} />
-		</div>
-		{#if principal && isValid(principal)}
-			{#if $isBusy}
-				<button>
-					<div class="spinner"></div>
-				</button>
-			{:else}
-				<button on:click={notifyIcpDeposit}>Confirm</button>
-			{/if}
+	<div class="fetched-info-container">
+		<p style:font-weight="lighter">Governance id:</p>
+		<p style:color="var(--main-color)">{$snsPrincipal}</p>
+	</div>
+	<div class="balance-container">
+		{#if $isBusy}
+			<button>
+				<div class="spinner"></div>
+			</button>
+		{:else}
+			<button on:click={notifyIcpDeposit}>Confirm</button>
 		{/if}
-	{:else}
-		<div class="fetched-info-container">
-			<p style:font-weight="lighter">You are using the following principal:</p>
-			<p style:color="var(--main-color)">{$snsPrincipal}</p>
-		</div>
-		<div class="balance-container">
-			{#if $isBusy}
-				<button>
-					<div class="spinner"></div>
-				</button>
-			{:else}
-				<button on:click={notifyIcpDeposit}>Confirm</button>
-			{/if}
-		</div>
-	{/if}
+	</div>
 </div>
 
 <style>

@@ -15,11 +15,7 @@
 	import { type Account, AccountIdentifier } from '@dfinity/ledger-icp';
 	import { Principal } from '@dfinity/principal';
 	import { handleIcrcTransferResult, handleTransferResult, type ToastResult } from '$lib/result';
-	import type {
-		Tokens,
-		TransferArgs,
-		TransferArg
-	} from '$declarations/icp_ledger.did';
+	import type { Tokens, TransferArgs, TransferArg } from '$declarations/icp_ledger.did';
 	import { fade } from 'svelte/transition';
 
 	let principal: string;

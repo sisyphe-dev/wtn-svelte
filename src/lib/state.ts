@@ -7,7 +7,7 @@ import type { _SERVICE as icpLedgerInterface } from '../declarations/icp_ledger/
 import type { _SERVICE as boomerangInterface } from '../declarations/boomerang/boomerang.did';
 import type {
 	CanisterInfo,
-	_SERVICE as waterNeuronInterface,
+	_SERVICE as waterNeuronInterface
 } from '../declarations/water_neuron/water_neuron.did';
 import { idlFactory as idlFactoryWaterNeuron } from '../declarations/water_neuron';
 import { HOST, CANISTER_ID_WATER_NEURON, type Actors } from './authentification';

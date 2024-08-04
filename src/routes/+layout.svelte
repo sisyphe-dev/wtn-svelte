@@ -5,10 +5,25 @@
 	import Send from './wallet/Send.svelte';
 	import Menu from './Menu.svelte';
 	import Receive from './wallet/Receive.svelte';
-	import { isLogging, inMobileMenu, inSendingMenu, inReceivingMenu, user, canisters, waterNeuronInfo } from '$lib/stores';
+	import {
+		isLogging,
+		inMobileMenu,
+		inSendingMenu,
+		inReceivingMenu,
+		user,
+		canisters,
+		waterNeuronInfo
+	} from '$lib/stores';
 	import { onMount } from 'svelte';
-	import { WaterNeuronInfo, User, fetchIcpBalance, fetchNicpBalance, fetchWtnBalance, fetchWtnAllocation } from '$lib/state';
-	import { signIn } from '$lib/authentification'
+	import {
+		WaterNeuronInfo,
+		User,
+		fetchIcpBalance,
+		fetchNicpBalance,
+		fetchWtnBalance,
+		fetchWtnAllocation
+	} from '$lib/state';
+	import { signIn } from '$lib/authentification';
 	import Toast from './Toast.svelte';
 
 	async function updateBalances() {
