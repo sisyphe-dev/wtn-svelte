@@ -97,8 +97,7 @@ export async function fetchWtnAllocation(principal: Principal): Promise<bigint |
 			Principal.fromText(CANISTER_ID_WATER_NEURON),
 			idlFactoryWaterNeuron
 		);
-		const allocation = await waterNeuron.get_airdrop_allocation([principal]);
-		return allocation;
+		return await waterNeuron.get_airdrop_allocation([principal]);
 	} catch (e) {
 		console.log('Error while fetching airdrop allocation:', e);
 	}
