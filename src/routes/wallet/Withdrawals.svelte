@@ -8,10 +8,7 @@
 	} from '$lib';
 	import { user } from '$lib/stores';
 	import { onMount } from 'svelte';
-	import type {
-		type WithdrawalDetails,
-		type NeuronId,
-	} from '$declarations/water_neuron/water_neuron.did';
+	import type { WithdrawalDetails, NeuronId } from '$declarations/water_neuron/water_neuron.did';
 	import { idlFactory as idlFactoryWaterNeuron } from '$declarations/water_neuron';
 	import { fade } from 'svelte/transition';
 	import { HttpAgent, Actor } from '@dfinity/agent';
