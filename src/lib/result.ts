@@ -15,11 +15,6 @@ import type {
 	TransferError,
 	TransferFromError
 } from '../declarations/water_neuron/water_neuron.did';
-import type {
-	BoomerangError,
-	Result_1 as SnsIcpDepositResult,
-	Result_2 as SnsRetrieveNicpResult
-} from '../declarations/boomerang.did';
 import { Asset, AssetType, bigintE8sToNumber, displayUsFormat } from '$lib';
 import type {
 	TransferResult,
@@ -340,64 +335,6 @@ export function handleRetrieveResult(result: NicpToIcpResult): ToastResult {
 			};
 		case 'Err':
 			return handleConversionError(result[key]);
-		default:
-			return { success: false, message: DEFAULT_ERROR_MESSAGE };
-	}
-}
-
-function handleBoomerangError(error: BoomerangError): ToastResult {
-	const key = Object.keys(error)[0] as keyof BoomerangError;
-
-	switch (key) {
-		case 'GenericError':
-			return { success: false, message: `Generic Error: ${error[key]['message']}` };
-
-		case 'TransferError':
-			return handleTransferError(error[key]);
-
-		case 'ConversionError':
-			return handleConversionError(error[key]);
-
-		case 'ApproveError':
-			return handleApproveError(error[key]);
-
-		case 'NotEnoughICP':
-			return { success: false, message: `Sorry, there are not enough funds in this account.` };
-
-		default:
-			return { success: false, message: DEFAULT_ERROR_MESSAGE };
-	}
-}
-
-export function handleSnsIcpDepositResult(result: SnsIcpDepositResult): ToastResult {
-	const key = Object.keys(result)[0] as keyof SnsIcpDepositResult;
-
-	switch (key) {
-		case 'Ok':
-			return {
-				success: true,
-				message: `Successful conversion at <a target='_blank' style="text-decoration: underline; color: var(--text-color);" href=https://dashboard.internetcomputer.org/transaction/${result[key]['block_index']}>block index ${result[key]['block_index']}</a>.`
-			};
-		case 'Err':
-			return handleBoomerangError(result[key]);
-
-		default:
-			return { success: false, message: DEFAULT_ERROR_MESSAGE };
-	}
-}
-
-export function handleSnsRetrieveNicpResult(result: SnsRetrieveNicpResult): ToastResult {
-	const key = Object.keys(result)[0] as keyof SnsRetrieveNicpResult;
-
-	switch (key) {
-		case 'Ok':
-			return {
-				success: true,
-				message: `Successful conversion at <a target='_blank' style="text-decoration: underline; color: var(--text-color);" href="/wallet">block index ${result[key]}</a>.`
-			};
-		case 'Err':
-			return handleBoomerangError(result[key]);
-
 		default:
 			return { success: false, message: DEFAULT_ERROR_MESSAGE };
 	}
