@@ -69,7 +69,7 @@
 		font-weight: 200;
 		text-align: start;
 		text-decoration: none;
-		font-family: var(--font-type2);
+		font-family: var(--secondary-font);
 		font-weight: 200;
 	}
 

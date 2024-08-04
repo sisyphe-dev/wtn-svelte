@@ -88,8 +88,8 @@
 		--background-color: rgb(12, 44, 76);
 		--text-color: rgb(176, 163, 217);
 		--orange-color: #fa796e;
-		--font-type1: 'Akrobat-black';
-		--font-type2: Arial;
+		--main-font: 'Akrobat-black';
+		--secondary-font: Arial;
 	}
 
 	@font-face {

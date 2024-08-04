@@ -100,7 +100,7 @@
 		align-items: center;
 		text-decoration: none;
 		color: inherit;
-		font-family: var(--font-type2);
+		font-family: var(--secondary-font);
 	}
 
 	p,
@@ -127,7 +127,7 @@
 	.menu-selection-container h1 {
 		font-size: 4em;
 		cursor: pointer;
-		font-family: var(--font-type1);
+		font-family: var(--main-font);
 		position: absolute;
 	}
 

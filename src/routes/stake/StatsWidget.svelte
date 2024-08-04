@@ -86,6 +86,6 @@
 		flex-direction: column;
 		align-items: center;
 		gap: 8px;
-		font-family: var(--font-type2);
+		font-family: var(--secondary-font);
 	}
 </style>

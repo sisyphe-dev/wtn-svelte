@@ -188,7 +188,7 @@
 	/* === Base Styles ==== */
 	h1 {
 		text-align: center;
-		font-family: var(--font-type1);
+		font-family: var(--main-font);
 	}
 
 	table {

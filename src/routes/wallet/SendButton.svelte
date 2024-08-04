@@ -78,7 +78,7 @@
 <style>
 	/* === Base Styles === */
 	p {
-		font-family: var(--font-type2);
+		font-family: var(--secondary-font);
 	}
 
 	/* === Layout === */
@@ -108,7 +108,7 @@
 		top: 50%;
 		width: 60%;
 		margin-top: 1em;
-		font-family: var(--font-type2);
+		font-family: var(--secondary-font);
 	}
 
 	.mobile-action-btn {

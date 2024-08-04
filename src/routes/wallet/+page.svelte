@@ -80,17 +80,17 @@
 	h1 {
 		text-align: center;
 		margin: 0;
-		font-family: var(--font-type2);
+		font-family: var(--secondary-font);
 	}
 
 	h2 {
 		margin: 0;
 		margin-top: 1em;
-		font-family: var(--font-type2);
+		font-family: var(--secondary-font);
 	}
 
 	p {
-		font-family: var(--font-type2);
+		font-family: var(--secondary-font);
 		overflow-wrap: anywhere;
 	}
 

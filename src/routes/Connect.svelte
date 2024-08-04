@@ -78,7 +78,7 @@
 	}
 
 	h2 {
-		font-family: var(--font-type2);
+		font-family: var(--secondary-font);
 		font-weight: 600;
 		font-size: 20px;
 		color: black;

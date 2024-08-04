@@ -14,7 +14,7 @@
 	import BigNumber from 'bignumber.js';
 	import { type Account, AccountIdentifier } from '@dfinity/ledger-icp';
 	import { Principal } from '@dfinity/principal';
-	import { handleIcrcTransferResult, handleTransferResult, type ToastResult } from '$lib/result';
+	import { handleIcrcTransferResult, handleTransferResult, type ToastResult } from '$lib/resultHandler';
 	import type { Tokens, TransferArgs, TransferArg } from '$declarations/icp_ledger.did';
 	import { fade } from 'svelte/transition';
 
@@ -30,8 +30,7 @@
 
 	function getReceiver(input: string): Principal | AccountIdentifier | undefined {
 		try {
-			const p = Principal.fromText(input);
-			return p;
+			return Principal.fromText(input);
 		} catch (e) {
 			if ($selectedAsset.type === AssetType.ICP) {
 				try {
@@ -280,11 +279,11 @@
 	}
 
 	p {
-		font-family: var(--font-type2);
+		font-family: var(--secondary-font);
 	}
 
 	span {
-		font-family: var(--font-type2);
+		font-family: var(--secondary-font);
 		display: flex;
 		align-items: center;
 	}
@@ -312,7 +311,7 @@
 		justify-content: space-between;
 		align-items: center;
 		padding: 0 2%;
-		font-family: var(--font-type2);
+		font-family: var(--secondary-font);
 	}
 
 	.button-container {

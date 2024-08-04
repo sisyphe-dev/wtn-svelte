@@ -18,7 +18,7 @@
 		handleStakeResult,
 		handleRetrieveResult,
 		DEFAULT_ERROR_MESSAGE
-	} from '$lib/result';
+	} from '$lib/resultHandler';
 	import type { ConversionArg } from '$declarations/water_neuron/water_neuron.did';
 	import type { Account } from '@dfinity/ledger-icp';
 	import { onMount, afterUpdate } from 'svelte';
@@ -298,7 +298,7 @@
 	/* === Base Styles === */
 	p {
 		color: var(--text-color);
-		font-family: var(--font-type2);
+		font-family: var(--secondary-font);
 		font-weight: bold;
 		text-align: end;
 		margin: 0;
@@ -313,7 +313,7 @@
 	}
 
 	h2 {
-		font-family: var(--font-type2);
+		font-family: var(--secondary-font);
 		font-size: 17px;
 		font-weight: bold;
 		color: white;
