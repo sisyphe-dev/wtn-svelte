@@ -39,7 +39,7 @@
 			{#if $waterNeuronInfo}
 				{displayUsFormat($waterNeuronInfo.neuron8yStake().plus($waterNeuronInfo.neuron6mStake()))} ICP
 			{:else}
-				...
+				-/-
 			{/if}
 		</b>
 	</div>
@@ -49,7 +49,7 @@
 			>{#if apy}
 				{displayUsFormat(BigNumber(100).multipliedBy(apy))} %
 			{:else}
-				...
+				-/-
 			{/if}</b
 		>
 	</div>
@@ -59,7 +59,7 @@
 			{#if stakersCount || stakersCount === 0}
 				{stakersCount}
 			{:else}
-				...
+				-/-
 			{/if}
 		</b>
 	</div>
