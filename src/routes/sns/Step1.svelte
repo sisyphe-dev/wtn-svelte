@@ -8,7 +8,6 @@
 	let accountId: string;
 
 	const setAccountId = async (principal: string) => {
-		console.log(principal, $canisters);
 		if (!$canisters) return;
 		try {
 			$canisters.boomerang.get_staking_account_id(Principal.fromText(principal)).then((account) => {
@@ -46,10 +45,6 @@
 		<span class="instruction"
 			>Make an ICP Treasury proposal to the following account identifier.</span
 		>
-	</div>
-	<div class="fetched-info-container">
-		<p style:font-weight="lighter">You are using the following principal:</p>
-		<p style:color="var(--main-color)">{$snsPrincipal}</p>
 	</div>
 	<div class="receive-container">
 		<div class="principal-container">

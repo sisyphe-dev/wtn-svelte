@@ -3,9 +3,8 @@
 	import Step1 from './Step1.svelte';
 	import Step2 from './Step2.svelte';
 	import Step3 from './Step3.svelte';
-
+	import { selectedSns, snsPrincipal, toasts, isBusy, canisters } from '$lib/stores';
 	import { fade, scale } from 'svelte/transition';
-	import { selectedSns } from '$lib/stores';
 
 	export let data;
 	let selectedStep: 'Step1' | 'Step2' | 'Step3' = 'Step1';
@@ -16,6 +15,10 @@
 	{#key $selectedSns}
 		<div class="boomerang-container" in:fade={{ duration: 500 }}>
 			<h1>Stake {$selectedSns} Treasury</h1>
+			<div class="fetched-info-container">
+				<p style:font-weight="lighter">Governance id:</p>
+				<p style:color="var(--main-color)">{$snsPrincipal}</p>
+			</div>
 			<Step1 />
 			<Step2 />
 			<Step3 />
@@ -79,6 +82,11 @@
 		padding: 1em;
 	}
 
+	.fetched-info-container {
+		display: flex;
+		gap: 1em;
+	}
+
 	/* === Utilities === */
 	.selected-step {
 		background-color: #1e3466;
@@ -101,6 +109,24 @@
 		nav {
 			max-width: 95%;
 			justify-content: center;
+		}
+
+		.step2-container {
+			width: 95%;
+		}
+
+		span {
+			text-align: center;
+		}
+
+		.fetched-info-container {
+			flex-direction: column;
+			gap: 0;
+			align-items: center;
+		}
+
+		.input-container {
+			gap: 0;
 		}
 	}
 </style>

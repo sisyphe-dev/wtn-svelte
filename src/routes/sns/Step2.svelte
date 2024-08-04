@@ -32,10 +32,6 @@
 		<span class="round">2</span>
 		<span>Confirm your deposit.</span>
 	</div>
-	<div class="fetched-info-container">
-		<p style:font-weight="lighter">Governance id:</p>
-		<p style:color="var(--main-color)">{$snsPrincipal}</p>
-	</div>
 	<div class="balance-container">
 		{#if $isBusy}
 			<button>
