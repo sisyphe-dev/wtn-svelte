@@ -91,14 +91,14 @@ async function createSecp256k1IdentityActor(
 	}) as any;
 }
 
-export async function fetchWtnAllocation(principal: Principal): Promise<BigNumber | undefined> {
+export async function fetchWtnAllocation(principal: Principal): Promise<bigint | undefined> {
 	try {
 		const waterNeuron = await createSecp256k1IdentityActor(
 			Principal.fromText(CANISTER_ID_WATER_NEURON),
 			idlFactoryWaterNeuron
 		);
 		const allocation = await waterNeuron.get_airdrop_allocation([principal]);
-		return bigintE8sToNumber(allocation);
+		return allocation;
 	} catch (e) {
 		console.log('Error while fetching airdrop allocation:', e);
 	}
