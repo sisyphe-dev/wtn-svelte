@@ -7,8 +7,6 @@ import { idlFactory as idlFactoryIcp } from '../declarations/icp_ledger';
 import type { _SERVICE as icpLedgerInterface } from '../declarations/icp_ledger/icp_ledger.did';
 import { idlFactory as idlFactoryWaterNeuron } from '../declarations/water_neuron';
 import type { _SERVICE as waterNeuronInterface } from '../declarations/water_neuron/water_neuron.did';
-import { idlFactory as idlFactoryBoomerang } from '../declarations/boomerang';
-import type { _SERVICE as boomerangInterface } from '../declarations/boomerang/boomerang.did';
 
 import { user, canisters } from './stores';
 import { Canisters, User } from './state';
@@ -26,7 +24,6 @@ export const HOST = DEV ? 'http://127.0.1:8080' : 'https://ic0.app';
 const CANISTER_ID_WTN_LEDGER = 'jcmow-hyaaa-aaaaq-aadlq-cai';
 const CANISTER_ID_ICP_LEDGER = 'ryjl3-tyaaa-aaaaa-aaaba-cai';
 const CANISTER_ID_NICP_LEDGER = DEV ? 'ny7ez-6aaaa-aaaam-acc5q-cai' : 'buwm7-7yaaa-aaaar-qagva-cai';
-export const CANISTER_ID_BOOMERANG = 'bd3sg-teaaa-aaaaa-qaaba-cai';
 export const CANISTER_ID_WATER_NEURON = DEV
 	? 'n76cn-tyaaa-aaaam-acc5a-cai'
 	: 'tsbvt-pyaaa-aaaar-qafva-cai';
@@ -41,7 +38,6 @@ export interface Actors {
 	nicpLedger: icrcLedgerInterface;
 	wtnLedger: icrcLedgerInterface;
 	waterNeuron: waterNeuronInterface;
-	boomerang: boomerangInterface;
 }
 
 export async function internetIdentitySignIn(): Promise<AuthResult> {
@@ -201,12 +197,8 @@ export function fetchActors(agent?: HttpAgent, isInternetIdentity = false): Prom
 				agent,
 				canisterId: CANISTER_ID_WATER_NEURON
 			});
-			const boomerang: boomerangInterface = Actor.createActor(idlFactoryBoomerang, {
-				agent,
-				canisterId: CANISTER_ID_BOOMERANG
-			});
 
-			resolve({ icpLedger, wtnLedger, nicpLedger, waterNeuron, boomerang });
+			resolve({ icpLedger, wtnLedger, nicpLedger, waterNeuron });
 		} catch (error) {
 			reject(error);
 		}
