@@ -94,68 +94,77 @@
 	}
 </script>
 
-<div class="sns-container" transition:fade>
-	<SnsListing {data} />
-	{#key $selectedSns}
-		<div class="boomerang-container" in:fade={{ duration: 500 }}>
-			<h1>Stake {$selectedSns} Treasury</h1>
-			<div class="fetched-info-container">
-				<p>Goverance id:</p>
-				<p style:color="var(--main-color)">{$snsPrincipal}</p>
-			</div>
-			<div class="step-container" in:fade={{ duration: 500 }}>
-				<div class="instruction-container">
-					<span class="round">1</span>
+<div class="sns-container">
+	<div class="sns-stake-container" transition:fade>
+		<SnsListing {data} />
+		{#key $selectedSns}
+			<div class="boomerang-container" in:fade={{ duration: 500 }}>
+				<div class="fetched-info-container">
+					<h1>Stake {$selectedSns} Treasury</h1>
+					<p style:color="var(--main-color)">(Goverance id: {$snsPrincipal})</p>
 				</div>
-				<div class="receive-container">
-					<span>Make an ICP Treasury proposal to the following account identifier.</span>
-					<div class="principal-container">
-						<p>{accountId}</p>
-						<button
-							class="copy-btn"
-							on:click={() => {
-								handleAnimation();
-								navigator.clipboard.writeText(accountId);
-							}}
+				<div class="step-container" in:fade={{ duration: 500 }}>
+					<div class="number-step-container">
+						<span class="round">1</span>
+					</div>
+					<div class="instruction-container">
+						<span
+							>Submit a proposal to transfer part of the SNS Treasury to the following account
+							identifier.</span
 						>
-							<CopyIcon />
-							{#if circleVisible}
-								<div class="circle" transition:scale={{ duration: 500 }}></div>
-							{/if}
-						</button>
+						<div class="principal-container">
+							<p>{accountId}</p>
+							<button
+								class="copy-btn"
+								on:click={() => {
+									handleAnimation();
+									navigator.clipboard.writeText(accountId);
+								}}
+							>
+								<CopyIcon />
+								{#if circleVisible}
+									<div class="circle" transition:scale={{ duration: 500 }}></div>
+								{/if}
+							</button>
+						</div>
+					</div>
+				</div>
+				<div class="step-container" in:fade={{ duration: 500 }}>
+					<div class="number-step-container">
+						<span class="round">2</span>
+					</div>
+					<div class="instruction-container">
+						<span>Once the proposal is approved, notify the protocol of the transfer.</span>
+						{#if isConfirmBusy}
+							<button class="action-btn">
+								<div class="spinner"></div>
+							</button>
+						{:else}
+							<button class="action-btn" on:click={notifyIcpDeposit}>Confirm SNS deposit</button>
+						{/if}
+					</div>
+				</div>
+				<div class="step-container" in:fade={{ duration: 500 }}>
+					<div class="number-step-container">
+						<span class="round">3</span>
+					</div>
+					<div class="instruction-container">
+						<span>Collect the minted nICP tokens to the SNS principal.</span>
+						{#if isRetrieveBusy}
+							<button class="action-btn">
+								<div class="spinner"></div>
+							</button>
+						{:else}
+							<button class="action-btn" on:click={retrieveNicp}>Retrieve nICP</button>
+						{/if}
 					</div>
 				</div>
 			</div>
-			<div class="step-container" in:fade={{ duration: 500 }}>
-				<div class="instruction-container">
-					<span class="round">2</span>
-				</div>
-				<div class="balance-container">
-				{#if isConfirmBusy}
-					<button class="action-btn">
-						<div class="spinner"></div>
-					</button>
-				{:else}
-					<button class="action-btn" on:click={notifyIcpDeposit}>Confirm SNS deposit</button>
-				{/if}
-				</div>
-			</div>
-			<div class="step-container" in:fade={{ duration: 500 }}>
-				<div class="instruction-container">
-					<span class="round">3</span>
-				</div>
-				<div class="balance-container">
-				{#if isRetrieveBusy}
-					<button class="action-btn">
-						<div class="spinner"></div>
-					</button>
-				{:else}
-					<button class="action-btn" on:click={retrieveNicp}>Retrieve Nicp</button>
-				{/if}
-				</div>
-			</div>
-		</div>
-	{/key}
+		{/key}
+	</div>
+	<p class="nota-bene">
+		* This feature enables any SNS to convert a portion of their ICP Treasury Funds into nICP by following the specified steps.
+	</p>
 </div>
 
 <style>
@@ -170,6 +179,7 @@
 		font-family: var(--secondary-font);
 		font-weight: bold;
 		overflow-wrap: anywhere;
+		margin: 0;
 	}
 
 	h1 {
@@ -177,17 +187,24 @@
 		font-size: 26px;
 		font-family: var(--main-font);
 		align-self: center;
+		margin: 0;
 	}
 
 	/* === Layout === */
 	.sns-container {
+		display: flex;
+		flex-direction: column;
+		width: 60em;
+		max-width: 95dvw;
+		height: fit-content;
+		gap: 1em;
+	}
+	
+	.sns-stake-container {
 		background-color: #0c2c4c;
 		border: 2px solid #66adff;
 		border-radius: 10px;
 		display: flex;
-		width: 60em;
-		height: fit-content;
-		max-width: 95dvw;
 	}
 
 	.boomerang-container {
@@ -219,23 +236,26 @@
 		justify-content: center;
 	}
 
-	.instruction-container {
+	.number-step-container {
 		display: flex;
 		align-items: center;
 		gap: 1em;
 	}
 
-	.fetched-info-container{
+	.fetched-info-container {
 		display: flex;
-		gap: 0.5em;
+		flex-direction: column;
 		width: 100%;
 		justify-content: center;
+		align-items: center;
 	}
 
-	.receive-container {
+	.instruction-container {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
+		gap: 1em;
+		width: 90%;
 	}
 
 	/* === Component === */
@@ -271,6 +291,11 @@
 		font-weight: bold;
 		display: flex;
 		position: relative;
+	}
+
+	.nota-bene {
+		font-weight: lighter;
+		margin-left: 2em;
 	}
 
 	/* === Utilities === */
@@ -318,7 +343,7 @@
 	}
 
 	@media (max-width: 767px) {
-		.sns-container {
+		.sns-stake-container {
 			flex-direction: column;
 			justify-content: start;
 			height: fit-content;
@@ -332,17 +357,8 @@
 		}
 
 		.step-container {
-			width: 95%;
+			width: 98%;
 			justify-content: center;
-		}
-
-		span {
-			text-align: center;
-		}
-
-		p {
-			margin: 0;
-			text-align: center;
 		}
 
 		.fetched-info-container {
@@ -351,16 +367,8 @@
 			align-items: center;
 		}
 
-		.input-container {
-			gap: 0;
-		}
-
-		.receive-container {
+		.instruction-container {
 			gap: 1em;
-		}
-
-		.round {
-			display:none;
 		}
 	}
 </style>

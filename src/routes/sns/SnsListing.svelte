@@ -2,7 +2,7 @@
 	import { selectedSns, snsPrincipal } from '$lib/stores';
 
 	export let data;
-	let selection: string;
+	let selection = 'BOOM DAO';
 </script>
 
 <div class="sns-selection-container">
@@ -75,7 +75,7 @@
 		display: flex;
 		overflow-y: scroll;
 		width: 100%;
-		max-height: 35em;
+		max-height: 25em;
 		flex-direction: column;
 		margin: 0;
 		padding: 0;
