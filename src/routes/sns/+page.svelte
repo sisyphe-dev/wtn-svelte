@@ -96,9 +96,9 @@
 			<div class="step-container" in:fade={{ duration: 500 }}>
 				<div class="instruction-container">
 					<span class="round">1</span>
-					<span>Make an ICP Treasury proposal to the following account identifier.</span>
 				</div>
 				<div class="receive-container">
+					<span>Make an ICP Treasury proposal to the following account identifier.</span>
 					<div class="principal-container">
 						<p>{accountId}</p>
 						<button
@@ -119,23 +119,20 @@
 			<div class="step-container" in:fade={{ duration: 500 }}>
 				<div class="instruction-container">
 					<span class="round">2</span>
-					<span>Confirm your deposit.</span>
 				</div>
 				<div class="balance-container">
-					<button class="action-btn" on:click={notifyIcpDeposit}>Confirm</button>
+					<button class="action-btn" on:click={notifyIcpDeposit}>Confirm SNS deposit</button>
 				</div>
 			</div>
 			<div class="step-container" in:fade={{ duration: 500 }}>
-			<div class="instruction-container">
-				<span class="round">3</span>
-				<span>Retrieve Nicp.</span>
-			</div>
-			<div class="balance-container">
-				<button class="action-btn" on:click={retrieveNicp}>Retrieve</button>
+				<div class="instruction-container">
+					<span class="round">3</span>
+				</div>
+				<div class="balance-container">
+					<button class="action-btn" on:click={retrieveNicp}>Retrieve Nicp</button>
+				</div>
 			</div>
 		</div>
-		</div>
-		
 	{/key}
 </div>
 
@@ -144,18 +141,18 @@
 	span {
 		color: var(--text-color);
 		overflow-wrap: anywhere;
-		font-family: var(--font-type2);
+		font-family: var(--secondary-font);
 	}
 
 	p {
-		font-family: var(--font-type2);
+		font-family: var(--secondary-font);
 		font-weight: bold;
 	}
 
 	h1 {
 		color: white;
 		font-size: 26px;
-		font-family: var(--font-type1);
+		font-family: var(--main-font);
 		align-self: center;
 	}
 
@@ -176,20 +173,20 @@
 		width: 80%;
 		align-items: start;
 		justify-content: start;
-		gap: 2em;
+		gap: 1em;
 		padding: 1em;
 	}
 
 	.step-container {
 		display: flex;
-		flex-direction: column;
 		justify-content: start;
 		background: none;
 		align-items: center;
 		height: fit-content;
 		width: 100%;
 		border: none;
-		gap: 2em;
+		margin: 2%;
+		gap: 1em;
 	}
 
 	.principal-container {
@@ -203,6 +200,19 @@
 		display: flex;
 		align-items: center;
 		gap: 1em;
+	}
+
+	.fetched-info-container{
+		display: flex;
+		gap: 0.5em;
+		width: 100%;
+		justify-content: center;
+	}
+
+	.receive-container {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
 	}
 
 	/* === Component === */
