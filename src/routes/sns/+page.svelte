@@ -3,7 +3,8 @@
 	import CopyIcon from '$lib/icons/CopyIcon.svelte';
 	import { fade, scale } from 'svelte/transition';
 	import { afterUpdate } from 'svelte';
-	import { snsPrincipal, selectedSns, canisters } from '$lib/stores';
+	import { snsPrincipal, selectedSns, canisters, isBusy, toasts } from '$lib/stores';
+	import { handleSnsIcpDepositResult, handleSnsRetrieveNicpResult } from '$lib/resultHandler';
 	import { Principal } from '@dfinity/principal';
 
 	export let data;
@@ -20,25 +21,45 @@
 		}
 	};
 
-	const notifyIcpDeposit = () => {
-		if (!$canisters) return;
+	const notifyIcpDeposit = async () => {
+		if ($isBusy || !$canisters) return;
 		try {
-			boomerang.notify_icp_deposit(Principal.fromText($snsPrincipal)).then((result) => {
-				console.log(result);
-			});
+			isBusy.set(true);
+			const boomerangResult = await $canisters.boomerang.notify_icp_deposit(
+				Principal.fromText($snsPrincipal)
+			);
+
+			const result = handleSnsIcpDepositResult(boomerangResult);
+			if (result.success) {
+				toasts.add(Toast.success(result.message));
+			} else {
+				toasts.add(Toast.error(result.message));
+			}
+			isBusy.set(false);
 		} catch (error) {
 			console.log(error);
 		}
 	};
 
-	function retrieveNicp() {
-		if (!$canisters) return;
+	async function retrieveNicp() {
+		if ($isBusy || !$canisters) return;
 		try {
-			$canisters.boomerang.retrieve_nicp(Principal.fromText($snsPrincipal)).then((result) => {
-				console.log(result);
-			});
+			isBusy.set(true);
+			const retrieveResult = await $canisters.boomerang.retrieve_nicp(
+				Principal.fromText($snsPrincipal)
+			);
+
+			const result = await handleSnsRetrieveNicpResult(retrieveResult);
+			if (result.success) {
+				toasts.add(Toast.success(result.message));
+			} else {
+				toasts.add(Toast.error(result.message));
+			}
+			isBusy.set(false);
 		} catch (error) {
 			console.log(error);
+			toasts.add(Toast.error('Call failed.'));
+			isBusy.set(false);
 		}
 	}
 
