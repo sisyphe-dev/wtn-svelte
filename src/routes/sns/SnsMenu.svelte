@@ -3,7 +3,7 @@
 	import { internetIdentityLogout } from '$lib/authentification';
 
 	export let data;
-	let selection = 'BOOM DAO';
+	let selection = $selectedSns ?? 'BOOM DAO';
 </script>
 
 <div class="background-menu">
