@@ -133,7 +133,7 @@
 			<div class="boomerang-container" in:fade={{ duration: 500 }}>
 				<div class="top-container">
 					<div class="header-container">
-						<h1>Stake {$selectedSns} Treasury</h1>
+						<h1>Stake <span style:color="var(--main-color)">{$selectedSns}</span> Treasury</h1>
 						<p>
 							Goverance id: <a
 								target="blank"
@@ -243,15 +243,6 @@
 	}
 
 	/* === Layout === */
-	.sns-container {
-		display: flex;
-		flex-direction: column;
-		width: 60em;
-		max-width: 95dvw;
-		height: fit-content;
-		gap: 1em;
-	}
-
 	.sns-stake-container {
 		background-color: #0c2c4c;
 		border: 2px solid #66adff;
@@ -359,11 +350,6 @@
 		position: relative;
 	}
 
-	.nota-bene {
-		font-weight: lighter;
-		margin-left: 2em;
-	}
-
 	.balance {
 		display: flex;
 		text-align: end;
@@ -449,10 +435,6 @@
 
 		.balances-container {
 			display: none;
-		}
-
-		.nota-bene {
-			margin: 0;
 		}
 
 		a {

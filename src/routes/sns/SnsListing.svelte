@@ -36,19 +36,26 @@
 <style>
 	/* === Base Styles === */
 	div::-webkit-scrollbar {
-		display: none;
+	width: 1em;
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 0.4em;
+    height: 100%;
+    background: transparent;
 	}
 
 	div::-webkit-scrollbar-track {
-		display: none;
+background: transparent;
 	}
 
 	div::-webkit-scrollbar-thumb {
-		display: none;
+background: darkgrey; /* Color of the scrollbar thumb */
+    border-radius: 0.5em;
 	}
 
 	div::-webkit-scrollbar-corner {
-		display: none;
+ background: transparent;
 	}
 
 	button {
@@ -90,9 +97,10 @@
 		width: 100%;
 		max-height: 25em;
 		flex-direction: column;
-		margin: 0;
+		margin: 1em;
 		padding: 0;
 		gap: 1em;
+		position: relative;
 	}
 
 	.sns-btn-container {
