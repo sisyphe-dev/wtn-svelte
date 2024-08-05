@@ -51,6 +51,7 @@
 			isConfirmBusy = false;
 		} catch (error) {
 			console.log(error);
+			toasts.add(Toast.error('Call failed.'));
 			isBusy.set(false);
 			isConfirmBusy = false;
 		}
