@@ -4,11 +4,14 @@
 	import { fade, scale } from 'svelte/transition';
 	import { afterUpdate } from 'svelte';
 	import { snsPrincipal, selectedSns, canisters, isBusy, toasts } from '$lib/stores';
+	import { Toast } from '$lib/toast';
 	import { handleSnsIcpDepositResult, handleSnsRetrieveNicpResult } from '$lib/resultHandler';
 	import { Principal } from '@dfinity/principal';
 
 	export let data;
 	let accountId: string;
+	let isConfirmBusy: boolean;
+	let isRetrieveBusy: boolean;
 
 	const setAccountId = async (principal: string) => {
 		if (!$canisters) return;
@@ -25,6 +28,7 @@
 		if ($isBusy || !$canisters) return;
 		try {
 			isBusy.set(true);
+			isConfirmBusy = true;
 			const boomerangResult = await $canisters.boomerang.notify_icp_deposit(
 				Principal.fromText($snsPrincipal)
 			);
@@ -36,8 +40,11 @@
 				toasts.add(Toast.error(result.message));
 			}
 			isBusy.set(false);
+			isConfirmBusy = false;
 		} catch (error) {
 			console.log(error);
+			isBusy.set(false);
+			isConfirmBusy = false;
 		}
 	};
 
@@ -45,6 +52,7 @@
 		if ($isBusy || !$canisters) return;
 		try {
 			isBusy.set(true);
+			isRetrieveBusy = true;
 			const retrieveResult = await $canisters.boomerang.retrieve_nicp(
 				Principal.fromText($snsPrincipal)
 			);
@@ -56,10 +64,12 @@
 				toasts.add(Toast.error(result.message));
 			}
 			isBusy.set(false);
+			isRetrieveBusy = false;
 		} catch (error) {
 			console.log(error);
 			toasts.add(Toast.error('Call failed.'));
 			isBusy.set(false);
+			isRetrieveBusy = false;
 		}
 	}
 
@@ -121,7 +131,13 @@
 					<span class="round">2</span>
 				</div>
 				<div class="balance-container">
+				{#if isConfirmBusy}
+					<button class="action-btn">
+						<div class="spinner"></div>
+					</button>
+				{:else}
 					<button class="action-btn" on:click={notifyIcpDeposit}>Confirm SNS deposit</button>
+				{/if}
 				</div>
 			</div>
 			<div class="step-container" in:fade={{ duration: 500 }}>
@@ -129,7 +145,13 @@
 					<span class="round">3</span>
 				</div>
 				<div class="balance-container">
+				{#if isRetrieveBusy}
+					<button class="action-btn">
+						<div class="spinner"></div>
+					</button>
+				{:else}
 					<button class="action-btn" on:click={retrieveNicp}>Retrieve Nicp</button>
+				{/if}
 				</div>
 			</div>
 		</div>
@@ -218,7 +240,6 @@
 	/* === Component === */
 	.action-btn {
 		background: var(--main-color);
-		min-width: 80px;
 		border: 2px solid black;
 		border-radius: 8px;
 		font-size: 16px;
@@ -229,6 +250,8 @@
 		display: flex;
 		justify-content: center;
 		align-items: center;
+		width: 15em;
+		height: 3em;
 	}
 
 	.action-btn:hover {
@@ -271,5 +294,25 @@
 		top: 50%;
 		left: 50%;
 		transform: translate(-50%, -50%);
+	}
+
+	/* === Animation === */
+
+	.spinner {
+		width: 1em;
+		height: 1em;
+		border: 3px solid black;
+		border-top-color: transparent;
+		border-radius: 50%;
+		animation: spin 1s linear infinite;
+	}
+
+	@keyframes spin {
+		from {
+			transform: rotate(0deg);
+		}
+		to {
+			transform: rotate(360deg);
+		}
 	}
 </style>
