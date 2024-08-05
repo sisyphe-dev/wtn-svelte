@@ -1,5 +1,5 @@
 import { AssetType, bigintE8sToNumber } from '$lib';
-import { AccountIdentifier, type Account , SubAccount} from '@dfinity/ledger-icp';
+import { AccountIdentifier, type Account, SubAccount } from '@dfinity/ledger-icp';
 import { Principal } from '@dfinity/principal';
 import BigNumber from 'bignumber.js';
 import type { _SERVICE as icrcLedgerInterface } from '../declarations/icrc_ledger/icrc_ledger.did';
@@ -127,7 +127,7 @@ export async function fetchIcpBalance(
 ): Promise<bigint> {
 	const user_account: Account = {
 		owner: principal,
-		subaccount: maybe_subaccount? [maybe_subaccount.toUint8Array()] : []
+		subaccount: maybe_subaccount ? [maybe_subaccount.toUint8Array()] : []
 	};
 	return await icpLedger.icrc1_balance_of(user_account);
 }
@@ -139,7 +139,7 @@ export async function fetchNicpBalance(
 ): Promise<bigint> {
 	const user_account: Account = {
 		owner: principal,
-		subaccount: maybe_subaccount? [maybe_subaccount.toUint8Array()] : []
+		subaccount: maybe_subaccount ? [maybe_subaccount.toUint8Array()] : []
 	};
 	return await nicpLedger.icrc1_balance_of(user_account);
 }

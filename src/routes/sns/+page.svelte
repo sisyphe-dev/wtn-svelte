@@ -2,20 +2,21 @@
 	import SnsListing from './SnsListing.svelte';
 	import CopyIcon from '$lib/icons/CopyIcon.svelte';
 	import { fade, scale } from 'svelte/transition';
-	import { afterUpdate } from 'svelte';
+	import { afterUpdate, onMount } from 'svelte';
 	import { snsPrincipal, selectedSns, canisters, isBusy, toasts } from '$lib/stores';
 	import { Toast } from '$lib/toast';
 	import { handleSnsIcpDepositResult, handleSnsRetrieveNicpResult } from '$lib/resultHandler';
 	import { Principal } from '@dfinity/principal';
 	import BigNumber from 'bignumber.js';
-	import {displayUsFormat, bigintE8sToNumber} from '$lib';
-	
+	import { displayUsFormat, bigintE8sToNumber } from '$lib';
+	import { signIn } from '$lib/authentification';
+	import { fetchIcpBalance, fetchNicpBalance } from '$lib/state';
+
 	export let data;
 
 	let accountId: string;
-	let icpBalance: BigNumber; 
-	let nicpBalance: BigNumber; 
-
+	let icpBalance: BigNumber;
+	let nicpBalance: BigNumber;
 
 	let isConfirmBusy: boolean;
 	let isRetrieveBusy: boolean;
@@ -87,7 +88,7 @@
 			icpBalance = bigintE8sToNumber(await fetchIcpBalance(principal, $canisters.icpLedger));
 			nicpBalance = bigintE8sToNumber(await fetchNicpBalance(principal, $canisters.nicpLedger));
 		} catch (error) {
-			console.log(error)
+			console.log(error);
 		}
 	}
 	afterUpdate(() => {
@@ -100,7 +101,7 @@
 		});
 
 		const intervalId = setInterval(async () => {
-				await fetchSnsBalances();
+			await fetchSnsBalances();
 		}, 5000);
 
 		return () => clearInterval(intervalId);
@@ -121,8 +122,6 @@
 			}, 500);
 		}
 	}
-
-	
 </script>
 
 <div class="sns-container">
@@ -130,23 +129,29 @@
 		<SnsListing {data} />
 		{#key $selectedSns}
 			<div class="boomerang-container" in:fade={{ duration: 500 }}>
-				<div class="fetched-info-container">
+			<div class="top-container">
+				<div class="header-container">
 					<h1>Stake {$selectedSns} Treasury</h1>
 					<p>Goverance id: <span style:color="var(--main-color)">{$snsPrincipal}</span></p>
-					{#if icpBalance}
-							<div class="balances">
-						<span style:margin-left={'1em'}
-							>{displayUsFormat(icpBalance)}
-							{$selectedAsset.intoStr()}</span
-						>
-						<img
-							alt="{$selectedAsset.intoStr()} logo"
-							src={$selectedAsset.getIconPath()}
-							width="20px"
-							height="20px"
-						/>
 					</div>
-					{/if}
+					<div class="balances-container">
+						{#if icpBalance}
+							<div class="balance-container">
+								<span class="balance">{displayUsFormat(icpBalance)} ICP</span>
+								<img alt="ICP logo" src="/tokens/icp.webp" width="20px" height="20px" />
+							</div>
+						{:else}
+							<span>-/-</span>
+						{/if}
+						{#if nicpBalance}
+							<div class="balance-container">
+								<span class="balance">{displayUsFormat(nicpBalance)} nICP</span>
+								<img alt="nICP logo" src="/tokens/nicp.webp" width="20px" height="20px" />
+							</div>
+						{:else}
+							<span>-/-</span>
+						{/if}
+					</div>
 				</div>
 				<div class="step-container" in:fade={{ duration: 500 }}>
 					<div class="instruction-container">
@@ -176,35 +181,33 @@
 				</div>
 				<div class="step-container" in:fade={{ duration: 500 }}>
 					<div class="instruction-container">
-					<div class="number-step-container">
-						<span class="round">2</span>
-					</div>
+						<div class="number-step-container">
+							<span class="round">2</span>
+						</div>
 						<span>Once the proposal is approved, notify the protocol of the transfer.</span>
 					</div>
 					{#if isConfirmBusy}
-							<button class="action-btn">
-								<div class="spinner"></div>
-							</button>
-						{:else}
-							<button class="action-btn" on:click={notifyIcpDeposit}>Confirm SNS deposit</button>
-						{/if}
+						<button class="action-btn">
+							<div class="spinner"></div>
+						</button>
+					{:else}
+						<button class="action-btn" on:click={notifyIcpDeposit}>Confirm SNS deposit</button>
+					{/if}
 				</div>
 				<div class="step-container" in:fade={{ duration: 500 }}>
-					
 					<div class="instruction-container">
-					<div class="number-step-container">
-						<span class="round">3</span>
-					</div>
+						<div class="number-step-container">
+							<span class="round">3</span>
+						</div>
 						<span>Collect the minted nICP tokens to the SNS principal.</span>
-					
 					</div>
-						{#if isRetrieveBusy}
-							<button class="action-btn">
-								<div class="spinner"></div>
-							</button>
-						{:else}
-							<button class="action-btn" on:click={retrieveNicp}>Retrieve nICP</button>
-						{/if}
+					{#if isRetrieveBusy}
+						<button class="action-btn">
+							<div class="spinner"></div>
+						</button>
+					{:else}
+						<button class="action-btn" on:click={retrieveNicp}>Retrieve nICP</button>
+					{/if}
 				</div>
 			</div>
 		{/key}
@@ -289,10 +292,17 @@
 		gap: 1em;
 	}
 
-	.fetched-info-container {
+	.top-container {
+		display: flex;
+		justify-content: space-around;
+		width: 100%;
+		align-items: center;
+	}
+
+	.header-container {
 		display: flex;
 		flex-direction: column;
-		width: 100%;
+		flex-grow: 1;
 		justify-content: center;
 		align-items: center;
 	}
@@ -302,6 +312,17 @@
 		align-items: center;
 		gap: 1em;
 		width: 90%;
+	}
+
+	.balances-container {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.balance-container {
+		display: flex;
+		align-items: center;
+		gap: 0.5em;
 	}
 
 	/* === Component === */
@@ -342,6 +363,14 @@
 	.nota-bene {
 		font-weight: lighter;
 		margin-left: 2em;
+	}
+
+	.balance {
+		display: flex;
+		justify-content: end;
+		width: 4em;
+		color: white;
+		font-family: var(--main-font);
 	}
 
 	/* === Utilities === */
@@ -407,7 +436,7 @@
 			justify-content: center;
 		}
 
-		.fetched-info-container {
+		.header-container {
 			flex-direction: column;
 			gap: 0;
 			align-items: center;
