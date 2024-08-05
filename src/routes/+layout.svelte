@@ -4,12 +4,14 @@
 	import Connect from './Connect.svelte';
 	import Send from './wallet/Send.svelte';
 	import Menu from './Menu.svelte';
+	import SnsMenu from './sns/SnsMenu.svelte';
 	import Receive from './wallet/Receive.svelte';
 	import {
 		isLogging,
 		inMobileMenu,
 		inSendingMenu,
 		inReceivingMenu,
+		inSnsMenu,
 		user,
 		canisters,
 		waterNeuronInfo
@@ -25,6 +27,7 @@
 	} from '$lib/state';
 	import { signIn } from '$lib/authentification';
 	import Toast from './Toast.svelte';
+	import sns from './sns/sns_metadata.json';
 
 	async function updateBalances() {
 		if ($canisters && $user) {
@@ -67,6 +70,8 @@
 {/if}
 {#if $inMobileMenu}
 	<Menu />
+{:else if $inSnsMenu}
+	<SnsMenu data={sns} />
 {:else}
 	<div class="page-container">
 		<Navbar />

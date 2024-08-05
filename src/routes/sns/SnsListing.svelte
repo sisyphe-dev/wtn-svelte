@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { selectedSns, snsPrincipal } from '$lib/stores';
+	import { selectedSns, snsPrincipal, inSnsMenu } from '$lib/stores';
 	import { isMobile } from '$lib';
 
 	export let data;
@@ -12,7 +12,6 @@
 			{#each data.sns as sns}
 				<div class="sns-btn-container">
 					<button
-						class="sns-btn-selection"
 						class:selected-sns={selection === sns.name}
 						class:default-sns={selection !== sns.name}
 						on:click={() => {
@@ -23,6 +22,13 @@
 					>
 				</div>
 			{/each}
+		</div>
+	{:else}
+		<div class="select-container">
+			<button on:click={() => inSnsMenu.set(true)}>
+				<span>{$selectedSns}</span>
+				<img width="20em" height="20em" src="/icon/down-arrow.svg" alt="Down arrow." />
+			</button>
 		</div>
 	{/if}
 </div>
@@ -61,6 +67,10 @@
 		background-color: rgba(107, 249, 201, 0.5);
 	}
 
+	img {
+		transform: rotate(180deg);
+	}
+
 	/* === Layout === */
 	.sns-selection-container {
 		display: flex;
@@ -88,6 +98,13 @@
 	.sns-btn-container {
 		width: 100%;
 		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+
+	.select-container {
+		display: flex;
+		width: 100%;
 		justify-content: center;
 		align-items: center;
 	}
@@ -120,13 +137,13 @@
 
 		button {
 			display: flex;
-			width: 10em;
-			justify-content: center;
+			width: 80%;
+			justify-content: space-between;
 			padding: 1em;
 			font-size: 16px;
 			border-radius: 8px;
-			border: 2px solid transparent;
-			background: none;
+			border: 2px solid var(--main-color);
+			background-color: rgba(107, 249, 201, 0.5);
 		}
 	}
 </style>

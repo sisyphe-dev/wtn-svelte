@@ -10,6 +10,7 @@ export const isConverting = writable<boolean>(false);
 export const inSendingMenu = writable<boolean>(false);
 export const inReceivingMenu = writable<boolean>(false);
 export const inMobileMenu = writable<boolean>(false);
+export const inSnsMenu = writable<boolean>(false);
 
 /* === Components === */
 export const language = writable<'en' | 'es' | 'ja' | 'ru'>('en');

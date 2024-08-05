@@ -125,7 +125,7 @@
 </script>
 
 <div class="sns-container">
-	<div class="sns-stake-container" transition:fade>
+	<div class="sns-stake-container" in:fade>
 		<SnsListing {data} />
 		{#key $selectedSns}
 			<div class="boomerang-container" in:fade={{ duration: 500 }}>
@@ -424,13 +424,14 @@
 		.sns-stake-container {
 			flex-direction: column;
 			justify-content: start;
+			align-items: center;
 			height: fit-content;
 		}
 
 		.boomerang-container {
-			width: 100%;
-			padding: 0 0 1em 0;
-			gap: 1em;
+			width: 95%;
+			padding: 1em 0 1em 0;
+			gap: 2em;
 			align-items: center;
 		}
 
@@ -441,12 +442,24 @@
 
 		.header-container {
 			flex-direction: column;
-			gap: 0;
+			gap: 1em;
 			align-items: center;
 		}
 
 		.instruction-container {
 			gap: 1em;
+		}
+
+		.balances-container {
+			display: none;
+		}
+
+		.nota-bene {
+			margin: 0;
+		}
+		
+		a {
+			font-size: 15px;
 		}
 	}
 </style>
