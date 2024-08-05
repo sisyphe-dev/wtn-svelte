@@ -1,4 +1,5 @@
 <script lang="ts">
+	import StatsWidget from '../stake/StatsWidget.svelte';
 	import SnsListing from './SnsListing.svelte';
 	import CopyIcon from '$lib/icons/CopyIcon.svelte';
 	import { fade, scale } from 'svelte/transition';
@@ -125,7 +126,7 @@
 	}
 </script>
 
-<div class="sns-container">
+<StatsWidget />
 	<div class="sns-stake-container" in:fade>
 		<SnsListing {data} />
 		{#key $selectedSns}
@@ -213,11 +214,6 @@
 			</div>
 		{/key}
 	</div>
-	<p class="nota-bene">
-		* This feature enables any SNS to convert a portion of their ICP Treasury Funds into nICP by
-		following the specified steps.
-	</p>
-</div>
 
 <style>
 	/* === Base Styles === */
@@ -458,7 +454,7 @@
 		.nota-bene {
 			margin: 0;
 		}
-		
+
 		a {
 			font-size: 15px;
 		}

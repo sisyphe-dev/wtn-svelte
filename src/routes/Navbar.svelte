@@ -13,19 +13,17 @@
 		</div>
 	</a>
 	<div class="right-container">
-	<a href="/sns"  class="smart">
-			SNS
-		</a>
-	{#if !$user}
-		<button
-			class="smart"
-			on:click={() => {
-				isLogging.set(true);
-			}}
-		>
-			Connect
-		</button>
-	{:else}
+		<a href="/sns" class="smart"> SNS </a>
+		{#if !$user}
+			<button
+				class="smart"
+				on:click={() => {
+					isLogging.set(true);
+				}}
+			>
+				Connect
+			</button>
+		{:else}
 			<a href="/wallet" class="wallet-btn" id="wallet-info">
 				<h2 style:font-weight={'bold'}>{displayPrincipal($user.principal)}</h2>
 				<p id="special">{displayUsFormat($user.icpBalance())} ICP</p>
@@ -59,7 +57,7 @@
 					<path d="M120-240v-80h720v80H120Zm0-200v-80h720v80H120Zm0-200v-80h720v80H120Z"></path>
 				</svg>
 			</button>
-	{/if}
+		{/if}
 	</div>
 </nav>
 
@@ -142,7 +140,7 @@
 
 	.right-container {
 		display: flex;
-		align-items: center; 
+		align-items: center;
 		gap: 1em;
 	}
 
