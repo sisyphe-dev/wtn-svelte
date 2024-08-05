@@ -2,6 +2,7 @@
 	import { selectedSns, snsPrincipal } from '$lib/stores';
 
 	export let data;
+	let selection: string;
 </script>
 
 <div class="sns-selection-container">
@@ -10,9 +11,11 @@
 			<div class="sns-btn-container">
 				<button
 					class="sns-btn-selection"
-					class:selected-sns={$selectedSns === sns.name}
+					class:selected-sns={selection === sns.name}
+					class:default-sns={selection !== sns.name}
 					on:click={() => {
 						selectedSns.set(sns.name);
+						selection = sns.name;
 						snsPrincipal.set(sns.governance_id);
 					}}>{sns.name}</button
 				>
@@ -48,8 +51,6 @@
 		padding: 1em;
 		font-size: 16px;
 		border-radius: 8px;
-		border: 2px solid transparent;
-		background: none;
 	}
 
 	button:hover {
@@ -74,7 +75,7 @@
 		display: flex;
 		overflow-y: scroll;
 		width: 100%;
-		max-height: 30em;
+		max-height: 35em;
 		flex-direction: column;
 		margin: 0;
 		padding: 0;
@@ -92,5 +93,37 @@
 	.selected-sns {
 		border: 2px solid var(--main-color);
 		background-color: rgba(107, 249, 201, 0.5);
+	}
+
+	.default-sns {
+		border: 2px solid transparent;
+		background: none;
+	}
+
+	@media (max-width: 767px) {
+		.sns-selection-container {
+			width: 100%;
+			height: 5em;
+			flex-direction: row;
+			padding: 0;
+		}
+
+		.sns-listing {
+			overflow-x: scroll;
+			overflow-y: hidden;
+			flex-direction: row;
+			margin-left: 1em;
+		}
+
+		button {
+			display: flex;
+			width: 10em;
+			justify-content: center;
+			padding: 1em;
+			font-size: 16px;
+			border-radius: 8px;
+			border: 2px solid transparent;
+			background: none;
+		}
 	}
 </style>

@@ -169,6 +169,7 @@
 	p {
 		font-family: var(--secondary-font);
 		font-weight: bold;
+		overflow-wrap: anywhere;
 	}
 
 	h1 {
@@ -186,7 +187,7 @@
 		display: flex;
 		width: 60em;
 		height: fit-content;
-		max-width: 80vw;
+		max-width: 95dvw;
 	}
 
 	.boomerang-container {
@@ -313,6 +314,53 @@
 		}
 		to {
 			transform: rotate(360deg);
+		}
+	}
+
+	@media (max-width: 767px) {
+		.sns-container {
+			flex-direction: column;
+			justify-content: start;
+			height: fit-content;
+		}
+
+		.boomerang-container {
+			width: 100%;
+			padding: 0 0 1em 0;
+			gap: 1em;
+			align-items: center;
+		}
+
+		.step-container {
+			width: 95%;
+			justify-content: center;
+		}
+
+		span {
+			text-align: center;
+		}
+
+		p {
+			margin: 0;
+			text-align: center;
+		}
+
+		.fetched-info-container {
+			flex-direction: column;
+			gap: 0;
+			align-items: center;
+		}
+
+		.input-container {
+			gap: 0;
+		}
+
+		.receive-container {
+			gap: 1em;
+		}
+
+		.round {
+			display:none;
 		}
 	}
 </style>
