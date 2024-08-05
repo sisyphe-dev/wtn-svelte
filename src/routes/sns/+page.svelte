@@ -7,9 +7,16 @@
 	import { Toast } from '$lib/toast';
 	import { handleSnsIcpDepositResult, handleSnsRetrieveNicpResult } from '$lib/resultHandler';
 	import { Principal } from '@dfinity/principal';
-
+	import BigNumber from 'bignumber.js';
+	import {displayUsFormat, bigintE8sToNumber} from '$lib';
+	
 	export let data;
+
 	let accountId: string;
+	let icpBalance: BigNumber; 
+	let nicpBalance: BigNumber; 
+
+
 	let isConfirmBusy: boolean;
 	let isRetrieveBusy: boolean;
 
@@ -73,8 +80,30 @@
 		}
 	}
 
+	async function fetchSnsBalances() {
+		if (!$canisters) return;
+		try {
+			const principal = Principal.fromText($snsPrincipal);
+			icpBalance = bigintE8sToNumber(await fetchIcpBalance(principal, $canisters.icpLedger));
+			nicpBalance = bigintE8sToNumber(await fetchNicpBalance(principal, $canisters.nicpLedger));
+		} catch (error) {
+			console.log(error)
+		}
+	}
 	afterUpdate(() => {
 		setAccountId($snsPrincipal);
+	});
+
+	onMount(() => {
+		signIn('reload').then(() => {
+			fetchSnsBalances();
+		});
+
+		const intervalId = setInterval(async () => {
+				await fetchSnsBalances();
+		}, 5000);
+
+		return () => clearInterval(intervalId);
 	});
 
 	let isAnimating = false;
@@ -92,6 +121,8 @@
 			}, 500);
 		}
 	}
+
+	
 </script>
 
 <div class="sns-container">
@@ -102,6 +133,20 @@
 				<div class="fetched-info-container">
 					<h1>Stake {$selectedSns} Treasury</h1>
 					<p>Goverance id: <span style:color="var(--main-color)">{$snsPrincipal}</span></p>
+					{#if icpBalance}
+							<div class="balances">
+						<span style:margin-left={'1em'}
+							>{displayUsFormat(icpBalance)}
+							{$selectedAsset.intoStr()}</span
+						>
+						<img
+							alt="{$selectedAsset.intoStr()} logo"
+							src={$selectedAsset.getIconPath()}
+							width="20px"
+							height="20px"
+						/>
+					</div>
+					{}
 				</div>
 				<div class="step-container" in:fade={{ duration: 500 }}>
 					<div class="instruction-container">

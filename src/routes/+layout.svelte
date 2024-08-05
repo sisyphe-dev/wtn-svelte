@@ -36,7 +36,7 @@
 	}
 
 	async function updateWaterNeuronInfo() {
-		if ($canisters) {
+		if ($canisters && $waterNeuronInfo) {
 			waterNeuronInfo.set(new WaterNeuronInfo(await $canisters.waterNeuron.get_info()));
 		}
 	}
@@ -48,10 +48,8 @@
 		});
 
 		const intervalId = setInterval(async () => {
-			if ($waterNeuronInfo && $canisters) {
-				await updateBalances();
-				await updateWaterNeuronInfo();
-			}
+			await updateBalances();
+			await updateWaterNeuronInfo();
 		}, 5000);
 
 		return () => clearInterval(intervalId);
