@@ -86,6 +86,11 @@
 			"treasury": 174000
 		},
 		{
+			"name": "WaterNeuron",
+			"governance_id": "n76cn-tyaaa-aaaam-acc5a-cai",
+			"treasury": 174000
+		},
+		{
 			"name": "Yuku DAO",
 			"governance_id": "auadn-oqaaa-aaaaq-aacya-cai",
 			"treasury": 118000

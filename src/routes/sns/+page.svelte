@@ -129,25 +129,25 @@
 		<SnsListing {data} />
 		{#key $selectedSns}
 			<div class="boomerang-container" in:fade={{ duration: 500 }}>
-			<div class="top-container">
-				<div class="header-container">
-					<h1>Stake {$selectedSns} Treasury</h1>
-					<p>Goverance id: <span style:color="var(--main-color)">{$snsPrincipal}</span></p>
+				<div class="top-container">
+					<div class="header-container">
+						<h1>Stake {$selectedSns} Treasury</h1>
+						<p>
+							Goverance id: <a
+								target="blank"
+								href="https://dashboard.internetcomputer.org/canister/{$snsPrincipal}"
+								>{$snsPrincipal}</a
+							>
+						</p>
 					</div>
 					<div class="balances-container">
 						{#if icpBalance}
-							<div class="balance-container">
-								<span class="balance">{displayUsFormat(icpBalance)} ICP</span>
-								<img alt="ICP logo" src="/tokens/icp.webp" width="20px" height="20px" />
-							</div>
+							<span class="balance">{displayUsFormat(icpBalance)} ICP</span>
 						{:else}
 							<span>-/-</span>
 						{/if}
 						{#if nicpBalance}
-							<div class="balance-container">
-								<span class="balance">{displayUsFormat(nicpBalance)} nICP</span>
-								<img alt="nICP logo" src="/tokens/nicp.webp" width="20px" height="20px" />
-							</div>
+							<span class="balance">{displayUsFormat(nicpBalance)} nICP</span>
 						{:else}
 							<span>-/-</span>
 						{/if}
@@ -233,6 +233,10 @@
 		margin: 0;
 	}
 
+	a {
+		color: var(--main-color);
+	}
+
 	h1 {
 		color: white;
 		font-size: 26px;
@@ -296,13 +300,14 @@
 		display: flex;
 		justify-content: space-around;
 		width: 100%;
+		position: relative;
 		align-items: center;
 	}
 
 	.header-container {
 		display: flex;
 		flex-direction: column;
-		flex-grow: 1;
+		width: 100%;
 		justify-content: center;
 		align-items: center;
 	}
@@ -317,12 +322,9 @@
 	.balances-container {
 		display: flex;
 		flex-direction: column;
-	}
-
-	.balance-container {
-		display: flex;
-		align-items: center;
-		gap: 0.5em;
+		align-items: end;
+		width: 100%;
+		position: absolute;
 	}
 
 	/* === Component === */
@@ -367,10 +369,11 @@
 
 	.balance {
 		display: flex;
-		justify-content: end;
-		width: 4em;
+		text-align: end;
+		width: fit-content;
 		color: white;
 		font-family: var(--main-font);
+		font-size: 18px;
 	}
 
 	/* === Utilities === */

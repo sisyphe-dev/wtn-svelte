@@ -36,7 +36,7 @@
 	}
 
 	async function updateWaterNeuronInfo() {
-		if ($canisters && $waterNeuronInfo) {
+		if ($canisters) {
 			waterNeuronInfo.set(new WaterNeuronInfo(await $canisters.waterNeuron.get_info()));
 		}
 	}
