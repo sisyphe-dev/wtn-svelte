@@ -36,26 +36,26 @@
 <style>
 	/* === Base Styles === */
 	div::-webkit-scrollbar {
-	width: 1em;
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 0.4em;
-    height: 100%;
-    background: transparent;
+		width: 1em;
+		position: absolute;
+		top: 0;
+		right: 0;
+		width: 0.4em;
+		height: 100%;
+		background: transparent;
 	}
 
 	div::-webkit-scrollbar-track {
-background: transparent;
+		background: transparent;
 	}
 
 	div::-webkit-scrollbar-thumb {
-background: darkgrey; /* Color of the scrollbar thumb */
-    border-radius: 0.5em;
+		background: darkgrey; /* Color of the scrollbar thumb */
+		border-radius: 0.5em;
 	}
 
 	div::-webkit-scrollbar-corner {
- background: transparent;
+		background: transparent;
 	}
 
 	button {

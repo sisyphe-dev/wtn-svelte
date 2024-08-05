@@ -127,93 +127,93 @@
 </script>
 
 <StatsWidget />
-	<div class="sns-stake-container" in:fade>
-		<SnsListing {data} />
-		{#key $selectedSns}
-			<div class="boomerang-container" in:fade={{ duration: 500 }}>
-				<div class="top-container">
-					<div class="header-container">
-						<h1>Stake <span style:color="var(--main-color)">{$selectedSns}</span> Treasury</h1>
-						<p>
-							Goverance id: <a
-								target="blank"
-								href="https://dashboard.internetcomputer.org/canister/{$snsPrincipal}"
-								>{$snsPrincipal}</a
-							>
-						</p>
-					</div>
-					<div class="balances-container">
-						{#if icpBalance}
-							<span class="balance">{displayUsFormat(icpBalance)} ICP</span>
-						{:else}
-							<span>-/-</span>
-						{/if}
-						{#if nicpBalance}
-							<span class="balance">{displayUsFormat(nicpBalance)} nICP</span>
-						{:else}
-							<span>-/-</span>
-						{/if}
-					</div>
-				</div>
-				<div class="step-container" in:fade={{ duration: 500 }}>
-					<div class="instruction-container">
-						<div class="number-step-container">
-							<span class="round">1</span>
-						</div>
-						<span
-							>Submit a proposal to transfer part of the SNS Treasury to the following account
-							identifier.</span
+<div class="sns-stake-container" in:fade>
+	<SnsListing {data} />
+	{#key $selectedSns}
+		<div class="boomerang-container" in:fade={{ duration: 500 }}>
+			<div class="top-container">
+				<div class="header-container">
+					<h1>Stake <span style:color="var(--main-color)">{$selectedSns}</span> Treasury</h1>
+					<p>
+						Goverance id: <a
+							target="blank"
+							href="https://dashboard.internetcomputer.org/canister/{$snsPrincipal}"
+							>{$snsPrincipal}</a
 						>
-					</div>
-					<div class="principal-container">
-						<p>{accountId}</p>
-						<button
-							class="copy-btn"
-							on:click={() => {
-								handleAnimation();
-								navigator.clipboard.writeText(accountId);
-							}}
-						>
-							<CopyIcon />
-							{#if circleVisible}
-								<div class="circle" transition:scale={{ duration: 500 }}></div>
-							{/if}
-						</button>
-					</div>
+					</p>
 				</div>
-				<div class="step-container" in:fade={{ duration: 500 }}>
-					<div class="instruction-container">
-						<div class="number-step-container">
-							<span class="round">2</span>
-						</div>
-						<span>Once the proposal is approved, notify the protocol of the transfer.</span>
-					</div>
-					{#if isConfirmBusy}
-						<button class="action-btn">
-							<div class="spinner"></div>
-						</button>
+				<div class="balances-container">
+					{#if icpBalance}
+						<span class="balance">{displayUsFormat(icpBalance)} ICP</span>
 					{:else}
-						<button class="action-btn" on:click={notifyIcpDeposit}>Confirm SNS deposit</button>
+						<span>-/-</span>
 					{/if}
-				</div>
-				<div class="step-container" in:fade={{ duration: 500 }}>
-					<div class="instruction-container">
-						<div class="number-step-container">
-							<span class="round">3</span>
-						</div>
-						<span>Collect the minted nICP tokens to the SNS principal.</span>
-					</div>
-					{#if isRetrieveBusy}
-						<button class="action-btn">
-							<div class="spinner"></div>
-						</button>
+					{#if nicpBalance}
+						<span class="balance">{displayUsFormat(nicpBalance)} nICP</span>
 					{:else}
-						<button class="action-btn" on:click={retrieveNicp}>Retrieve nICP</button>
+						<span>-/-</span>
 					{/if}
 				</div>
 			</div>
-		{/key}
-	</div>
+			<div class="step-container" in:fade={{ duration: 500 }}>
+				<div class="instruction-container">
+					<div class="number-step-container">
+						<span class="round">1</span>
+					</div>
+					<span
+						>Submit a proposal to transfer part of the SNS Treasury to the following account
+						identifier.</span
+					>
+				</div>
+				<div class="principal-container">
+					<p>{accountId}</p>
+					<button
+						class="copy-btn"
+						on:click={() => {
+							handleAnimation();
+							navigator.clipboard.writeText(accountId);
+						}}
+					>
+						<CopyIcon />
+						{#if circleVisible}
+							<div class="circle" transition:scale={{ duration: 500 }}></div>
+						{/if}
+					</button>
+				</div>
+			</div>
+			<div class="step-container" in:fade={{ duration: 500 }}>
+				<div class="instruction-container">
+					<div class="number-step-container">
+						<span class="round">2</span>
+					</div>
+					<span>Once the proposal is approved, notify the protocol of the transfer.</span>
+				</div>
+				{#if isConfirmBusy}
+					<button class="action-btn">
+						<div class="spinner"></div>
+					</button>
+				{:else}
+					<button class="action-btn" on:click={notifyIcpDeposit}>Confirm SNS deposit</button>
+				{/if}
+			</div>
+			<div class="step-container" in:fade={{ duration: 500 }}>
+				<div class="instruction-container">
+					<div class="number-step-container">
+						<span class="round">3</span>
+					</div>
+					<span>Collect the minted nICP tokens to the SNS principal.</span>
+				</div>
+				{#if isRetrieveBusy}
+					<button class="action-btn">
+						<div class="spinner"></div>
+					</button>
+				{:else}
+					<button class="action-btn" on:click={retrieveNicp}>Retrieve nICP</button>
+				{/if}
+			</div>
+		</div>
+	{/key}
+</div>
 
 <style>
 	/* === Base Styles === */
