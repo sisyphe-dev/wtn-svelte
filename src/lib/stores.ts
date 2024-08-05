@@ -14,6 +14,8 @@ export const inMobileMenu = writable<boolean>(false);
 /* === Components === */
 export const language = writable<'en' | 'es' | 'ja' | 'ru'>('en');
 export const selectedAsset = writable<Asset>(new Asset(AssetType.ICP));
+export const selectedSns = writable<string>('BOOM DAO');
+export const snsPrincipal = writable<string>('xomae-vyaaa-aaaaq-aabhq-cai');
 export const user = writable<User | undefined>(undefined);
 export const canisters = writable<Canisters | undefined>(undefined);
 export const waterNeuronInfo = writable<WaterNeuronInfo | undefined>(undefined);
