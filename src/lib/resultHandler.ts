@@ -17,7 +17,7 @@ import type {
 } from '../declarations/water_neuron/water_neuron.did';
 import type {
 	BoomerangError,
-	Result_1 as SnsIcpDepositResult,
+	Result as SnsIcpDepositResult,
 	Result_2 as SnsRetrieveNicpResult
 } from '../declarations/boomerang/boomerang.did';
 import { Asset, AssetType, bigintE8sToNumber, displayUsFormat } from '$lib';
