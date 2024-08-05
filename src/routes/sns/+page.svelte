@@ -101,55 +101,58 @@
 			<div class="boomerang-container" in:fade={{ duration: 500 }}>
 				<div class="fetched-info-container">
 					<h1>Stake {$selectedSns} Treasury</h1>
-					<p style:color="var(--main-color)">(Goverance id: {$snsPrincipal})</p>
+					<p>Goverance id: <span style:color="var(--main-color)">{$snsPrincipal}</span></p>
 				</div>
 				<div class="step-container" in:fade={{ duration: 500 }}>
-					<div class="number-step-container">
-						<span class="round">1</span>
-					</div>
 					<div class="instruction-container">
+						<div class="number-step-container">
+							<span class="round">1</span>
+						</div>
 						<span
 							>Submit a proposal to transfer part of the SNS Treasury to the following account
 							identifier.</span
 						>
-						<div class="principal-container">
-							<p>{accountId}</p>
-							<button
-								class="copy-btn"
-								on:click={() => {
-									handleAnimation();
-									navigator.clipboard.writeText(accountId);
-								}}
-							>
-								<CopyIcon />
-								{#if circleVisible}
-									<div class="circle" transition:scale={{ duration: 500 }}></div>
-								{/if}
-							</button>
-						</div>
+					</div>
+					<div class="principal-container">
+						<p>{accountId}</p>
+						<button
+							class="copy-btn"
+							on:click={() => {
+								handleAnimation();
+								navigator.clipboard.writeText(accountId);
+							}}
+						>
+							<CopyIcon />
+							{#if circleVisible}
+								<div class="circle" transition:scale={{ duration: 500 }}></div>
+							{/if}
+						</button>
 					</div>
 				</div>
 				<div class="step-container" in:fade={{ duration: 500 }}>
+					<div class="instruction-container">
 					<div class="number-step-container">
 						<span class="round">2</span>
 					</div>
-					<div class="instruction-container">
 						<span>Once the proposal is approved, notify the protocol of the transfer.</span>
-						{#if isConfirmBusy}
+					</div>
+					{#if isConfirmBusy}
 							<button class="action-btn">
 								<div class="spinner"></div>
 							</button>
 						{:else}
 							<button class="action-btn" on:click={notifyIcpDeposit}>Confirm SNS deposit</button>
 						{/if}
-					</div>
 				</div>
 				<div class="step-container" in:fade={{ duration: 500 }}>
+					
+					<div class="instruction-container">
 					<div class="number-step-container">
 						<span class="round">3</span>
 					</div>
-					<div class="instruction-container">
 						<span>Collect the minted nICP tokens to the SNS principal.</span>
+					
+					</div>
 						{#if isRetrieveBusy}
 							<button class="action-btn">
 								<div class="spinner"></div>
@@ -157,13 +160,13 @@
 						{:else}
 							<button class="action-btn" on:click={retrieveNicp}>Retrieve nICP</button>
 						{/if}
-					</div>
 				</div>
 			</div>
 		{/key}
 	</div>
 	<p class="nota-bene">
-		* This feature enables any SNS to convert a portion of their ICP Treasury Funds into nICP by following the specified steps.
+		* This feature enables any SNS to convert a portion of their ICP Treasury Funds into nICP by
+		following the specified steps.
 	</p>
 </div>
 
@@ -199,7 +202,7 @@
 		height: fit-content;
 		gap: 1em;
 	}
-	
+
 	.sns-stake-container {
 		background-color: #0c2c4c;
 		border: 2px solid #66adff;
@@ -213,19 +216,18 @@
 		width: 80%;
 		align-items: start;
 		justify-content: start;
-		gap: 1em;
+		gap: 2em;
 		padding: 1em;
 	}
 
 	.step-container {
 		display: flex;
-		justify-content: start;
+		flex-direction: column;
 		background: none;
 		align-items: center;
 		height: fit-content;
 		width: 100%;
 		border: none;
-		margin: 2%;
 		gap: 1em;
 	}
 
@@ -252,7 +254,6 @@
 
 	.instruction-container {
 		display: flex;
-		flex-direction: column;
 		align-items: center;
 		gap: 1em;
 		width: 90%;

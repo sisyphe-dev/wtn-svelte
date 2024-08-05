@@ -1,27 +1,30 @@
 <script lang="ts">
 	import { selectedSns, snsPrincipal } from '$lib/stores';
+	import { isMobile } from '$lib';
 
 	export let data;
 	let selection = 'BOOM DAO';
 </script>
 
 <div class="sns-selection-container">
-	<div class="sns-listing">
-		{#each data.sns as sns}
-			<div class="sns-btn-container">
-				<button
-					class="sns-btn-selection"
-					class:selected-sns={selection === sns.name}
-					class:default-sns={selection !== sns.name}
-					on:click={() => {
-						selectedSns.set(sns.name);
-						selection = sns.name;
-						snsPrincipal.set(sns.governance_id);
-					}}>{sns.name}</button
-				>
-			</div>
-		{/each}
-	</div>
+	{#if !isMobile}
+		<div class="sns-listing">
+			{#each data.sns as sns}
+				<div class="sns-btn-container">
+					<button
+						class="sns-btn-selection"
+						class:selected-sns={selection === sns.name}
+						class:default-sns={selection !== sns.name}
+						on:click={() => {
+							selectedSns.set(sns.name);
+							selection = sns.name;
+							snsPrincipal.set(sns.governance_id);
+						}}>{sns.name}</button
+					>
+				</div>
+			{/each}
+		</div>
+	{/if}
 </div>
 
 <style>
