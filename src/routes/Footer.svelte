@@ -54,7 +54,7 @@
 		width: fit-content;
 		position: absolute;
 		bottom: -1em;
-		font-family: var(--font-type1);
+		font-family: var(--main-font);
 	}
 
 	a {

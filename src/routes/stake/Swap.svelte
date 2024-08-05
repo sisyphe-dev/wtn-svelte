@@ -2,15 +2,24 @@
 	import { Asset, AssetType, computeRewards, displayUsFormat, numberToBigintE8s } from '$lib';
 	import SwapInput from './SwapInput.svelte';
 	import { Toast } from '$lib/toast';
-	import { inputValue, state, user, isLogging, isConverting, toasts } from '$lib/stores';
+	import {
+		inputValue,
+		waterNeuronInfo,
+		canisters,
+		user,
+		isLogging,
+		isConverting,
+		toasts
+	} from '$lib/stores';
 	import BigNumber from 'bignumber.js';
 	import {
 		icpTransferApproved,
 		nicpTransferApproved,
 		handleStakeResult,
-		handleRetrieveResult
-	} from '$lib/ledger';
-	import type { ConversionArg } from '../../declarations/water_neuron/water_neuron.did';
+		handleRetrieveResult,
+		DEFAULT_ERROR_MESSAGE
+	} from '$lib/resultHandler';
+	import type { ConversionArg } from '$declarations/water_neuron/water_neuron.did';
 	import type { Account } from '@dfinity/ledger-icp';
 	import { onMount, afterUpdate } from 'svelte';
 	import { fade } from 'svelte/transition';
@@ -40,7 +49,7 @@
 	}
 
 	export async function icpToNicp(amount: BigNumber) {
-		if (!($user && !$isConverting) || !$state) return;
+		if (!$user || $isConverting || !$canisters) return;
 		isConverting.set(true);
 
 		if ($user.icpBalance().isGreaterThanOrEqualTo(amount) && amount.isGreaterThan(0)) {
@@ -53,12 +62,12 @@
 						owner: $user.principal,
 						subaccount: []
 					} as Account,
-					$state.icpLedger
+					$canisters.icpLedger
 				);
-				if (!approval.granted) {
-					toasts.add(Toast.error(approval.message ?? 'Unknown Error.'));
+				if (!approval.success) {
+					toasts.add(Toast.error(approval.message ?? DEFAULT_ERROR_MESAGE));
 				} else {
-					const conversionResult = await $state.waterNeuron.icp_to_nicp({
+					const conversionResult = await $canisters.waterNeuron.icp_to_nicp({
 						maybe_subaccount: [],
 						amount_e8s: amountE8s
 					} as ConversionArg);
@@ -80,7 +89,7 @@
 	}
 
 	export async function nicpToIcp(amount: BigNumber) {
-		if (!($user && !$isConverting) || !$state) return;
+		if (!$user || $isConverting || !$canisters) return;
 		isConverting.set(true);
 
 		if ($user.nicpBalance().isGreaterThanOrEqualTo(amount) && amount.isGreaterThan(0)) {
@@ -93,12 +102,12 @@
 						owner: $user.principal,
 						subaccount: []
 					} as Account,
-					$state.nicpLedger
+					$canisters.nicpLedger
 				);
-				if (!approval.granted) {
+				if (!approval.success) {
 					toasts.add(Toast.error(approval.message ?? 'Unknown Error.'));
 				} else {
-					const conversionResult = await $state.waterNeuron.nicp_to_icp({
+					const conversionResult = await $canisters.waterNeuron.nicp_to_icp({
 						maybe_subaccount: [],
 						amount_e8s: amountE8s
 					} as ConversionArg);
@@ -120,10 +129,10 @@
 	}
 
 	const fetchData = async () => {
-		if ($state)
+		if ($waterNeuronInfo)
 			try {
-				exchangeRate = $state.exchangeRate();
-				totalIcpDeposited = $state.totalIcpDeposited();
+				exchangeRate = $waterNeuronInfo.exchangeRate();
+				totalIcpDeposited = $waterNeuronInfo.totalIcpDeposited();
 				minimumWithdraw = BigNumber(10).multipliedBy(exchangeRate);
 			} catch (error) {
 				console.error('Error fetching data:', error);
@@ -131,7 +140,7 @@
 	};
 
 	afterUpdate(() => {
-		if ($state) {
+		if ($waterNeuronInfo) {
 			fetchData();
 		}
 	});
@@ -174,7 +183,7 @@
 			<SwapInput asset={stake ? Asset.fromText('ICP') : Asset.fromText('nICP')} />
 			<div class="paragraphs" in:fade={{ duration: 500 }}>
 				{#if stake}
-					<p style:color="#fa796e">
+					<p style:color="var(--orange-color)">
 						{#if exchangeRate}
 							You will receive {displayUsFormat(
 								computeReceiveAmount(stake, BigNumber($inputValue), exchangeRate),
@@ -222,7 +231,7 @@
 						/>
 					</div>
 				{:else}
-					<p style:color="#fa796e">
+					<p style:color="var(--orange-color)">
 						{#if exchangeRate}
 							You will receive {displayUsFormat(
 								computeReceiveAmount(stake, BigNumber($inputValue), exchangeRate),
@@ -289,7 +298,7 @@
 	/* === Base Styles === */
 	p {
 		color: var(--text-color);
-		font-family: var(--font-type2);
+		font-family: var(--secondary-font);
 		font-weight: bold;
 		text-align: end;
 		margin: 0;
@@ -304,7 +313,7 @@
 	}
 
 	h2 {
-		font-family: var(--font-type2);
+		font-family: var(--secondary-font);
 		font-size: 17px;
 		font-weight: bold;
 		color: white;

@@ -6,16 +6,13 @@
 		displayTimeLeft,
 		isMobile
 	} from '$lib';
-	import { state, user } from '$lib/stores';
+	import { user } from '$lib/stores';
 	import { onMount } from 'svelte';
-	import type {
-		WithdrawalDetails,
-		NeuronId
-	} from '../../declarations/water_neuron/water_neuron.did';
+	import type { WithdrawalDetails, NeuronId } from '$declarations/water_neuron/water_neuron.did';
+	import { idlFactory as idlFactoryWaterNeuron } from '$declarations/water_neuron';
 	import { fade } from 'svelte/transition';
 	import { HttpAgent, Actor } from '@dfinity/agent';
 	import { CANISTER_ID_WATER_NEURON, HOST } from '$lib/authentification';
-	import { idlFactory as idlFactoryWaterNeuron } from '$lib/../declarations/water_neuron';
 
 	let withdrawalRequests: WithdrawalDetails[];
 	let withdrawalStatuses: {
@@ -34,7 +31,7 @@
 	}
 
 	const fetchWithdrawals = async () => {
-		if ($user && $state) {
+		if ($user) {
 			const agent = new HttpAgent({
 				host: HOST
 			});
@@ -60,7 +57,7 @@
 	};
 
 	const fetchStatuses = async () => {
-		if ($user && $state) {
+		if ($user) {
 			for (const detail of withdrawalRequests) {
 				const neuronId = detail.request.neuron_id;
 				if (neuronId.length !== 0) {
@@ -191,7 +188,7 @@
 	/* === Base Styles ==== */
 	h1 {
 		text-align: center;
-		font-family: var(--font-type1);
+		font-family: var(--main-font);
 	}
 
 	table {

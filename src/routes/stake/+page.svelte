@@ -100,7 +100,7 @@
 	h1 {
 		color: white;
 		font-size: 42px;
-		font-family: var(--font-type1);
+		font-family: var(--main-font);
 	}
 
 	h2 {

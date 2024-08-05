@@ -48,12 +48,20 @@
 
 		<link rel="manifest" href="/manifest.json" crossorigin="anonymous" />
 		<script defer data-domain="waterneuron.fi" src="https://plausible.io/js/script.js"></script>
+		<script type="application/ld+json">
+			{
+				"@context": "https://schema.org",
+				"@type": "Organization",
+				"url": "https://waterneuron.fi",
+				"logo": "https://waterneuron.fi/favicons/favicon.ico"
+			}
+		</script>
 
 		<!-- Twitter -->
 		<meta property="twitter:card" content="summary_large_image" />
 		<meta property="twitter:title" content="WaterNeuron" />
 		<meta property="twitter:description" content="Liquid stake ICP" />
-		<meta property="twitter:image" content="http://example.com/image.jpg" />
+		<meta property="twitter:image" content="%sveltekit.assets%/twitter-card-min.png" />
 		<!-- Optional: Add an image URL -->
 
 		%sveltekit.head%

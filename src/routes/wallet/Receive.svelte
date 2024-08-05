@@ -116,7 +116,7 @@
 	}
 
 	span {
-		font-family: var(--font-type2);
+		font-family: var(--secondary-font);
 		display: flex;
 		align-items: center;
 	}
@@ -126,13 +126,13 @@
 	}
 
 	p {
-		font-family: var(--font-type2);
+		font-family: var(--secondary-font);
 		overflow-wrap: anywhere;
 		font-size: 14px;
 	}
 
 	h3 {
-		font-family: var(--font-type2);
+		font-family: var(--secondary-font);
 		font-size: 16px;
 	}
 
@@ -166,7 +166,7 @@
 		align-items: center;
 		padding: 0 2%;
 		width: 100%;
-		font-family: var(--font-type2);
+		font-family: var(--secondary-font);
 	}
 
 	.principal-container {

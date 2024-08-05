@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { AssetType, displayUsFormat, isMobile } from '$lib';
-	import { user, selectedAsset, inSendingMenu, state, inReceivingMenu } from '$lib/stores';
+	import { user, selectedAsset, inSendingMenu, inReceivingMenu } from '$lib/stores';
 	import BigNumber from 'bignumber.js';
 	import { onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
@@ -8,17 +8,6 @@
 	import UpIcon from '$lib/icons/UpIcon.svelte';
 
 	export let asset;
-	let wtnAllocation: BigNumber;
-
-	const fetchAllocation = async () => {
-		if ($state && $user) wtnAllocation = await $state.wtnAllocation($user.principal);
-	};
-	onMount(() => {
-		fetchAllocation();
-		const intervalId = setInterval(fetchAllocation, 5000);
-
-		return () => clearInterval(intervalId);
-	});
 </script>
 
 <div class="token-balance-container" in:fade={{ duration: 500 }}>
@@ -77,8 +66,8 @@
 			{:else}
 				Airdrop Allocation:
 			{/if}
-			{#if wtnAllocation}
-				{displayUsFormat(wtnAllocation)}
+			{#if $user}
+				{displayUsFormat($user.wtnAllocation())}
 			{:else}
 				-/-
 			{/if} WTN
@@ -89,7 +78,7 @@
 <style>
 	/* === Base Styles === */
 	p {
-		font-family: var(--font-type2);
+		font-family: var(--secondary-font);
 	}
 
 	/* === Layout === */
@@ -119,7 +108,7 @@
 		top: 50%;
 		width: 60%;
 		margin-top: 1em;
-		font-family: var(--font-type2);
+		font-family: var(--secondary-font);
 	}
 
 	.mobile-action-btn {

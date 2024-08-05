@@ -8,22 +8,14 @@
 		E8S,
 		isContainerHigher
 	} from '$lib';
-	import { inSendingMenu, selectedAsset, user, toasts, state, inputValue } from '$lib/stores';
+	import { inSendingMenu, selectedAsset, user, toasts, canisters, inputValue } from '$lib/stores';
 	import { onMount } from 'svelte';
 	import { Toast } from '$lib/toast';
 	import BigNumber from 'bignumber.js';
 	import { type Account, AccountIdentifier } from '@dfinity/ledger-icp';
 	import { Principal } from '@dfinity/principal';
-	import {
-		handleIcrcTransferResult,
-		handleTransferResult,
-		type ConversionResult
-	} from '$lib/ledger';
-	import type {
-		Tokens,
-		TransferArgs,
-		TransferArg
-	} from '../../declarations/nns-ledger/nns-ledger.did';
+	import { handleIcrcTransferResult, handleTransferResult, type ToastResult } from '$lib/resultHandler';
+	import type { Tokens, TransferArgs, TransferArg } from '$declarations/icp_ledger.did';
 	import { fade } from 'svelte/transition';
 
 	let principal: string;
@@ -38,8 +30,7 @@
 
 	function getReceiver(input: string): Principal | AccountIdentifier | undefined {
 		try {
-			const principal = Principal.fromText(input);
-			return principal;
+			return Principal.fromText(input);
 		} catch (e) {
 			if ($selectedAsset.type === AssetType.ICP) {
 				try {
@@ -67,7 +58,7 @@
 	}
 
 	async function icrcTransfer(amount: BigNumber, input: string) {
-		if (isSending || amount.isNaN() || !isValidAmount(amount) || !principal || !$state) return;
+		if (isSending || amount.isNaN() || !isValidAmount(amount) || !principal || !$canisters) return;
 
 		isSending = true;
 		const amount_e8s = numberToBigintE8s(amount);
@@ -78,12 +69,12 @@
 		}
 
 		try {
-			let status: ConversionResult;
+			let status: ToastResult;
 			switch ($selectedAsset.type) {
 				case AssetType.ICP:
 					{
 						if (receiver instanceof Principal) {
-							const transferResult = await $state.icpLedger.icrc1_transfer({
+							const transferResult = await $canisters.icpLedger.icrc1_transfer({
 								to: {
 									owner: receiver,
 									subaccount: []
@@ -96,7 +87,7 @@
 							} as TransferArg);
 							status = handleIcrcTransferResult(transferResult, Asset.fromText('ICP'));
 						} else {
-							const transferResult = await $state.icpLedger.transfer({
+							const transferResult = await $canisters.icpLedger.transfer({
 								to: receiver.toUint8Array(),
 								fee: { e8s: 10000n } as Tokens,
 								memo: 0n,
@@ -110,7 +101,7 @@
 					break;
 				case AssetType.nICP:
 					{
-						const transferResult = await $state.nicpLedger.icrc1_transfer({
+						const transferResult = await $canisters.nicpLedger.icrc1_transfer({
 							to: {
 								owner: receiver,
 								subaccount: []
@@ -126,7 +117,7 @@
 					break;
 				case AssetType.WTN:
 					{
-						const transferResult = await $state.wtnLedger.icrc1_transfer({
+						const transferResult = await $canisters.wtnLedger.icrc1_transfer({
 							to: {
 								owner: receiver,
 								subaccount: []
@@ -203,7 +194,7 @@
 				<button
 					class="max-btn"
 					on:click={() => {
-						const fee = BigNumber(2).multipliedBy($selectedAsset.getTransferFee());
+						const fee = $selectedAsset.getTransferFee();
 						const amount =
 							$user && $user.getBalance($selectedAsset.type).isGreaterThanOrEqualTo(fee)
 								? $user.getBalance($selectedAsset.type).minus(fee)
@@ -288,11 +279,11 @@
 	}
 
 	p {
-		font-family: var(--font-type2);
+		font-family: var(--secondary-font);
 	}
 
 	span {
-		font-family: var(--font-type2);
+		font-family: var(--secondary-font);
 		display: flex;
 		align-items: center;
 	}
@@ -320,7 +311,7 @@
 		justify-content: space-between;
 		align-items: center;
 		padding: 0 2%;
-		font-family: var(--font-type2);
+		font-family: var(--secondary-font);
 	}
 
 	.button-container {

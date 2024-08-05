@@ -41,9 +41,14 @@ export default defineConfig({
 	resolve: {
 		alias: [
 			{
-				find: 'declarations',
-				replacement: fileURLToPath(new URL('../declarations', import.meta.url))
+				find: '$declarations',
+				replacement: fileURLToPath(new URL('./src/declarations', import.meta.url))
+			},
+			{
+				find: '$lib',
+				replacement: fileURLToPath(new URL('./src/lib', import.meta.url))
 			}
-		]
+		],
+		extensions: ['.js', '.json', '.ts', '.svelte', '.did.d.ts']
 	}
 });
