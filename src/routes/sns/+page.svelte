@@ -125,8 +125,7 @@
 					<button class="action-btn" on:click={notifyIcpDeposit}>Confirm</button>
 				</div>
 			</div>
-		</div>
-		<div class="step-container" in:fade={{ duration: 500 }}>
+			<div class="step-container" in:fade={{ duration: 500 }}>
 			<div class="instruction-container">
 				<span class="round">3</span>
 				<span>Retrieve Nicp.</span>
@@ -135,6 +134,8 @@
 				<button class="action-btn" on:click={retrieveNicp}>Retrieve</button>
 			</div>
 		</div>
+		</div>
+		
 	{/key}
 </div>
 
