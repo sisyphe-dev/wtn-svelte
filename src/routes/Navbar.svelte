@@ -12,9 +12,13 @@
 			<h1 id="blue-wave">WaterNeuron</h1>
 		</div>
 	</a>
+	<div class="right-container">
+	<a href="/sns"  class="smart">
+			SNS
+		</a>
 	{#if !$user}
 		<button
-			class="connect-btn"
+			class="smart"
 			on:click={() => {
 				isLogging.set(true);
 			}}
@@ -22,25 +26,22 @@
 			Connect
 		</button>
 	{:else}
-		<div class="wallet-actions-container">
 			<a href="/wallet" class="wallet-btn" id="wallet-info">
 				<h2 style:font-weight={'bold'}>{displayPrincipal($user.principal)}</h2>
 				<p id="special">{displayUsFormat($user.icpBalance())} ICP</p>
 				<p>{displayUsFormat($user.nicpBalance())} nICP</p>
 				<p>{displayUsFormat($user.wtnBalance())} WTN</p>
 			</a>
-			<a href="/stake">
-				<button
-					id="disconnect-btn"
-					class="wallet-action-btn"
-					on:click={async () => {
-						await internetIdentityLogout();
-						user.set(undefined);
-					}}
-				>
-					<img src="/icon/power-off.svg" width="15em" height="15em" alt="Disconnect Icon" />
-				</button>
-			</a>
+			<button
+				id="disconnect-btn"
+				class="wallet-action-btn"
+				on:click={async () => {
+					await internetIdentityLogout();
+					user.set(undefined);
+				}}
+			>
+				<img src="/icon/power-off.svg" width="15em" height="15em" alt="Disconnect Icon" />
+			</button>
 			<button
 				id="menu-btn"
 				class="wallet-action-btn"
@@ -58,8 +59,8 @@
 					<path d="M120-240v-80h720v80H120Zm0-200v-80h720v80H120Zm0-200v-80h720v80H120Z"></path>
 				</svg>
 			</button>
-		</div>
 	{/if}
+	</div>
 </nav>
 
 <style>
@@ -139,13 +140,24 @@
 		position: relative;
 	}
 
+	.right-container {
+		display: flex;
+		align-items: center; 
+		gap: 1em;
+	}
+
 	/* === Components === */
-	.connect-btn {
+	.smart {
 		display: flex;
 		align-items: center;
-		height: 2em;
+		height: fit-content;
 		font-size: 16px;
-		padding: 1.3em 0.5em;
+		padding: 0.5em;
+		margin: 0;
+	}
+
+	.smart:hover {
+		background-color: #1e3466;
 	}
 
 	.wallet-action-btn {
