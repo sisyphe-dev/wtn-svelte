@@ -146,7 +146,7 @@
 							height="20px"
 						/>
 					</div>
-					{}
+					{/if}
 				</div>
 				<div class="step-container" in:fade={{ duration: 500 }}>
 					<div class="instruction-container">
