@@ -60,7 +60,7 @@
 	/* === Base Styles === */
 	button {
 		gap: 0.3em;
-		border-radius: 0.8px;
+		border-radius: 8px;
 		border: 2px solid black;
 		box-shadow: 3px 3px 0 0 black;
 		width: 100%;
