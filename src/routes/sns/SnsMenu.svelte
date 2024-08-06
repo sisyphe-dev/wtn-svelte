@@ -47,6 +47,19 @@
 					>
 				</div>
 			{/each}
+				<div class="sns-btn-container">
+
+				<button
+						class="sns-btn-selection"
+						class:selected-sns={selection === 'Custom'}
+						on:click={() => {
+							selectedSns.set('Custom');
+							selection = 'Custom';
+							snsPrincipal.set('');
+							inSnsMenu.set(false);
+						}}>{'Custom'}</button
+					>
+					</div>
 		</div>
 	</div>
 </div>

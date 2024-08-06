@@ -22,6 +22,15 @@
 					>
 				</div>
 			{/each}
+			<button
+						class:selected-sns={selection === 'Custom'}
+						class:default-sns={selection !== 'Custom'}
+						on:click={() => {
+							selectedSns.set('Custom');
+							selection = 'Custom';
+							snsPrincipal.set('');
+						}}>{'Custom'}</button
+					>
 		</div>
 	{:else}
 		<div class="select-container">

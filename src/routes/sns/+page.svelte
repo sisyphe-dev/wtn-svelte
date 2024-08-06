@@ -16,11 +16,21 @@
 	export let data;
 
 	let accountId: string;
+	let principal: string;
 	let icpBalance: BigNumber;
 	let nicpBalance: BigNumber;
 
 	let isConfirmBusy: boolean;
 	let isRetrieveBusy: boolean;
+
+	function isPrincipalValid(input: string): boolean {
+		try {
+			Principal.fromText(input);
+			return true;
+		} catch (error) {
+			return false;
+		}
+	}
 
 	const setAccountId = async (principal: string) => {
 		if (!$canisters) return;
@@ -29,6 +39,9 @@
 				accountId = account;
 			});
 		} catch (error) {
+			accountId ="-/-";
+			icpBalance = undefined;
+			nicpBalance = undefined;
 			console.log(error);
 		}
 	};
@@ -83,28 +96,40 @@
 		}
 	}
 
-	async function fetchSnsBalances() {
+	async function fetchSnsBalances (principal: string) {
 		if (!$canisters) return;
 		try {
-			const principal = Principal.fromText($snsPrincipal);
-			icpBalance = bigintE8sToNumber(await fetchIcpBalance(principal, $canisters.icpLedger));
-			nicpBalance = bigintE8sToNumber(await fetchNicpBalance(principal, $canisters.nicpLedger));
+			const p = Principal.fromText(principal);
+			icpBalance = bigintE8sToNumber(await fetchIcpBalance(p, $canisters.icpLedger));
+			nicpBalance = bigintE8sToNumber(await fetchNicpBalance(p, $canisters.nicpLedger));
 		} catch (error) {
 			console.log(error);
 		}
 	}
 	afterUpdate(() => {
-		setAccountId($snsPrincipal);
+		if ($selectedSns === 'Custom') {
+			setAccountId(principal);
+		} else {
+			setAccountId($snsPrincipal);
+		}
 	});
 
 	onMount(() => {
 		signIn('reload').then(() => {
-			fetchSnsBalances();
+			if ($selectedSns !== 'Custom') {
+				fetchSnsBalances($snsPrincipal);
+			}
 		});
 
 		const intervalId = setInterval(async () => {
-			await fetchSnsBalances();
-		}, 5000);
+			if ($selectedSns === 'Custom') {
+				if (isPrincipalValid(principal)) {
+					await fetchSnsBalances(principal);
+				}
+			} else {
+			await fetchSnsBalances($snsPrincipal);
+			}
+		}, 1000);
 
 		return () => clearInterval(intervalId);
 	});
@@ -135,11 +160,17 @@
 				<div class="header-container">
 					<h1>Stake <span style:color="var(--main-color)">{$selectedSns}</span> Treasury</h1>
 					<span style:color="white"
-						>Goverance id:<a
+						>Goverance id:
+							{#if $selectedSns === 'Custom'}
+								<input type="text" placeholder="Address" bind:value={principal} />
+							{:else}
+						<a
 							target="blank"
 							href="https://dashboard.internetcomputer.org/canister/{$snsPrincipal}"
 							>{$snsPrincipal}</a
-						></span
+						>
+						{/if}
+						</span
 					>
 				</div>
 				<div class="balances-container">
@@ -150,12 +181,12 @@
 							class="balance">{displayUsFormat(icpBalance)} ICP</a
 						>
 					{:else}
-						<span>-/-</span>
+						<span class="balance">-/- ICP</span>
 					{/if}
 					{#if nicpBalance}
 						<span class="balance">{displayUsFormat(nicpBalance)} nICP</span>
 					{:else}
-						<span>-/-</span>
+						<span class="balance">-/- nICP</span>
 					{/if}
 				</div>
 			</div>
@@ -246,6 +277,18 @@
 		font-family: var(--main-font);
 		align-self: center;
 		margin: 0;
+	}
+
+	input {
+		border: none;
+		padding-left: 0.4em;
+		height: 2em;
+		font-size: 15px;
+		color: white;
+		background: rgb(30, 52, 102);
+		outline: none;
+		margin-left: 1em;
+		border-radius: 0.4em;
 	}
 
 	/* === Layout === */
