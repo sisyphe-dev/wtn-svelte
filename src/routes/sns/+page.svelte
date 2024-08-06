@@ -289,7 +289,7 @@
 		align-items: start;
 		justify-content: start;
 		gap: 2em;
-		padding: 1em;
+		padding: 3em;
 	}
 
 	.step-container {

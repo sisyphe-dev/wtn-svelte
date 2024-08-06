@@ -153,12 +153,18 @@
 		button {
 			display: flex;
 			width: 80%;
-			justify-content: space-between;
+			justify-content: center;
+			position: relative;
 			padding: 1em;
 			font-size: 16px;
 			border-radius: 8px;
 			border: 2px solid var(--main-color);
 			background-color: rgba(107, 249, 201, 0.5);
+		}
+
+		img {
+			position: absolute;
+			right: 1em;
 		}
 	}
 </style>
