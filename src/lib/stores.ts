@@ -51,3 +51,17 @@ function createInputValue() {
 }
 
 export const inputValue = createInputValue();
+
+export function handleInput(event: Event): void {
+	const target = event.target as HTMLInputElement;
+	const value = target.value;
+	const regex = /^[0-9]*([\.][0-9]*)?$/;
+
+	if (regex.test(value)) {
+		inputValue.set(value);
+	} else {
+		inputValue.set(value.substring(0, value.length - 1));
+		target.value = value.substring(0, value.length - 1);
+	}
+}
+

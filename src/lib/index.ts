@@ -1,7 +1,6 @@
 import { Principal } from '@dfinity/principal';
 import BigNumber from 'bignumber.js';
 import type { WithdrawalStatus } from '../declarations/water_neuron/water_neuron.did';
-import { inputValue } from './stores';
 
 export const E8S = BigNumber(10).pow(BigNumber(8));
 
@@ -147,26 +146,6 @@ export function computeRewards(alreadyDistributed: BigNumber, converting: BigNum
 	return totalRewards;
 }
 
-export function nicpLeftUntilNextTier(alreadyDistributed: BigNumber): {
-	nicpLeft: BigNumber;
-	rate: BigNumber;
-} {
-	let cumulativeAmount = BigNumber(alreadyDistributed);
-
-	for (const [threshold, rate] of TIERS) {
-		const nicpThreshold = BigNumber(threshold);
-		const allocationRate = BigNumber(rate);
-		if (cumulativeAmount.isGreaterThan(nicpThreshold)) {
-			cumulativeAmount = cumulativeAmount.minus(nicpThreshold);
-			continue;
-		}
-		const nicpLeftBeforeNextTier = nicpThreshold.minus(cumulativeAmount);
-		return { nicpLeft: nicpLeftBeforeNextTier, rate: allocationRate };
-	}
-
-	return { nicpLeft: BigNumber(0), rate: BigNumber(0) };
-}
-
 export function renderStatus(status: WithdrawalStatus): string {
 	const key = Object.keys(status)[0] as keyof WithdrawalStatus;
 	switch (key) {
@@ -221,21 +200,6 @@ export function displayTimeLeft(created_at: number, isMobile = false) {
 	return `Less than an hour left`;
 }
 
-export function handleInput(event: Event): void {
-	const target = event.target as HTMLInputElement;
-	const value = target.value;
-	const regex = /^[0-9]*([\.][0-9]*)?$/;
-
-	if (regex.test(value)) {
-		inputValue.set(value);
-	} else {
-		inputValue.set(value.substring(0, value.length - 1));
-		target.value = value.substring(0, value.length - 1);
-	}
-}
-
-export const isMobile = window.innerWidth <= 767;
-
 export function isContainerHigher(type: 'receive' | 'send'): boolean {
 	let name: string;
 	switch (type) {
@@ -253,3 +217,5 @@ export function isContainerHigher(type: 'receive' | 'send'): boolean {
 
 	return containerHeight >= viewportHeight;
 }
+
+export const isMobile = typeof window !== 'undefined' && window.innerWidth <= 767;

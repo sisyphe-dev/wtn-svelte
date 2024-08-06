@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { Asset, handleInput } from '$lib';
-	import { inputValue, user } from '$lib/stores';
+	import { Asset } from '$lib';
+	import { inputValue, user, handleInput } from '$lib/stores';
 	import { fade } from 'svelte/transition';
 	import BigNumber from 'bignumber.js';
 
