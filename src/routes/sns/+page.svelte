@@ -134,13 +134,11 @@
 			<div class="top-container">
 				<div class="header-container">
 					<h1>Stake <span style:color="var(--main-color)">{$selectedSns}</span> Treasury</h1>
-					<p>
-						Goverance id: <a
+						 <a
 							target="blank"
 							href="https://dashboard.internetcomputer.org/canister/{$snsPrincipal}"
-							>{$snsPrincipal}</a
+							>Goverance id: {$snsPrincipal}</a
 						>
-					</p>
 				</div>
 				<div class="balances-container">
 					{#if icpBalance}
@@ -231,7 +229,10 @@
 	}
 
 	a {
-		color: var(--main-color);
+		text-decoration: none;
+		color: white;
+		padding: 1em;
+		font-family: var(--secondary-font);
 	}
 
 	h1 {
