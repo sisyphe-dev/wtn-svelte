@@ -1,5 +1,5 @@
 {
-	"sns": [
+	"metadata": [
 		{
 			"name": "BOOM DAO",
 			"governance_id": "xomae-vyaaa-aaaaq-aabhq-cai",
@@ -29,11 +29,6 @@
 			"name": "Gold DAO",
 			"governance_id": "tr3th-kiaaa-aaaaq-aab6q-cai",
 			"treasury": 52874
-		},
-		{
-			"name": "Hot Or Not",
-			"governance_id": "6wcax-haaaa-aaaaq-aaava-cai",
-			"treasury": 705024
 		},
 		{
 			"name": "ICLighthouse DAO",
@@ -86,14 +81,14 @@
 			"treasury": 174000
 		},
 		{
-			"name": "WaterNeuron",
-			"governance_id": "n76cn-tyaaa-aaaam-acc5a-cai",
-			"treasury": 174000
-		},
-		{
 			"name": "Yuku DAO",
 			"governance_id": "auadn-oqaaa-aaaaq-aacya-cai",
 			"treasury": 118000
+		},
+		{
+			"name": "YRAL",
+			"governance_id": "6wcax-haaaa-aaaaq-aaava-cai",
+			"treasury": 705024
 		}
 	]
 }

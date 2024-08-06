@@ -27,7 +27,6 @@
 	} from '$lib/state';
 	import { signIn } from '$lib/authentification';
 	import Toast from './Toast.svelte';
-	import sns from './sns/sns_metadata.json';
 
 	async function updateBalances() {
 		if ($canisters && $user) {
@@ -71,7 +70,7 @@
 {#if $inMobileMenu}
 	<Menu />
 {:else if $inSnsMenu}
-	<SnsMenu data={sns} />
+	<SnsMenu />
 {:else}
 	<div class="page-container">
 		<Navbar />

@@ -1,36 +1,34 @@
 <script lang="ts">
 	import { selectedSns, snsPrincipal, inSnsMenu } from '$lib/stores';
 	import { isMobile } from '$lib';
-
-	export let data;
-	let selection = 'BOOM DAO';
+	import snsMetadata from './sns_metadata.json';
 </script>
 
 <div class="sns-selection-container">
 	{#if !isMobile}
 		<div class="sns-listing">
-			{#each data.sns as sns}
+			{#each snsMetadata.metadata as sns}
 				<div class="sns-btn-container">
 					<button
-						class:selected-sns={selection === sns.name}
-						class:default-sns={selection !== sns.name}
+						class:selected-sns={$selectedSns === sns.name}
+						class:default-sns={$selectedSns !== sns.name}
 						on:click={() => {
 							selectedSns.set(sns.name);
-							selection = sns.name;
 							snsPrincipal.set(sns.governance_id);
 						}}>{sns.name}</button
 					>
 				</div>
 			{/each}
-			<button
-						class:selected-sns={selection === 'Custom'}
-						class:default-sns={selection !== 'Custom'}
-						on:click={() => {
-							selectedSns.set('Custom');
-							selection = 'Custom';
-							snsPrincipal.set('');
-						}}>{'Custom'}</button
-					>
+			<div class="sns-btn-container">
+				<button
+					class:selected-sns={$selectedSns === 'Custom'}
+					class:default-sns={$selectedSns !== 'Custom'}
+					on:click={() => {
+						selectedSns.set('Custom');
+						snsPrincipal.set('');
+					}}>{'Custom'}</button
+				>
+			</div>
 		</div>
 	{:else}
 		<div class="select-container">

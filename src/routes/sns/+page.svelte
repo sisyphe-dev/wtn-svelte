@@ -13,10 +13,7 @@
 	import { signIn } from '$lib/authentification';
 	import { fetchIcpBalance, fetchNicpBalance } from '$lib/state';
 
-	export let data;
-
 	let accountId: string;
-	let principal: string;
 	let icpBalance: BigNumber;
 	let nicpBalance: BigNumber;
 
@@ -32,74 +29,72 @@
 		}
 	}
 
-	const setAccountId = async (principal: string) => {
-		if (!$canisters) return;
-		try {
-			$canisters.boomerang.get_staking_account_id(Principal.fromText(principal)).then((account) => {
-				accountId = account;
-			});
-		} catch (error) {
-			accountId ="-/-";
+	const setAccountId = async () => {
+		if ($canisters && isPrincipalValid($snsPrincipal)) {
+			try {
+				$canisters.boomerang
+					.get_staking_account_id(Principal.fromText($snsPrincipal))
+					.then((account) => {
+						accountId = account;
+					});
+			} catch (error) {
+				console.log(error);
+			}
+		} else {
+			accountId = '-/-';
 			icpBalance = undefined;
 			nicpBalance = undefined;
-			console.log(error);
 		}
 	};
 
 	const notifyIcpDeposit = async () => {
-		if ($isBusy || !$canisters) return;
+		if ($isBusy || !$canisters || !isPrincipalValid($snsPrincipal)) return;
 		try {
 			isBusy.set(true);
 			isConfirmBusy = true;
 			const boomerangResult = await $canisters.boomerang.notify_icp_deposit(
 				Principal.fromText($snsPrincipal)
 			);
-
 			const result = handleSnsIcpDepositResult(boomerangResult);
 			if (result.success) {
 				toasts.add(Toast.success(result.message));
 			} else {
 				toasts.add(Toast.error(result.message));
 			}
-			isBusy.set(false);
-			isConfirmBusy = false;
 		} catch (error) {
 			console.log(error);
-			toasts.add(Toast.error('Call failed.'));
-			isBusy.set(false);
-			isConfirmBusy = false;
+			toasts.add(Toast.error('Notify ICP deposit call failed, please retry.'));
 		}
+		isBusy.set(false);
+		isConfirmBusy = false;
 	};
 
 	async function retrieveNicp() {
-		if ($isBusy || !$canisters) return;
+		if ($isBusy || !$canisters || !isPrincipalValid($snsPrincipal)) return;
 		try {
 			isBusy.set(true);
 			isRetrieveBusy = true;
 			const retrieveResult = await $canisters.boomerang.retrieve_nicp(
 				Principal.fromText($snsPrincipal)
 			);
-
 			const result = await handleSnsRetrieveNicpResult(retrieveResult);
 			if (result.success) {
 				toasts.add(Toast.success(result.message));
 			} else {
 				toasts.add(Toast.error(result.message));
 			}
-			isBusy.set(false);
-			isRetrieveBusy = false;
 		} catch (error) {
 			console.log(error);
-			toasts.add(Toast.error('Call failed.'));
-			isBusy.set(false);
-			isRetrieveBusy = false;
+			toasts.add(Toast.error('Retrieve nICP call failed, please retry.'));
 		}
+		isBusy.set(false);
+		isRetrieveBusy = false;
 	}
 
-	async function fetchSnsBalances (principal: string) {
-		if (!$canisters) return;
+	async function fetchSnsBalances() {
+		if (!$canisters || !isPrincipalValid($snsPrincipal)) return;
 		try {
-			const p = Principal.fromText(principal);
+			const p = Principal.fromText($snsPrincipal);
 			icpBalance = bigintE8sToNumber(await fetchIcpBalance(p, $canisters.icpLedger));
 			nicpBalance = bigintE8sToNumber(await fetchNicpBalance(p, $canisters.nicpLedger));
 		} catch (error) {
@@ -107,11 +102,7 @@
 		}
 	}
 	afterUpdate(() => {
-		if ($selectedSns === 'Custom') {
-			setAccountId(principal);
-		} else {
-			setAccountId($snsPrincipal);
-		}
+		setAccountId($snsPrincipal);
 	});
 
 	onMount(() => {
@@ -122,13 +113,7 @@
 		});
 
 		const intervalId = setInterval(async () => {
-			if ($selectedSns === 'Custom') {
-				if (isPrincipalValid(principal)) {
-					await fetchSnsBalances(principal);
-				}
-			} else {
 			await fetchSnsBalances($snsPrincipal);
-			}
 		}, 1000);
 
 		return () => clearInterval(intervalId);
@@ -153,25 +138,23 @@
 
 <StatsWidget />
 <div class="sns-stake-container" in:fade>
-	<SnsListing {data} />
+	<SnsListing />
 	{#key $selectedSns}
 		<div class="boomerang-container" in:fade={{ duration: 500 }}>
 			<div class="top-container">
 				<div class="header-container">
 					<h1>Stake <span style:color="var(--main-color)">{$selectedSns}</span> Treasury</h1>
-					<span style:color="white"
-						>
-							{#if $selectedSns === 'Custom'}
-								Principal: <input type="text" placeholder="Address" bind:value={principal} />
-							{:else}
-						Goverance id: <a
-							target="blank"
-							href="https://dashboard.internetcomputer.org/canister/{$snsPrincipal}"
-							>{$snsPrincipal}</a
-						>
+					<span style:color="white">
+						{#if $selectedSns === 'Custom'}
+							Principal: <input type="text" placeholder="Address" bind:value={$snsPrincipal} />
+						{:else}
+							Goverance id: <a
+								target="blank"
+								href="https://dashboard.internetcomputer.org/canister/{$snsPrincipal}"
+								>{$snsPrincipal}</a
+							>
 						{/if}
-						</span
-					>
+					</span>
 				</div>
 				<div class="balances-container">
 					{#if icpBalance}
@@ -195,10 +178,10 @@
 					<div class="number-step-container">
 						<span class="round">1</span>
 					</div>
-					<span
-						>Submit a proposal to transfer part of the SNS Treasury to the following account
-						identifier.</span
-					>
+					<span>
+						Submit a proposal to transfer ICP from the SNS Treasury to the following account
+						identifier.
+					</span>
 				</div>
 				<div class="principal-container">
 					<p>{accountId}</p>
@@ -236,7 +219,7 @@
 					<div class="number-step-container">
 						<span class="round">3</span>
 					</div>
-					<span>Collect the minted nICP tokens to the SNS principal.</span>
+					<span>Collect the minted nICP tokens to the governance canister of the SNS.</span>
 				</div>
 				{#if isRetrieveBusy}
 					<button class="action-btn">
@@ -347,7 +330,7 @@
 		width: 100%;
 		justify-content: center;
 		align-items: center;
-		gap:0.5em;
+		gap: 0.5em;
 	}
 
 	.instruction-container {

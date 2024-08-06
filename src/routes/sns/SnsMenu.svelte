@@ -1,9 +1,7 @@
 <script>
 	import { inSnsMenu, user, snsPrincipal, selectedSns } from '$lib/stores';
 	import { internetIdentityLogout } from '$lib/authentification';
-
-	export let data;
-	let selection = $selectedSns ?? 'BOOM DAO';
+	import snsMetadata from './sns_metadata.json';
 </script>
 
 <div class="background-menu">
@@ -33,33 +31,30 @@
 			</button>
 		</div>
 		<div class="sns-listing">
-			{#each data.sns as sns}
+			{#each snsMetadata.metadata as sns}
 				<div class="sns-btn-container">
 					<button
 						class="sns-btn-selection"
-						class:selected-sns={selection === sns.name}
+						class:selected-sns={$selectedSns === sns.name}
 						on:click={() => {
 							selectedSns.set(sns.name);
-							selection = sns.name;
 							snsPrincipal.set(sns.governance_id);
 							inSnsMenu.set(false);
 						}}>{sns.name}</button
 					>
 				</div>
 			{/each}
-				<div class="sns-btn-container">
-
+			<div class="sns-btn-container">
 				<button
-						class="sns-btn-selection"
-						class:selected-sns={selection === 'Custom'}
-						on:click={() => {
-							selectedSns.set('Custom');
-							selection = 'Custom';
-							snsPrincipal.set('');
-							inSnsMenu.set(false);
-						}}>{'Custom'}</button
-					>
-					</div>
+					class="sns-btn-selection"
+					class:selected-sns={$selectedSns === 'Custom'}
+					on:click={() => {
+						selectedSns.set('Custom');
+						snsPrincipal.set('');
+						inSnsMenu.set(false);
+					}}>{'Custom'}</button
+				>
+			</div>
 		</div>
 	</div>
 </div>
