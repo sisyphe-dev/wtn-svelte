@@ -134,11 +134,9 @@
 			<div class="top-container">
 				<div class="header-container">
 					<h1>Stake <span style:color="var(--main-color)">{$selectedSns}</span> Treasury</h1>
-						 <a
-							target="blank"
-							href="https://dashboard.internetcomputer.org/canister/{$snsPrincipal}"
-							>Goverance id: {$snsPrincipal}</a
-						>
+					<a target="blank" href="https://dashboard.internetcomputer.org/canister/{$snsPrincipal}"
+						>Goverance id: {$snsPrincipal}</a
+					>
 				</div>
 				<div class="balances-container">
 					{#if icpBalance}
@@ -312,8 +310,9 @@
 		display: flex;
 		flex-direction: column;
 		align-items: end;
-		width: 100%;
+		width: fit-content;
 		position: absolute;
+		right: 0;
 	}
 
 	/* === Component === */
