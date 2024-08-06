@@ -331,7 +331,7 @@
 		box-shadow: rgba(41, 49, 71, 0.1) 0px 8px 16px;
 		width: 30em;
 		max-width: 97vw;
-		height: auto;
+		height: 40em;
 	}
 
 	.header-container {

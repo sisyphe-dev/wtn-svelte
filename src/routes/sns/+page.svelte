@@ -160,11 +160,11 @@
 				<div class="header-container">
 					<h1>Stake <span style:color="var(--main-color)">{$selectedSns}</span> Treasury</h1>
 					<span style:color="white"
-						>Goverance id:
+						>
 							{#if $selectedSns === 'Custom'}
-								<input type="text" placeholder="Address" bind:value={principal} />
+								Principal: <input type="text" placeholder="Address" bind:value={principal} />
 							{:else}
-						<a
+						Goverance id: <a
 							target="blank"
 							href="https://dashboard.internetcomputer.org/canister/{$snsPrincipal}"
 							>{$snsPrincipal}</a
@@ -177,7 +177,7 @@
 					{#if icpBalance}
 						<a
 							target="blank"
-							href="https://dashboard.internetcomputer.org/canister/{$snsPrincipal}"
+							href="https://dashboard.internetcomputer.org/account/{accountId}"
 							class="balance">{displayUsFormat(icpBalance)} ICP</a
 						>
 					{:else}
