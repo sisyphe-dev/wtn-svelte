@@ -130,10 +130,6 @@
 		position: absolute;
 	}
 
-	.wallet-actions-container {
-		margin: 0;
-	}
-
 	.wave-title {
 		position: relative;
 	}
