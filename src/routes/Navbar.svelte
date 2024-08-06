@@ -13,7 +13,6 @@
 		</div>
 	</a>
 	<div class="right-container">
-		<a href="/sns" class="smart"> SNS </a>
 		{#if !$user}
 			<button
 				class="smart"

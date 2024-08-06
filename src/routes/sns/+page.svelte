@@ -134,13 +134,21 @@
 			<div class="top-container">
 				<div class="header-container">
 					<h1>Stake <span style:color="var(--main-color)">{$selectedSns}</span> Treasury</h1>
-					<a target="blank" href="https://dashboard.internetcomputer.org/canister/{$snsPrincipal}"
-						>Goverance id: {$snsPrincipal}</a
+					<span style:color="white"
+						>Goverance id:<a
+							target="blank"
+							href="https://dashboard.internetcomputer.org/canister/{$snsPrincipal}"
+							>{$snsPrincipal}</a
+						></span
 					>
 				</div>
 				<div class="balances-container">
 					{#if icpBalance}
-						<span class="balance">{displayUsFormat(icpBalance)} ICP</span>
+						<a
+							target="blank"
+							href="https://dashboard.internetcomputer.org/canister/{$snsPrincipal}"
+							class="balance">{displayUsFormat(icpBalance)} ICP</a
+						>
 					{:else}
 						<span>-/-</span>
 					{/if}
@@ -227,9 +235,8 @@
 	}
 
 	a {
-		text-decoration: none;
 		color: white;
-		padding: 1em;
+		padding: 0.5em;
 		font-family: var(--secondary-font);
 	}
 
@@ -354,6 +361,7 @@
 		display: flex;
 		text-align: end;
 		width: fit-content;
+		padding: 0;
 		color: white;
 		font-family: var(--main-font);
 		font-size: 18px;
