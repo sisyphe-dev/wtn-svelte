@@ -347,6 +347,7 @@
 		width: 100%;
 		justify-content: center;
 		align-items: center;
+		gap:0.5em;
 	}
 
 	.instruction-container {
