@@ -50,7 +50,7 @@
 		height: 3em;
 		font-size: 20px;
 		color: white;
-		background: rgb(30, 52, 102);
+		background: var(--input-color);
 		outline: none;
 		width: 80%;
 	}
@@ -68,7 +68,7 @@
 		align-items: center;
 		border-radius: 1em;
 		padding: 1em;
-		background: rgb(30, 52, 102);
+		background: var(--input-color);
 	}
 
 	/* === Components === */
@@ -80,7 +80,7 @@
 		align-items: center;
 		padding: 1em;
 		color: white;
-		background: rgb(30, 52, 102);
+		background: var(--input-color);
 		gap: 1em;
 		cursor: pointer;
 	}

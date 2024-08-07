@@ -14,7 +14,11 @@
 	import BigNumber from 'bignumber.js';
 	import { type Account, AccountIdentifier } from '@dfinity/ledger-icp';
 	import { Principal } from '@dfinity/principal';
-	import { handleIcrcTransferResult, handleTransferResult, type ToastResult } from '$lib/resultHandler';
+	import {
+		handleIcrcTransferResult,
+		handleTransferResult,
+		type ToastResult
+	} from '$lib/resultHandler';
 	import type { Tokens, TransferArgs, TransferArg } from '$declarations/icp_ledger.did';
 	import { fade } from 'svelte/transition';
 
@@ -271,7 +275,7 @@
 		height: 3em;
 		font-size: 16px;
 		color: white;
-		background: rgb(30, 52, 102);
+		background: var(--input-color);
 		outline: none;
 		margin-left: 1em;
 		width: 90%;

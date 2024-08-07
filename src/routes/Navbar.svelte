@@ -86,7 +86,7 @@
 	}
 
 	button:hover {
-		background-color: #1e3466;
+		background-color: var(--input-color);
 	}
 
 	div {
@@ -174,7 +174,7 @@
 		align-items: end;
 	}
 	#wallet-info:hover {
-		background-color: #1e3466;
+		background-color: var(--input-color);
 	}
 
 	/* === Utillities === */
