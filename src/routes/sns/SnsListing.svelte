@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { selectedSns, snsPrincipal, inSnsMenu } from '$lib/stores';
+	import { selectedSns, snsPrincipal, inSnsMenu, snsHex } from '$lib/stores';
 	import { isMobile } from '$lib';
 	import snsMetadata from './sns_metadata.json';
 </script>
@@ -13,8 +13,11 @@
 						class:selected-sns={$selectedSns === sns.name}
 						class:default-sns={$selectedSns !== sns.name}
 						on:click={() => {
-							selectedSns.set(sns.name);
-							snsPrincipal.set(sns.governance_id);
+							if ($selectedSns !== sns.name) {
+								snsPrincipal.set(sns.governance_id);
+								snsHex.set('-/-');
+								selectedSns.set(sns.name);
+							}
 						}}>{sns.name}</button
 					>
 				</div>
@@ -24,8 +27,11 @@
 					class:selected-sns={$selectedSns === 'Custom'}
 					class:default-sns={$selectedSns !== 'Custom'}
 					on:click={() => {
-						selectedSns.set('Custom');
-						snsPrincipal.set('');
+						if ($selectedSns !== 'Custom') {
+							selectedSns.set('Custom');
+							snsPrincipal.set('');
+							snsHex.set('-/-');
+						}
 					}}>{'Custom'}</button
 				>
 			</div>
@@ -90,6 +96,7 @@
 		display: flex;
 		flex-direction: column;
 		width: 20%;
+		flex-grow: 1;
 		align-items: center;
 		gap: 1em;
 		padding: 1em;
@@ -102,7 +109,7 @@
 		display: flex;
 		overflow-y: scroll;
 		width: 100%;
-		max-height: 25em;
+		max-height: 30em;
 		flex-direction: column;
 		margin: 1em;
 		padding: 0;

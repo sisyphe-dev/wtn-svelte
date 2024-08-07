@@ -41,16 +41,11 @@ export const idlFactory = ({ IDL }) => {
 		TooOld: IDL.Null,
 		InsufficientFunds: IDL.Record({ balance: IDL.Nat })
 	});
-	const GuardError = IDL.Variant({
-		AlreadyProcessing: IDL.Null,
-		TooManyConcurrentRequests: IDL.Null
-	});
 	const ConversionError = IDL.Variant({
 		GenericError: IDL.Record({ code: IDL.Int32, message: IDL.Text }),
 		TransferError: TransferError,
 		AmountTooLow: IDL.Record({ minimum_amount_e8s: IDL.Nat64 }),
-		TransferFromError: TransferFromError,
-		GuardError: IDL.Record({ guard_error: GuardError })
+		TransferFromError: TransferFromError
 	});
 	const ApproveError = IDL.Variant({
 		GenericError: IDL.Record({
@@ -84,8 +79,8 @@ export const idlFactory = ({ IDL }) => {
 	});
 	const Result_2 = IDL.Variant({ Ok: IDL.Nat, Err: BoomerangError });
 	return IDL.Service({
-		get_staking_account_id: IDL.Func([IDL.Principal], [IDL.Text], ['query']),
-		get_unstaking_account: IDL.Func([IDL.Principal], [Account], ['query']),
+		get_staking_account: IDL.Func([IDL.Principal], [Account], []),
+		get_unstaking_account: IDL.Func([IDL.Principal], [Account], []),
 		notify_icp_deposit: IDL.Func([IDL.Principal], [Result], []),
 		notify_nicp_deposit: IDL.Func([IDL.Principal], [Result_1], []),
 		retrieve_nicp: IDL.Func([IDL.Principal], [Result_2], []),

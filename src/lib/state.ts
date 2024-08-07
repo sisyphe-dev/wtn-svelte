@@ -73,7 +73,6 @@ async function createSecp256k1IdentityActor(
 	const dummyAgent = Promise.resolve(new HttpAgent({ host: HOST, identity: dummyIdentity })).then(
 		async (agent) => {
 			if (process.env.DFX_NETWORK !== 'ic') {
-				console.log('fetching root key');
 				agent.fetchRootKey().catch((err) => {
 					console.warn(
 						'Unable to fetch root key. Check to ensure that your local replica is running'
