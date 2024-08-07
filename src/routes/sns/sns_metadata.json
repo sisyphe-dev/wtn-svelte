@@ -71,6 +71,11 @@
 			"treasury": 116000
 		},
 		{
+			"name": "Sneed",
+			"governance_id": "fi3zi-fyaaa-aaaaq-aachq-cai",
+			"treasury": 21856
+		},
+		{
 			"name": "Sonic",
 			"governance_id": "qgj7v-3qaaa-aaaaq-aabwa-cai",
 			"treasury": 295800
