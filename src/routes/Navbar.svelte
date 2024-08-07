@@ -15,6 +15,7 @@
 	<div class="right-container">
 		{#if !$user}
 			<button
+				title="connect-btn"
 				class="smart"
 				on:click={() => {
 					isLogging.set(true);
