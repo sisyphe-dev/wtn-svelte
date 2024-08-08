@@ -11,35 +11,33 @@
 			<h1 id="static-header">WaterNeuron</h1>
 		</div>
 	</a>
-	{#if !$user}
-		<button
-			class="connect-btn"
-			on:click={() => {
-				isLogging.set(true);
-			}}
-		>
-			Connect
-		</button>
-	{:else}
-		<div class="wallet-actions-container">
+	<div class="right-container">
+		{#if !$user}
+			<button
+				class="smart"
+				on:click={() => {
+					isLogging.set(true);
+				}}
+			>
+				Connect
+			</button>
+		{:else}
 			<a href="/wallet" class="wallet-btn" id="wallet-info">
 				<h2 style:font-weight={'bold'}>{displayPrincipal($user.principal)}</h2>
 				<p id="special">{displayUsFormat($user.icpBalance())} ICP</p>
 				<p>{displayUsFormat($user.nicpBalance())} nICP</p>
 				<p>{displayUsFormat($user.wtnBalance())} WTN</p>
 			</a>
-			<a href="/stake">
-				<button
-					id="disconnect-btn"
-					class="wallet-action-btn"
-					on:click={async () => {
-						await internetIdentityLogout();
-						user.set(undefined);
-					}}
-				>
-					<img src="/icon/power-off.svg" width="15em" height="15em" alt="Disconnect Icon" />
-				</button>
-			</a>
+			<button
+				id="disconnect-btn"
+				class="wallet-action-btn"
+				on:click={async () => {
+					await internetIdentityLogout();
+					user.set(undefined);
+				}}
+			>
+				<img src="/icon/power-off.svg" width="15em" height="15em" alt="Disconnect Icon" />
+			</button>
 			<button
 				id="menu-btn"
 				class="wallet-action-btn"
@@ -57,8 +55,8 @@
 					<path d="M120-240v-80h720v80H120Zm0-200v-80h720v80H120Zm0-200v-80h720v80H120Z"></path>
 				</svg>
 			</button>
-		</div>
-	{/if}
+		{/if}
+	</div>
 </nav>
 
 <style>
@@ -130,21 +128,28 @@
 		position: absolute;
 	}
 
-	.wallet-actions-container {
-		margin: 0;
-	}
-
 	.wave-title {
 		position: relative;
 	}
 
-	/* === Components === */
-	.connect-btn {
+	.right-container {
 		display: flex;
 		align-items: center;
-		height: 2em;
+		gap: 1em;
+	}
+
+	/* === Components === */
+	.smart {
+		display: flex;
+		align-items: center;
+		height: fit-content;
 		font-size: 16px;
-		padding: 1.3em 0.5em;
+		padding: 0.5em;
+		margin: 0;
+	}
+
+	.smart:hover {
+		background-color: #1e3466;
 	}
 
 	.wallet-action-btn {

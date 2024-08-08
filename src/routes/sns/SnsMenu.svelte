@@ -1,0 +1,136 @@
+<script>
+	import { inSnsMenu, user, snsPrincipal, selectedSns, encodedSnsIcrcAccount } from '$lib/stores';
+	import { internetIdentityLogout } from '$lib/authentification';
+	import snsMetadata from './sns_metadata.json';
+</script>
+
+<div class="background-menu">
+	<div class="menu-container">
+		<div class="header-container">
+			<h1>Select SNS</h1>
+			<button
+				class="close-btn"
+				on:click={() => {
+					inSnsMenu.set(false);
+				}}
+			>
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					width="32px"
+					height="32px"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="white"
+					stroke-width="2"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+				>
+					<line x1="18" y1="6" x2="6" y2="18"></line>
+					<line x1="6" y1="6" x2="18" y2="18"></line>
+				</svg>
+			</button>
+		</div>
+		<div class="sns-listing">
+			{#each snsMetadata.metadata as sns}
+				<div class="sns-btn-container">
+					<button
+						class="sns-btn-selection"
+						class:selected-sns={$selectedSns === sns.name}
+						on:click={() => {
+							if ($selectedSns !== sns.name) {
+								snsPrincipal.set(sns.governance_id);
+								encodedSnsIcrcAccount.set('-/-');
+								selectedSns.set(sns.name);
+							}
+							inSnsMenu.set(false);
+						}}>{sns.name}</button
+					>
+				</div>
+			{/each}
+			<div class="sns-btn-container">
+				<button
+					class="sns-btn-selection"
+					class:selected-sns={$selectedSns === 'Custom'}
+					on:click={() => {
+						if ($selectedSns !== 'Custom') {
+							snsPrincipal.set('');
+							encodedSnsIcrcAccount.set('-/-');
+							selectedSns.set(sns.name);
+						}
+						inSnsMenu.set(false);
+					}}>{'Custom'}</button
+				>
+			</div>
+		</div>
+	</div>
+</div>
+
+<style>
+	/* === Base Styles === */
+	h1 {
+		font-family: var(--main-font);
+		color: white;
+	}
+	/* === Layout === */
+	.background-menu {
+		height: fit-content;
+		width: 100vw;
+		background: radial-gradient(farthest-corner circle at 0% 0%, rgb(18 69 89), #0f0f4d);
+		z-index: 1;
+	}
+
+	.menu-container {
+		display: flex;
+		height: fit-content;
+		width: 100%;
+		align-items: center;
+		flex-direction: column;
+	}
+
+	.header-container {
+		display: flex;
+		justify-content: space-between;
+		width: 90%;
+	}
+
+	.sns-btn-container {
+		width: 100%;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+
+	/* === Component === */
+	.close-btn {
+		background: none;
+		border: none;
+	}
+	.sns-listing {
+		display: flex;
+		width: 100%;
+		height: fit-content;
+		flex-direction: column;
+		margin: 0;
+		padding: 0;
+		gap: 1em;
+	}
+
+	.sns-btn-selection {
+		color: white;
+		cursor: pointer;
+		display: flex;
+		width: 80%;
+		justify-content: center;
+		padding: 1em;
+		font-size: 16px;
+		border-radius: 8px;
+		border: 2px solid transparent;
+		background: none;
+	}
+
+	/* === Utilities === */
+	.selected-sns {
+		border: 2px solid var(--main-color);
+		background-color: rgba(107, 249, 201, 0.5);
+	}
+</style>
