@@ -1,5 +1,5 @@
 <script>
-	import { inSnsMenu, user, snsPrincipal, selectedSns, snsHex } from '$lib/stores';
+	import { inSnsMenu, user, snsPrincipal, selectedSns, encodedSnsIcrcAccount } from '$lib/stores';
 	import { internetIdentityLogout } from '$lib/authentification';
 	import snsMetadata from './sns_metadata.json';
 </script>
@@ -39,7 +39,7 @@
 						on:click={() => {
 							if ($selectedSns !== sns.name) {
 								snsPrincipal.set(sns.governance_id);
-								snsHex.set('-/-');
+								encodedSnsIcrcAccount.set('-/-');
 								selectedSns.set(sns.name);
 							}
 							inSnsMenu.set(false);
@@ -54,7 +54,7 @@
 					on:click={() => {
 						if ($selectedSns !== 'Custom') {
 							snsPrincipal.set('');
-							snsHex.set('-/-');
+							encodedSnsIcrcAccount.set('-/-');
 							selectedSns.set(sns.name);
 						}
 						inSnsMenu.set(false);
