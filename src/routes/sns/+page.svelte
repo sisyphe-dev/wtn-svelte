@@ -4,7 +4,7 @@
 	import CopyIcon from '$lib/icons/CopyIcon.svelte';
 	import { fade, scale } from 'svelte/transition';
 	import { afterUpdate, onMount } from 'svelte';
-	import { snsPrincipal, selectedSns, canisters, isBusy, toasts, snsHex } from '$lib/stores';
+	import { snsPrincipal, selectedSns, canisters, isBusy, toasts, encodedSnsIcrcAccount } from '$lib/stores';
 	import { Toast } from '$lib/toast';
 	import { handleSnsIcpDepositResult, handleSnsRetrieveNicpResult } from '$lib/resultHandler';
 	import { Principal } from '@dfinity/principal';
@@ -43,14 +43,14 @@
 				});
 
 				if (hex !== previousHex) {
-					snsHex.set(hex);
+					encodedSnsIcrcAccount.set(hex);
 					previousHex = hex;
 				}
 			} catch (error) {
 				console.log(error);
 			}
 		} else {
-			snsHex.set('-/-');
+			encodedSnsIcrcAccount.set('-/-');
 			icpBalance = undefined;
 			nicpBalance = undefined;
 		}
@@ -196,12 +196,12 @@
 				</div>
 				<div class="account-container">
 					<div class="principal-container">
-						<p>{$snsHex}</p>
+						<p>{$encodedSnsIcrcAccount}</p>
 						<button
 							class="copy-btn"
 							on:click={() => {
 								handleAnimation('subaccount');
-								navigator.clipboard.writeText($snsHex);
+								navigator.clipboard.writeText($encodedSnsIcrcAccount);
 							}}
 						>
 							<CopyIcon />

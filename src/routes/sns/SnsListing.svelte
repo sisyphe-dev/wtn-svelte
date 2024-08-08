@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { selectedSns, snsPrincipal, inSnsMenu, snsHex } from '$lib/stores';
+	import { selectedSns, snsPrincipal, inSnsMenu, encodedSnsIcrcAccount } from '$lib/stores';
 	import { isMobile } from '$lib';
 	import snsMetadata from './sns_metadata.json';
 </script>
@@ -15,7 +15,7 @@
 						on:click={() => {
 							if ($selectedSns !== sns.name) {
 								snsPrincipal.set(sns.governance_id);
-								snsHex.set('-/-');
+								encodedSnsIcrcAccount.set('-/-');
 								selectedSns.set(sns.name);
 							}
 						}}>{sns.name}</button
@@ -30,7 +30,7 @@
 						if ($selectedSns !== 'Custom') {
 							selectedSns.set('Custom');
 							snsPrincipal.set('');
-							snsHex.set('-/-');
+							encodedSnsIcrcAccount.set('-/-');
 						}
 					}}>{'Custom'}</button
 				>
