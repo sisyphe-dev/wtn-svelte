@@ -13,11 +13,6 @@
 	import { displayUsFormat, bigintE8sToNumber } from '$lib';
 	import { signIn, CANISTER_ID_BOOMERANG } from '$lib/authentification';
 	import { fetchIcpBalance, fetchNicpBalance } from '$lib/state';
-	import {
-		uint8ArrayToHexString,
-		bigEndianCrc32,
-		encodeBase32
-	} from '@dfinity/utils';
 	import { encodeIcrcAccount } from '@dfinity/ledger-icrc';
 
 	let icpBalance: BigNumber;
