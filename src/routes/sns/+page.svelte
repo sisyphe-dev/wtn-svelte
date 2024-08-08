@@ -328,6 +328,9 @@
 		flex-direction: column;
 		gap: 1em;
 		width: 100%;
+		height: 4em;
+		justify-content: center;
+		align-items: center;
 	}
 
 	.number-step-container {
