@@ -25,6 +25,3 @@ vite.config.ts.timestamp-*
 package-lock.json
 
 dist/
-
-playwright-report/
-test-results/

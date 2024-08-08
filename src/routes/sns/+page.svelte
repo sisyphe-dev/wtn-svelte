@@ -15,11 +15,9 @@
 	import { fetchIcpBalance, fetchNicpBalance } from '$lib/state';
 	import {
 		uint8ArrayToHexString,
-		hexStringToUint8Array,
 		bigEndianCrc32,
 		encodeBase32
 	} from '@dfinity/utils';
-	import { decodeIcrcAccount } from '@dfinity/ledger-icrc';
 
 	let icpBalance: BigNumber;
 	let nicpBalance: BigNumber;
