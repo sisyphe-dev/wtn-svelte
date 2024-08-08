@@ -88,6 +88,7 @@
 		--main-color: oklab(0.88 -0.18 0.03);
 		--border-color: rgb(102, 173, 255);
 		--background-color: rgb(12, 44, 76);
+		--input-color: #1e3466;
 		--text-color: rgb(176, 163, 217);
 		--orange-color: #fa796e;
 		--main-font: 'Akrobat-black';
@@ -151,7 +152,7 @@
 		min-height: 45vh;
 		flex-grow: 1;
 		width: 100%;
-		gap: 1.5em;
+		gap: 3em;
 		padding-top: 2em;
 		margin-bottom: 4em;
 		color: white;

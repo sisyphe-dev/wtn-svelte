@@ -4,19 +4,26 @@
 	import CopyIcon from '$lib/icons/CopyIcon.svelte';
 	import { fade, scale } from 'svelte/transition';
 	import { afterUpdate, onMount } from 'svelte';
-	import { snsPrincipal, selectedSns, canisters, isBusy, toasts } from '$lib/stores';
+	import { snsPrincipal, selectedSns, canisters, isBusy, toasts, snsHex } from '$lib/stores';
 	import { Toast } from '$lib/toast';
 	import { handleSnsIcpDepositResult, handleSnsRetrieveNicpResult } from '$lib/resultHandler';
 	import { Principal } from '@dfinity/principal';
+	import { type Account, SubAccount, AccountIdentifier } from '@dfinity/ledger-icp';
 	import BigNumber from 'bignumber.js';
 	import { displayUsFormat, bigintE8sToNumber } from '$lib';
-	import { signIn } from '$lib/authentification';
+	import { signIn, CANISTER_ID_BOOMERANG } from '$lib/authentification';
 	import { fetchIcpBalance, fetchNicpBalance } from '$lib/state';
+	import {
+		uint8ArrayToHexString,
+		hexStringToUint8Array,
+		bigEndianCrc32,
+		encodeBase32
+	} from '@dfinity/utils';
+	import { decodeIcrcAccount } from '@dfinity/ledger-icrc';
 
-	let accountId: string;
 	let icpBalance: BigNumber;
 	let nicpBalance: BigNumber;
-
+	let previousHex: string;
 	let isConfirmBusy: boolean;
 	let isRetrieveBusy: boolean;
 
@@ -29,19 +36,30 @@
 		}
 	}
 
-	const setAccountId = async () => {
+	const setAccount = async () => {
 		if ($canisters && isPrincipalValid($snsPrincipal)) {
 			try {
-				$canisters.boomerang
-					.get_staking_account_id(Principal.fromText($snsPrincipal))
-					.then((account) => {
-						accountId = account;
-					});
+				const account = await $canisters.boomerang.get_staking_account(
+					Principal.fromText($snsPrincipal)
+				);
+
+				const crc = bigEndianCrc32(
+					Uint8Array.from([...account.owner.toUint8Array(), ...account.subaccount[0]])
+				);
+				const crc32 = encodeBase32(crc);
+
+				const hex =
+					CANISTER_ID_BOOMERANG + '-' + crc32 + '.' + uint8ArrayToHexString(account.subaccount[0]);
+
+				if (hex !== previousHex) {
+					snsHex.set(hex);
+					previousHex = hex;
+				}
 			} catch (error) {
 				console.log(error);
 			}
 		} else {
-			accountId = '-/-';
+			snsHex.set('-/-');
 			icpBalance = undefined;
 			nicpBalance = undefined;
 		}
@@ -102,7 +120,7 @@
 		}
 	}
 	afterUpdate(() => {
-		setAccountId($snsPrincipal);
+		setAccount($snsPrincipal);
 	});
 
 	onMount(() => {
@@ -114,26 +132,29 @@
 
 		const intervalId = setInterval(async () => {
 			await fetchSnsBalances($snsPrincipal);
-		}, 1000);
+		}, 10000);
 
 		return () => clearInterval(intervalId);
 	});
 
 	let isAnimating = false;
-	let circleVisible = false;
+	let isCircleOwnerVisible = false;
+	let isCircleSubaccountVisible = false;
 
-	function handleAnimation() {
+	const handleAnimation = (target: 'owner' | 'subaccount') => {
 		if (!isAnimating) {
 			isAnimating = true;
-			circleVisible = true;
+			isCircleOwnerVisible = target === 'owner';
+			isCircleSubaccountVisible = target === 'subaccount';
 			setTimeout(() => {
-				circleVisible = false;
+				isCircleOwnerVisible = false;
+				isCircleSubaccountVisible = false;
 				setTimeout(() => {
 					isAnimating = false;
 				}, 500);
 			}, 500);
 		}
-	}
+	};
 </script>
 
 <StatsWidget />
@@ -151,7 +172,7 @@
 							Goverance id: <a
 								target="blank"
 								href="https://dashboard.internetcomputer.org/canister/{$snsPrincipal}"
-								>{$snsPrincipal}</a
+								class="dashboard">{$snsPrincipal}</a
 							>
 						{/if}
 					</span>
@@ -160,8 +181,8 @@
 					{#if icpBalance}
 						<a
 							target="blank"
-							href="https://dashboard.internetcomputer.org/account/{accountId}"
-							class="balance">{displayUsFormat(icpBalance)} ICP</a
+							href="https://dashboard.internetcomputer.org/account/"
+							class="balance dashboard">{displayUsFormat(icpBalance)} ICP</a
 						>
 					{:else}
 						<span class="balance">-/- ICP</span>
@@ -179,32 +200,40 @@
 						<span class="round">1</span>
 					</div>
 					<span>
-						Submit a proposal to transfer ICP from the SNS Treasury to the following account
-						identifier.
+						Submit a proposal to transfer ICP from the SNS Treasury to the following destination.
 					</span>
 				</div>
-				<div class="principal-container">
-					<p>{accountId}</p>
-					<button
-						class="copy-btn"
-						on:click={() => {
-							handleAnimation();
-							navigator.clipboard.writeText(accountId);
-						}}
-					>
-						<CopyIcon />
-						{#if circleVisible}
-							<div class="circle" transition:scale={{ duration: 500 }}></div>
-						{/if}
-					</button>
+				<div class="account-container">
+					<div class="principal-container">
+						<p>{$snsHex}</p>
+						<button
+							class="copy-btn"
+							on:click={() => {
+								handleAnimation('subaccount');
+								navigator.clipboard.writeText($snsHex);
+							}}
+						>
+							<CopyIcon />
+							{#if isCircleSubaccountVisible}
+								<div class="circle" transition:scale={{ duration: 500 }}></div>
+							{/if}
+						</button>
+					</div>
 				</div>
+				<a
+					class="action-btn"
+					href="https://proposals.network/submit?g={$snsPrincipal}"
+					target="blank"
+				>
+					Make a proposal
+				</a>
 			</div>
 			<div class="step-container" in:fade={{ duration: 500 }}>
 				<div class="instruction-container">
 					<div class="number-step-container">
 						<span class="round">2</span>
 					</div>
-					<span>Once the proposal is approved, notify the protocol of the transfer.</span>
+					<span>Once the proposal is executed, notify the protocol of the transfer.</span>
 				</div>
 				{#if isConfirmBusy}
 					<button class="action-btn">
@@ -248,7 +277,7 @@
 		margin: 0;
 	}
 
-	a {
+	.dashboard {
 		color: white;
 		padding: 0.5em;
 		font-family: var(--secondary-font);
@@ -280,6 +309,7 @@
 		border: 2px solid #66adff;
 		border-radius: 10px;
 		display: flex;
+		width: 70em;
 	}
 
 	.boomerang-container {
@@ -306,8 +336,14 @@
 	.principal-container {
 		display: flex;
 		align-items: center;
-		width: 100%;
 		justify-content: center;
+	}
+
+	.account-container {
+		display: flex;
+		flex-direction: column;
+		gap: 1em;
+		width: 100%;
 	}
 
 	.number-step-container {
@@ -354,16 +390,17 @@
 		background: var(--main-color);
 		border: 2px solid black;
 		border-radius: 8px;
-		font-size: 16px;
 		box-shadow: 3px 3px 0 0 black;
-		padding: 0.5em 1em;
 		font-size: 16px;
 		font-weight: bold;
+		font-family: var(--secondary-font);
 		display: flex;
 		justify-content: center;
 		align-items: center;
 		width: 15em;
 		height: 3em;
+		text-decoration: none;
+		color: black;
 	}
 
 	.action-btn:hover {
@@ -472,7 +509,7 @@
 			display: none;
 		}
 
-		a {
+		.dashboard {
 			font-size: 15px;
 		}
 	}

@@ -26,7 +26,9 @@ const INTERNET_IDENTITY_CANISTER_ID = DEV
 const CANISTER_ID_WTN_LEDGER = 'jcmow-hyaaa-aaaaq-aadlq-cai';
 const CANISTER_ID_ICP_LEDGER = 'ryjl3-tyaaa-aaaaa-aaaba-cai';
 const CANISTER_ID_NICP_LEDGER = DEV ? 'ny7ez-6aaaa-aaaam-acc5q-cai' : 'buwm7-7yaaa-aaaar-qagva-cai';
-export const CANISTER_ID_BOOMERANG = DEV ? 'bd3sg-teaaa-aaaaa-qaaba-cai' : 'daijl-2yaaa-aaaar-qag3a-cai';
+export const CANISTER_ID_BOOMERANG = DEV
+	? 'bd3sg-teaaa-aaaaa-qaaba-cai'
+	: 'daijl-2yaaa-aaaar-qag3a-cai';
 export const CANISTER_ID_WATER_NEURON = DEV
 	? 'n76cn-tyaaa-aaaam-acc5a-cai'
 	: 'tsbvt-pyaaa-aaaar-qafva-cai';
@@ -174,7 +176,6 @@ export function fetchActors(agent?: HttpAgent, isInternetIdentity = false): Prom
 				});
 			}
 			if (process.env.DFX_NETWORK !== 'ic' && isInternetIdentity) {
-				console.log('fetching root key');
 				agent.fetchRootKey().catch((err) => {
 					console.warn(
 						'Unable to fetch root key. Check to ensure that your local replica is running'

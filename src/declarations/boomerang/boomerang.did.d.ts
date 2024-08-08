@@ -38,14 +38,12 @@ export type ConversionError =
 	  }
 	| { TransferError: TransferError }
 	| { AmountTooLow: { minimum_amount_e8s: bigint } }
-	| { TransferFromError: TransferFromError }
-	| { GuardError: { guard_error: GuardError } };
+	| { TransferFromError: TransferFromError };
 export interface DepositSuccess {
 	nicp_amount: [] | [bigint];
 	block_index: bigint;
 	transfer_id: bigint;
 }
-export type GuardError = { AlreadyProcessing: null } | { TooManyConcurrentRequests: null };
 export type Result = { Ok: DepositSuccess } | { Err: BoomerangError };
 export type Result_1 = { Ok: WithdrawalSuccess } | { Err: BoomerangError };
 export type Result_2 = { Ok: bigint } | { Err: BoomerangError };
@@ -77,7 +75,7 @@ export interface WithdrawalSuccess {
 	withdrawal_id: bigint;
 }
 export interface _SERVICE {
-	get_staking_account_id: ActorMethod<[Principal], string>;
+	get_staking_account: ActorMethod<[Principal], Account>;
 	get_unstaking_account: ActorMethod<[Principal], Account>;
 	notify_icp_deposit: ActorMethod<[Principal], Result>;
 	notify_nicp_deposit: ActorMethod<[Principal], Result_1>;

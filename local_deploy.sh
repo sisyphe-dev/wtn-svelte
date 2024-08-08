@@ -16,7 +16,7 @@ dfx deploy boomerang --argument '(record { water_neuron_id= principal "n76cn-tya
 
 dfx identity use icp-ident-RqOPnjj5ERjAEnwlvfKw
 
-dfx ledger transfer --memo 0 --icp 1_000_000 0be44491707d4b564caa515730dca79f70837811dd6202b2f498b26f4e59a01c
+dfx ledger transfer --memo 0 --icp 3 0be44491707d4b564caa515730dca79f70837811dd6202b2f498b26f4e59a01c
 
 # water neuron account id: 0be44491707d4b564caa515730dca79f70837811dd6202b2f498b26f4e59a01c
 
