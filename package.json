@@ -9,12 +9,13 @@
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"test": "npx playwright test",
-    "report": "npx playwright show-report",
+		"report": "npx playwright show-report",
 		"lint": "prettier --check .",
 		"format": "prettier --write ."
 	},
 	"devDependencies": {
 		"@dfinity/identity-secp256k1": "^2.0.0",
+		"@dfinity/internet-identity-playwright": "^0.0.2",
 		"@playwright/test": "^1.46.0",
 		"@sveltejs/adapter-static": "^2.0.3",
 		"@sveltejs/kit": "^1.30.4",
@@ -47,6 +48,7 @@
 		"@esbuild-plugins/node-globals-polyfill": "^0.2.3",
 		"@esbuild-plugins/node-modules-polyfill": "^0.2.2",
 		"@rollup/plugin-inject": "^5.0.5",
+		"playwright": "^1.46.0",
 		"process": "^0.11.10",
 		"qr-creator": "^1.0.0",
 		"util": "^0.12.5",

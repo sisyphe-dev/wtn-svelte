@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { mockSignIn } from './utils/mockInternetIdentity';
+import {testWithII} from '@dfinity/internet-identity-playwright';
 
 test('has title', async ({ page }) => {
 	await page.goto('/');
@@ -7,7 +7,7 @@ test('has title', async ({ page }) => {
 	await expect(page).toHaveTitle('WaterNeuron | ICP Liquid Staking');
 });
 
-test('test urls', async ({ page }) => {
+testWithII('test urls', async ({ page, iiPage }) => {
 	await page.goto('/');
   await expect(page).toHaveURL('/stake/');
 
@@ -20,8 +20,13 @@ test('test urls', async ({ page }) => {
   await page.goto('/wallet/');
   await expect(page).toHaveURL('/stake/');
 
-  await page.click('[title="ii-connect-btn"]');
+  page.goto('http://127.0.0.1:8080/?canisterId=qhbym-qaaaa-aaaaa-aaafq-cai#authorize');
+  await iiPage.signInWithNewIdentity();
+
+  await page.goto('/stake/');
+
   await page.click('[title="connect-btn"]');
 
-  await expect(page).toHaveURL("http://127.0.0.1:8080/?canisterId=qhbym-qaaaa-aaaaa-aaafq-cai#authorize")
+  await page.goto('/wallet/');
+  await expect(page).toHaveURL('/wallet/');
 });
