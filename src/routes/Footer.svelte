@@ -70,7 +70,7 @@
 		justify-content: center;
 		align-items: center;
 		position: relative;
-		height: 7em;
+		height:7em;
 		width: 10em;
 	}
 
