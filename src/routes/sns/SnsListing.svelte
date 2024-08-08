@@ -1,37 +1,31 @@
 <script lang="ts">
-	import { selectedSns, snsPrincipal, inSnsMenu, encodedSnsIcrcAccount } from '$lib/stores';
+	import { sns, inSnsMenu, canisters, handleSnsChange } from '$lib/stores';
 	import { isMobile } from '$lib';
 	import snsMetadata from './sns_metadata.json';
+	import { Principal } from '@dfinity/principal';
+	import { encodeIcrcAccount } from '@dfinity/ledger-icrc';
 </script>
 
 <div class="sns-selection-container">
 	{#if !isMobile}
 		<div class="sns-listing">
-			{#each snsMetadata.metadata as sns}
+			{#each snsMetadata.metadata as data}
 				<div class="sns-btn-container">
 					<button
-						class:selected-sns={$selectedSns === sns.name}
-						class:default-sns={$selectedSns !== sns.name}
+						class:selected-sns={$sns.name === data.name}
+						class:default-sns={$sns.name !== data.name}
 						on:click={() => {
-							if ($selectedSns !== sns.name) {
-								snsPrincipal.set(sns.governance_id);
-								encodedSnsIcrcAccount.set('-/-');
-								selectedSns.set(sns.name);
-							}
-						}}>{sns.name}</button
+							handleSnsChange(data.name, data.governance_id);
+						}}>{data.name}</button
 					>
 				</div>
 			{/each}
 			<div class="sns-btn-container">
 				<button
-					class:selected-sns={$selectedSns === 'Custom'}
-					class:default-sns={$selectedSns !== 'Custom'}
+					class:selected-sns={$sns.name === 'Custom'}
+					class:default-sns={$sns.name !== 'Custom'}
 					on:click={() => {
-						if ($selectedSns !== 'Custom') {
-							selectedSns.set('Custom');
-							snsPrincipal.set('');
-							encodedSnsIcrcAccount.set('-/-');
-						}
+						handleSnsChange();
 					}}>{'Custom'}</button
 				>
 			</div>
@@ -39,7 +33,7 @@
 	{:else}
 		<div class="select-container">
 			<button on:click={() => inSnsMenu.set(true)}>
-				<span>{$selectedSns}</span>
+				<span>{$sns.name}</span>
 				<img width="20em" height="20em" src="/icon/down-arrow.svg" alt="Down arrow." />
 			</button>
 		</div>
@@ -109,7 +103,7 @@
 		display: flex;
 		overflow-y: scroll;
 		width: 100%;
-		max-height: 30em;
+		height: 100%;
 		flex-direction: column;
 		margin: 1em;
 		padding: 0;
