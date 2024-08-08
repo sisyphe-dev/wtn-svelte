@@ -18,6 +18,7 @@
 		bigEndianCrc32,
 		encodeBase32
 	} from '@dfinity/utils';
+	import { encodeIcrcAccount } from '@dfinity/ledger-icrc';
 
 	let icpBalance: BigNumber;
 	let nicpBalance: BigNumber;
@@ -41,13 +42,10 @@
 					Principal.fromText($snsPrincipal)
 				);
 
-				const crc = bigEndianCrc32(
-					Uint8Array.from([...account.owner.toUint8Array(), ...account.subaccount[0]])
-				);
-				const crc32 = encodeBase32(crc);
-
-				const hex =
-					CANISTER_ID_BOOMERANG + '-' + crc32 + '.' + uint8ArrayToHexString(account.subaccount[0]);
+				const hex = encodeIcrcAccount({
+					owner: account.owner, 
+					subaccount: account.subaccount[0]
+				});
 
 				if (hex !== previousHex) {
 					snsHex.set(hex);
@@ -307,7 +305,6 @@
 		border: 2px solid #66adff;
 		border-radius: 10px;
 		display: flex;
-		width: 70em;
 	}
 
 	.boomerang-container {
