@@ -47,7 +47,6 @@
 		"@esbuild-plugins/node-globals-polyfill": "^0.2.3",
 		"@esbuild-plugins/node-modules-polyfill": "^0.2.2",
 		"@rollup/plugin-inject": "^5.0.5",
-		"crc": "^4.3.2",
 		"process": "^0.11.10",
 		"qr-creator": "^1.0.0",
 		"util": "^0.12.5",
