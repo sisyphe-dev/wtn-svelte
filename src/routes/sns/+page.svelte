@@ -329,7 +329,7 @@
 	.principal-container {
 		display: flex;
 		align-items: center;
-		justify-content: start;
+		justify-content: center;
 	}
 
 	.account-container {
