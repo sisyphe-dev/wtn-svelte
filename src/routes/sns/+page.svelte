@@ -43,7 +43,9 @@
 					Principal.fromText($snsPrincipal)
 				);
 
-				const crc = bigEndianCrc32(Uint8Array.from([...account.owner.toUint8Array(), ...account.subaccount[0]]));
+				const crc = bigEndianCrc32(
+					Uint8Array.from([...account.owner.toUint8Array(), ...account.subaccount[0]])
+				);
 				const crc32 = encodeBase32(crc);
 
 				const hex =
@@ -170,16 +172,17 @@
 							Goverance id: <a
 								target="blank"
 								href="https://dashboard.internetcomputer.org/canister/{$snsPrincipal}"
-								class="dashboard"
-								>{$snsPrincipal}</a
+								class="dashboard">{$snsPrincipal}</a
 							>
 						{/if}
 					</span>
 				</div>
 				<div class="balances-container">
 					{#if icpBalance}
-						<a target="blank" href="https://dashboard.internetcomputer.org/account/" class="balance dashboard"
-							>{displayUsFormat(icpBalance)} ICP</a
+						<a
+							target="blank"
+							href="https://dashboard.internetcomputer.org/account/"
+							class="balance dashboard">{displayUsFormat(icpBalance)} ICP</a
 						>
 					{:else}
 						<span class="balance">-/- ICP</span>
@@ -217,8 +220,12 @@
 						</button>
 					</div>
 				</div>
-				<a class="action-btn" href="https://proposals.network/submit?g={$snsPrincipal}" target="blank">
-						Make a proposal
+				<a
+					class="action-btn"
+					href="https://proposals.network/submit?g={$snsPrincipal}"
+					target="blank"
+				>
+					Make a proposal
 				</a>
 			</div>
 			<div class="step-container" in:fade={{ duration: 500 }}>
