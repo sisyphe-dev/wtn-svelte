@@ -275,7 +275,7 @@
 		height: 3em;
 		font-size: 16px;
 		color: white;
-		background: rgb(30, 52, 102);
+		background: var(--input-color);
 		outline: none;
 		margin-left: 1em;
 		width: 90%;

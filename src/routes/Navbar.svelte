@@ -6,10 +6,9 @@
 
 <nav class:filter={$isLogging}>
 	<a href="/stake" class="menu-selection-container">
-		<img src="/tokens/WTN.webp" width="100em" height="100em" alt="WTN logo." />
+		<img src="/tokens/WTN.webp" width="75em" height="75em" alt="WTN logo" />
 		<div class="wave-title">
 			<h1 id="static-header">WaterNeuron</h1>
-			<h1 id="blue-wave">WaterNeuron</h1>
 		</div>
 	</a>
 	<div class="right-container">
@@ -85,7 +84,7 @@
 	}
 
 	button:hover {
-		background-color: #1e3466;
+		background-color: var(--input-color);
 	}
 
 	div {
@@ -123,7 +122,7 @@
 	}
 
 	.menu-selection-container h1 {
-		font-size: 4em;
+		font-size: 2em;
 		cursor: pointer;
 		font-family: var(--main-font);
 		position: absolute;
@@ -180,65 +179,12 @@
 		align-items: end;
 	}
 	#wallet-info:hover {
-		background-color: #1e3466;
+		background-color: var(--input-color);
 	}
 
 	/* === Utillities === */
 	.filter {
 		filter: blur(5px);
-	}
-
-	/* === Animations === */
-	.wave-title:hover h1:nth-child(2) {
-		animation: wave_animation 3s ease-in-out infinite;
-	}
-
-	#blue-wave {
-		color: transparent;
-		background: linear-gradient(to right, #3dae3c, #d6fea9);
-		background-clip: text;
-		clip-path: polygon(
-			0% 35%,
-			16% 44%,
-			33% 50%,
-			54% 60%,
-			70% 61%,
-			84% 59%,
-			100% 52%,
-			100% 100%,
-			0% 100%
-		);
-	}
-
-	@keyframes wave_animation {
-		0%,
-		100% {
-			clip-path: polygon(
-				0% 35%,
-				16% 44%,
-				33% 50%,
-				54% 60%,
-				70% 61%,
-				84% 59%,
-				100% 52%,
-				100% 100%,
-				0% 100%
-			);
-		}
-
-		50% {
-			clip-path: polygon(
-				0% 60%,
-				15% 65%,
-				34% 66%,
-				51% 62%,
-				67% 50%,
-				84% 45%,
-				100% 46%,
-				100% 100%,
-				0% 100%
-			);
-		}
 	}
 
 	/* === Responsive Design === */
