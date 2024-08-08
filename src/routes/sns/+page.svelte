@@ -13,7 +13,13 @@
 	import { displayUsFormat, bigintE8sToNumber } from '$lib';
 	import { signIn, CANISTER_ID_BOOMERANG } from '$lib/authentification';
 	import { fetchIcpBalance, fetchNicpBalance } from '$lib/state';
-	import { uint8ArrayToHexString } from '@dfinity/utils';
+	import {
+		uint8ArrayToHexString,
+		hexStringToUint8Array,
+		bigEndianCrc32,
+		encodeBase32
+	} from '@dfinity/utils';
+	import { decodeIcrcAccount } from '@dfinity/ledger-icrc';
 
 	let icpBalance: BigNumber;
 	let nicpBalance: BigNumber;
@@ -36,7 +42,12 @@
 				const account = await $canisters.boomerang.get_staking_account(
 					Principal.fromText($snsPrincipal)
 				);
-				const hex = uint8ArrayToHexString(account.subaccount[0]);
+
+				const crc = bigEndianCrc32(Uint8Array.from([...account.owner.toUint8Array(), ...account.subaccount[0]]));
+				const crc32 = encodeBase32(crc);
+
+				const hex =
+					CANISTER_ID_BOOMERANG + '-' + crc32 + '.' + uint8ArrayToHexString(account.subaccount[0]);
 
 				if (hex !== previousHex) {
 					snsHex.set(hex);
@@ -159,6 +170,7 @@
 							Goverance id: <a
 								target="blank"
 								href="https://dashboard.internetcomputer.org/canister/{$snsPrincipal}"
+								class="dashboard"
 								>{$snsPrincipal}</a
 							>
 						{/if}
@@ -166,7 +178,7 @@
 				</div>
 				<div class="balances-container">
 					{#if icpBalance}
-						<a target="blank" href="https://dashboard.internetcomputer.org/account/" class="balance"
+						<a target="blank" href="https://dashboard.internetcomputer.org/account/" class="balance dashboard"
 							>{displayUsFormat(icpBalance)} ICP</a
 						>
 					{:else}
@@ -185,27 +197,12 @@
 						<span class="round">1</span>
 					</div>
 					<span>
-						Submit a proposal to transfer ICP from the SNS Treasury to the following account.
+						Submit a proposal to transfer ICP from the SNS Treasury to the following destination.
 					</span>
 				</div>
 				<div class="account-container">
 					<div class="principal-container">
-						<p>Owner: {CANISTER_ID_BOOMERANG}</p>
-						<button
-							class="copy-btn"
-							on:click={() => {
-								handleAnimation('owner');
-								navigator.clipboard.writeText(CANISTER_ID_BOOMERANG);
-							}}
-						>
-							<CopyIcon />
-							{#if isCircleOwnerVisible}
-								<div class="circle" transition:scale={{ duration: 500 }}></div>
-							{/if}
-						</button>
-					</div>
-					<div class="principal-container">
-						<p>Subaccount: {$snsHex}</p>
+						<p>{$snsHex}</p>
 						<button
 							class="copy-btn"
 							on:click={() => {
@@ -220,6 +217,9 @@
 						</button>
 					</div>
 				</div>
+				<a class="action-btn" href="https://proposals.network/submit?g={$snsPrincipal}" target="blank">
+						Make a proposal
+				</a>
 			</div>
 			<div class="step-container" in:fade={{ duration: 500 }}>
 				<div class="instruction-container">
@@ -270,7 +270,7 @@
 		margin: 0;
 	}
 
-	a {
+	.dashboard {
 		color: white;
 		padding: 0.5em;
 		font-family: var(--secondary-font);
@@ -383,16 +383,17 @@
 		background: var(--main-color);
 		border: 2px solid black;
 		border-radius: 8px;
-		font-size: 16px;
 		box-shadow: 3px 3px 0 0 black;
-		padding: 0.5em 1em;
 		font-size: 16px;
 		font-weight: bold;
+		font-family: var(--secondary-font);
 		display: flex;
 		justify-content: center;
 		align-items: center;
 		width: 15em;
 		height: 3em;
+		text-decoration: none;
+		color: black;
 	}
 
 	.action-btn:hover {
@@ -501,7 +502,7 @@
 			display: none;
 		}
 
-		a {
+		.dashboard {
 			font-size: 15px;
 		}
 	}
