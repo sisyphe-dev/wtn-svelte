@@ -300,6 +300,8 @@
 		border: 2px solid #66adff;
 		border-radius: 10px;
 		display: flex;
+		height: 38em;
+		width: 95dvw;
 	}
 
 	.boomerang-container {
@@ -334,6 +336,9 @@
 		flex-direction: column;
 		gap: 1em;
 		width: 100%;
+		height: 4em;
+		justify-content: center;
+		align-items: center;
 	}
 
 	.number-step-container {

@@ -109,7 +109,7 @@
 		display: flex;
 		overflow-y: scroll;
 		width: 100%;
-		max-height: 30em;
+		height: 100%;
 		flex-direction: column;
 		margin: 1em;
 		padding: 0;
