@@ -3,19 +3,21 @@
 	import SnsListing from './SnsListing.svelte';
 	import CopyIcon from '$lib/icons/CopyIcon.svelte';
 	import { fade, scale } from 'svelte/transition';
-	import { sns, canisters, isBusy, toasts, handleSnsChange, inputAmount } from '$lib/stores';
+	import {
+		sns,
+		canisters,
+		isBusy,
+		toasts,
+		handleSnsChange,
+		inputAmount,
+		handleInputAmount
+	} from '$lib/stores';
 	import { Toast } from '$lib/toast';
 	import { handleSnsIcpDepositResult, handleSnsRetrieveNicpResult } from '$lib/resultHandler';
 	import { Principal } from '@dfinity/principal';
 	import { type Account, AccountIdentifier } from '@dfinity/ledger-icp';
 	import BigNumber from 'bignumber.js';
-	import {
-		displayUsFormat,
-		bigintE8sToNumber,
-		isPrincipalValid,
-		handleInputAmount,
-		numberToBigintE8s
-	} from '$lib';
+	import { displayUsFormat, bigintE8sToNumber, isPrincipalValid, numberToBigintE8s } from '$lib';
 	import { signIn, CANISTER_ID_BOOMERANG } from '$lib/authentification';
 	import { fetchIcpBalance, fetchNicpBalance } from '$lib/state';
 	import { encodeIcrcAccount } from '@dfinity/ledger-icrc';

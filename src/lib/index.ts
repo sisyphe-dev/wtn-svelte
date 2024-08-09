@@ -221,19 +221,6 @@ export function displayTimeLeft(created_at: number, isMobile = false) {
 	return `Less than an hour left`;
 }
 
-export function handleInputAmount(event: Event): void {
-	const target = event.target as HTMLInputElement;
-	const value = target.value;
-	const regex = /^[0-9]*([\.][0-9]*)?$/;
-
-	if (regex.test(value)) {
-		inputAmount.set(value);
-	} else {
-		inputAmount.set(value.substring(0, value.length - 1));
-		target.value = value.substring(0, value.length - 1);
-	}
-}
-
 export const isMobile = window.innerWidth <= 767;
 
 export function isContainerHigher(type: 'receive' | 'send'): boolean {

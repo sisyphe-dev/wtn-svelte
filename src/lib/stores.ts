@@ -41,6 +41,19 @@ function createInputAmountStore() {
 
 export const inputAmount = createInputAmountStore();
 
+export function handleInputAmount(event: Event): void {
+	const target = event.target as HTMLInputElement;
+	const value = target.value;
+	const regex = /^[0-9]*([\.][0-9]*)?$/;
+
+	if (regex.test(value)) {
+		inputAmount.set(value);
+	} else {
+		inputAmount.set(value.substring(0, value.length - 1));
+		target.value = value.substring(0, value.length - 1);
+	}
+}
+
 /* === SNS === */
 function createBoomerangSnsStore() {
 	const { subscribe, set, update } = writable<{

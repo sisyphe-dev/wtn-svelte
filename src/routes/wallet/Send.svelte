@@ -3,12 +3,19 @@
 		AssetType,
 		displayUsFormat,
 		numberToBigintE8s,
-		handleInputAmount,
 		Asset,
 		E8S,
 		isContainerHigher
 	} from '$lib';
-	import { inSendingMenu, selectedAsset, user, toasts, canisters, inputAmount } from '$lib/stores';
+	import {
+		inSendingMenu,
+		selectedAsset,
+		user,
+		toasts,
+		canisters,
+		inputAmount,
+		handleInputAmount
+	} from '$lib/stores';
 	import { onMount } from 'svelte';
 	import { Toast } from '$lib/toast';
 	import BigNumber from 'bignumber.js';
