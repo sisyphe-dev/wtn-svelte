@@ -109,8 +109,8 @@
 	{#key $sns.name}
 		<div class="boomerang-container" in:fade={{ duration: 500 }}>
 			<div class="top-container">
-				<div class="header-container">
-					<h1>Stake <span style:color="var(--main-color)">{$sns.name}</span> Treasury</h1>
+				<h1>Stake <span style:color="var(--main-color)">{$sns.name}</span> Treasury</h1>
+				<div class="sns-info-container">
 					<span style:color="white">
 						{#if $sns.name === 'Custom'}
 							Principal: <input
@@ -127,8 +127,7 @@
 							>
 						{/if}
 					</span>
-				</div>
-				<div class="balances-container">
+					<div class="balances-container">
 					{#if $sns.icpBalance}
 						<a
 							target="blank"
@@ -144,6 +143,8 @@
 						<span class="balance">-/- nICP</span>
 					{/if}
 				</div>
+				</div>
+				
 			</div>
 			<div class="step-container" in:fade={{ duration: 500 }}>
 				<div class="instruction-container">
@@ -283,7 +284,7 @@
 		border: 2px solid #66adff;
 		border-radius: 10px;
 		display: flex;
-		height: 42em;
+		height: 44em;
 		width: 60em;
 		max-width: 95dvw;
 	}
@@ -334,19 +335,17 @@
 
 	.top-container {
 		display: flex;
-		justify-content: space-around;
-		width: 100%;
-		position: relative;
-		align-items: center;
-	}
-
-	.header-container {
-		display: flex;
 		flex-direction: column;
 		width: 100%;
-		justify-content: center;
 		align-items: center;
-		gap: 0.5em;
+		gap: 1em;
+	}
+
+	.sns-info-container {
+		display: flex;
+		width: 90%;
+		justify-content: space-between;
+		align-items: center;
 		height: 4em;
 	}
 
@@ -362,8 +361,6 @@
 		flex-direction: column;
 		align-items: end;
 		width: fit-content;
-		position: absolute;
-		right: 0;
 	}
 
 	/* === Component === */
@@ -476,7 +473,7 @@
 			justify-content: center;
 		}
 
-		.header-container {
+		.sns-info-container {
 			flex-direction: column;
 			gap: 1em;
 			align-items: center;
