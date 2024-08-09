@@ -8,7 +8,7 @@ export async function mockSignIn() {
 	try {
     const dummyIdentity = Ed25519KeyIdentity.generate();
     const agent = new HttpAgent({ host: "http://127.0.1:8080", identity: dummyIdentity })
-		const actors = await fetchActors(agent)
+		const actors = await fetchActors(agent);
 
 		canisters.set(new Canisters(actors));
 		user.set(new User(dummyIdentity.getPrincipal()));

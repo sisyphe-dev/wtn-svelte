@@ -1,5 +1,4 @@
 import { test, expect } from '@playwright/test';
-import {testWithII} from '@dfinity/internet-identity-playwright';
 import { mockSignIn } from './utils/mockInternetIdentity';
 
 test('has title', async ({ page }) => {
@@ -20,12 +19,14 @@ test('test urls', async ({ page }) => {
 
   await page.goto('/wallet/');
   await expect(page).toHaveURL('/stake/');
-
-  await mockSignIn();
 });
 
 test('connection', async ({page}) => {
   await page.goto('/');
-  const connectBtn = page.locator('[title="connect-btn"]');
+  let connectBtn = page.locator('[title="connect-btn"]');
   await expect(connectBtn).toBeVisible();
+
+  await mockSignIn();
+  await page.goto('/wallet/');
+  await expect(page).toHaveURL('/stake/');
 });
