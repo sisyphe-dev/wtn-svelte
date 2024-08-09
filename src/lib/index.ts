@@ -251,7 +251,5 @@ export function isPrincipalValid(input: string): boolean {
 }
 
 export function principalToHex(principal: string): string {
-	return AccountIdentifier.fromPrincipal(
-		{ principal: Principal.fromText(principal) }
-	).toHex();
+	return AccountIdentifier.fromPrincipal({ principal: Principal.fromText(principal) }).toHex();
 }

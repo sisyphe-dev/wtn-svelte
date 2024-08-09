@@ -17,7 +17,13 @@
 	import { Principal } from '@dfinity/principal';
 	import { type Account, AccountIdentifier } from '@dfinity/ledger-icp';
 	import BigNumber from 'bignumber.js';
-	import { displayUsFormat, bigintE8sToNumber, isPrincipalValid, numberToBigintE8s, principalToHex } from '$lib';
+	import {
+		displayUsFormat,
+		bigintE8sToNumber,
+		isPrincipalValid,
+		numberToBigintE8s,
+		principalToHex
+	} from '$lib';
 	import { signIn, CANISTER_ID_BOOMERANG } from '$lib/authentification';
 	import { fetchIcpBalance, fetchNicpBalance } from '$lib/state';
 	import { encodeIcrcAccount } from '@dfinity/ledger-icrc';
@@ -150,8 +156,8 @@
 				</div>
 				<div class="account-container">
 					<div class="principal-container">
-						{#if $sns.encodedAccount}
-							<p>{$sns.encodedAccount}</p>
+						{#if $sns.encodedBoomerangAccount}
+							<p>{$sns.encodedBoomerangAccount}</p>
 						{:else}
 							<p>-/-</p>
 						{/if}
@@ -159,7 +165,7 @@
 							class="copy-btn"
 							on:click={() => {
 								handleAnimation('subaccount');
-								navigator.clipboard.writeText($sns.encodedAccount);
+								navigator.clipboard.writeText($sns.encodedBoomerangAccount);
 							}}
 						>
 							<CopyIcon />
@@ -179,7 +185,7 @@
 				{#if $inputAmount}
 					<a
 						class="action-btn"
-						href="https://proposals.network/submit?g={$sns.principal}&action=TransferSnsTreasuryFunds&destination={$sns.encodedAccount}&amount={numberToBigintE8s(
+						href="https://proposals.network/submit?g={$sns.principal}&action=TransferSnsTreasuryFunds&destination={$sns.encodedBoomerangAccount}&amount={numberToBigintE8s(
 							parseFloat($inputAmount)
 						)}"
 						target="blank"
@@ -189,7 +195,7 @@
 				{:else}
 					<a
 						class="action-btn"
-						href="https://proposals.network/submit?g={$sns.principal}&action=TransferSnsTreasuryFunds&destination={$sns.encodedAccount}}"
+						href="https://proposals.network/submit?g={$sns.principal}&action=TransferSnsTreasuryFunds&destination={$sns.encodedBoomerangAccount}}"
 						target="blank"
 					>
 						Make a proposal

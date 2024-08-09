@@ -59,13 +59,13 @@ function createBoomerangSnsStore() {
 	const { subscribe, set, update } = writable<{
 		name: string;
 		principal: string;
-		encodedAccount: string | undefined;
+		encodedBoomerangAccount: string | undefined;
 		icpBalance: BigNumber | undefined;
 		nicpBalance: BigNumber | undefined;
 	}>({
 		name: '',
 		principal: '',
-		encodedAccount: undefined,
+		encodedBoomerangAccount: undefined,
 		icpBalance: undefined,
 		nicpBalance: undefined
 	});
@@ -74,17 +74,18 @@ function createBoomerangSnsStore() {
 		subscribe,
 		setPrincipal: (principal: string) => update((sns) => ({ ...sns, principal })),
 		setName: (name: string) => update((sns) => ({ ...sns, name })),
-		setEncodedAccount: (encodedAccount: string) => update((sns) => ({ ...sns, encodedAccount })),
+		setEncodedBoomerangAccount: (encodedBoomerangAccount: string) =>
+			update((sns) => ({ ...sns, encodedBoomerangAccount })),
 		setIcpBalance: (icpBalance: BigNumber) => update((sns) => ({ ...sns, icpBalance })),
 		setNicpBalance: (nicpBalance: BigNumber) => update((sns) => ({ ...sns, nicpBalance })),
 		reset: () =>
 			set({
 				name: '',
 				principal: '',
-				encodedAccount: undefined,
+				encodedBoomerangAccount: undefined,
 				icpBalance: undefined,
 				nicpBalance: undefined
-			}),
+			})
 	};
 }
 export const sns = createBoomerangSnsStore();
@@ -102,11 +103,11 @@ export const handleSnsChange = async (name?: string, principal?: string) => {
 		const account = await fetchedCanisters.boomerang.get_staking_account(
 			Principal.fromText(principal)
 		);
-		const encodedAccount = encodeIcrcAccount({
+		const encodedBoomerangAccount = encodeIcrcAccount({
 			owner: account.owner,
 			subaccount: account.subaccount[0]
 		});
-		sns.setEncodedAccount(encodedAccount);
+		sns.setEncodedBoomerangAccount(encodedBoomerangAccount);
 		const icpBalance = bigintE8sToNumber(await fetchIcpBalance(p, fetchedCanisters.icpLedger));
 		const nicpBalance = bigintE8sToNumber(await fetchNicpBalance(p, fetchedCanisters.nicpLedger));
 		sns.setIcpBalance(icpBalance);
