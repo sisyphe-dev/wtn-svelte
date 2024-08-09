@@ -14,7 +14,9 @@
 		inSnsMenu,
 		user,
 		canisters,
-		waterNeuronInfo
+		waterNeuronInfo,
+		sns,
+		handleSnsChange
 	} from '$lib/stores';
 	import { onMount } from 'svelte';
 	import {
@@ -47,6 +49,7 @@
 		signIn('reload').then(() => {
 			updateBalances();
 			updateWaterNeuronInfo();
+			handleSnsChange();
 		});
 
 		const intervalId = setInterval(async () => {

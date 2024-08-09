@@ -1,7 +1,9 @@
-<script>
-	import { inSnsMenu, user, snsPrincipal, selectedSns, encodedSnsIcrcAccount } from '$lib/stores';
+<script lang="ts">
+	import { inSnsMenu, user, sns, canisters, handleSnsChange } from '$lib/stores';
 	import { internetIdentityLogout } from '$lib/authentification';
 	import snsMetadata from './sns_metadata.json';
+	import { Principal } from '@dfinity/principal';
+	import { encodeIcrcAccount } from '@dfinity/ledger-icrc';
 </script>
 
 <div class="background-menu">
@@ -31,32 +33,24 @@
 			</button>
 		</div>
 		<div class="sns-listing">
-			{#each snsMetadata.metadata as sns}
+			{#each snsMetadata.metadata as data}
 				<div class="sns-btn-container">
 					<button
 						class="sns-btn-selection"
-						class:selected-sns={$selectedSns === sns.name}
+						class:selected-sns={$sns.name === data.name}
 						on:click={() => {
-							if ($selectedSns !== sns.name) {
-								snsPrincipal.set(sns.governance_id);
-								encodedSnsIcrcAccount.set('-/-');
-								selectedSns.set(sns.name);
-							}
+							handleSnsChange(data.name, data.governance_id);
 							inSnsMenu.set(false);
-						}}>{sns.name}</button
+						}}>{data.name}</button
 					>
 				</div>
 			{/each}
 			<div class="sns-btn-container">
 				<button
 					class="sns-btn-selection"
-					class:selected-sns={$selectedSns === 'Custom'}
+					class:selected-sns={$sns.name === 'Custom'}
 					on:click={() => {
-						if ($selectedSns !== 'Custom') {
-							snsPrincipal.set('');
-							encodedSnsIcrcAccount.set('-/-');
-							selectedSns.set(sns.name);
-						}
+						handleSnsChange();
 						inSnsMenu.set(false);
 					}}>{'Custom'}</button
 				>
