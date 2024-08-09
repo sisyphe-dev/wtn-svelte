@@ -7,7 +7,7 @@
 	import { Toast } from '$lib/toast';
 	import { handleSnsIcpDepositResult, handleSnsRetrieveNicpResult } from '$lib/resultHandler';
 	import { Principal } from '@dfinity/principal';
-	import { type Account, SubAccount, AccountIdentifier } from '@dfinity/ledger-icp';
+	import { type Account, AccountIdentifier } from '@dfinity/ledger-icp';
 	import BigNumber from 'bignumber.js';
 	import { displayUsFormat, bigintE8sToNumber, isPrincipalValid } from '$lib';
 	import { signIn, CANISTER_ID_BOOMERANG } from '$lib/authentification';
@@ -119,7 +119,7 @@
 						<a
 							target="blank"
 							href="https://dashboard.internetcomputer.org/account/{$sns.hex}"
-							class="balance dashboard">{displayUsFormat($sns.nicpBalance)} ICP</a
+							class="balance dashboard">{displayUsFormat($sns.icpBalance)} ICP</a
 						>
 					{:else}
 						<span class="balance">-/- ICP</span>
