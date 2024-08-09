@@ -201,7 +201,7 @@ export function displayTimeLeft(created_at: number, isMobile = false) {
 	return `Less than an hour left`;
 }
 
-export const isMobile = window.innerWidth <= 767;
+export const isMobile = typeof window !== 'undefined' && window.innerWidth <= 767;
 
 export function isContainerHigher(type: 'receive' | 'send'): boolean {
 	let name: string;

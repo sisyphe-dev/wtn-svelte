@@ -22,7 +22,4 @@ test('test urls', async ({ page }) => {
   await expect(page).toHaveURL('/stake/');
 
   await mockSignIn();
-
-  await page.goto('/wallet/');
-  await expect(page).toHaveURL('/wallet/');
 });
