@@ -3,7 +3,7 @@
 	import SwapInput from './SwapInput.svelte';
 	import { Toast } from '$lib/toast';
 	import {
-		inputValue,
+		inputAmount,
 		waterNeuronInfo,
 		canisters,
 		user,
@@ -161,7 +161,7 @@
 				on:click={() => {
 					stake = true;
 					invertExchangeRate = false;
-					inputValue.set('');
+					inputAmount.set('');
 				}}
 				class:selected={stake}
 				class:not-selected={!stake}><h2 class="header-txt" style:left="5%">Stake ICP</h2></button
@@ -173,7 +173,7 @@
 				on:click={() => {
 					stake = false;
 					invertExchangeRate = false;
-					inputValue.set('');
+					inputAmount.set('');
 				}}
 				class:selected={!stake}
 				class:not-selected={stake}><h2 class="header-txt" style:right="5%">Unstake nICP</h2></button
@@ -186,7 +186,7 @@
 					<p style:color="var(--orange-color)">
 						{#if exchangeRate}
 							You will receive {displayUsFormat(
-								computeReceiveAmount(stake, BigNumber($inputValue), exchangeRate),
+								computeReceiveAmount(stake, BigNumber($inputAmount), exchangeRate),
 								8
 							)} nICP
 						{:else}
@@ -214,7 +214,7 @@
 								{displayUsFormat(
 									computeRewards(
 										totalIcpDeposited,
-										computeReceiveAmount(stake, BigNumber($inputValue), exchangeRate)
+										computeReceiveAmount(stake, BigNumber($inputAmount), exchangeRate)
 									),
 									8
 								)}
@@ -234,7 +234,7 @@
 					<p style:color="var(--orange-color)">
 						{#if exchangeRate}
 							You will receive {displayUsFormat(
-								computeReceiveAmount(stake, BigNumber($inputValue), exchangeRate),
+								computeReceiveAmount(stake, BigNumber($inputAmount), exchangeRate),
 								8
 							)} ICP
 						{:else}
@@ -278,7 +278,7 @@
 				<button
 					class="swap-btn"
 					on:click={() => {
-						stake ? icpToNicp(BigNumber($inputValue)) : nicpToIcp(BigNumber($inputValue));
+						stake ? icpToNicp(BigNumber($inputAmount)) : nicpToIcp(BigNumber($inputAmount));
 					}}
 				>
 					{#if $isConverting}

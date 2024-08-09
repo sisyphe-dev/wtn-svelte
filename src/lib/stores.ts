@@ -24,6 +24,23 @@ export const user = writable<User | undefined>(undefined);
 export const canisters = writable<Canisters | undefined>(undefined);
 export const waterNeuronInfo = writable<WaterNeuronInfo | undefined>(undefined);
 
+/* === Input Amount ==== */
+function createInputAmountStore() {
+	const { subscribe, set } = writable<string>();
+
+	return {
+		subscribe,
+		change: (value: number) => {
+			const input = value.toString().replace(',', '.');
+			set(input);
+		},
+		set: (value: string) => set(value),
+		reset: () => set('')
+	};
+}
+
+export const inputAmount = createInputAmountStore();
+
 /* === SNS === */
 function createBoomerangSnsStore() {
 	const { subscribe, set, update } = writable<{
@@ -68,6 +85,7 @@ export const handleSnsChange = async (name?: string, principal?: string) => {
 	if (!fetchedCanisters) return;
 
 	sns.reset();
+	inputAmount.set('');
 	if (name && principal) {
 		sns.setName(name);
 		const p = Principal.fromText(principal);
@@ -105,34 +123,3 @@ function createToasts() {
 }
 
 export const toasts = createToasts();
-
-/* === Input Value ==== */
-function createInputValue() {
-	const { subscribe, set } = writable<string>();
-
-	return {
-		subscribe,
-		change: (value: number) => {
-			const input = value.toString().replace(',', '.');
-			set(input);
-		},
-		set: (value: string) => set(value),
-		reset: () => set('')
-	};
-}
-
-export const inputValue = createInputValue();
-
-export function handleInput(event: Event): void {
-	const target = event.target as HTMLInputElement;
-	const value = target.value;
-	const regex = /^[0-9]*([\.][0-9]*)?$/;
-
-	if (regex.test(value)) {
-		inputValue.set(value);
-	} else {
-		inputValue.set(value.substring(0, value.length - 1));
-		target.value = value.substring(0, value.length - 1);
-	}
-}
-

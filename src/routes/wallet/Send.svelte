@@ -7,7 +7,7 @@
 		E8S,
 		isContainerHigher
 	} from '$lib';
-	import { inSendingMenu, selectedAsset, user, toasts, canisters, inputValue, handleInput } from '$lib/stores';
+	import { inSendingMenu, selectedAsset, user, toasts, canisters, inputAmount } from '$lib/stores';
 	import { onMount } from 'svelte';
 	import { Toast } from '$lib/toast';
 	import BigNumber from 'bignumber.js';
@@ -148,7 +148,7 @@
 		}
 		inSendingMenu.set(false);
 		isSending = false;
-		inputValue.set('');
+		inputAmount.set('');
 	}
 </script>
 
@@ -190,7 +190,7 @@
 				<input
 					type="text"
 					maxlength="20"
-					bind:value={$inputValue}
+					bind:value={$inputAmount}
 					placeholder="Amount"
 					on:input={handleInput}
 				/>
@@ -203,16 +203,16 @@
 								? $user.getBalance($selectedAsset.type).minus(fee)
 								: BigNumber(0);
 
-						inputValue.change(amount.toNumber() && amount.toNumber() >= 0 ? amount.toNumber() : 0);
+						inputAmount.change(amount.toNumber() && amount.toNumber() >= 0 ? amount.toNumber() : 0);
 					}}
 				>
 					MAX
 				</button>
 			</div>
-			{#if BigNumber($inputValue).isGreaterThanOrEqualTo($user?.getBalance($selectedAsset.type) ?? BigNumber(0))}
+			{#if BigNumber($inputAmount).isGreaterThanOrEqualTo($user?.getBalance($selectedAsset.type) ?? BigNumber(0))}
 				<span class="error"> Not enough treasury. </span>
 			{/if}
-			{#if BigNumber($inputValue).isLessThan(BigNumber(1).dividedBy(E8S))}
+			{#if BigNumber($inputAmount).isLessThan(BigNumber(1).dividedBy(E8S))}
 				<span class="error">Minimum amount: 0.00000001</span>
 			{/if}
 		</div>
@@ -233,13 +233,13 @@
 					class="toggle-btn"
 					on:click={() => {
 						inSendingMenu.set(false);
-						inputValue.set('');
+						inputAmount.set('');
 					}}>Cancel</button
 				>
 				<button
 					class="toggle-btn"
 					on:click={() => {
-						icrcTransfer(BigNumber($inputValue), principal);
+						icrcTransfer(BigNumber($inputAmount), principal);
 					}}
 				>
 					<span>Continue</span>
