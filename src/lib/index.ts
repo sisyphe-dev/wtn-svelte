@@ -1,7 +1,7 @@
 import { Principal } from '@dfinity/principal';
 import BigNumber from 'bignumber.js';
 import type { WithdrawalStatus } from '../declarations/water_neuron/water_neuron.did';
-import { inputAmount } from './stores';
+import { AccountIdentifier } from '@dfinity/ledger-icp';
 
 export const E8S = BigNumber(10).pow(BigNumber(8));
 
@@ -248,4 +248,10 @@ export function isPrincipalValid(input: string): boolean {
 	} catch (error) {
 		return false;
 	}
+}
+
+export function principalToHex(principal: string): string {
+	return AccountIdentifier.fromPrincipal(
+		{ principal: Principal.fromText(principal) }
+	).toHex();
 }

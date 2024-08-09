@@ -17,7 +17,7 @@
 	import { Principal } from '@dfinity/principal';
 	import { type Account, AccountIdentifier } from '@dfinity/ledger-icp';
 	import BigNumber from 'bignumber.js';
-	import { displayUsFormat, bigintE8sToNumber, isPrincipalValid, numberToBigintE8s } from '$lib';
+	import { displayUsFormat, bigintE8sToNumber, isPrincipalValid, numberToBigintE8s, principalToHex } from '$lib';
 	import { signIn, CANISTER_ID_BOOMERANG } from '$lib/authentification';
 	import { fetchIcpBalance, fetchNicpBalance } from '$lib/state';
 	import { encodeIcrcAccount } from '@dfinity/ledger-icrc';
@@ -126,7 +126,7 @@
 					{#if $sns.icpBalance}
 						<a
 							target="blank"
-							href="https://dashboard.internetcomputer.org/account/{$sns.hex}"
+							href="https://dashboard.internetcomputer.org/account/{principalToHex($sns.principal)}"
 							class="balance dashboard">{displayUsFormat($sns.icpBalance)} ICP</a
 						>
 					{:else}

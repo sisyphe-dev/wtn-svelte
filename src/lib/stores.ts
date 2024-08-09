@@ -60,13 +60,11 @@ function createBoomerangSnsStore() {
 		name: string;
 		principal: string;
 		encodedAccount: string | undefined;
-		hex: string;
 		icpBalance: BigNumber | undefined;
 		nicpBalance: BigNumber | undefined;
 	}>({
 		name: '',
 		principal: '',
-		hex: '',
 		encodedAccount: undefined,
 		icpBalance: undefined,
 		nicpBalance: undefined
@@ -76,7 +74,6 @@ function createBoomerangSnsStore() {
 		subscribe,
 		setPrincipal: (principal: string) => update((sns) => ({ ...sns, principal })),
 		setName: (name: string) => update((sns) => ({ ...sns, name })),
-		setHex: (hex: string) => update((sns) => ({ ...sns, hex })),
 		setEncodedAccount: (encodedAccount: string) => update((sns) => ({ ...sns, encodedAccount })),
 		setIcpBalance: (icpBalance: BigNumber) => update((sns) => ({ ...sns, icpBalance })),
 		setNicpBalance: (nicpBalance: BigNumber) => update((sns) => ({ ...sns, nicpBalance })),
@@ -84,11 +81,10 @@ function createBoomerangSnsStore() {
 			set({
 				name: '',
 				principal: '',
-				hex: '',
 				encodedAccount: undefined,
 				icpBalance: undefined,
 				nicpBalance: undefined
-			})
+			}),
 	};
 }
 export const sns = createBoomerangSnsStore();
@@ -106,8 +102,6 @@ export const handleSnsChange = async (name?: string, principal?: string) => {
 		const account = await fetchedCanisters.boomerang.get_staking_account(
 			Principal.fromText(principal)
 		);
-		const hex = AccountIdentifier.fromPrincipal({ principal: p }).toHex();
-		sns.setHex(hex);
 		const encodedAccount = encodeIcrcAccount({
 			owner: account.owner,
 			subaccount: account.subaccount[0]
