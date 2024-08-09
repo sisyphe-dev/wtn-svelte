@@ -3,7 +3,7 @@
 	import SnsListing from './SnsListing.svelte';
 	import CopyIcon from '$lib/icons/CopyIcon.svelte';
 	import { fade, scale } from 'svelte/transition';
-	import { sns, canisters, isBusy, toasts, handleSnsChange, inputValue } from '$lib/stores';
+	import { sns, canisters, isBusy, toasts, handleSnsChange, inputAmount } from '$lib/stores';
 	import { Toast } from '$lib/toast';
 	import { handleSnsIcpDepositResult, handleSnsRetrieveNicpResult } from '$lib/resultHandler';
 	import { Principal } from '@dfinity/principal';
@@ -169,16 +169,16 @@
 					<input
 						type="text"
 						maxlength="20"
-						bind:value={$inputValue}
+						bind:value={$inputAmount}
 						placeholder="Amount"
 						on:input={handleInput}
 					/>
 				</div>
-				{#if $inputValue}
+				{#if $inputAmount}
 				<a
 					class="action-btn"
 					href="https://proposals.network/submit?g={$sns.principal}&action=TransferSnsTreasuryFunds&destination={$sns.encodedAccount}&amount={numberToBigintE8s(
-						parseFloat($inputValue)
+						parseFloat($inputAmount)
 					)}"
 					target="blank"
 				>

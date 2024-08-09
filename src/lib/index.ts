@@ -1,7 +1,7 @@
 import { Principal } from '@dfinity/principal';
 import BigNumber from 'bignumber.js';
 import type { WithdrawalStatus } from '../declarations/water_neuron/water_neuron.did';
-import { inputValue } from './stores';
+import { inputAmount } from './stores';
 
 export const E8S = BigNumber(10).pow(BigNumber(8));
 
@@ -227,9 +227,9 @@ export function handleInput(event: Event): void {
 	const regex = /^[0-9]*([\.][0-9]*)?$/;
 
 	if (regex.test(value)) {
-		inputValue.set(value);
+		inputAmount.set(value);
 	} else {
-		inputValue.set(value.substring(0, value.length - 1));
+		inputAmount.set(value.substring(0, value.length - 1));
 		target.value = value.substring(0, value.length - 1);
 	}
 }
