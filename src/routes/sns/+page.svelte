@@ -199,7 +199,7 @@
 				{:else}
 					<a
 						class="action-btn"
-						href="https://proposals.network/submit?g={$sns.principal}&action=TransferSnsTreasuryFunds&destination={$sns.encodedBoomerangAccount}}"
+						href="https://proposals.network/submit?g={$sns.principal}&action=TransferSnsTreasuryFunds&destination={$sns.encodedBoomerangAccount}"
 						target="blank"
 					>
 						Make a proposal
