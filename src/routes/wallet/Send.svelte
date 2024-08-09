@@ -40,18 +40,17 @@
 		isHigher = isContainerHigher('send');
 	});
 
-	function getMaybeAccount(accountString: string):  Account | | AccountIdentifier | undefined {
+	function getMaybeAccount(accountString: string): Account | AccountIdentifier | undefined {
 		try {
 			if (accountString.length === 64) {
 				return AccountIdentifier.fromHex(accountString);
 			}
 			const icrcAccount = decodeIcrcAccount(accountString);
 			const subaccount = [icrcAccount.subaccount] ?? [];
-			return { owner: icrcAccount.owner, subaccount} as Account
-		} catch (error) {	
+			return { owner: icrcAccount.owner, subaccount } as Account;
+		} catch (error) {
 			return;
 		}
-		
 	}
 
 	function isValidAmount(amount: BigNumber): boolean {

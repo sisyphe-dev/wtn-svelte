@@ -45,7 +45,7 @@
 			isBusy.set(true);
 			isConfirmBusy = true;
 			const boomerangPrincipal = Principal.fromText(CANISTER_ID_BOOMERANG);
-			const snsPrincipal = Principal.fromText($sns.principal).toUint8Array();	
+			const snsPrincipal = Principal.fromText($sns.principal).toUint8Array();
 			const boomerangResult = await $canisters.boomerang.notify_icp_deposit(
 				Principal.fromText($sns.principal)
 			);
@@ -130,23 +130,24 @@
 						{/if}
 					</span>
 					<div class="balances-container">
-					{#if $sns.icpBalance}
-						<a
-							target="blank"
-							href="https://dashboard.internetcomputer.org/account/{principalToHex($sns.principal)}"
-							class="balance dashboard">{displayUsFormat($sns.icpBalance)} ICP</a
-						>
-					{:else}
-						<span class="balance">-/- ICP</span>
-					{/if}
-					{#if $sns.nicpBalance}
-						<span class="balance">{displayUsFormat($sns.nicpBalance)} nICP</span>
-					{:else}
-						<span class="balance">-/- nICP</span>
-					{/if}
+						{#if $sns.icpBalance}
+							<a
+								target="blank"
+								href="https://dashboard.internetcomputer.org/account/{principalToHex(
+									$sns.principal
+								)}"
+								class="balance dashboard">{displayUsFormat($sns.icpBalance)} ICP</a
+							>
+						{:else}
+							<span class="balance">-/- ICP</span>
+						{/if}
+						{#if $sns.nicpBalance}
+							<span class="balance">{displayUsFormat($sns.nicpBalance)} nICP</span>
+						{:else}
+							<span class="balance">-/- nICP</span>
+						{/if}
+					</div>
 				</div>
-				</div>
-				
 			</div>
 			<div class="step-container" in:fade={{ duration: 500 }}>
 				<div class="instruction-container">
