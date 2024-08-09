@@ -118,7 +118,7 @@
 					{#if $sns.icpBalance}
 						<a
 							target="blank"
-							href="https://dashboard.internetcomputer.org/account/"
+							href="https://dashboard.internetcomputer.org/account/{$sns.hex}"
 							class="balance dashboard">{displayUsFormat($sns.nicpBalance)} ICP</a
 						>
 					{:else}

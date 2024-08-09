@@ -6,6 +6,7 @@ import BigNumber from 'bignumber.js';
 import { get } from 'svelte/store';
 import { Principal } from '@dfinity/principal';
 import { encodeIcrcAccount } from '@dfinity/ledger-icrc';
+import { AccountIdentifier } from '@dfinity/ledger-icp';
 
 /* === Flags === */
 export const isLogging = writable<boolean>(false);
@@ -29,11 +30,13 @@ function createBoomerangSnsStore() {
 		name: string;
 		principal: string;
 		encodedAccount: string | undefined;
+		hex: string;
 		icpBalance: BigNumber | undefined;
 		nicpBalance: BigNumber | undefined;
 	}>({
 		name: '',
 		principal: '',
+		hex: '',
 		encodedAccount: undefined,
 		icpBalance: undefined,
 		nicpBalance: undefined
@@ -43,6 +46,7 @@ function createBoomerangSnsStore() {
 		subscribe,
 		setPrincipal: (principal: string) => update((sns) => ({ ...sns, principal })),
 		setName: (name: string) => update((sns) => ({ ...sns, name })),
+		setHex: (hex: string) => update((sns) => ({ ...sns, hex })),
 		setEncodedAccount: (encodedAccount: string) => update((sns) => ({ ...sns, encodedAccount })),
 		setIcpBalance: (icpBalance: BigNumber) => update((sns) => ({ ...sns, icpBalance })),
 		setNicpBalance: (nicpBalance: BigNumber) => update((sns) => ({ ...sns, nicpBalance })),
@@ -50,6 +54,7 @@ function createBoomerangSnsStore() {
 			set({
 				name: '',
 				principal: '',
+				hex: '',
 				encodedAccount: undefined,
 				icpBalance: undefined,
 				nicpBalance: undefined
@@ -63,7 +68,6 @@ export const handleSnsChange = async (name?: string, principal?: string) => {
 	if (!fetchedCanisters) return;
 
 	sns.reset();
-
 	if (name && principal) {
 		sns.setName(name);
 		const p = Principal.fromText(principal);
@@ -71,12 +75,14 @@ export const handleSnsChange = async (name?: string, principal?: string) => {
 		const account = await fetchedCanisters.boomerang.get_staking_account(
 			Principal.fromText(principal)
 		);
-		const hex = encodeIcrcAccount({
+		const hex = AccountIdentifier.fromPrincipal({principal: account.owner}).toHex();
+		sns.setHex(hex);
+		const encodedAccount = encodeIcrcAccount({
 			owner: account.owner,
 			subaccount: account.subaccount[0]
 		});
-		sns.setEncodedAccount(hex);
-
+		sns.setEncodedAccount(encodedAccount);
+		console.log(p.toString());
 		const icpBalance = bigintE8sToNumber(await fetchIcpBalance(p, fetchedCanisters.icpLedger));
 		const nicpBalance = bigintE8sToNumber(await fetchNicpBalance(p, fetchedCanisters.nicpLedger));
 		sns.setIcpBalance(icpBalance);
