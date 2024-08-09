@@ -20,6 +20,7 @@
 	import { Toast } from '$lib/toast';
 	import BigNumber from 'bignumber.js';
 	import { type Account, AccountIdentifier } from '@dfinity/ledger-icp';
+	import { decodeIcrcAccount } from '@dfinity/ledger-icrc';
 	import { Principal } from '@dfinity/principal';
 	import {
 		handleIcrcTransferResult,
@@ -39,22 +40,18 @@
 		isHigher = isContainerHigher('send');
 	});
 
-	function getReceiver(input: string): Principal | AccountIdentifier | undefined {
+	function getMaybeAccount(accountString: string):  Account | | AccountIdentifier | undefined {
 		try {
-			return Principal.fromText(input);
-		} catch (e) {
-			if ($selectedAsset.type === AssetType.ICP) {
-				try {
-					if (input.length !== 64) return undefined;
-					const accountId = AccountIdentifier.fromHex(input);
-					return accountId;
-				} catch (error) {
-					toasts.add(Toast.error('Unable to identify user.'));
-					return undefined;
-				}
+			if (accountString.length === 64) {
+				return AccountIdentifier.fromHex(accountString);
 			}
-			return undefined;
+			const icrcAccount = decodeIcrcAccount(accountString);
+			const subaccount = [icrcAccount.subaccount] ?? [];
+			return { owner: icrcAccount.owner, subaccount} as Account
+		} catch (error) {	
+			return;
 		}
+		
 	}
 
 	function isValidAmount(amount: BigNumber): boolean {
@@ -68,38 +65,24 @@
 		}
 	}
 
-	async function icrcTransfer(amount: BigNumber, input: string) {
+	async function icrcTransfer(amount: BigNumber, accountString: string) {
 		if (isSending || amount.isNaN() || !isValidAmount(amount) || !principal || !$canisters) return;
 
 		isSending = true;
 		const amount_e8s = numberToBigintE8s(amount);
-		const receiver = getReceiver(input);
-		if (!receiver) {
+		const maybeAccount = getMaybeAccount(accountString);
+		if (!maybeAccount) {
 			isSending = false;
 			return;
 		}
-
 		try {
 			let status: ToastResult;
 			switch ($selectedAsset.type) {
 				case AssetType.ICP:
 					{
-						if (receiver instanceof Principal) {
-							const transferResult = await $canisters.icpLedger.icrc1_transfer({
-								to: {
-									owner: receiver,
-									subaccount: []
-								} as Account,
-								fee: [],
-								memo: [],
-								from_subaccount: [],
-								created_at_time: [],
-								amount: amount_e8s
-							} as TransferArg);
-							status = handleIcrcTransferResult(transferResult, Asset.fromText('ICP'));
-						} else {
+						if (maybeAccount instanceof AccountIdentifier) {
 							const transferResult = await $canisters.icpLedger.transfer({
-								to: receiver.toUint8Array(),
+								to: maybeAccount.toUint8Array(),
 								fee: { e8s: 10000n } as Tokens,
 								memo: 0n,
 								from_subaccount: [],
@@ -107,16 +90,23 @@
 								amount: { e8s: amount_e8s } as Tokens
 							} as TransferArgs);
 							status = handleTransferResult(transferResult);
+						} else {
+							const transferResult = await $canisters.icpLedger.icrc1_transfer({
+								to: maybeAccount,
+								fee: [],
+								memo: [],
+								from_subaccount: [],
+								created_at_time: [],
+								amount: amount_e8s
+							} as TransferArg);
+							status = handleIcrcTransferResult(transferResult, Asset.fromText('ICP'));
 						}
 					}
 					break;
 				case AssetType.nICP:
 					{
 						const transferResult = await $canisters.nicpLedger.icrc1_transfer({
-							to: {
-								owner: receiver,
-								subaccount: []
-							} as Account,
+							to: maybeAccount,
 							fee: [],
 							memo: [],
 							from_subaccount: [],
@@ -129,10 +119,7 @@
 				case AssetType.WTN:
 					{
 						const transferResult = await $canisters.wtnLedger.icrc1_transfer({
-							to: {
-								owner: receiver,
-								subaccount: []
-							} as Account,
+							to: maybeAccount,
 							fee: [],
 							memo: [],
 							from_subaccount: [],
@@ -149,8 +136,6 @@
 			} else {
 				toasts.add(Toast.error(status.message));
 			}
-			inSendingMenu.set(false);
-			isSending = false;
 		} catch (error) {
 			toasts.add(Toast.error(`${error}`));
 		}
@@ -188,7 +173,7 @@
 		<div>
 			<p>Destination</p>
 			<input type="text" placeholder="Address" bind:value={principal} />
-			{#if principal && !getReceiver(principal)}
+			{#if principal && !getMaybeAccount(principal)}
 				<span class="error"> Please enter a valid address. </span>
 			{/if}
 		</div>

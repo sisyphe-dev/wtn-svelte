@@ -15,7 +15,7 @@
 	import { Toast } from '$lib/toast';
 	import { handleSnsIcpDepositResult, handleSnsRetrieveNicpResult } from '$lib/resultHandler';
 	import { Principal } from '@dfinity/principal';
-	import { type Account, AccountIdentifier } from '@dfinity/ledger-icp';
+	import { type Account, AccountIdentifier, type IcrcAccount } from '@dfinity/ledger-icp';
 	import BigNumber from 'bignumber.js';
 	import {
 		displayUsFormat,
@@ -44,6 +44,8 @@
 		try {
 			isBusy.set(true);
 			isConfirmBusy = true;
+			const boomerangPrincipal = Principal.fromText(CANISTER_ID_BOOMERANG);
+			const snsPrincipal = Principal.fromText($sns.principal).toUint8Array();	
 			const boomerangResult = await $canisters.boomerang.notify_icp_deposit(
 				Principal.fromText($sns.principal)
 			);

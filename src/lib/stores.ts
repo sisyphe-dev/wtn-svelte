@@ -100,9 +100,7 @@ export const handleSnsChange = async (name?: string, principal?: string) => {
 		sns.setName(name);
 		const p = Principal.fromText(principal);
 		sns.setPrincipal(principal);
-		const account = await fetchedCanisters.boomerang.get_staking_account(
-			Principal.fromText(principal)
-		);
+		const account = await fetchedCanisters.boomerang.get_staking_account(p);
 		const encodedBoomerangAccount = encodeIcrcAccount({
 			owner: account.owner,
 			subaccount: account.subaccount[0]

@@ -3,7 +3,6 @@
 	import { internetIdentityLogout } from '$lib/authentification';
 	import snsMetadata from './sns_metadata.json';
 	import { Principal } from '@dfinity/principal';
-	import { encodeIcrcAccount } from '@dfinity/ledger-icrc';
 </script>
 
 <div class="background-menu">
