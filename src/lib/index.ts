@@ -218,4 +218,11 @@ export function isContainerHigher(type: 'receive' | 'send'): boolean {
 	return containerHeight >= viewportHeight;
 }
 
-export const isMobile = typeof window !== 'undefined' && window.innerWidth <= 767;
+export function isPrincipalValid(input: string): boolean {
+	try {
+		Principal.fromText(input);
+		return true;
+	} catch (error) {
+		return false;
+	}
+}

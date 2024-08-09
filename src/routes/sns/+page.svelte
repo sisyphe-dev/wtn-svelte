@@ -3,45 +3,31 @@
 	import SnsListing from './SnsListing.svelte';
 	import CopyIcon from '$lib/icons/CopyIcon.svelte';
 	import { fade, scale } from 'svelte/transition';
-	import { afterUpdate, onMount } from 'svelte';
-	import { sns, canisters, isBusy, toasts } from '$lib/stores';
+	import { sns, canisters, isBusy, toasts, handleSnsChange, inputValue } from '$lib/stores';
 	import { Toast } from '$lib/toast';
 	import { handleSnsIcpDepositResult, handleSnsRetrieveNicpResult } from '$lib/resultHandler';
 	import { Principal } from '@dfinity/principal';
-	import { type Account, SubAccount, AccountIdentifier } from '@dfinity/ledger-icp';
+	import { type Account, AccountIdentifier } from '@dfinity/ledger-icp';
 	import BigNumber from 'bignumber.js';
-	import { displayUsFormat, bigintE8sToNumber } from '$lib';
+	import {
+		displayUsFormat,
+		bigintE8sToNumber,
+		isPrincipalValid,
+		handleInput,
+		numberToBigintE8s
+	} from '$lib';
 	import { signIn, CANISTER_ID_BOOMERANG } from '$lib/authentification';
 	import { fetchIcpBalance, fetchNicpBalance } from '$lib/state';
 	import { encodeIcrcAccount } from '@dfinity/ledger-icrc';
 
 	let isConfirmBusy: boolean;
 	let isRetrieveBusy: boolean;
+	let principalInput: string;
 
-	function isPrincipalValid(input: string): boolean {
-		try {
-			Principal.fromText(input);
-			return true;
-		} catch (error) {
-			return false;
-		}
-	}
-
-	const setAccount = async () => {
+	const handlePrincipalInputChange = async () => {
 		if (!$canisters || $sns.name !== 'Custom') return;
-		if (isPrincipalValid($sns.principal)) {
-			try {
-				const account = await $canisters.boomerang.get_staking_account(
-					Principal.fromText($sns.principal)
-				);
-				const hex = encodeIcrcAccount({
-					owner: account.owner,
-					subaccount: account.subaccount[0]
-				});
-				sns.setEncodedAccount(hex);
-			} catch (error) {
-				console.log(error);
-			}
+		if (isPrincipalValid(principalInput)) {
+			await handleSnsChange('Custom', principalInput);
 		}
 	};
 
@@ -89,36 +75,6 @@
 		isRetrieveBusy = false;
 	}
 
-	async function fetchSnsBalances() {
-		if (!$canisters || !isPrincipalValid($sns.principal)) return;
-		try {
-			const p = Principal.fromText($sns.principal);
-			const icpBalance = bigintE8sToNumber(await fetchIcpBalance(p, $canisters.icpLedger));
-			const nicpBalance = bigintE8sToNumber(await fetchNicpBalance(p, $canisters.nicpLedger));
-			sns.setIcpBalance(icpBalance);
-			sns.setNicpBalance(nicpBalance);
-		} catch (error) {
-			console.log(error);
-		}
-	}
-	afterUpdate(() => {
-		setAccount($sns.principal);
-	});
-
-	onMount(() => {
-		signIn('reload').then(() => {
-			if ($sns.name !== 'Custom') {
-				fetchSnsBalances($sns.principal);
-			}
-		});
-
-		const intervalId = setInterval(async () => {
-			await fetchSnsBalances($sns.principal);
-		}, 50000);
-
-		return () => clearInterval(intervalId);
-	});
-
 	let isAnimating = false;
 	let isCircleOwnerVisible = false;
 	let isCircleSubaccountVisible = false;
@@ -149,7 +105,12 @@
 					<h1>Stake <span style:color="var(--main-color)">{$sns.name}</span> Treasury</h1>
 					<span style:color="white">
 						{#if $sns.name === 'Custom'}
-							Principal: <input type="text" placeholder="Address" bind:value={$sns.principal} />
+							Principal: <input
+								type="text"
+								placeholder="Address"
+								bind:value={principalInput}
+								on:input={handlePrincipalInputChange}
+							/>
 						{:else}
 							Goverance id: <a
 								target="blank"
@@ -163,8 +124,8 @@
 					{#if $sns.icpBalance}
 						<a
 							target="blank"
-							href="https://dashboard.internetcomputer.org/account/"
-							class="balance dashboard">{displayUsFormat($sns.nicpBalance)} ICP</a
+							href="https://dashboard.internetcomputer.org/account/{$sns.hex}"
+							class="balance dashboard">{displayUsFormat($sns.icpBalance)} ICP</a
 						>
 					{:else}
 						<span class="balance">-/- ICP</span>
@@ -187,7 +148,11 @@
 				</div>
 				<div class="account-container">
 					<div class="principal-container">
-						<p>{$sns.encodedAccount}</p>
+						{#if $sns.encodedAccount}
+							<p>{$sns.encodedAccount}</p>
+						{:else}
+							<p>-/-</p>
+						{/if}
 						<button
 							class="copy-btn"
 							on:click={() => {
@@ -201,14 +166,33 @@
 							{/if}
 						</button>
 					</div>
+					<input
+						type="text"
+						maxlength="20"
+						bind:value={$inputValue}
+						placeholder="Amount"
+						on:input={handleInput}
+					/>
 				</div>
+				{#if $inputValue}
 				<a
 					class="action-btn"
-					href="https://proposals.network/submit?g={$sns.principal}"
+					href="https://proposals.network/submit?g={$sns.principal}&action=TransferSnsTreasuryFunds&destination={$sns.encodedAccount}&amount={numberToBigintE8s(
+						parseFloat($inputValue)
+					)}"
 					target="blank"
 				>
 					Make a proposal
 				</a>
+				{:else}
+				<a
+					class="action-btn"
+					href="https://proposals.network/submit?g={$sns.principal}&action=TransferSnsTreasuryFunds&destination={$sns.encodedAccount}}"
+					target="blank"
+				>
+					Make a proposal
+				</a>
+				{/if}
 			</div>
 			<div class="step-container" in:fade={{ duration: 500 }}>
 				<div class="instruction-container">
@@ -291,7 +275,7 @@
 		border: 2px solid #66adff;
 		border-radius: 10px;
 		display: flex;
-		height: 38em;
+		height: 42em;
 		width: 60em;
 		max-width: 95dvw;
 	}
@@ -321,6 +305,8 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
+		width: 80%;
+		height: 4em;
 	}
 
 	.account-container {
@@ -328,7 +314,6 @@
 		flex-direction: column;
 		gap: 1em;
 		width: 100%;
-		height: 4em;
 		justify-content: center;
 		align-items: center;
 	}
@@ -354,6 +339,7 @@
 		justify-content: center;
 		align-items: center;
 		gap: 0.5em;
+		height: 4em;
 	}
 
 	.instruction-container {
