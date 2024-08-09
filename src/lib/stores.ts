@@ -41,7 +41,6 @@ function createInputAmountStore() {
 
 export const inputAmount = createInputAmountStore();
 
-
 /* === SNS === */
 function createBoomerangSnsStore() {
 	const { subscribe, set, update } = writable<{
@@ -124,4 +123,3 @@ function createToasts() {
 }
 
 export const toasts = createToasts();
-

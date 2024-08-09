@@ -175,23 +175,23 @@
 					/>
 				</div>
 				{#if $inputAmount}
-				<a
-					class="action-btn"
-					href="https://proposals.network/submit?g={$sns.principal}&action=TransferSnsTreasuryFunds&destination={$sns.encodedAccount}&amount={numberToBigintE8s(
-						parseFloat($inputAmount)
-					)}"
-					target="blank"
-				>
-					Make a proposal
-				</a>
+					<a
+						class="action-btn"
+						href="https://proposals.network/submit?g={$sns.principal}&action=TransferSnsTreasuryFunds&destination={$sns.encodedAccount}&amount={numberToBigintE8s(
+							parseFloat($inputAmount)
+						)}"
+						target="blank"
+					>
+						Make a proposal
+					</a>
 				{:else}
-				<a
-					class="action-btn"
-					href="https://proposals.network/submit?g={$sns.principal}&action=TransferSnsTreasuryFunds&destination={$sns.encodedAccount}}"
-					target="blank"
-				>
-					Make a proposal
-				</a>
+					<a
+						class="action-btn"
+						href="https://proposals.network/submit?g={$sns.principal}&action=TransferSnsTreasuryFunds&destination={$sns.encodedAccount}}"
+						target="blank"
+					>
+						Make a proposal
+					</a>
 				{/if}
 			</div>
 			<div class="step-container" in:fade={{ duration: 500 }}>
