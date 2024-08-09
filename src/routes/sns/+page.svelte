@@ -13,7 +13,7 @@
 		displayUsFormat,
 		bigintE8sToNumber,
 		isPrincipalValid,
-		handleInput,
+		handleInputAmount,
 		numberToBigintE8s
 	} from '$lib';
 	import { signIn, CANISTER_ID_BOOMERANG } from '$lib/authentification';
@@ -171,7 +171,7 @@
 						maxlength="20"
 						bind:value={$inputAmount}
 						placeholder="Amount"
-						on:input={handleInput}
+						on:input={handleInputAmount}
 					/>
 				</div>
 				{#if $inputAmount}

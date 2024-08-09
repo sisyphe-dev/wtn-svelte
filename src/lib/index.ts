@@ -221,7 +221,7 @@ export function displayTimeLeft(created_at: number, isMobile = false) {
 	return `Less than an hour left`;
 }
 
-export function handleInput(event: Event): void {
+export function handleInputAmount(event: Event): void {
 	const target = event.target as HTMLInputElement;
 	const value = target.value;
 	const regex = /^[0-9]*([\.][0-9]*)?$/;

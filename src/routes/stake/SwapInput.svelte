@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Asset, handleInput } from '$lib';
+	import { Asset, handleInputAmount } from '$lib';
 	import { inputAmount, user } from '$lib/stores';
 	import { fade } from 'svelte/transition';
 	import BigNumber from 'bignumber.js';
@@ -13,7 +13,7 @@
 		maxlength="20"
 		bind:value={$inputAmount}
 		placeholder="Amount"
-		on:input={handleInput}
+		on:input={handleInputAmount}
 	/>
 	<button
 		class="max-btn"
