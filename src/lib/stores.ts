@@ -75,7 +75,7 @@ export const handleSnsChange = async (name?: string, principal?: string) => {
 		const account = await fetchedCanisters.boomerang.get_staking_account(
 			Principal.fromText(principal)
 		);
-		const hex = AccountIdentifier.fromPrincipal({principal: p}).toHex();
+		const hex = AccountIdentifier.fromPrincipal({ principal: p }).toHex();
 		sns.setHex(hex);
 		const encodedAccount = encodeIcrcAccount({
 			owner: account.owner,

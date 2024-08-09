@@ -3,13 +3,19 @@
 	import SnsListing from './SnsListing.svelte';
 	import CopyIcon from '$lib/icons/CopyIcon.svelte';
 	import { fade, scale } from 'svelte/transition';
-	import { sns, canisters, isBusy, toasts, handleSnsChange } from '$lib/stores';
+	import { sns, canisters, isBusy, toasts, handleSnsChange, inputValue } from '$lib/stores';
 	import { Toast } from '$lib/toast';
 	import { handleSnsIcpDepositResult, handleSnsRetrieveNicpResult } from '$lib/resultHandler';
 	import { Principal } from '@dfinity/principal';
 	import { type Account, AccountIdentifier } from '@dfinity/ledger-icp';
 	import BigNumber from 'bignumber.js';
-	import { displayUsFormat, bigintE8sToNumber, isPrincipalValid } from '$lib';
+	import {
+		displayUsFormat,
+		bigintE8sToNumber,
+		isPrincipalValid,
+		handleInput,
+		numberToBigintE8s
+	} from '$lib';
 	import { signIn, CANISTER_ID_BOOMERANG } from '$lib/authentification';
 	import { fetchIcpBalance, fetchNicpBalance } from '$lib/state';
 	import { encodeIcrcAccount } from '@dfinity/ledger-icrc';
@@ -18,7 +24,7 @@
 	let isRetrieveBusy: boolean;
 	let principalInput: string;
 
-	const handleInputChange = async () => {
+	const handlePrincipalInputChange = async () => {
 		if (!$canisters || $sns.name !== 'Custom') return;
 		if (isPrincipalValid(principalInput)) {
 			await handleSnsChange('Custom', principalInput);
@@ -103,7 +109,7 @@
 								type="text"
 								placeholder="Address"
 								bind:value={principalInput}
-								on:input={handleInputChange}
+								on:input={handlePrincipalInputChange}
 							/>
 						{:else}
 							Goverance id: <a
@@ -160,14 +166,33 @@
 							{/if}
 						</button>
 					</div>
+					<input
+						type="text"
+						maxlength="20"
+						bind:value={$inputValue}
+						placeholder="Amount"
+						on:input={handleInput}
+					/>
 				</div>
+				{#if $inputValue}
 				<a
 					class="action-btn"
-					href="https://proposals.network/submit?g={$sns.principal}"
+					href="https://proposals.network/submit?g={$sns.principal}&action=TransferSnsTreasuryFunds&destination={$sns.encodedAccount}&amount={numberToBigintE8s(
+						parseFloat($inputValue)
+					)}"
 					target="blank"
 				>
 					Make a proposal
 				</a>
+				{:else}
+				<a
+					class="action-btn"
+					href="https://proposals.network/submit?g={$sns.principal}&action=TransferSnsTreasuryFunds&destination={$sns.encodedAccount}}"
+					target="blank"
+				>
+					Make a proposal
+				</a>
+				{/if}
 			</div>
 			<div class="step-container" in:fade={{ duration: 500 }}>
 				<div class="instruction-container">
@@ -250,7 +275,7 @@
 		border: 2px solid #66adff;
 		border-radius: 10px;
 		display: flex;
-		height: 39em;
+		height: 42em;
 		width: 60em;
 		max-width: 95dvw;
 	}
@@ -280,6 +305,8 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
+		width: 80%;
+		height: 4em;
 	}
 
 	.account-container {
@@ -287,7 +314,6 @@
 		flex-direction: column;
 		gap: 1em;
 		width: 100%;
-		height: 4em;
 		justify-content: center;
 		align-items: center;
 	}
