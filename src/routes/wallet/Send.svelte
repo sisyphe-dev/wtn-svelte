@@ -3,6 +3,7 @@
 		AssetType,
 		displayUsFormat,
 		numberToBigintE8s,
+		handleInputAmount,
 		Asset,
 		E8S,
 		isContainerHigher
@@ -192,7 +193,7 @@
 					maxlength="20"
 					bind:value={$inputAmount}
 					placeholder="Amount"
-					on:input={handleInput}
+					on:input={handleInputAmount}
 				/>
 				<button
 					class="max-btn"
