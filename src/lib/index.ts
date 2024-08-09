@@ -253,3 +253,13 @@ export function isContainerHigher(type: 'receive' | 'send'): boolean {
 
 	return containerHeight >= viewportHeight;
 }
+
+
+export function isPrincipalValid(input: string): boolean {
+	try {
+		Principal.fromText(input);
+		return true;
+	} catch (error) {
+		return false;
+	}
+}

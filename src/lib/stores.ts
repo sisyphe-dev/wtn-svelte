@@ -1,6 +1,6 @@
 import { writable } from 'svelte/store';
-import { type User, Canisters, WaterNeuronInfo } from './state';
-import { Asset, AssetType } from '$lib';
+import { type User, Canisters, WaterNeuronInfo, fetchIcpBalance, fetchNicpBalance } from './state';
+import { Asset, AssetType, bigintE8sToNumber, isPrincipalValid } from '$lib';
 import { Toast } from './toast';
 import BigNumber from 'bignumber.js';
 import { get } from 'svelte/store';
@@ -24,17 +24,17 @@ export const canisters = writable<Canisters | undefined>(undefined);
 export const waterNeuronInfo = writable<WaterNeuronInfo | undefined>(undefined);
 
 /* === SNS === */
-function createSns() {
+function createBoomerangSnsStore() {
 	const { subscribe, set, update } = writable<{
 		name: string;
 		principal: string;
-		encodedAccount: string;
+		encodedAccount: string | undefined;
 		icpBalance: BigNumber | undefined;
 		nicpBalance: BigNumber | undefined;
 	}>({
 		name: '',
 		principal: '',
-		encodedAccount: '-/-',
+		encodedAccount: undefined,
 		icpBalance: undefined,
 		nicpBalance: undefined
 	});
@@ -50,29 +50,35 @@ function createSns() {
 			set({
 				name: '',
 				principal: '',
-				encodedAccount: '-/-',
+				encodedAccount: undefined,
 				icpBalance: undefined,
 				nicpBalance: undefined
 			})
 	};
 }
-export const sns = createSns();
+export const sns = createBoomerangSnsStore();
 
-export async function handleSnsChange(name?: string, principal?: string) {
-	const boomerang = get(canisters)?.boomerang;
-	if (!boomerang) return;
+export const handleSnsChange = async (name?: string, principal?: string) => {
+	const fetchedCanisters = get(canisters);
+	if (!fetchedCanisters) return;
 
 	sns.reset();
 
 	if (name && principal) {
 		sns.setName(name);
+		const p = Principal.fromText(principal);
 		sns.setPrincipal(principal);
-		const account = await boomerang.get_staking_account(Principal.fromText(principal));
+		const account = await fetchedCanisters.boomerang.get_staking_account(Principal.fromText(principal));
 		const hex = encodeIcrcAccount({
 			owner: account.owner,
 			subaccount: account.subaccount[0]
 		});
 		sns.setEncodedAccount(hex);
+
+		const icpBalance = bigintE8sToNumber(await fetchIcpBalance(p, fetchedCanisters.icpLedger));
+		const nicpBalance = bigintE8sToNumber(await fetchNicpBalance(p, fetchedCanisters.nicpLedger));
+		sns.setIcpBalance(icpBalance);
+		sns.setNicpBalance(nicpBalance);
 	} else {
 		sns.setName('Custom');
 		sns.setPrincipal('');

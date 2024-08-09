@@ -3,45 +3,25 @@
 	import SnsListing from './SnsListing.svelte';
 	import CopyIcon from '$lib/icons/CopyIcon.svelte';
 	import { fade, scale } from 'svelte/transition';
-	import { afterUpdate, onMount } from 'svelte';
-	import { sns, canisters, isBusy, toasts } from '$lib/stores';
+	import { sns, canisters, isBusy, toasts, handleSnsChange } from '$lib/stores';
 	import { Toast } from '$lib/toast';
 	import { handleSnsIcpDepositResult, handleSnsRetrieveNicpResult } from '$lib/resultHandler';
 	import { Principal } from '@dfinity/principal';
 	import { type Account, SubAccount, AccountIdentifier } from '@dfinity/ledger-icp';
 	import BigNumber from 'bignumber.js';
-	import { displayUsFormat, bigintE8sToNumber } from '$lib';
+	import { displayUsFormat, bigintE8sToNumber, isPrincipalValid } from '$lib';
 	import { signIn, CANISTER_ID_BOOMERANG } from '$lib/authentification';
 	import { fetchIcpBalance, fetchNicpBalance } from '$lib/state';
 	import { encodeIcrcAccount } from '@dfinity/ledger-icrc';
 
 	let isConfirmBusy: boolean;
 	let isRetrieveBusy: boolean;
+	let principalInput: string;
 
-	function isPrincipalValid(input: string): boolean {
-		try {
-			Principal.fromText(input);
-			return true;
-		} catch (error) {
-			return false;
-		}
-	}
-
-	const setAccount = async () => {
-		if (!$canisters || $sns.name !== 'Custom') return;
-		if (isPrincipalValid($sns.principal)) {
-			try {
-				const account = await $canisters.boomerang.get_staking_account(
-					Principal.fromText($sns.principal)
-				);
-				const hex = encodeIcrcAccount({
-					owner: account.owner,
-					subaccount: account.subaccount[0]
-				});
-				sns.setEncodedAccount(hex);
-			} catch (error) {
-				console.log(error);
-			}
+	const handleInputChange = async () => {
+		if (!$canisters || $sns.name !== 'Custom') return;	
+		if (isPrincipalValid(principalInput)) {
+			await handleSnsChange("Custom", principalInput);
 		}
 	};
 
@@ -89,36 +69,6 @@
 		isRetrieveBusy = false;
 	}
 
-	async function fetchSnsBalances() {
-		if (!$canisters || !isPrincipalValid($sns.principal)) return;
-		try {
-			const p = Principal.fromText($sns.principal);
-			const icpBalance = bigintE8sToNumber(await fetchIcpBalance(p, $canisters.icpLedger));
-			const nicpBalance = bigintE8sToNumber(await fetchNicpBalance(p, $canisters.nicpLedger));
-			sns.setIcpBalance(icpBalance);
-			sns.setNicpBalance(nicpBalance);
-		} catch (error) {
-			console.log(error);
-		}
-	}
-	afterUpdate(() => {
-		setAccount($sns.principal);
-	});
-
-	onMount(() => {
-		signIn('reload').then(() => {
-			if ($sns.name !== 'Custom') {
-				fetchSnsBalances($sns.principal);
-			}
-		});
-
-		const intervalId = setInterval(async () => {
-			await fetchSnsBalances($sns.principal);
-		}, 50000);
-
-		return () => clearInterval(intervalId);
-	});
-
 	let isAnimating = false;
 	let isCircleOwnerVisible = false;
 	let isCircleSubaccountVisible = false;
@@ -149,7 +99,7 @@
 					<h1>Stake <span style:color="var(--main-color)">{$sns.name}</span> Treasury</h1>
 					<span style:color="white">
 						{#if $sns.name === 'Custom'}
-							Principal: <input type="text" placeholder="Address" bind:value={$sns.principal} />
+							Principal: <input type="text" placeholder="Address" bind:value={principalInput} on:input={handleInputChange}/>
 						{:else}
 							Goverance id: <a
 								target="blank"
@@ -187,7 +137,11 @@
 				</div>
 				<div class="account-container">
 					<div class="principal-container">
+						{#if $sns.encodedAccount} 
 						<p>{$sns.encodedAccount}</p>
+						{:else}
+						<p>-/-</p>
+						{/if}
 						<button
 							class="copy-btn"
 							on:click={() => {
@@ -291,7 +245,7 @@
 		border: 2px solid #66adff;
 		border-radius: 10px;
 		display: flex;
-		height: 38em;
+		height: 39em;
 		width: 60em;
 		max-width: 95dvw;
 	}
@@ -354,6 +308,7 @@
 		justify-content: center;
 		align-items: center;
 		gap: 0.5em;
+		height: 4em;
 	}
 
 	.instruction-container {
