@@ -1,6 +1,6 @@
 import { writable } from 'svelte/store';
 import { type User, Canisters, WaterNeuronInfo, fetchIcpBalance, fetchNicpBalance } from './state';
-import { Asset, AssetType, bigintE8sToNumber, isPrincipalValid } from '$lib';
+import { Asset, AssetType, bigintE8sToNumber } from '$lib';
 import { Toast } from './toast';
 import BigNumber from 'bignumber.js';
 import { get } from 'svelte/store';
@@ -68,7 +68,9 @@ export const handleSnsChange = async (name?: string, principal?: string) => {
 		sns.setName(name);
 		const p = Principal.fromText(principal);
 		sns.setPrincipal(principal);
-		const account = await fetchedCanisters.boomerang.get_staking_account(Principal.fromText(principal));
+		const account = await fetchedCanisters.boomerang.get_staking_account(
+			Principal.fromText(principal)
+		);
 		const hex = encodeIcrcAccount({
 			owner: account.owner,
 			subaccount: account.subaccount[0]
@@ -83,7 +85,7 @@ export const handleSnsChange = async (name?: string, principal?: string) => {
 		sns.setName('Custom');
 		sns.setPrincipal('');
 	}
-}
+};
 
 /* === Toasts === */
 function createToasts() {

@@ -19,9 +19,9 @@
 	let principalInput: string;
 
 	const handleInputChange = async () => {
-		if (!$canisters || $sns.name !== 'Custom') return;	
+		if (!$canisters || $sns.name !== 'Custom') return;
 		if (isPrincipalValid(principalInput)) {
-			await handleSnsChange("Custom", principalInput);
+			await handleSnsChange('Custom', principalInput);
 		}
 	};
 
@@ -99,7 +99,12 @@
 					<h1>Stake <span style:color="var(--main-color)">{$sns.name}</span> Treasury</h1>
 					<span style:color="white">
 						{#if $sns.name === 'Custom'}
-							Principal: <input type="text" placeholder="Address" bind:value={principalInput} on:input={handleInputChange}/>
+							Principal: <input
+								type="text"
+								placeholder="Address"
+								bind:value={principalInput}
+								on:input={handleInputChange}
+							/>
 						{:else}
 							Goverance id: <a
 								target="blank"
@@ -137,10 +142,10 @@
 				</div>
 				<div class="account-container">
 					<div class="principal-container">
-						{#if $sns.encodedAccount} 
-						<p>{$sns.encodedAccount}</p>
+						{#if $sns.encodedAccount}
+							<p>{$sns.encodedAccount}</p>
 						{:else}
-						<p>-/-</p>
+							<p>-/-</p>
 						{/if}
 						<button
 							class="copy-btn"
