@@ -23,3 +23,9 @@ test('test urls', async ({ page }) => {
 
   await mockSignIn();
 });
+
+test('connection', async ({page}) => {
+  await page.goto('/');
+  const connectBtn = page.locator('[title="connect-btn"]');
+  await expect(connectBtn).toBeVisible();
+});
