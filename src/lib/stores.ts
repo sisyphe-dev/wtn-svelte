@@ -6,6 +6,7 @@ import BigNumber from 'bignumber.js';
 import { get } from 'svelte/store';
 import { Principal } from '@dfinity/principal';
 import { encodeIcrcAccount } from '@dfinity/ledger-icrc';
+import { AccountIdentifier } from '@dfinity/ledger-icp';
 
 /* === Flags === */
 export const isLogging = writable<boolean>(false);
@@ -23,18 +24,48 @@ export const user = writable<User | undefined>(undefined);
 export const canisters = writable<Canisters | undefined>(undefined);
 export const waterNeuronInfo = writable<WaterNeuronInfo | undefined>(undefined);
 
+/* === Input Amount ==== */
+function createInputAmountStore() {
+	const { subscribe, set } = writable<string>();
+
+	return {
+		subscribe,
+		change: (value: number) => {
+			const input = value.toString().replace(',', '.');
+			set(input);
+		},
+		set: (value: string) => set(value),
+		reset: () => set('')
+	};
+}
+
+export const inputAmount = createInputAmountStore();
+
+export function handleInputAmount(event: Event): void {
+	const target = event.target as HTMLInputElement;
+	const value = target.value;
+	const regex = /^[0-9]*([\.][0-9]*)?$/;
+
+	if (regex.test(value)) {
+		inputAmount.set(value);
+	} else {
+		inputAmount.set(value.substring(0, value.length - 1));
+		target.value = value.substring(0, value.length - 1);
+	}
+}
+
 /* === SNS === */
 function createBoomerangSnsStore() {
 	const { subscribe, set, update } = writable<{
 		name: string;
 		principal: string;
-		encodedAccount: string | undefined;
+		encodedBoomerangAccount: string | undefined;
 		icpBalance: BigNumber | undefined;
 		nicpBalance: BigNumber | undefined;
 	}>({
 		name: '',
 		principal: '',
-		encodedAccount: undefined,
+		encodedBoomerangAccount: undefined,
 		icpBalance: undefined,
 		nicpBalance: undefined
 	});
@@ -43,14 +74,15 @@ function createBoomerangSnsStore() {
 		subscribe,
 		setPrincipal: (principal: string) => update((sns) => ({ ...sns, principal })),
 		setName: (name: string) => update((sns) => ({ ...sns, name })),
-		setEncodedAccount: (encodedAccount: string) => update((sns) => ({ ...sns, encodedAccount })),
+		setEncodedBoomerangAccount: (encodedBoomerangAccount: string) =>
+			update((sns) => ({ ...sns, encodedBoomerangAccount })),
 		setIcpBalance: (icpBalance: BigNumber) => update((sns) => ({ ...sns, icpBalance })),
 		setNicpBalance: (nicpBalance: BigNumber) => update((sns) => ({ ...sns, nicpBalance })),
 		reset: () =>
 			set({
 				name: '',
 				principal: '',
-				encodedAccount: undefined,
+				encodedBoomerangAccount: undefined,
 				icpBalance: undefined,
 				nicpBalance: undefined
 			})
@@ -63,7 +95,7 @@ export const handleSnsChange = async (name?: string, principal?: string) => {
 	if (!fetchedCanisters) return;
 
 	sns.reset();
-
+	inputAmount.set('');
 	if (name && principal) {
 		sns.setName(name);
 		const p = Principal.fromText(principal);
@@ -71,12 +103,11 @@ export const handleSnsChange = async (name?: string, principal?: string) => {
 		const account = await fetchedCanisters.boomerang.get_staking_account(
 			Principal.fromText(principal)
 		);
-		const hex = encodeIcrcAccount({
+		const encodedBoomerangAccount = encodeIcrcAccount({
 			owner: account.owner,
 			subaccount: account.subaccount[0]
 		});
-		sns.setEncodedAccount(hex);
-
+		sns.setEncodedBoomerangAccount(encodedBoomerangAccount);
 		const icpBalance = bigintE8sToNumber(await fetchIcpBalance(p, fetchedCanisters.icpLedger));
 		const nicpBalance = bigintE8sToNumber(await fetchNicpBalance(p, fetchedCanisters.nicpLedger));
 		sns.setIcpBalance(icpBalance);
@@ -100,20 +131,3 @@ function createToasts() {
 }
 
 export const toasts = createToasts();
-
-/* === Input Value ==== */
-function createInputValue() {
-	const { subscribe, set } = writable<string>();
-
-	return {
-		subscribe,
-		change: (value: number) => {
-			const input = value.toString().replace(',', '.');
-			set(input);
-		},
-		set: (value: string) => set(value),
-		reset: () => set('')
-	};
-}
-
-export const inputValue = createInputValue();

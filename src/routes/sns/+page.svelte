@@ -3,13 +3,27 @@
 	import SnsListing from './SnsListing.svelte';
 	import CopyIcon from '$lib/icons/CopyIcon.svelte';
 	import { fade, scale } from 'svelte/transition';
-	import { sns, canisters, isBusy, toasts, handleSnsChange } from '$lib/stores';
+	import {
+		sns,
+		canisters,
+		isBusy,
+		toasts,
+		handleSnsChange,
+		inputAmount,
+		handleInputAmount
+	} from '$lib/stores';
 	import { Toast } from '$lib/toast';
 	import { handleSnsIcpDepositResult, handleSnsRetrieveNicpResult } from '$lib/resultHandler';
 	import { Principal } from '@dfinity/principal';
-	import { type Account, SubAccount, AccountIdentifier } from '@dfinity/ledger-icp';
+	import { type Account, AccountIdentifier } from '@dfinity/ledger-icp';
 	import BigNumber from 'bignumber.js';
-	import { displayUsFormat, bigintE8sToNumber, isPrincipalValid } from '$lib';
+	import {
+		displayUsFormat,
+		bigintE8sToNumber,
+		isPrincipalValid,
+		numberToBigintE8s,
+		principalToHex
+	} from '$lib';
 	import { signIn, CANISTER_ID_BOOMERANG } from '$lib/authentification';
 	import { fetchIcpBalance, fetchNicpBalance } from '$lib/state';
 	import { encodeIcrcAccount } from '@dfinity/ledger-icrc';
@@ -18,7 +32,7 @@
 	let isRetrieveBusy: boolean;
 	let principalInput: string;
 
-	const handleInputChange = async () => {
+	const handlePrincipalInputChange = async () => {
 		if (!$canisters || $sns.name !== 'Custom') return;
 		if (isPrincipalValid(principalInput)) {
 			await handleSnsChange('Custom', principalInput);
@@ -103,7 +117,7 @@
 								type="text"
 								placeholder="Address"
 								bind:value={principalInput}
-								on:input={handleInputChange}
+								on:input={handlePrincipalInputChange}
 							/>
 						{:else}
 							Goverance id: <a
@@ -118,8 +132,8 @@
 					{#if $sns.icpBalance}
 						<a
 							target="blank"
-							href="https://dashboard.internetcomputer.org/account/"
-							class="balance dashboard">{displayUsFormat($sns.nicpBalance)} ICP</a
+							href="https://dashboard.internetcomputer.org/account/{principalToHex($sns.principal)}"
+							class="balance dashboard">{displayUsFormat($sns.icpBalance)} ICP</a
 						>
 					{:else}
 						<span class="balance">-/- ICP</span>
@@ -142,8 +156,8 @@
 				</div>
 				<div class="account-container">
 					<div class="principal-container">
-						{#if $sns.encodedAccount}
-							<p>{$sns.encodedAccount}</p>
+						{#if $sns.encodedBoomerangAccount}
+							<p>{$sns.encodedBoomerangAccount}</p>
 						{:else}
 							<p>-/-</p>
 						{/if}
@@ -151,7 +165,7 @@
 							class="copy-btn"
 							on:click={() => {
 								handleAnimation('subaccount');
-								navigator.clipboard.writeText($sns.encodedAccount);
+								navigator.clipboard.writeText($sns.encodedBoomerangAccount);
 							}}
 						>
 							<CopyIcon />
@@ -160,14 +174,33 @@
 							{/if}
 						</button>
 					</div>
+					<input
+						type="text"
+						maxlength="20"
+						bind:value={$inputAmount}
+						placeholder="Amount"
+						on:input={handleInputAmount}
+					/>
 				</div>
-				<a
-					class="action-btn"
-					href="https://proposals.network/submit?g={$sns.principal}"
-					target="blank"
-				>
-					Make a proposal
-				</a>
+				{#if $inputAmount}
+					<a
+						class="action-btn"
+						href="https://proposals.network/submit?g={$sns.principal}&action=TransferSnsTreasuryFunds&destination={$sns.encodedBoomerangAccount}&amount={numberToBigintE8s(
+							parseFloat($inputAmount)
+						)}"
+						target="blank"
+					>
+						Make a proposal
+					</a>
+				{:else}
+					<a
+						class="action-btn"
+						href="https://proposals.network/submit?g={$sns.principal}&action=TransferSnsTreasuryFunds&destination={$sns.encodedBoomerangAccount}}"
+						target="blank"
+					>
+						Make a proposal
+					</a>
+				{/if}
 			</div>
 			<div class="step-container" in:fade={{ duration: 500 }}>
 				<div class="instruction-container">
@@ -250,7 +283,7 @@
 		border: 2px solid #66adff;
 		border-radius: 10px;
 		display: flex;
-		height: 39em;
+		height: 42em;
 		width: 60em;
 		max-width: 95dvw;
 	}
@@ -280,6 +313,8 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
+		width: 80%;
+		height: 4em;
 	}
 
 	.account-container {
@@ -287,7 +322,6 @@
 		flex-direction: column;
 		gap: 1em;
 		width: 100%;
-		height: 4em;
 		justify-content: center;
 		align-items: center;
 	}
