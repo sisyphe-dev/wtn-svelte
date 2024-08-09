@@ -75,14 +75,13 @@ export const handleSnsChange = async (name?: string, principal?: string) => {
 		const account = await fetchedCanisters.boomerang.get_staking_account(
 			Principal.fromText(principal)
 		);
-		const hex = AccountIdentifier.fromPrincipal({principal: account.owner}).toHex();
+		const hex = AccountIdentifier.fromPrincipal({principal: p}).toHex();
 		sns.setHex(hex);
 		const encodedAccount = encodeIcrcAccount({
 			owner: account.owner,
 			subaccount: account.subaccount[0]
 		});
 		sns.setEncodedAccount(encodedAccount);
-		console.log(p.toString());
 		const icpBalance = bigintE8sToNumber(await fetchIcpBalance(p, fetchedCanisters.icpLedger));
 		const nicpBalance = bigintE8sToNumber(await fetchNicpBalance(p, fetchedCanisters.nicpLedger));
 		sns.setIcpBalance(icpBalance);
