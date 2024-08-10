@@ -101,16 +101,18 @@ export const handleSnsChange = async (name?: string, principal?: string) => {
 		sns.setName(name);
 		const p = Principal.fromText(principal);
 		sns.setPrincipal(principal);
-		const account = await fetchedCanisters.boomerang.get_staking_account(p);
+		const [account, icpBalanceE8s, nicpBalanceE8s] = await Promise.all([
+			fetchedCanisters.boomerang.get_staking_account(p),
+			fetchIcpBalance(p, fetchedCanisters.icpLedger),
+			fetchNicpBalance(p, fetchedCanisters.nicpLedger)
+		]);
 		const encodedBoomerangAccount = encodeIcrcAccount({
 			owner: account.owner,
 			subaccount: account.subaccount[0]
 		});
 		sns.setEncodedBoomerangAccount(encodedBoomerangAccount);
-		const icpBalance = bigintE8sToNumber(await fetchIcpBalance(p, fetchedCanisters.icpLedger));
-		const nicpBalance = bigintE8sToNumber(await fetchNicpBalance(p, fetchedCanisters.nicpLedger));
-		sns.setIcpBalance(icpBalance);
-		sns.setNicpBalance(nicpBalance);
+		sns.setIcpBalance(bigintE8sToNumber(icpBalanceE8s));
+		sns.setNicpBalance(bigintE8sToNumber(nicpBalanceE8s));
 	} else {
 		sns.setName('Custom');
 		sns.setPrincipal('');
