@@ -176,6 +176,8 @@
 							{/if}
 						</button>
 					</div>
+					<span class="sns-amount" style:justify-content="center">
+							Choose the amount of ICP to transfer:
 					<input
 						type="text"
 						maxlength="20"
@@ -183,6 +185,7 @@
 						placeholder="Amount"
 						on:input={handleInputAmount}
 					/>
+					</span>
 				</div>
 				{#if BigNumber($inputAmount).isNaN()}
 					<a
@@ -413,6 +416,15 @@
 	.governance-id {
 		color: white;
 		width: 60%;
+		display: flex;
+		align-items: center;
+	}
+
+	.sns-amount {
+		color: white;
+		width: 100%;
+		display: flex;
+		align-items: center;
 	}
 
 	/* === Utilities === */
@@ -495,6 +507,11 @@
 
 		.dashboard {
 			font-size: 15px;
+		}
+
+		.governance-id {
+			width: 100%;
+			justify-content: center;
 		}
 	}
 </style>
