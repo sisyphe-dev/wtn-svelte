@@ -43,14 +43,15 @@ export const inputAmount = createInputAmountStore();
 
 export function handleInputAmount(event: Event): void {
 	const target = event.target as HTMLInputElement;
-	const value = target.value;
+	const number = target.value;
 	const regex = /^[0-9]*([\.][0-9]*)?$/;
 
-	if (regex.test(value)) {
-		inputAmount.set(value);
+	if (regex.test(number)) {
+		inputAmount.set(number);
 	} else {
-		inputAmount.set(value.substring(0, value.length - 1));
-		target.value = value.substring(0, value.length - 1);
+		const newNumber = number.substring(0, number.length - 1);
+		inputAmount.set(newNumber);
+		target.value = newNumber;
 	}
 }
 
@@ -59,15 +60,13 @@ function createBoomerangSnsStore() {
 	const { subscribe, set, update } = writable<{
 		name: string;
 		principal: string;
-		encodedAccount: string | undefined;
-		hex: string;
+		encodedBoomerangAccount: string | undefined;
 		icpBalance: BigNumber | undefined;
 		nicpBalance: BigNumber | undefined;
 	}>({
 		name: '',
 		principal: '',
-		hex: '',
-		encodedAccount: undefined,
+		encodedBoomerangAccount: undefined,
 		icpBalance: undefined,
 		nicpBalance: undefined
 	});
@@ -76,16 +75,15 @@ function createBoomerangSnsStore() {
 		subscribe,
 		setPrincipal: (principal: string) => update((sns) => ({ ...sns, principal })),
 		setName: (name: string) => update((sns) => ({ ...sns, name })),
-		setHex: (hex: string) => update((sns) => ({ ...sns, hex })),
-		setEncodedAccount: (encodedAccount: string) => update((sns) => ({ ...sns, encodedAccount })),
+		setEncodedBoomerangAccount: (encodedBoomerangAccount: string) =>
+			update((sns) => ({ ...sns, encodedBoomerangAccount })),
 		setIcpBalance: (icpBalance: BigNumber) => update((sns) => ({ ...sns, icpBalance })),
 		setNicpBalance: (nicpBalance: BigNumber) => update((sns) => ({ ...sns, nicpBalance })),
 		reset: () =>
 			set({
 				name: '',
 				principal: '',
-				hex: '',
-				encodedAccount: undefined,
+				encodedBoomerangAccount: undefined,
 				icpBalance: undefined,
 				nicpBalance: undefined
 			})
@@ -98,21 +96,17 @@ export const handleSnsChange = async (name?: string, principal?: string) => {
 	if (!fetchedCanisters) return;
 
 	sns.reset();
-	inputAmount.set('');
+	inputAmount.reset();
 	if (name && principal) {
 		sns.setName(name);
 		const p = Principal.fromText(principal);
 		sns.setPrincipal(principal);
-		const account = await fetchedCanisters.boomerang.get_staking_account(
-			Principal.fromText(principal)
-		);
-		const hex = AccountIdentifier.fromPrincipal({ principal: p }).toHex();
-		sns.setHex(hex);
-		const encodedAccount = encodeIcrcAccount({
+		const account = await fetchedCanisters.boomerang.get_staking_account(p);
+		const encodedBoomerangAccount = encodeIcrcAccount({
 			owner: account.owner,
 			subaccount: account.subaccount[0]
 		});
-		sns.setEncodedAccount(encodedAccount);
+		sns.setEncodedBoomerangAccount(encodedBoomerangAccount);
 		const icpBalance = bigintE8sToNumber(await fetchIcpBalance(p, fetchedCanisters.icpLedger));
 		const nicpBalance = bigintE8sToNumber(await fetchNicpBalance(p, fetchedCanisters.nicpLedger));
 		sns.setIcpBalance(icpBalance);
