@@ -111,7 +111,7 @@
 			<div class="top-container">
 				<h1>Stake <span style:color="var(--main-color)">{$sns.name}</span> Treasury</h1>
 				<div class="sns-info-container">
-					<span style:color="white">
+					<span class="governance-id">
 						{#if $sns.name === 'Custom'}
 							Principal: <input
 								type="text"
@@ -408,6 +408,11 @@
 		color: white;
 		font-family: var(--main-font);
 		font-size: 18px;
+	}
+
+	.governance-id {
+		color: white;
+		width: 60%;
 	}
 
 	/* === Utilities === */
