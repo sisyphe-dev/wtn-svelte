@@ -49,7 +49,7 @@
 		signIn('reload').then(() => {
 			updateBalances();
 			updateWaterNeuronInfo();
-			handleSnsChange("BOOM DAO", "xomae-vyaaa-aaaaq-aabhq-cai");
+			handleSnsChange('BOOM DAO', 'xomae-vyaaa-aaaaq-aabhq-cai');
 		});
 
 		const intervalId = setInterval(async () => {
