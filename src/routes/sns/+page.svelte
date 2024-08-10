@@ -24,7 +24,7 @@
 		numberToBigintE8s,
 		principalToHex
 	} from '$lib';
-	import { signIn, CANISTER_ID_BOOMERANG } from '$lib/authentification';
+	import { signIn } from '$lib/authentification';
 	import { fetchIcpBalance, fetchNicpBalance } from '$lib/state';
 	import { encodeIcrcAccount } from '@dfinity/ledger-icrc';
 
@@ -44,8 +44,6 @@
 		try {
 			isBusy.set(true);
 			isConfirmBusy = true;
-			const boomerangPrincipal = Principal.fromText(CANISTER_ID_BOOMERANG);
-			const snsPrincipal = Principal.fromText($sns.principal).toUint8Array();
 			const boomerangResult = await $canisters.boomerang.notify_icp_deposit(
 				Principal.fromText($sns.principal)
 			);
