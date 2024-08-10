@@ -1,5 +1,7 @@
 import { test, expect } from '@playwright/test';
-import { mockSignIn } from './utils/mockInternetIdentity';
+import {testWithII} from '@dfinity/internet-identity-playwright';
+import { user } from '$lib/stores';
+import { get } from 'svelte/store';
 
 test('has title', async ({ page }) => {
 	await page.goto('/');
@@ -21,12 +23,17 @@ test('test urls', async ({ page }) => {
   await expect(page).toHaveURL('/stake/');
 });
 
-test('connection', async ({page}) => {
+testWithII('should sign-in with a new user', async ({page, iiPage}) => {
   await page.goto('/');
-  let connectBtn = page.locator('[title="connect-btn"]');
-  await expect(connectBtn).toBeVisible();
 
-  await mockSignIn();
-  await page.goto('/wallet/');
-  await expect(page).toHaveURL('/stake/');
-});
+  let connectBtn = page.locator('[title="connect-btn"]');
+  await connectBtn.click();
+
+  await iiPage.signInWithNewIdentity({selector: '[title="ii-connect-btn"]'});
+
+  let walletInfo = page.locator('#wallet-info');
+  await expect(walletInfo).toBeVisible();
+
+  await walletInfo.click();
+  await expect(page).toHaveURL('/wallet/');
+}); 
