@@ -49,7 +49,7 @@
 	}
 
 	export async function icpToNicp(amount: BigNumber) {
-		if (!$user || $isConverting || !$canisters) return;
+		if (!$user || $isConverting || !$canisters || amount.isNaN()) return;
 		isConverting.set(true);
 
 		if ($user.icpBalance().isGreaterThanOrEqualTo(amount) && amount.isGreaterThan(0)) {
@@ -89,7 +89,7 @@
 	}
 
 	export async function nicpToIcp(amount: BigNumber) {
-		if (!$user || $isConverting || !$canisters) return;
+		if (!$user || $isConverting || !$canisters || amount.isNaN()) return;
 		isConverting.set(true);
 
 		if ($user.nicpBalance().isGreaterThanOrEqualTo(amount) && amount.isGreaterThan(0)) {
@@ -161,7 +161,7 @@
 				on:click={() => {
 					stake = true;
 					invertExchangeRate = false;
-					inputAmount.set('');
+					inputAmount.reset();
 				}}
 				class:selected={stake}
 				class:not-selected={!stake}><h2 class="header-txt" style:left="5%">Stake ICP</h2></button
@@ -173,7 +173,7 @@
 				on:click={() => {
 					stake = false;
 					invertExchangeRate = false;
-					inputAmount.set('');
+					inputAmount.reset();
 				}}
 				class:selected={!stake}
 				class:not-selected={stake}><h2 class="header-txt" style:right="5%">Unstake nICP</h2></button

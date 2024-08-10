@@ -140,7 +140,7 @@
 		}
 		inSendingMenu.set(false);
 		isSending = false;
-		inputAmount.set('');
+		inputAmount.reset();
 	}
 </script>
 
@@ -201,10 +201,10 @@
 					MAX
 				</button>
 			</div>
-			{#if BigNumber($inputAmount).isGreaterThanOrEqualTo($user?.getBalance($selectedAsset.type) ?? BigNumber(0))}
+			{#if !BigNumber($inputAmount).isNaN() && BigNumber($inputAmount).isGreaterThanOrEqualTo($user?.getBalance($selectedAsset.type) ?? BigNumber(0))}
 				<span class="error"> Not enough treasury. </span>
 			{/if}
-			{#if BigNumber($inputAmount).isLessThan(BigNumber(1).dividedBy(E8S))}
+			{#if !BigNumber($inputAmount).isNaN() && BigNumber($inputAmount).isLessThan(BigNumber(1).dividedBy(E8S))}
 				<span class="error">Minimum amount: 0.00000001</span>
 			{/if}
 		</div>
@@ -225,7 +225,7 @@
 					class="toggle-btn"
 					on:click={() => {
 						inSendingMenu.set(false);
-						inputAmount.set('');
+						inputAmount.reset();
 					}}>Cancel</button
 				>
 				<button

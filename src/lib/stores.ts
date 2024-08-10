@@ -43,14 +43,15 @@ export const inputAmount = createInputAmountStore();
 
 export function handleInputAmount(event: Event): void {
 	const target = event.target as HTMLInputElement;
-	const value = target.value;
+	const number = target.value;
 	const regex = /^[0-9]*([\.][0-9]*)?$/;
 
-	if (regex.test(value)) {
-		inputAmount.set(value);
+	if (regex.test(number)) {
+		inputAmount.set(number);
 	} else {
-		inputAmount.set(value.substring(0, value.length - 1));
-		target.value = value.substring(0, value.length - 1);
+		const newNumber = number.substring(0, number.length - 1);
+		inputAmount.set(newNumber);
+		target.value = newNumber;
 	}
 }
 
@@ -95,7 +96,7 @@ export const handleSnsChange = async (name?: string, principal?: string) => {
 	if (!fetchedCanisters) return;
 
 	sns.reset();
-	inputAmount.set('');
+	inputAmount.reset();
 	if (name && principal) {
 		sns.setName(name);
 		const p = Principal.fromText(principal);

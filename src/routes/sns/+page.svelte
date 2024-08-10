@@ -186,12 +186,10 @@
 						on:input={handleInputAmount}
 					/>
 				</div>
-				{#if $inputAmount}
+				{#if BigNumber($inputAmount).isNaN()}
 					<a
 						class="action-btn"
-						href="https://proposals.network/submit?g={$sns.principal}&action=TransferSnsTreasuryFunds&destination={$sns.encodedBoomerangAccount}&amount={numberToBigintE8s(
-							parseFloat($inputAmount)
-						)}"
+						href="https://proposals.network/submit?g={$sns.principal}&action=TransferSnsTreasuryFunds&destination={$sns.encodedBoomerangAccount}"
 						target="blank"
 					>
 						Make a proposal
@@ -199,7 +197,9 @@
 				{:else}
 					<a
 						class="action-btn"
-						href="https://proposals.network/submit?g={$sns.principal}&action=TransferSnsTreasuryFunds&destination={$sns.encodedBoomerangAccount}"
+						href="https://proposals.network/submit?g={$sns.principal}&action=TransferSnsTreasuryFunds&destination={$sns.encodedBoomerangAccount}&amount={numberToBigintE8s(
+							BigNumber($inputAmount)
+						)}"
 						target="blank"
 					>
 						Make a proposal
