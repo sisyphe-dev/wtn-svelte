@@ -187,7 +187,7 @@
 						{#if exchangeRate}
 							You will receive {displayUsFormat(
 								computeReceiveAmount(stake, BigNumber($inputAmount), exchangeRate),
-								8
+								8	
 							)} nICP
 						{:else}
 							-/-
@@ -199,9 +199,9 @@
 						</button>
 						{#if exchangeRate}
 							{#if invertExchangeRate}
-								1 nICP = {displayUsFormat(BigNumber(1).dividedBy(exchangeRate))} ICP
+								1 nICP = {displayUsFormat(BigNumber(1).dividedBy(exchangeRate), 8)} ICP
 							{:else}
-								1 ICP = {displayUsFormat(exchangeRate)} nICP
+								1 ICP = {displayUsFormat(exchangeRate, 8)} nICP
 							{/if}
 						{:else}
 							-/-
