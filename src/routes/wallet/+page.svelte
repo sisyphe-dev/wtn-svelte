@@ -34,7 +34,7 @@
 	<div class="address-container">
 		<h2>ICP Account Id</h2>
 		<div class="principal-container">
-			<p>{$user?.accountId}</p>
+			<p title="accountIdentifier-hex">{$user?.accountId}</p>
 			<button
 				class="copy-btn"
 				on:click={() => {

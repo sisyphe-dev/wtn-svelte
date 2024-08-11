@@ -13,9 +13,6 @@ export async function mockSignIn() {
 
 		canisters.set(new Canisters(actors));
 		user.set(new User(dummyIdentity.getPrincipal()));
-	const authClient = await AuthClient.create();
-
-	console.log(authClient.isAuthenticated());
 	} catch (error) {
 		console.error('Login failed:', error);
 	}

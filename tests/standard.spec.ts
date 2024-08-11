@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import {testWithII} from '@dfinity/internet-identity-playwright';
 import { user } from '$lib/stores';
 import { get } from 'svelte/store';
+import { mockSignIn } from './utils/mockInternetIdentity';
 
 test('has title', async ({ page }) => {
 	await page.goto('/');
@@ -29,10 +30,18 @@ testWithII.only('should sign-in with a new user', async ({page, iiPage}) => {
   let connectBtn = page.locator('[title="connect-btn"]');
   await connectBtn.click();
 
-  await iiPage.signInWithNewIdentity({selector: '[title="ii-connect-btn"]'});
+  await iiPage.signInWithIdentity({selector: '[title="ii-connect-btn"]', identity: 1000});
 
-  let walletInfo = page.locator('#wallet-info');
+  const walletInfo = page.locator('#wallet-info');
   await expect(walletInfo).toBeVisible();
+
+  await walletInfo.click();
+  await page.waitForTimeout(1000);
+
+  const accountId = await page.locator('[title="accountIdentifier-hex"]').evaluate(accountId => {
+    return accountId.textContent;
+  });
+  console.log(accountId);
 
   const paragraphs = walletInfo.locator('p');
   const count = await paragraphs.count();
@@ -46,4 +55,9 @@ testWithII.only('should sign-in with a new user', async ({page, iiPage}) => {
 
   const thirdParagraph = paragraphs.nth(2);
   await expect(thirdParagraph).toHaveText('0 WTN');
+
+
+  await mockSignIn();
+  const mockUser = get(user);
+  expect(mockUser).toBeDefined();
 }); 
