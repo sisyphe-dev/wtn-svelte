@@ -109,6 +109,10 @@
 		font-size: 13px;
 	}
 
+	h1 {
+		color: var(--title-color);
+	}
+
 	p {
 		text-align: end;
 		font-weight: normal;
@@ -145,6 +149,7 @@
 		height: 2em;
 		font-size: 16px;
 		padding: 1.3em 0.5em;
+		color: var(--stake-text-color);
 	}
 
 	.wallet-action-btn {

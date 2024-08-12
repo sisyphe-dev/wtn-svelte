@@ -83,14 +83,32 @@
 <style>
 	/* === Variables === */
 	:root {
-		--main-color: oklab(0.88 -0.18 0.03);
-		--border-color: rgb(102, 173, 255);
-		--background-color: rgb(12, 44, 76);
-		--input-color: #1e3466;
-		--text-color: rgb(176, 163, 217);
+		--title-color: black;
+		--page-background: #f1fff6;
+
+		--main-color: #283e95;
+		--border-color: #454545;
+		--background-color: #f1fff6;
+		--input-color: #f1fff6;
+		--stake-text-color: black;
+
+		--text-color: rgb(127 127 127);
+
 		--orange-color: #fa796e;
+		--faq-color: black;
+
 		--main-font: 'Akrobat-black';
 		--secondary-font: Arial;
+	}
+
+	:root[theme="light"] {
+    	--svg-fill-color: #000000; /* Black for light theme */
+    	--svg-stroke-color: #000000; /* Optional: Stroke color */
+	}
+
+	:root[theme="dark"] {
+		--svg-fill-color: #ffffff; /* White for dark theme */
+		--svg-stroke-color: #ffffff; /* Optional: Stroke color */
 	}
 
 	@font-face {
@@ -107,7 +125,7 @@
 		height: fit-content;
 		min-height: 100%;
 		width: 100vw;
-		background: radial-gradient(farthest-corner circle at 0% 0%, rgb(18 69 89), #0f0f4d);
+		background: var(--page-background);
 	}
 
 	.page-container::-webkit-scrollbar {
