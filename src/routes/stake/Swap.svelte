@@ -3,7 +3,7 @@
 	import SwapInput from './SwapInput.svelte';
 	import { Toast } from '$lib/toast';
 	import {
-		inputValue,
+		inputAmount,
 		waterNeuronInfo,
 		canisters,
 		user,
@@ -49,7 +49,7 @@
 	}
 
 	export async function icpToNicp(amount: BigNumber) {
-		if (!$user || $isConverting || !$canisters) return;
+		if (!$user || $isConverting || !$canisters || amount.isNaN()) return;
 		isConverting.set(true);
 
 		if ($user.icpBalance().isGreaterThanOrEqualTo(amount) && amount.isGreaterThan(0)) {
@@ -89,7 +89,7 @@
 	}
 
 	export async function nicpToIcp(amount: BigNumber) {
-		if (!$user || $isConverting || !$canisters) return;
+		if (!$user || $isConverting || !$canisters || amount.isNaN()) return;
 		isConverting.set(true);
 
 		if ($user.nicpBalance().isGreaterThanOrEqualTo(amount) && amount.isGreaterThan(0)) {
@@ -161,7 +161,7 @@
 				on:click={() => {
 					stake = true;
 					invertExchangeRate = false;
-					inputValue.set('');
+					inputAmount.reset();
 				}}
 				class:selected={stake}
 				class:not-selected={!stake}><h2 class="header-txt" style:left="5%">Stake ICP</h2></button
@@ -173,7 +173,7 @@
 				on:click={() => {
 					stake = false;
 					invertExchangeRate = false;
-					inputValue.set('');
+					inputAmount.reset();
 				}}
 				class:selected={!stake}
 				class:not-selected={stake}><h2 class="header-txt" style:right="5%">Unstake nICP</h2></button
@@ -186,7 +186,7 @@
 					<p style:color="var(--orange-color)">
 						{#if exchangeRate}
 							You will receive {displayUsFormat(
-								computeReceiveAmount(stake, BigNumber($inputValue), exchangeRate),
+								computeReceiveAmount(stake, BigNumber($inputAmount), exchangeRate),
 								8
 							)} nICP
 						{:else}
@@ -199,9 +199,9 @@
 						</button>
 						{#if exchangeRate}
 							{#if invertExchangeRate}
-								1 nICP = {displayUsFormat(BigNumber(1).dividedBy(exchangeRate))} ICP
+								1 nICP = {displayUsFormat(BigNumber(1).dividedBy(exchangeRate), 8)} ICP
 							{:else}
-								1 ICP = {displayUsFormat(exchangeRate)} nICP
+								1 ICP = {displayUsFormat(exchangeRate, 8)} nICP
 							{/if}
 						{:else}
 							-/-
@@ -214,7 +214,7 @@
 								{displayUsFormat(
 									computeRewards(
 										totalIcpDeposited,
-										computeReceiveAmount(stake, BigNumber($inputValue), exchangeRate)
+										computeReceiveAmount(stake, BigNumber($inputAmount), exchangeRate)
 									),
 									8
 								)}
@@ -234,7 +234,7 @@
 					<p style:color="var(--orange-color)">
 						{#if exchangeRate}
 							You will receive {displayUsFormat(
-								computeReceiveAmount(stake, BigNumber($inputValue), exchangeRate),
+								computeReceiveAmount(stake, BigNumber($inputAmount), exchangeRate),
 								8
 							)} ICP
 						{:else}
@@ -247,9 +247,9 @@
 						</button>
 						{#if exchangeRate}
 							{#if !invertExchangeRate}
-								1 nICP = {displayUsFormat(BigNumber(1).dividedBy(exchangeRate))} ICP
+								1 nICP = {displayUsFormat(BigNumber(1).dividedBy(exchangeRate), 8)} ICP
 							{:else}
-								1 ICP = {displayUsFormat(exchangeRate)} nICP
+								1 ICP = {displayUsFormat(exchangeRate, 8)} nICP
 							{/if}
 						{:else}
 							-/-
@@ -278,7 +278,7 @@
 				<button
 					class="swap-btn"
 					on:click={() => {
-						stake ? icpToNicp(BigNumber($inputValue)) : nicpToIcp(BigNumber($inputValue));
+						stake ? icpToNicp(BigNumber($inputAmount)) : nicpToIcp(BigNumber($inputAmount));
 					}}
 				>
 					{#if $isConverting}

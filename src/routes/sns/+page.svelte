@@ -3,14 +3,28 @@
 	import SnsListing from './SnsListing.svelte';
 	import CopyIcon from '$lib/icons/CopyIcon.svelte';
 	import { fade, scale } from 'svelte/transition';
-	import { sns, canisters, isBusy, toasts, handleSnsChange } from '$lib/stores';
+	import {
+		sns,
+		canisters,
+		isBusy,
+		toasts,
+		handleSnsChange,
+		inputAmount,
+		handleInputAmount
+	} from '$lib/stores';
 	import { Toast } from '$lib/toast';
 	import { handleSnsIcpDepositResult, handleSnsRetrieveNicpResult } from '$lib/resultHandler';
 	import { Principal } from '@dfinity/principal';
-	import { type Account, SubAccount, AccountIdentifier } from '@dfinity/ledger-icp';
+	import { type Account, AccountIdentifier, type IcrcAccount } from '@dfinity/ledger-icp';
 	import BigNumber from 'bignumber.js';
-	import { displayUsFormat, bigintE8sToNumber, isPrincipalValid } from '$lib';
-	import { signIn, CANISTER_ID_BOOMERANG } from '$lib/authentification';
+	import {
+		displayUsFormat,
+		bigintE8sToNumber,
+		isPrincipalValid,
+		numberToBigintE8s,
+		principalToHex
+	} from '$lib';
+	import { signIn } from '$lib/authentification';
 	import { fetchIcpBalance, fetchNicpBalance } from '$lib/state';
 	import { encodeIcrcAccount } from '@dfinity/ledger-icrc';
 
@@ -18,7 +32,7 @@
 	let isRetrieveBusy: boolean;
 	let principalInput: string;
 
-	const handleInputChange = async () => {
+	const handlePrincipalInputChange = async () => {
 		if (!$canisters || $sns.name !== 'Custom') return;
 		if (isPrincipalValid(principalInput)) {
 			await handleSnsChange('Custom', principalInput);
@@ -95,15 +109,15 @@
 	{#key $sns.name}
 		<div class="boomerang-container" in:fade={{ duration: 500 }}>
 			<div class="top-container">
-				<div class="header-container">
-					<h1>Stake <span style:color="var(--main-color)">{$sns.name}</span> Treasury</h1>
-					<span style:color="white">
+				<h1>Stake <span style:color="var(--main-color)">{$sns.name}</span> Treasury</h1>
+				<div class="sns-info-container">
+					<span class="governance-id">
 						{#if $sns.name === 'Custom'}
 							Principal: <input
 								type="text"
 								placeholder="Address"
 								bind:value={principalInput}
-								on:input={handleInputChange}
+								on:input={handlePrincipalInputChange}
 							/>
 						{:else}
 							Goverance id: <a
@@ -113,22 +127,24 @@
 							>
 						{/if}
 					</span>
-				</div>
-				<div class="balances-container">
-					{#if $sns.icpBalance}
-						<a
-							target="blank"
-							href="https://dashboard.internetcomputer.org/account/"
-							class="balance dashboard">{displayUsFormat($sns.nicpBalance)} ICP</a
-						>
-					{:else}
-						<span class="balance">-/- ICP</span>
-					{/if}
-					{#if $sns.nicpBalance}
-						<span class="balance">{displayUsFormat($sns.nicpBalance)} nICP</span>
-					{:else}
-						<span class="balance">-/- nICP</span>
-					{/if}
+					<div class="balances-container">
+						{#if $sns.icpBalance}
+							<a
+								target="blank"
+								href="https://dashboard.internetcomputer.org/account/{principalToHex(
+									$sns.principal
+								)}"
+								class="balance dashboard">{displayUsFormat($sns.icpBalance)} ICP</a
+							>
+						{:else}
+							<span class="balance">-/- ICP</span>
+						{/if}
+						{#if $sns.nicpBalance}
+							<span class="balance">{displayUsFormat($sns.nicpBalance)} nICP</span>
+						{:else}
+							<span class="balance">-/- nICP</span>
+						{/if}
+					</div>
 				</div>
 			</div>
 			<div class="step-container" in:fade={{ duration: 500 }}>
@@ -142,8 +158,8 @@
 				</div>
 				<div class="account-container">
 					<div class="principal-container">
-						{#if $sns.encodedAccount}
-							<p>{$sns.encodedAccount}</p>
+						{#if $sns.encodedBoomerangAccount}
+							<p>{$sns.encodedBoomerangAccount}</p>
 						{:else}
 							<p>-/-</p>
 						{/if}
@@ -151,7 +167,7 @@
 							class="copy-btn"
 							on:click={() => {
 								handleAnimation('subaccount');
-								navigator.clipboard.writeText($sns.encodedAccount);
+								navigator.clipboard.writeText($sns.encodedBoomerangAccount);
 							}}
 						>
 							<CopyIcon />
@@ -160,14 +176,36 @@
 							{/if}
 						</button>
 					</div>
+					<span class="sns-amount">
+						Choose the amount of ICP to transfer:
+						<input
+							type="text"
+							maxlength="20"
+							bind:value={$inputAmount}
+							placeholder="Amount"
+							on:input={handleInputAmount}
+						/>
+					</span>
 				</div>
-				<a
-					class="action-btn"
-					href="https://proposals.network/submit?g={$sns.principal}"
-					target="blank"
-				>
-					Make a proposal
-				</a>
+				{#if BigNumber($inputAmount).isNaN()}
+					<a
+						class="action-btn"
+						href="https://proposals.network/submit?g={$sns.principal}&action=TransferSnsTreasuryFunds&destination={$sns.encodedBoomerangAccount}"
+						target="blank"
+					>
+						Make a proposal
+					</a>
+				{:else}
+					<a
+						class="action-btn"
+						href="https://proposals.network/submit?g={$sns.principal}&action=TransferSnsTreasuryFunds&destination={$sns.encodedBoomerangAccount}&amount={numberToBigintE8s(
+							BigNumber($inputAmount)
+						)}"
+						target="blank"
+					>
+						Make a proposal
+					</a>
+				{/if}
 			</div>
 			<div class="step-container" in:fade={{ duration: 500 }}>
 				<div class="instruction-container">
@@ -250,7 +288,7 @@
 		border: 2px solid #66adff;
 		border-radius: 10px;
 		display: flex;
-		height: 39em;
+		height: 44em;
 		width: 60em;
 		max-width: 95dvw;
 	}
@@ -280,6 +318,8 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
+		width: 80%;
+		height: 4em;
 	}
 
 	.account-container {
@@ -287,7 +327,6 @@
 		flex-direction: column;
 		gap: 1em;
 		width: 100%;
-		height: 4em;
 		justify-content: center;
 		align-items: center;
 	}
@@ -300,19 +339,17 @@
 
 	.top-container {
 		display: flex;
-		justify-content: space-around;
-		width: 100%;
-		position: relative;
-		align-items: center;
-	}
-
-	.header-container {
-		display: flex;
 		flex-direction: column;
 		width: 100%;
-		justify-content: center;
 		align-items: center;
-		gap: 0.5em;
+		gap: 1em;
+	}
+
+	.sns-info-container {
+		display: flex;
+		width: 90%;
+		justify-content: space-between;
+		align-items: center;
 		height: 4em;
 	}
 
@@ -328,8 +365,6 @@
 		flex-direction: column;
 		align-items: end;
 		width: fit-content;
-		position: absolute;
-		right: 0;
 	}
 
 	/* === Component === */
@@ -376,6 +411,21 @@
 		color: white;
 		font-family: var(--main-font);
 		font-size: 18px;
+	}
+
+	.governance-id {
+		color: white;
+		width: 60%;
+		display: flex;
+		align-items: center;
+	}
+
+	.sns-amount {
+		color: white;
+		width: 100%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
 	}
 
 	/* === Utilities === */
@@ -442,7 +492,7 @@
 			justify-content: center;
 		}
 
-		.header-container {
+		.sns-info-container {
 			flex-direction: column;
 			gap: 1em;
 			align-items: center;
@@ -458,6 +508,11 @@
 
 		.dashboard {
 			font-size: 15px;
+		}
+
+		.governance-id {
+			width: 100%;
+			justify-content: center;
 		}
 	}
 </style>
