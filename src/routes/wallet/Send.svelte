@@ -46,7 +46,7 @@
 				return AccountIdentifier.fromHex(accountString);
 			}
 			const icrcAccount = decodeIcrcAccount(accountString);
-			const subaccount = [icrcAccount.subaccount] ?? [];
+			const subaccount = icrcAccount.subaccount ?? [];
 			return { owner: icrcAccount.owner, subaccount } as Account;
 		} catch (error) {
 			return;
