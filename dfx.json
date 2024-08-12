@@ -11,9 +11,9 @@
 			"type": "custom",
 			"wasm": "wasm/boomerang.wasm"
 		},
-		"internet_identity" : {
+		"internet_identity": {
 			"candid": "candid/internet_identity.did",
-			"type": "custom", 
+			"type": "custom",
 			"wasm": "wasm/internet_identity_dev.wasm.gz"
 		},
 		"dapp_frontend": {

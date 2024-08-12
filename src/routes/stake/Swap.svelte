@@ -187,7 +187,7 @@
 						{#if exchangeRate}
 							You will receive {displayUsFormat(
 								computeReceiveAmount(stake, BigNumber($inputAmount), exchangeRate),
-								8	
+								8
 							)} nICP
 						{:else}
 							-/-

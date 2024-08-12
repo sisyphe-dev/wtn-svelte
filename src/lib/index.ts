@@ -27,7 +27,7 @@ export function numberWithPrecision(x: BigNumber, decimals: BigNumber): BigNumbe
 
 export function numberToBigintE8s(x: BigNumber): bigint {
 	const xScaled = numberWithPrecision(x, BigNumber(8)).multipliedBy(E8S);
-	return BigInt(xScaled.toNumber());
+	return BigInt(xScaled.toFixed(0));
 }
 
 export function bigintE8sToNumber(x: bigint): BigNumber {
