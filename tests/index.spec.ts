@@ -6,7 +6,8 @@ import {
 	bigintE8sToNumber,
 	TIERS,
 	EXPECTED_INITIAL_BALANCE,
-	computeRewards
+	computeRewards,
+	displayUsFormat
 } from '$lib';
 import BigNumber from 'bignumber.js';
 
@@ -89,4 +90,9 @@ test('computeRewards', () => {
 		0
 	);
 	expect(BigNumber(total).eq(EXPECTED_INITIAL_BALANCE)).toBeTruthy();
+});
+
+
+test.only('Display US-format', () => {
+	expect(displayUsFormat(BigNumber(1_000_000.0123942))).toEqual("1'000'000.0123942");
 });
