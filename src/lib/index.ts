@@ -167,12 +167,6 @@ export function renderStatus(status: WithdrawalStatus): string {
 			return 'Waiting to Split Neuron';
 		case 'WaitingDissolvement':
 			return 'Waiting dissolvement';
-
-		// if (status[key]['neuron_id']['id']) {
-		// 	return displayStatus(status[key]['neuron_id']);
-		// } else {
-		// 	return 'Waiting dissolvement';
-		// }
 		case 'WaitingToStartDissolving':
 			return `Waiting to Start Dissolving (Neuron ID: ${status[key]['neuron_id']['id']})`;
 		default:
@@ -186,7 +180,6 @@ export function displayTimeLeft(created_at: number, isMobile = false) {
 	const timeLeft = created_at + sixMonthsInSeconds - currentTimestamp;
 	const daysLeft = Math.floor(timeLeft / 60 / 60 / 24);
 	const hoursLeft = Math.floor((timeLeft - daysLeft * 60 * 60 * 24) / 60 / 60);
-
 
 	if (!isMobile && daysLeft > 0 && hoursLeft > 0) {
 		return `${daysLeft} days and ${hoursLeft} hours left`;
@@ -228,10 +221,9 @@ export function isPrincipalValid(input: string): boolean {
 }
 
 export function principalToHex(principalString: string): string {
-	try { 
+	try {
 		const principal = Principal.fromText(principalString);
 		return AccountIdentifier.fromPrincipal({ principal: principal }).toHex();
-
 	} catch (error) {
 		return '';
 	}
