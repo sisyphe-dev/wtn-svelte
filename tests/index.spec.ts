@@ -94,5 +94,7 @@ test('computeRewards', () => {
 
 
 test.only('Display US-format', () => {
-	expect(displayUsFormat(BigNumber(1_000_000.0123942))).toEqual("1'000'000.0123942");
+	expect(displayUsFormat(BigNumber(1_000_000.0123942))).toEqual("1'000'000.01");
+	expect(displayUsFormat(BigNumber(1_000_000.018942))).toEqual("1'000'000.02");
+	expect(displayUsFormat(BigNumber(1_000_000.0123942), 8)).toEqual("1'000'000.0123942");
 });
