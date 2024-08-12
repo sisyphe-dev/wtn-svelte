@@ -6,6 +6,8 @@ import { User, Canisters } from '$lib/state';
 import { get } from 'svelte/store';
 import type { TransferArgs, Tokens } from '../../src/declarations/icp_ledger/icp_ledger.did';
 import { AccountIdentifier } from '@dfinity/ledger-icp';
+import { Page } from 'playwright';
+import { expect } from '@playwright/test';
 
 const key = [
 	'302a300506032b657003210093d488f46b485c07e09b554d9451574bfc669912b99d453722c474e6a7f90fcc',
@@ -41,7 +43,7 @@ export async function supplyICP(accountId: string) {
 	if (!(mockCanisters && mockMintingAccount))
 		throw new Error('Mock user or mock canisters are undefined.');
 
-	await mockCanisters.icpLedger.transfer({
+	const result = await mockCanisters.icpLedger.transfer({
 		to: AccountIdentifier.fromHex(accountId).toUint8Array(),
 		fee: { e8s: 10000n } as Tokens,
 		memo: 0n,
@@ -49,4 +51,18 @@ export async function supplyICP(accountId: string) {
 		created_at_time: [],
 		amount: { e8s: 100n * 100_000_000n } as Tokens
 	} as TransferArgs);
+
+	if (Object.keys(result)[0] === "Err") throw new Error("Failed to transfer balance");
+}
+
+export async function swap(page: Page, amount: number) {
+	await page.locator('[title="home-btn"]').click();
+	await page.locator('[title="swap-input"]').fill(amount.toString());
+	await page.locator('[title="stake-unstake-btn"]').click();
+}
+
+export async function isToastSuccess(page: Page) {
+	const message = await page.locator('p[title="toast-message"]').evaluate((msg) => msg.textContent?.split(" ")[0]);
+	await page.locator(".toast-close").click()
+	return message === "Successful";
 }

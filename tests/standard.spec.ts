@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { testWithII } from '@dfinity/internet-identity-playwright';
 import { user, canisters } from '$lib/stores';
 import { get } from 'svelte/store';
-import { mockSetup, supplyICP } from './utils/mockInternetIdentity';
+import { mockSetup, supplyICP, swap, isToastSuccess } from './utils/mockInternetIdentity';
 
 test('has title', async ({ page }) => {
 	await page.goto('/');
@@ -72,16 +72,24 @@ testWithII.only('e2e test', async ({ page, iiPage }) => {
 	await expect(paragraphs.nth(1)).toHaveText('0 nICP');
 	await expect(paragraphs.nth(2)).toHaveText('0 WTN');
 
-  	await page.locator('[title="home-btn"]').click();
-	await page.locator('[title="swap-input"]').fill('10');
-	await page.locator('[title="stake-unstake-btn"]').click();
+  	await swap(page, 15);
 
-	await page.waitForTimeout(5000);
-
-	await expect(paragraphs.nth(0)).toHaveText('90 ICP');
-	await expect(paragraphs.nth(1)).toHaveText('10 nICP');
+	await expect(paragraphs.nth(0)).toHaveText('85 ICP');
+	await expect(paragraphs.nth(1)).toHaveText('15 nICP');
 	await expect(paragraphs.nth(2)).toHaveText('0 WTN');
 
-	const message = page.locator('p[title="toast-message"]').evaluate((msg) => msg.textContent)
-	expect(message).toBe("Successful");
+	expect(await isToastSuccess(page)).toBeTruthy();
+
+	await expect(page.locator('p[title="toast-message"]')).not.toBeVisible();
+
+	await swap(page, 0.001);
+	expect(await isToastSuccess(page)).toBeFalsy();
+
+	await page.locator('[title="unstake-header"]').click();
+
+	await swap(page, 9.9999);
+	expect(await isToastSuccess(page)).toBeFalsy();
+
+	await swap(page, 14.9999);
+	expect(await isToastSuccess(page)).toBeTruthy();
 });

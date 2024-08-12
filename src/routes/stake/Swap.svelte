@@ -158,6 +158,7 @@
 				class="header-btn"
 				style:text-align="start"
 				style:border-top-left-radius="8px"
+				title="stake-header"
 				on:click={() => {
 					stake = true;
 					invertExchangeRate = false;
@@ -170,6 +171,7 @@
 				class="header-btn"
 				style:text-align="end"
 				style:border-top-right-radius="8px"
+				title="unstake-header"
 				on:click={() => {
 					stake = false;
 					invertExchangeRate = false;
