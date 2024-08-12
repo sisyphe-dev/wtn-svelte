@@ -10,7 +10,8 @@ import {
 	displayUsFormat,
 	displayPrincipal,
 	principalToHex,
-	isPrincipalValid
+	isPrincipalValid,
+	displayTimeLeft
 } from '$lib';
 import BigNumber from 'bignumber.js';
 import { Principal } from '@dfinity/principal';
@@ -118,4 +119,9 @@ test('Should display the hex from the acccount identifier when the principal is 
 test('check if the principal is valid', () => {
 	expect(isPrincipalValid(VALID_PRINCIPAL)).toBeTruthy();
 	expect(isPrincipalValid(WRONG_PRINCIPAL)).toBeFalsy();
+});
+
+test.only('check time display', () => {
+	const now = Date.now();
+	expect(displayTimeLeft(now+10000)).toEqual("");
 });
