@@ -89,6 +89,9 @@ testWithII.only('e2e test', async ({ page, iiPage }) => {
 	await swap(page, 9.9999);
 	expect(await isToastSuccess(page)).toBeFalsy();
 
+	await swap(page, 14.9999);
+	expect(await isToastSuccess(page)).toBeFalsy();
+
 	await swap(page, 14.9998);
 	expect(await isToastSuccess(page)).toBeTruthy();
 });
