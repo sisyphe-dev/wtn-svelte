@@ -230,6 +230,12 @@ export function isPrincipalValid(input: string): boolean {
 	}
 }
 
-export function principalToHex(principal: string): string {
-	return AccountIdentifier.fromPrincipal({ principal: Principal.fromText(principal) }).toHex();
+export function principalToHex(principalString: string): string {
+	try { 
+		const principal = Principal.fromText(principalString);
+		return AccountIdentifier.fromPrincipal({ principal: principal }).toHex();
+
+	} catch (error) {
+		return '';
+	}
 }

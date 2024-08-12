@@ -8,12 +8,16 @@ import {
 	EXPECTED_INITIAL_BALANCE,
 	computeRewards,
 	displayUsFormat,
-	displayPrincipal
+	displayPrincipal,
+	principalToHex,
+	isPrincipalValid
 } from '$lib';
 import BigNumber from 'bignumber.js';
 import { Principal } from '@dfinity/principal';
 
 const EPSILON = BigNumber(0.00000001);
+const VALID_PRINCIPAL = "l72el-pt5ry-lmj66-3opyw-tl5xx-3wzfl-n3mja-dqirc-oxmqs-uxqe6-6qe";
+const WRONG_PRINCIPAL = "aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaa-aaa";
 
 test('numberWithPrecision test', () => {
 	expect(numberWithPrecision(BigNumber(12.436), BigNumber(2)).eq(BigNumber(12.43))).toBeTruthy();
@@ -66,7 +70,7 @@ test('numberToBigintE8s test', () => {
 	);
 });
 
-test.only('bigintE8sToNumber test', () => {
+test('bigintE8sToNumber test', () => {
 	expect(bigintE8sToNumber(131243600000n).eq(BigNumber(1312.436))).toBeTruthy();
 
 	fc.assert(
@@ -101,7 +105,17 @@ test('Display US-format', () => {
 	expect(displayUsFormat(BigNumber(1_000_000.0123942), 8)).toEqual("1'000'000.0123942");
 });
 
-test.only('Test truncated format for principal', () => {
+test('Test truncated format for principal', () => {
 	const principal = Principal.fromText("l72el-pt5ry-lmj66-3opyw-tl5xx-3wzfl-n3mja-dqirc-oxmqs-uxqe6-6qe");
 	expect(displayPrincipal(principal)).toEqual("l72el...6qe");
+});
+
+test('Should display the hex from the acccount identifier when the principal is valid.', () => {
+	expect(principalToHex(VALID_PRINCIPAL)).toEqual("e73a99617af2a8dbfe9b75e463e83a905e30aa50250972ad19c21922c22b2a2a");
+	expect(principalToHex(WRONG_PRINCIPAL)).toEqual("");
+});
+
+test('check if the principal is valid', () => {
+	expect(isPrincipalValid(VALID_PRINCIPAL)).toBeTruthy();
+	expect(isPrincipalValid(WRONG_PRINCIPAL)).toBeFalsy();
 });
