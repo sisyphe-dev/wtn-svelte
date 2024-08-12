@@ -122,6 +122,12 @@ test('check if the principal is valid', () => {
 });
 
 test.only('check time display', () => {
-	const now = Date.now();
-	expect(displayTimeLeft(now+10000)).toEqual("");
+	const now = Math.floor(Date.now()/1_000);
+	const sixMonthsInSeconds = 6 * 30.44 * 24 * 60 * 60;
+	expect(displayTimeLeft(now-sixMonthsInSeconds)).toEqual("Less than an hour left");
+	expect(displayTimeLeft(now-sixMonthsInSeconds, true)).toEqual("Less than an hour left");
+	expect(displayTimeLeft(now)).toEqual("182 days and 15 hours left");
+	expect(displayTimeLeft(now, true)).toEqual("182 days left");
+	expect(displayTimeLeft(now-15 * 60 * 60)).toEqual("182 days left");
+	expect(displayTimeLeft(now+2*60*60-sixMonthsInSeconds)).toEqual("2 hours left");
 });
