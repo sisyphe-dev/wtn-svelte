@@ -280,6 +280,7 @@
 					on:click={() => {
 						stake ? icpToNicp(BigNumber($inputAmount)) : nicpToIcp(BigNumber($inputAmount));
 					}}
+					title="stake-unstake-btn"
 				>
 					{#if $isConverting}
 						<div class="spinner"></div>

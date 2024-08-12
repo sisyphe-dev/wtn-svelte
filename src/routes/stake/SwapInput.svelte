@@ -14,6 +14,7 @@
 		bind:value={$inputAmount}
 		placeholder="Amount"
 		on:input={handleInputAmount}
+		title="swap-input"
 	/>
 	<button
 		class="max-btn"

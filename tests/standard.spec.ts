@@ -43,8 +43,7 @@ test('Mock minting account has balance', async () => {
 testWithII.only('e2e test', async ({ page, iiPage }) => {
 	await page.goto('/');
 
-	let connectBtn = page.locator('[title="connect-btn"]');
-	await connectBtn.click();
+	await page.locator('[title="connect-btn"]').click();
 
 	await iiPage.signInWithNewIdentity({ selector: '[title="ii-connect-btn"]' });
 
@@ -73,5 +72,16 @@ testWithII.only('e2e test', async ({ page, iiPage }) => {
 	await expect(paragraphs.nth(1)).toHaveText('0 nICP');
 	await expect(paragraphs.nth(2)).toHaveText('0 WTN');
 
-  
+  	await page.locator('[title="home-btn"]').click();
+	await page.locator('[title="swap-input"]').fill('10');
+	await page.locator('[title="stake-unstake-btn"]').click();
+
+	await page.waitForTimeout(5000);
+
+	await expect(paragraphs.nth(0)).toHaveText('90 ICP');
+	await expect(paragraphs.nth(1)).toHaveText('10 nICP');
+	await expect(paragraphs.nth(2)).toHaveText('0 WTN');
+
+	const message = page.locator('p[title="toast-message"]').evaluate((msg) => msg.textContent)
+	expect(message).toBe("Successful");
 });
