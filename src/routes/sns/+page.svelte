@@ -176,7 +176,7 @@
 							{/if}
 						</button>
 					</div>
-					<span class="sns-amount" style:justify-content="center">
+					<span class="sns-amount">
 						Choose the amount of ICP to transfer:
 						<input
 							type="text"
@@ -425,6 +425,7 @@
 		width: 100%;
 		display: flex;
 		align-items: center;
+		justify-content: center;
 	}
 
 	/* === Utilities === */
