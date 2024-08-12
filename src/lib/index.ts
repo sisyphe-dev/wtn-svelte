@@ -164,11 +164,11 @@ export function renderStatus(status: WithdrawalStatus): string {
 		case 'NotFound':
 			return 'Withdrawal status not found.';
 		case 'WaitingToSplitNeuron':
-			return 'Waiting to Split Neuron';
+			return 'Waiting to Split Neuron.';
 		case 'WaitingDissolvement':
-			return 'Waiting dissolvement';
+			return `Waiting dissolvement (Neuron ID: ${status[key]['neuron_id']['id']}).`;
 		case 'WaitingToStartDissolving':
-			return `Waiting to Start Dissolving (Neuron ID: ${status[key]['neuron_id']['id']})`;
+			return `Waiting to Start Dissolving (Neuron ID: ${status[key]['neuron_id']['id']}).`;
 		default:
 			return 'Unknown Status';
 	}
