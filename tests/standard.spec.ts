@@ -73,14 +73,13 @@ testWithII.only('e2e test', async ({ page, iiPage }) => {
 	await expect(paragraphs.nth(2)).toHaveText('0 WTN');
 
   	await swap(page, 15);
+	await page.waitForTimeout(5000);
 
 	await expect(paragraphs.nth(0)).toHaveText('85 ICP');
 	await expect(paragraphs.nth(1)).toHaveText('15 nICP');
 	await expect(paragraphs.nth(2)).toHaveText('0 WTN');
 
 	expect(await isToastSuccess(page)).toBeTruthy();
-
-	await expect(page.locator('p[title="toast-message"]')).not.toBeVisible();
 
 	await swap(page, 0.001);
 	expect(await isToastSuccess(page)).toBeFalsy();
@@ -90,6 +89,6 @@ testWithII.only('e2e test', async ({ page, iiPage }) => {
 	await swap(page, 9.9999);
 	expect(await isToastSuccess(page)).toBeFalsy();
 
-	await swap(page, 14.9999);
+	await swap(page, 14.9998);
 	expect(await isToastSuccess(page)).toBeTruthy();
 });

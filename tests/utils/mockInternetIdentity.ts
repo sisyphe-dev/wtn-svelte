@@ -62,7 +62,9 @@ export async function swap(page: Page, amount: number) {
 }
 
 export async function isToastSuccess(page: Page) {
-	const message = await page.locator('p[title="toast-message"]').evaluate((msg) => msg.textContent?.split(" ")[0]);
+	const message = await page.locator('p[title="toast-message"]').evaluate((msg) => msg.textContent);
+	console.log(message);
 	await page.locator(".toast-close").click()
-	return message === "Successful";
+	await expect(page.locator('p[title="toast-message"]')).not.toBeVisible();
+	return message?.split(" ")[0] === "Successful";
 }
