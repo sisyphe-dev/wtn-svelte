@@ -177,14 +177,14 @@
 						</button>
 					</div>
 					<span class="sns-amount">
-							Choose the amount of ICP to transfer:
-					<input
-						type="text"
-						maxlength="20"
-						bind:value={$inputAmount}
-						placeholder="Amount"
-						on:input={handleInputAmount}
-					/>
+						Choose the amount of ICP to transfer:
+						<input
+							type="text"
+							maxlength="20"
+							bind:value={$inputAmount}
+							placeholder="Amount"
+							on:input={handleInputAmount}
+						/>
 					</span>
 				</div>
 				{#if BigNumber($inputAmount).isNaN()}
