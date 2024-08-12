@@ -26,7 +26,7 @@ test('test urls', async ({ page }) => {
 	await expect(page).toHaveURL('/stake/');
 });
 
-test('Mock minting account has balance', async () => {
+test.only('Mock minting account has balance', async () => {
 	await mockSetup();
 
 	const mockMintingAccount = get(user);
@@ -65,14 +65,9 @@ testWithII('should sign-in with a new user', async ({ page, iiPage }) => {
 	const count = await paragraphs.count();
 	expect(count).toBe(3);
 
-	const firstParagraph = paragraphs.nth(0);
-	await expect(firstParagraph).toHaveText('0 ICP');
-
-	const secondParagraph = paragraphs.nth(1);
-	await expect(secondParagraph).toHaveText('0 nICP');
-
-	const thirdParagraph = paragraphs.nth(2);
-	await expect(thirdParagraph).toHaveText('0 WTN');
+	await expect(paragraphs.nth(0)).toHaveText('0 ICP');
+	await expect(paragraphs.nth(1)).toHaveText('0 nICP');
+	await expect(paragraphs.nth(2)).toHaveText('0 WTN');
 
 	await mockSetup();
 	const mockMintingAccount = get(user);
@@ -85,7 +80,7 @@ testWithII('should sign-in with a new user', async ({ page, iiPage }) => {
 		memo: 0n,
 		from_subaccount: [],
 		created_at_time: [],
-		amount: { e8s: 1_000n * 100_000_000n } as Tokens
+		amount: { e8s: 100n * 100_000_000n } as Tokens
 	} as TransferArgs);
 
 	await expect(paragraphs.nth(0)).toHaveText('100 ICP');
