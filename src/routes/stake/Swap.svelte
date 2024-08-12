@@ -326,12 +326,11 @@
 	/* === Layout === */
 	.main-container {
 		display: flex;
-		place-content: center;
+		justify-content: start;
 		flex-direction: column;
 		box-shadow: rgba(41, 49, 71, 0.1) 0px 8px 16px;
 		width: 30em;
 		max-width: 97vw;
-		height: auto;
 	}
 
 	.header-container {

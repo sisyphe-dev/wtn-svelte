@@ -234,10 +234,7 @@ export function handleInput(event: Event): void {
 	}
 }
 
-const userAgent = navigator.userAgent;
-export const isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-	userAgent
-);
+export const isMobile = window.innerWidth <= 767;
 
 export function isContainerHigher(type: 'receive' | 'send'): boolean {
 	let name: string;
@@ -255,4 +252,13 @@ export function isContainerHigher(type: 'receive' | 'send'): boolean {
 	const viewportHeight = window.innerHeight;
 
 	return containerHeight >= viewportHeight;
+}
+
+export function isPrincipalValid(input: string): boolean {
+	try {
+		Principal.fromText(input);
+		return true;
+	} catch (error) {
+		return false;
+	}
 }

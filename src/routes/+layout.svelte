@@ -4,15 +4,19 @@
 	import Connect from './Connect.svelte';
 	import Send from './wallet/Send.svelte';
 	import Menu from './Menu.svelte';
+	import SnsMenu from './sns/SnsMenu.svelte';
 	import Receive from './wallet/Receive.svelte';
 	import {
 		isLogging,
 		inMobileMenu,
 		inSendingMenu,
 		inReceivingMenu,
+		inSnsMenu,
 		user,
 		canisters,
-		waterNeuronInfo
+		waterNeuronInfo,
+		sns,
+		handleSnsChange
 	} from '$lib/stores';
 	import { onMount } from 'svelte';
 	import {
@@ -45,13 +49,12 @@
 		signIn('reload').then(() => {
 			updateBalances();
 			updateWaterNeuronInfo();
+			handleSnsChange();
 		});
 
 		const intervalId = setInterval(async () => {
-			if ($waterNeuronInfo && $canisters) {
-				await updateBalances();
-				await updateWaterNeuronInfo();
-			}
+			await updateBalances();
+			await updateWaterNeuronInfo();
 		}, 5000);
 
 		return () => clearInterval(intervalId);
@@ -69,6 +72,8 @@
 {/if}
 {#if $inMobileMenu}
 	<Menu />
+{:else if $inSnsMenu}
+	<SnsMenu />
 {:else}
 	<div class="page-container">
 		<Navbar />
@@ -168,7 +173,7 @@
 		min-height: 45vh;
 		flex-grow: 1;
 		width: 100%;
-		gap: 1.5em;
+		gap: 3em;
 		padding-top: 2em;
 		margin-bottom: 4em;
 		color: white;

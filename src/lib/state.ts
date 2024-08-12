@@ -1,9 +1,10 @@
 import { AssetType, bigintE8sToNumber } from '$lib';
-import { AccountIdentifier, type Account } from '@dfinity/ledger-icp';
+import { AccountIdentifier, type Account, SubAccount } from '@dfinity/ledger-icp';
 import { Principal } from '@dfinity/principal';
 import BigNumber from 'bignumber.js';
 import type { _SERVICE as icrcLedgerInterface } from '../declarations/icrc_ledger/icrc_ledger.did';
 import type { _SERVICE as icpLedgerInterface } from '../declarations/icp_ledger/icp_ledger.did';
+import type { _SERVICE as boomerangInterface } from '../declarations/boomerang/boomerang.did';
 import type {
 	CanisterInfo,
 	_SERVICE as waterNeuronInterface
@@ -72,7 +73,6 @@ async function createSecp256k1IdentityActor(
 	const dummyAgent = Promise.resolve(new HttpAgent({ host: HOST, identity: dummyIdentity })).then(
 		async (agent) => {
 			if (process.env.DFX_NETWORK !== 'ic') {
-				console.log('fetching root key');
 				agent.fetchRootKey().catch((err) => {
 					console.warn(
 						'Unable to fetch root key. Check to ensure that your local replica is running'
@@ -108,33 +108,37 @@ export class Canisters {
 	public wtnLedger: icrcLedgerInterface;
 	public nicpLedger: icrcLedgerInterface;
 	public waterNeuron: waterNeuronInterface;
+	public boomerang: boomerangInterface;
 
 	constructor(actors: Actors) {
 		this.nicpLedger = actors.nicpLedger;
 		this.wtnLedger = actors.wtnLedger;
 		this.icpLedger = actors.icpLedger;
 		this.waterNeuron = actors.waterNeuron;
+		this.boomerang = actors.boomerang;
 	}
 }
 
 export async function fetchIcpBalance(
 	principal: Principal,
-	icpLedger: icpLedgerInterface
+	icpLedger: icpLedgerInterface,
+	maybe_subaccount?: SubAccount
 ): Promise<bigint> {
 	const user_account: Account = {
 		owner: principal,
-		subaccount: []
+		subaccount: maybe_subaccount ? [maybe_subaccount.toUint8Array()] : []
 	};
 	return await icpLedger.icrc1_balance_of(user_account);
 }
 
 export async function fetchNicpBalance(
 	principal: Principal,
-	nicpLedger: icrcLedgerInterface
+	nicpLedger: icrcLedgerInterface,
+	maybe_subaccount?: SubAccount
 ): Promise<bigint> {
 	const user_account: Account = {
 		owner: principal,
-		subaccount: []
+		subaccount: maybe_subaccount ? [maybe_subaccount.toUint8Array()] : []
 	};
 	return await nicpLedger.icrc1_balance_of(user_account);
 }

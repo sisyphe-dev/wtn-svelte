@@ -6,6 +6,11 @@
 			"type": "custom",
 			"wasm": "wasm/waterneuron.wasm.gz"
 		},
+		"boomerang": {
+			"candid": "candid/boomerang.did",
+			"type": "custom",
+			"wasm": "wasm/boomerang.wasm"
+		},
 		"dapp_frontend": {
 			"source": ["dist"],
 			"type": "assets",
