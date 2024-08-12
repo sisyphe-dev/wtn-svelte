@@ -49,7 +49,7 @@ export async function supplyICP(accountId: string) {
 		memo: 0n,
 		from_subaccount: [],
 		created_at_time: [],
-		amount: { e8s: 100n * 100_000_000n } as Tokens
+		amount: { e8s: 15n * 100_000_000n } as Tokens
 	} as TransferArgs);
 
 	if (Object.keys(result)[0] === "Err") throw new Error("Failed to transfer balance");

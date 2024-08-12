@@ -41,6 +41,7 @@ test('Mock minting account has balance', async () => {
 });
 
 testWithII.only('e2e test', async ({ page, iiPage }) => {
+	test.setTimeout(60000);
 	await page.goto('/');
 
 	await page.locator('[title="connect-btn"]').click();
@@ -68,30 +69,40 @@ testWithII.only('e2e test', async ({ page, iiPage }) => {
 
 	await supplyICP(accountId);
 
-	await expect(paragraphs.nth(0)).toHaveText('100 ICP');
+	await page.waitForTimeout(5000);
+	await expect(paragraphs.nth(0)).toHaveText('15 ICP');
 	await expect(paragraphs.nth(1)).toHaveText('0 nICP');
 	await expect(paragraphs.nth(2)).toHaveText('0 WTN');
 
-  	await swap(page, 15);
-	await page.waitForTimeout(5000);
-
-	await expect(paragraphs.nth(0)).toHaveText('85 ICP');
-	await expect(paragraphs.nth(1)).toHaveText('15 nICP');
-	await expect(paragraphs.nth(2)).toHaveText('0 WTN');
-
-	expect(await isToastSuccess(page)).toBeTruthy();
 
 	await swap(page, 0.001);
 	expect(await isToastSuccess(page)).toBeFalsy();
+
+  	await swap(page, 14.9998);
+	expect(await isToastSuccess(page)).toBeFalsy();
+
+	await page.locator('.max-btn').click();
+	const maxAmountStake = parseFloat(await page.locator('[title="swap-input"]').evaluate(input => (input as HTMLInputElement).value) ?? "0");
+	expect(maxAmountStake).toEqual(14.9996);
+	await swap(page, maxAmountStake);
+	expect(await isToastSuccess(page)).toBeTruthy();
+
+	await page.waitForTimeout(5000);
+	await expect(paragraphs.nth(0)).toHaveText('0 ICP');
+	await expect(paragraphs.nth(1)).toHaveText('15 nICP');
+	await expect(paragraphs.nth(2)).toHaveText('0 WTN');
 
 	await page.locator('[title="unstake-header"]').click();
 
 	await swap(page, 9.9999);
 	expect(await isToastSuccess(page)).toBeFalsy();
 
-	await swap(page, 14.9999);
+	await swap(page, 14.9996);
 	expect(await isToastSuccess(page)).toBeFalsy();
 
-	await swap(page, 14.9998);
+	await page.locator('.max-btn').click();
+	const maxAmountUnstake = parseFloat(await page.locator('[title="swap-input"]').evaluate((input) => (input as HTMLInputElement).value) ?? "0");
+	expect(maxAmountUnstake).toEqual(14.9994);
+	await swap(page, maxAmountUnstake);
 	expect(await isToastSuccess(page)).toBeTruthy();
 });
