@@ -2,9 +2,7 @@ import { test, expect } from '@playwright/test';
 import { testWithII } from '@dfinity/internet-identity-playwright';
 import { user, canisters } from '$lib/stores';
 import { get } from 'svelte/store';
-import { mockSetup } from './utils/mockInternetIdentity';
-import type { TransferArgs, Tokens } from '../src/declarations/icp_ledger/icp_ledger.did';
-import { AccountIdentifier } from '@dfinity/ledger-icp';
+import { mockSetup, supplyICP } from './utils/mockInternetIdentity';
 
 test('has title', async ({ page }) => {
 	await page.goto('/');
@@ -26,7 +24,7 @@ test('test urls', async ({ page }) => {
 	await expect(page).toHaveURL('/stake/');
 });
 
-test.only('Mock minting account has balance', async () => {
+test('Mock minting account has balance', async () => {
 	await mockSetup();
 
 	const mockMintingAccount = get(user);
@@ -38,11 +36,11 @@ test.only('Mock minting account has balance', async () => {
 		owner: mockMintingAccount.principal,
 		subaccount: []
 	});
-	console.log(icpBalance);
+	console.log('Balance of mock minting account:', icpBalance);
 	expect(icpBalance > 0n).toBeTruthy();
 });
 
-testWithII('should sign-in with a new user', async ({ page, iiPage }) => {
+testWithII.only('e2e test', async ({ page, iiPage }) => {
 	await page.goto('/');
 
 	let connectBtn = page.locator('[title="connect-btn"]');
@@ -69,21 +67,11 @@ testWithII('should sign-in with a new user', async ({ page, iiPage }) => {
 	await expect(paragraphs.nth(1)).toHaveText('0 nICP');
 	await expect(paragraphs.nth(2)).toHaveText('0 WTN');
 
-	await mockSetup();
-	const mockMintingAccount = get(user);
-	const mockCanisters = get(canisters);
-	if (!(mockCanisters && mockMintingAccount))
-		throw new Error('Mock user or mock canisters are undefined.');
-	await mockCanisters.icpLedger.transfer({
-		to: AccountIdentifier.fromHex(accountId).toUint8Array(),
-		fee: { e8s: 10000n } as Tokens,
-		memo: 0n,
-		from_subaccount: [],
-		created_at_time: [],
-		amount: { e8s: 100n * 100_000_000n } as Tokens
-	} as TransferArgs);
+	await supplyICP(accountId);
 
 	await expect(paragraphs.nth(0)).toHaveText('100 ICP');
 	await expect(paragraphs.nth(1)).toHaveText('0 nICP');
 	await expect(paragraphs.nth(2)).toHaveText('0 WTN');
+
+  
 });

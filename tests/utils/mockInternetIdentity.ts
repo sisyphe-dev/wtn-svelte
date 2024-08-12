@@ -3,6 +3,8 @@ import { Ed25519KeyIdentity } from '@dfinity/identity';
 import { fetchActors } from '$lib/authentification';
 import { canisters, user } from '$lib/stores';
 import { User, Canisters } from '$lib/state';
+import { get } from 'svelte/store';
+import type { TransferArgs, Tokens } from '../../src/declarations/icp_ledger/icp_ledger.did';
 import { AccountIdentifier } from '@dfinity/ledger-icp';
 
 const key = [
@@ -30,3 +32,21 @@ export const mockSetup = async () => {
 		console.error('Login failed:', error);
 	}
 };
+
+export async function supplyICP(accountId: string) {
+	await mockSetup();
+	const mockMintingAccount = get(user);
+	const mockCanisters = get(canisters);
+
+	if (!(mockCanisters && mockMintingAccount))
+		throw new Error('Mock user or mock canisters are undefined.');
+
+	await mockCanisters.icpLedger.transfer({
+		to: AccountIdentifier.fromHex(accountId).toUint8Array(),
+		fee: { e8s: 10000n } as Tokens,
+		memo: 0n,
+		from_subaccount: [],
+		created_at_time: [],
+		amount: { e8s: 100n * 100_000_000n } as Tokens
+	} as TransferArgs);
+}

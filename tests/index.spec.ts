@@ -19,7 +19,6 @@ import { Principal } from '@dfinity/principal';
 import type { WithdrawalStatus, NeuronId } from '../src/declarations/water_neuron/water_neuron.did';
 import { stat } from 'fs';
 
-
 const EPSILON = BigNumber(0.00000001);
 const VALID_PRINCIPAL = 'l72el-pt5ry-lmj66-3opyw-tl5xx-3wzfl-n3mja-dqirc-oxmqs-uxqe6-6qe';
 const WRONG_PRINCIPAL = 'aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaa-aaa';
@@ -151,7 +150,7 @@ test('check time display', () => {
 	expect(displayTimeLeft(now + 2 * 60 * 60 - sixMonthsInSeconds)).toBe('2 hours left');
 });
 
-test.only('check withdrawal status display', () => {
+test('check withdrawal status display', () => {
 	let status = {
 		ConversionDone: { transfer_block_height: 1000n }
 	} as WithdrawalStatus;
@@ -169,24 +168,25 @@ test.only('check withdrawal status display', () => {
 
 	status = {
 		NotFound: null
-	} as WithdrawalStatus
+	} as WithdrawalStatus;
 
-	expect(renderStatus(status)).toBe('Withdrawal status not found.')
+	expect(renderStatus(status)).toBe('Withdrawal status not found.');
 
 	status = {
 		WaitingToSplitNeuron: null
 	} as WithdrawalStatus;
 
-	expect(renderStatus(status)).toBe('Waiting to Split Neuron.')
+	expect(renderStatus(status)).toBe('Waiting to Split Neuron.');
 
-	status = { WaitingDissolvement: { neuron_id:  { id: 20387492837429837n } as NeuronId }
+	status = {
+		WaitingDissolvement: { neuron_id: { id: 20387492837429837n } as NeuronId }
 	} as WithdrawalStatus;
 
-	expect(renderStatus(status)).toBe('Waiting dissolvement (Neuron ID: 20387492837429837).')
+	expect(renderStatus(status)).toBe('Waiting dissolvement (Neuron ID: 20387492837429837).');
 
-	status = { WaitingToStartDissolving: { neuron_id:  { id: 20387492837429837n } as NeuronId }
-		} as WithdrawalStatus;
+	status = {
+		WaitingToStartDissolving: { neuron_id: { id: 20387492837429837n } as NeuronId }
+	} as WithdrawalStatus;
 
 	expect(renderStatus(status)).toBe('Waiting to Start Dissolving (Neuron ID: 20387492837429837).');
-
 });
