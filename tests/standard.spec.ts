@@ -2,7 +2,30 @@ import { test, expect } from '@playwright/test';
 import { testWithII } from '@dfinity/internet-identity-playwright';
 import { user, canisters } from '$lib/stores';
 import { get } from 'svelte/store';
-import { mockSetup, supplyICP, swap, isToastSuccess } from './utils/mockInternetIdentity';
+import { mockSetup, supplyICP, swap, isToastSuccess, supplyNICP } from './utils/mockInternetIdentity';
+
+test('Mock minting account has balance', async () => {
+	await mockSetup();
+
+	const mockMintingAccount = get(user);
+	const mockCanisters = get(canisters);
+
+	if (!(mockCanisters && mockMintingAccount))
+		throw new Error('Mock user or mock canisters are undefined.');
+	const icpBalance = await mockCanisters.icpLedger.icrc1_balance_of({
+		owner: mockMintingAccount.principal,
+		subaccount: []
+	});
+
+	const nicpBalance = await mockCanisters.nicpLedger.icrc1_balance_of({
+		owner: mockMintingAccount.principal,
+		subaccount: []
+	});
+
+	console.log('ICP balance of mock minting account', mockMintingAccount.accountId, ':', icpBalance);
+	console.log('nICP balance of mock minting account', mockMintingAccount.principal.toString(), ':', nicpBalance);
+	expect(icpBalance > 0n && nicpBalance > 0n).toBeTruthy();
+});
 
 test('has title', async ({ page }) => {
 	await page.goto('/');
@@ -24,22 +47,6 @@ test('test urls', async ({ page }) => {
 	await expect(page).toHaveURL('/stake/');
 });
 
-test.only('Mock minting account has balance', async () => {
-	await mockSetup();
-
-	const mockMintingAccount = get(user);
-	const mockCanisters = get(canisters);
-
-	if (!(mockCanisters && mockMintingAccount))
-		throw new Error('Mock user or mock canisters are undefined.');
-	const icpBalance = await mockCanisters.icpLedger.icrc1_balance_of({
-		owner: mockMintingAccount.principal,
-		subaccount: []
-	});
-	console.log('Balance of mock minting account', mockMintingAccount.accountId, ':', icpBalance);
-	expect(icpBalance > 0n).toBeTruthy();
-});
-
 testWithII('e2e test stake', async ({ page, iiPage }) => {
 	await page.goto('/');
 
@@ -59,12 +66,6 @@ testWithII('e2e test stake', async ({ page, iiPage }) => {
 	if (!accountId) throw new Error('No account id found.');
 
 	const paragraphs = walletInfo.locator('p');
-	const count = await paragraphs.count();
-	expect(count).toBe(3);
-
-	await expect(paragraphs.nth(0)).toHaveText('0 ICP');
-	await expect(paragraphs.nth(1)).toHaveText('0 nICP');
-	await expect(paragraphs.nth(2)).toHaveText('0 WTN');
 
 	await supplyICP(accountId);
 	await expect(paragraphs.nth(0)).toHaveText('15 ICP');
@@ -129,4 +130,44 @@ testWithII('e2e test unstake', async ({ page, iiPage }) => {
 	expect(maxAmountUnstake).toEqual(14.9996);
 	await swap(page, maxAmountUnstake);
 	expect(await isToastSuccess(page)).toBeTruthy();
+});
+
+testWithII.only('e2e test send', async ({ page, iiPage }) => {
+	await page.goto('/');
+
+	await page.locator('[title="connect-btn"]').click();
+
+	await iiPage.signInWithNewIdentity({ selector: '[title="ii-connect-btn"]' });
+
+	const walletInfo = page.locator('#wallet-info');
+	await expect(walletInfo).toBeVisible();
+
+	await walletInfo.click();
+
+	const accountId = await page
+		.locator('p[title="accountIdentifier-hex"]')
+		.evaluate((accountId) => accountId.textContent);
+
+	if (!accountId) throw new Error('No account id found.');
+
+	const principal = await page
+		.locator('p[title="principal-user"]')
+		.evaluate((principal) => principal.textContent);
+
+	if (!principal) throw new Error('No principal found.');
+	
+	const paragraphs = walletInfo.locator('p');
+	const count = await paragraphs.count();
+	expect(count).toBe(3);
+
+	await expect(paragraphs.nth(0)).toHaveText('0 ICP');
+	await expect(paragraphs.nth(1)).toHaveText('0 nICP');
+	await expect(paragraphs.nth(2)).toHaveText('0 WTN');
+
+	await supplyICP(accountId);
+	await supplyNICP(principal);
+	
+	await expect(paragraphs.nth(0)).toHaveText('15 ICP');
+	await expect(paragraphs.nth(1)).toHaveText('15 nICP');
+
 });

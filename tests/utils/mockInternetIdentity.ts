@@ -4,10 +4,11 @@ import { fetchActors } from '$lib/authentification';
 import { canisters, user } from '$lib/stores';
 import { User, Canisters } from '$lib/state';
 import { get } from 'svelte/store';
-import type { TransferArgs, Tokens } from '../../src/declarations/icp_ledger/icp_ledger.did';
+import type { TransferArgs, Tokens, TransferArg } from '../../src/declarations/icp_ledger/icp_ledger.did';
 import { AccountIdentifier } from '@dfinity/ledger-icp';
 import { Page } from 'playwright';
 import { expect } from '@playwright/test';
+import { Principal } from '@dfinity/principal';
 
 const key = [
 	'302a300506032b657003210093d488f46b485c07e09b554d9451574bfc669912b99d453722c474e6a7f90fcc',
@@ -51,6 +52,26 @@ export async function supplyICP(accountId: string) {
 		created_at_time: [],
 		amount: { e8s: 15n * 100_000_000n } as Tokens
 	} as TransferArgs);
+
+	if (Object.keys(result)[0] === "Err") throw new Error("Failed to transfer balance");
+}
+
+export async function supplyNICP(principalString: string) {
+	await mockSetup();
+	const mockMintingAccount = get(user);
+	const mockCanisters = get(canisters);
+
+	if (!(mockCanisters && mockMintingAccount))
+		throw new Error('Mock user or mock canisters are undefined.');
+
+	const result = await mockCanisters.nicpLedger.icrc1_transfer({
+		to: {owner: Principal.fromText(principalString), subaccount: []},
+		fee: [],
+		memo: [],
+		from_subaccount: [],
+		created_at_time: [],
+		amount:  15n * 100_000_000n
+	} as TransferArg);
 
 	if (Object.keys(result)[0] === "Err") throw new Error("Failed to transfer balance");
 }
