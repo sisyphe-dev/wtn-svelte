@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { testWithII } from '@dfinity/internet-identity-playwright';
 import { user, canisters } from '$lib/stores';
 import { get } from 'svelte/store';
-import { mockSetup, supplyICP, swap, isToastSuccess, supplyNICP } from './utils/mockInternetIdentity';
+import { mockSetup, supplyICP, swap, isToastSuccess, supplyNICP, send } from './utils/mockInternetIdentity';
 
 test('Mock minting account has balance', async () => {
 	await mockSetup();
@@ -170,4 +170,31 @@ testWithII.only('e2e test send', async ({ page, iiPage }) => {
 	await expect(paragraphs.nth(0)).toHaveText('15 ICP');
 	await expect(paragraphs.nth(1)).toHaveText('15 nICP');
 
+	await page.locator('[title="send-btn-ICP"]').click();
+
+	await send(page, "aaa-aa", "10");
+	await expect(page.locator('span.error')).toBeVisible();
+	await send(page, accountId, "0.000000009");
+	await expect(page.locator('span.error')).toBeVisible();
+	await send(page, accountId, "16");
+	await expect(page.locator('span.error')).toBeVisible();
+
+	await page.locator('.max-btn').click();
+	const maxAmountSendIcp = parseFloat(await page.locator('[title="send-amount"]').evaluate((input) => (input as HTMLInputElement).value) ?? "0");
+	expect(maxAmountSendIcp).toEqual(14.9999);
+	await send(page, accountId, maxAmountSendIcp.toString());
+
+	expect(await isToastSuccess(page)).toBeTruthy();
+
+	await page.locator('[title="send-btn-nICP"]').click();
+	await send(page, accountId, "10");
+	expect(await isToastSuccess(page)).toBeFalsy();
+
+	await page.locator('[title="send-btn-nICP"]').click();
+	await page.locator('.max-btn').click();
+	const maxAmountSendNicp = parseFloat(await page.locator('[title="send-amount"]').evaluate((input) => (input as HTMLInputElement).value) ?? "0");
+	expect(maxAmountSendNicp).toEqual(14.9999);
+	await send(page, principal, maxAmountSendNicp.toString());
+
+	expect(await isToastSuccess(page)).toBeTruthy();
 });

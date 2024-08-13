@@ -18,6 +18,7 @@ const key = [
 const parsedKey = JSON.stringify(key);
 
 // AccountId = 90526bdfd692793cba1f96bde9079994ce4d40033746f04c12064ea599e2c274
+// Principal = syna7-6ipnd-myx4g-ia46u-nxwok-u5nrr-yxgpi-iang7-lvru2-i7n23-tqe
 
 export const mockSetup = async () => {
 	try {
@@ -87,4 +88,11 @@ export async function isToastSuccess(page: Page) {
 	await page.locator(".toast-close").click()
 	await expect(page.locator('p[title="toast-message"]')).not.toBeVisible();
 	return message?.split(" ")[0] === "Successful";
+}
+
+export async function send(page: Page, destination: string, amount: string) {
+	await page.locator('[title="send-destination"]').fill(destination);
+	await page.locator('[title="send-amount"]').fill(amount);
+
+	await page.locator('[title="continue-btn"]').click();
 }
