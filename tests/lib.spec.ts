@@ -149,7 +149,7 @@ test('check time display', () => {
 	expect(displayTimeLeft(now + 2 * 60 * 60 - sixMonthsInSeconds)).toBe('2 hours left');
 });
 
-test.only('check withdrawal status display', () => {
+test('check withdrawal status display', () => {
 	let status = {
 		ConversionDone: { transfer_block_height: 1000n }
 	} as WithdrawalStatus;
