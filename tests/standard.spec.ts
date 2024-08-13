@@ -33,7 +33,7 @@ test('has title', async ({ page }) => {
 	await expect(page).toHaveTitle('WaterNeuron | ICP Liquid Staking');
 });
 
-testWithII.only('test urls', async ({ page, iiPage }) => {
+testWithII('test page navigation', async ({ page, iiPage }) => {
 	await page.goto('/');
 	await expect(page).toHaveURL('/stake/');
 
@@ -92,7 +92,7 @@ testWithII('e2e test stake', async ({ page, iiPage }) => {
 });
 
 
-testWithII('e2e test unstake', async ({ page, iiPage }) => {
+testWithII.only('e2e test unstake', async ({ page, iiPage }) => {
 	await page.goto('/');
 
 	await page.locator('[title="connect-btn"]').click();
@@ -103,6 +103,7 @@ testWithII('e2e test unstake', async ({ page, iiPage }) => {
 	await expect(walletInfo).toBeVisible();
 
 	await walletInfo.click();
+	await expect(page.locator(".withdrawals-container")).not.toBeVisible();
 
 	const accountId = await page
 		.locator('p[title="accountIdentifier-hex"]')
@@ -136,6 +137,9 @@ testWithII('e2e test unstake', async ({ page, iiPage }) => {
 	expect(maxAmountUnstake).toEqual(14.9996);
 	await swap(page, maxAmountUnstake);
 	expect(await isToastSuccess(page)).toBeTruthy();
+
+	await walletInfo.click();
+	await expect(page.locator(".withdrawals-container")).toBeVisible();
 });
 
 testWithII('e2e test send', async ({ page, iiPage }) => {
