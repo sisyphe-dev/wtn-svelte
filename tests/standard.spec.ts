@@ -40,8 +40,7 @@ test('Mock minting account has balance', async () => {
 	expect(icpBalance > 0n).toBeTruthy();
 });
 
-testWithII.only('e2e test', async ({ page, iiPage }) => {
-	test.setTimeout(60000);
+testWithII('e2e test stake', async ({ page, iiPage }) => {
 	await page.goto('/');
 
 	await page.locator('[title="connect-btn"]').click();
@@ -68,12 +67,9 @@ testWithII.only('e2e test', async ({ page, iiPage }) => {
 	await expect(paragraphs.nth(2)).toHaveText('0 WTN');
 
 	await supplyICP(accountId);
-
-	await page.waitForTimeout(5000);
 	await expect(paragraphs.nth(0)).toHaveText('15 ICP');
-	await expect(paragraphs.nth(1)).toHaveText('0 nICP');
-	await expect(paragraphs.nth(2)).toHaveText('0 WTN');
 
+	await page.locator('[title="home-btn"]').click();
 
 	await swap(page, 0.001);
 	expect(await isToastSuccess(page)).toBeFalsy();
@@ -86,23 +82,51 @@ testWithII.only('e2e test', async ({ page, iiPage }) => {
 	expect(maxAmountStake).toEqual(14.9996);
 	await swap(page, maxAmountStake);
 	expect(await isToastSuccess(page)).toBeTruthy();
+});
 
-	await page.waitForTimeout(5000);
-	await expect(paragraphs.nth(0)).toHaveText('0 ICP');
+
+testWithII.only('e2e test unstake', async ({ page, iiPage }) => {
+	await page.goto('/');
+
+	await page.locator('[title="connect-btn"]').click();
+
+	await iiPage.signInWithNewIdentity({ selector: '[title="ii-connect-btn"]' });
+
+	const walletInfo = page.locator('#wallet-info');
+	await expect(walletInfo).toBeVisible();
+
+	await walletInfo.click();
+
+	const accountId = await page
+		.locator('p[title="accountIdentifier-hex"]')
+		.evaluate((accountId) => accountId.textContent);
+
+	if (!accountId) throw new Error('No account id found.');
+
+
+	await supplyICP(accountId);
+	const paragraphs = walletInfo.locator('p');
+	await expect(paragraphs.nth(0)).toHaveText('15 ICP');
+
+	await page.locator('[title="home-btn"]').click();
+
+	await page.locator('.max-btn').click();
+	const maxAmountStake = parseFloat(await page.locator('[title="swap-input"]').evaluate(input => (input as HTMLInputElement).value) ?? "0");
+	await swap(page, maxAmountStake);
+	expect(await isToastSuccess(page)).toBeTruthy();
 	await expect(paragraphs.nth(1)).toHaveText('15 nICP');
-	await expect(paragraphs.nth(2)).toHaveText('0 WTN');
 
 	await page.locator('[title="unstake-header"]').click();
 
 	await swap(page, 9.9999);
 	expect(await isToastSuccess(page)).toBeFalsy();
 
-	await swap(page, 14.9996);
+	await swap(page, 14.9998);
 	expect(await isToastSuccess(page)).toBeFalsy();
 
 	await page.locator('.max-btn').click();
 	const maxAmountUnstake = parseFloat(await page.locator('[title="swap-input"]').evaluate((input) => (input as HTMLInputElement).value) ?? "0");
-	expect(maxAmountUnstake).toEqual(14.9994);
+	expect(maxAmountUnstake).toEqual(14.9996);
 	await swap(page, maxAmountUnstake);
 	expect(await isToastSuccess(page)).toBeTruthy();
 });

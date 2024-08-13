@@ -56,7 +56,6 @@ export async function supplyICP(accountId: string) {
 }
 
 export async function swap(page: Page, amount: number) {
-	await page.locator('[title="home-btn"]').click();
 	await page.locator('[title="swap-input"]').fill(amount.toString());
 	await page.locator('[title="stake-unstake-btn"]').click();
 }
