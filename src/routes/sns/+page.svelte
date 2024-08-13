@@ -179,6 +179,7 @@
 					<span class="sns-amount">
 						Choose the amount of ICP to transfer:
 						<input
+							title="sns-amount-input"
 							type="text"
 							maxlength="20"
 							bind:value={$inputAmount}

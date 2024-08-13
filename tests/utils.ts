@@ -13,6 +13,7 @@ import { AccountIdentifier } from '@dfinity/ledger-icp';
 import { Page } from 'playwright';
 import { expect } from '@playwright/test';
 import { Principal } from '@dfinity/principal';
+import { getMaybeAccount } from '$lib';
 
 const key = [
 	'302a300506032b657003210093d488f46b485c07e09b554d9451574bfc669912b99d453722c474e6a7f90fcc',
@@ -41,7 +42,7 @@ export const mockSetup = async () => {
 	}
 };
 
-export async function supplyICP(accountId: string) {
+export async function supplyICP(accountString: string) {
 	await mockSetup();
 	const mockMintingAccount = get(user);
 	const mockCanisters = get(canisters);
@@ -49,19 +50,36 @@ export async function supplyICP(accountId: string) {
 	if (!(mockCanisters && mockMintingAccount))
 		throw new Error('Mock user or mock canisters are undefined.');
 
-	const result = await mockCanisters.icpLedger.transfer({
-		to: AccountIdentifier.fromHex(accountId).toUint8Array(),
-		fee: { e8s: 10000n } as Tokens,
-		memo: 0n,
-		from_subaccount: [],
-		created_at_time: [],
-		amount: { e8s: 15n * 100_000_000n } as Tokens
-	} as TransferArgs);
+	const maybeAccount = getMaybeAccount(accountString);
 
-	if (Object.keys(result)[0] === 'Err') throw new Error('Failed to transfer balance');
+	if (!maybeAccount) throw new Error('Failed to decode account.');
+
+	if (maybeAccount instanceof AccountIdentifier) {
+		const result = await mockCanisters.icpLedger.transfer({
+			to: maybeAccount.toUint8Array(),
+			fee: { e8s: 10000n } as Tokens,
+			memo: 0n,
+			from_subaccount: [],
+			created_at_time: [],
+			amount: { e8s: 15n * 100_000_000n } as Tokens
+		} as TransferArgs);
+		
+		if (Object.keys(result)[0] === 'Err') throw new Error('Failed to transfer balance');
+	} else {
+		const result = await mockCanisters.icpLedger.icrc1_transfer({
+			to: maybeAccount,
+			fee: [],
+			memo: [],
+			from_subaccount: [],
+			created_at_time: [],
+			amount: 15n * 100_000_000n
+		} as TransferArg);
+
+		if (Object.keys(result)[0] === 'Err') throw new Error('Failed to transfer balance');
+	}
 }
 
-export async function supplyNICP(principalString: string) {
+export async function supplyNICP(accountString: string) {
 	await mockSetup();
 	const mockMintingAccount = get(user);
 	const mockCanisters = get(canisters);
@@ -69,8 +87,12 @@ export async function supplyNICP(principalString: string) {
 	if (!(mockCanisters && mockMintingAccount))
 		throw new Error('Mock user or mock canisters are undefined.');
 
+	const maybeAccount = getMaybeAccount(accountString);
+
+	if (!maybeAccount) throw new Error('Failed to decode account.');
+	if (maybeAccount instanceof AccountIdentifier) throw new Error('Acount ID provided. You should use principal.');
 	const result = await mockCanisters.nicpLedger.icrc1_transfer({
-		to: { owner: Principal.fromText(principalString), subaccount: [] },
+		to: maybeAccount,
 		fee: [],
 		memo: [],
 		from_subaccount: [],

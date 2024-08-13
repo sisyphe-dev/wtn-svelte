@@ -5,7 +5,8 @@
 		numberToBigintE8s,
 		Asset,
 		E8S,
-		isContainerHigher
+		isContainerHigher,
+		getMaybeAccount
 	} from '$lib';
 	import {
 		inSendingMenu,
@@ -39,19 +40,6 @@
 		sendingDialog.showModal();
 		isHigher = isContainerHigher('send');
 	});
-
-	function getMaybeAccount(accountString: string): Account | AccountIdentifier | undefined {
-		try {
-			if (accountString.length === 64) {
-				return AccountIdentifier.fromHex(accountString);
-			}
-			const icrcAccount = decodeIcrcAccount(accountString);
-			const subaccount = icrcAccount.subaccount ?? [];
-			return { owner: icrcAccount.owner, subaccount } as Account;
-		} catch (error) {
-			return;
-		}
-	}
 
 	function isValidAmount(amount: BigNumber): boolean {
 		if (amount && $user) {

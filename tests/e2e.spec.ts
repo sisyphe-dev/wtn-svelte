@@ -151,7 +151,7 @@ testWithII('e2e test unstake', async ({ page, iiPage }) => {
 	await expect(page.locator('.withdrawals-container')).toBeVisible();
 });
 
-testWithII('e2e test send', async ({ page, iiPage }) => {
+testWithII.only('e2e test send', async ({ page, iiPage }) => {
 	await page.goto('/');
 
 	await page.locator('[title="connect-btn"]').click();
@@ -176,8 +176,7 @@ testWithII('e2e test send', async ({ page, iiPage }) => {
 	if (!principal) throw new Error('No principal found.');
 
 	const paragraphs = walletInfo.locator('p');
-	const count = await paragraphs.count();
-	expect(count).toBe(3);
+	expect(await paragraphs.count()).toEqual(3);
 
 	await expect(paragraphs.nth(0)).toHaveText('0 ICP');
 	await expect(paragraphs.nth(1)).toHaveText('0 nICP');
@@ -224,4 +223,23 @@ testWithII('e2e test send', async ({ page, iiPage }) => {
 	await send(page, principal, maxAmountSendNicp.toString());
 
 	expect(await isToastSuccess(page)).toBeTruthy();
+});
+
+test.only('e2e test sns', async ({ page }) => {
+	await page.goto('/sns');
+	const snsList = page.locator('.sns-listing').locator('div');
+	expect(await snsList.count()).toEqual(21);
+
+	await page.waitForTimeout(3000);
+
+	const encodedAccountLocator = page.locator('.principal-container').locator('p');
+	expect(await encodedAccountLocator.evaluate((p) => p.textContent)).not.toBe('-/-');
+
+	const encodedAccount = await encodedAccountLocator.evaluate((p) => p.textContent);
+	if (!encodedAccount) throw new Error('Invalid encoded account');
+
+	supplyICP(encodedAccount)
+
+	await page.locator('[title="connect-btn"]').click();
+
 });
