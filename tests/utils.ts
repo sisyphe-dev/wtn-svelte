@@ -4,7 +4,11 @@ import { fetchActors } from '$lib/authentification';
 import { canisters, user } from '$lib/stores';
 import { User, Canisters } from '$lib/state';
 import { get } from 'svelte/store';
-import type { TransferArgs, Tokens, TransferArg } from '../src/declarations/icp_ledger/icp_ledger.did';
+import type {
+	TransferArgs,
+	Tokens,
+	TransferArg
+} from '../src/declarations/icp_ledger/icp_ledger.did';
 import { AccountIdentifier } from '@dfinity/ledger-icp';
 import { Page } from 'playwright';
 import { expect } from '@playwright/test';
@@ -54,7 +58,7 @@ export async function supplyICP(accountId: string) {
 		amount: { e8s: 15n * 100_000_000n } as Tokens
 	} as TransferArgs);
 
-	if (Object.keys(result)[0] === "Err") throw new Error("Failed to transfer balance");
+	if (Object.keys(result)[0] === 'Err') throw new Error('Failed to transfer balance');
 }
 
 export async function supplyNICP(principalString: string) {
@@ -66,15 +70,15 @@ export async function supplyNICP(principalString: string) {
 		throw new Error('Mock user or mock canisters are undefined.');
 
 	const result = await mockCanisters.nicpLedger.icrc1_transfer({
-		to: {owner: Principal.fromText(principalString), subaccount: []},
+		to: { owner: Principal.fromText(principalString), subaccount: [] },
 		fee: [],
 		memo: [],
 		from_subaccount: [],
 		created_at_time: [],
-		amount:  15n * 100_000_000n
+		amount: 15n * 100_000_000n
 	} as TransferArg);
 
-	if (Object.keys(result)[0] === "Err") throw new Error("Failed to transfer balance");
+	if (Object.keys(result)[0] === 'Err') throw new Error('Failed to transfer balance');
 }
 
 export async function swap(page: Page, amount: number) {
@@ -85,9 +89,9 @@ export async function swap(page: Page, amount: number) {
 export async function isToastSuccess(page: Page) {
 	const message = await page.locator('p[title="toast-message"]').evaluate((msg) => msg.textContent);
 	console.log(message);
-	await page.locator(".toast-close").click()
+	await page.locator('.toast-close').click();
 	await expect(page.locator('p[title="toast-message"]')).not.toBeVisible();
-	return message?.split(" ")[0] === "Successful";
+	return message?.split(' ')[0] === 'Successful';
 }
 
 export async function send(page: Page, destination: string, amount: string) {

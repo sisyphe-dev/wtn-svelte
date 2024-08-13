@@ -104,12 +104,16 @@
 					break;
 				case AssetType.nICP:
 					{
-						if (maybeAccount instanceof AccountIdentifier)  {
-							toasts.add(Toast.error("Transfer failed: nICP transfers require a principal. Please provide a valid principal."));
+						if (maybeAccount instanceof AccountIdentifier) {
+							toasts.add(
+								Toast.error(
+									'Transfer failed: nICP transfers require a principal. Please provide a valid principal.'
+								)
+							);
 							isSending = false;
 							inSendingMenu.set(false);
 							return;
-						} 
+						}
 						const transferResult = await $canisters.nicpLedger.icrc1_transfer({
 							to: maybeAccount,
 							fee: [],
@@ -123,12 +127,16 @@
 					break;
 				case AssetType.WTN:
 					{
-						if (maybeAccount instanceof AccountIdentifier)  {
-							toasts.add(Toast.error("Transfer failed: wtn transfers require a principal. Please provide a valid principal."));
+						if (maybeAccount instanceof AccountIdentifier) {
+							toasts.add(
+								Toast.error(
+									'Transfer failed: wtn transfers require a principal. Please provide a valid principal.'
+								)
+							);
 							isSending = false;
 							inSendingMenu.set(false);
 							return;
-						} 
+						}
 						const transferResult = await $canisters.wtnLedger.icrc1_transfer({
 							to: maybeAccount,
 							fee: [],
@@ -149,7 +157,7 @@
 			}
 		} catch (error) {
 			console.log(error);
-			toasts.add("Transfer failed. Try again.");
+			toasts.add('Transfer failed. Try again.');
 		}
 		inSendingMenu.set(false);
 		isSending = false;

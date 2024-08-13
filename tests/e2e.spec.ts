@@ -23,7 +23,12 @@ test('Mock minting account has balance', async () => {
 	});
 
 	console.log('ICP balance of mock minting account', mockMintingAccount.accountId, ':', icpBalance);
-	console.log('nICP balance of mock minting account', mockMintingAccount.principal.toString(), ':', nicpBalance);
+	console.log(
+		'nICP balance of mock minting account',
+		mockMintingAccount.principal.toString(),
+		':',
+		nicpBalance
+	);
 	expect(icpBalance > 0n && nicpBalance > 0n).toBeTruthy();
 });
 
@@ -81,18 +86,22 @@ testWithII('e2e test stake', async ({ page, iiPage }) => {
 	await swap(page, 0.001);
 	expect(await isToastSuccess(page)).toBeFalsy();
 
-  	await swap(page, 14.9998);
+	await swap(page, 14.9998);
 	expect(await isToastSuccess(page)).toBeFalsy();
 
 	await page.locator('.max-btn').click();
-	const maxAmountStake = parseFloat(await page.locator('[title="swap-input"]').evaluate(input => (input as HTMLInputElement).value) ?? "0");
+	const maxAmountStake = parseFloat(
+		(await page
+			.locator('[title="swap-input"]')
+			.evaluate((input) => (input as HTMLInputElement).value)) ?? '0'
+	);
 	expect(maxAmountStake).toEqual(14.9996);
 	await swap(page, maxAmountStake);
 	expect(await isToastSuccess(page)).toBeTruthy();
 });
 
-
 testWithII.only('e2e test unstake', async ({ page, iiPage }) => {
+	test.setTimeout(60000);
 	await page.goto('/');
 
 	await page.locator('[title="connect-btn"]').click();
@@ -103,14 +112,13 @@ testWithII.only('e2e test unstake', async ({ page, iiPage }) => {
 	await expect(walletInfo).toBeVisible();
 
 	await walletInfo.click();
-	await expect(page.locator(".withdrawals-container")).not.toBeVisible();
+	await expect(page.locator('.withdrawals-container')).not.toBeVisible();
 
 	const accountId = await page
 		.locator('p[title="accountIdentifier-hex"]')
 		.evaluate((accountId) => accountId.textContent);
 
 	if (!accountId) throw new Error('No account id found.');
-
 
 	await supplyICP(accountId);
 	const paragraphs = walletInfo.locator('p');
@@ -119,7 +127,11 @@ testWithII.only('e2e test unstake', async ({ page, iiPage }) => {
 	await page.locator('[title="home-btn"]').click();
 
 	await page.locator('.max-btn').click();
-	const maxAmountStake = parseFloat(await page.locator('[title="swap-input"]').evaluate(input => (input as HTMLInputElement).value) ?? "0");
+	const maxAmountStake = parseFloat(
+		(await page
+			.locator('[title="swap-input"]')
+			.evaluate((input) => (input as HTMLInputElement).value)) ?? '0'
+	);
 	await swap(page, maxAmountStake);
 	expect(await isToastSuccess(page)).toBeTruthy();
 	await expect(paragraphs.nth(1)).toHaveText('15 nICP');
@@ -133,13 +145,17 @@ testWithII.only('e2e test unstake', async ({ page, iiPage }) => {
 	expect(await isToastSuccess(page)).toBeFalsy();
 
 	await page.locator('.max-btn').click();
-	const maxAmountUnstake = parseFloat(await page.locator('[title="swap-input"]').evaluate((input) => (input as HTMLInputElement).value) ?? "0");
+	const maxAmountUnstake = parseFloat(
+		(await page
+			.locator('[title="swap-input"]')
+			.evaluate((input) => (input as HTMLInputElement).value)) ?? '0'
+	);
 	expect(maxAmountUnstake).toEqual(14.9996);
 	await swap(page, maxAmountUnstake);
 	expect(await isToastSuccess(page)).toBeTruthy();
 
 	await walletInfo.click();
-	await expect(page.locator(".withdrawals-container")).toBeVisible();
+	await expect(page.locator('.withdrawals-container')).toBeVisible();
 });
 
 testWithII('e2e test send', async ({ page, iiPage }) => {
@@ -165,7 +181,7 @@ testWithII('e2e test send', async ({ page, iiPage }) => {
 		.evaluate((principal) => principal.textContent);
 
 	if (!principal) throw new Error('No principal found.');
-	
+
 	const paragraphs = walletInfo.locator('p');
 	const count = await paragraphs.count();
 	expect(count).toBe(3);
@@ -176,33 +192,41 @@ testWithII('e2e test send', async ({ page, iiPage }) => {
 
 	await supplyICP(accountId);
 	await supplyNICP(principal);
-	
+
 	await expect(paragraphs.nth(0)).toHaveText('15 ICP');
 	await expect(paragraphs.nth(1)).toHaveText('15 nICP');
 
 	await page.locator('[title="send-btn-ICP"]').click();
 
-	await send(page, "aaa-aa", "10");
+	await send(page, 'aaa-aa', '10');
 	await expect(page.locator('span.error')).toBeVisible();
-	await send(page, accountId, "0.000000009");
+	await send(page, accountId, '0.000000009');
 	await expect(page.locator('span.error')).toBeVisible();
-	await send(page, accountId, "16");
+	await send(page, accountId, '16');
 	await expect(page.locator('span.error')).toBeVisible();
 
 	await page.locator('.max-btn').click();
-	const maxAmountSendIcp = parseFloat(await page.locator('[title="send-amount"]').evaluate((input) => (input as HTMLInputElement).value) ?? "0");
+	const maxAmountSendIcp = parseFloat(
+		(await page
+			.locator('[title="send-amount"]')
+			.evaluate((input) => (input as HTMLInputElement).value)) ?? '0'
+	);
 	expect(maxAmountSendIcp).toEqual(14.9999);
 	await send(page, accountId, maxAmountSendIcp.toString());
 
 	expect(await isToastSuccess(page)).toBeTruthy();
 
 	await page.locator('[title="send-btn-nICP"]').click();
-	await send(page, accountId, "10");
+	await send(page, accountId, '10');
 	expect(await isToastSuccess(page)).toBeFalsy();
 
 	await page.locator('[title="send-btn-nICP"]').click();
 	await page.locator('.max-btn').click();
-	const maxAmountSendNicp = parseFloat(await page.locator('[title="send-amount"]').evaluate((input) => (input as HTMLInputElement).value) ?? "0");
+	const maxAmountSendNicp = parseFloat(
+		(await page
+			.locator('[title="send-amount"]')
+			.evaluate((input) => (input as HTMLInputElement).value)) ?? '0'
+	);
 	expect(maxAmountSendNicp).toEqual(14.9999);
 	await send(page, principal, maxAmountSendNicp.toString());
 
