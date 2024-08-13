@@ -24,7 +24,7 @@ test('test urls', async ({ page }) => {
 	await expect(page).toHaveURL('/stake/');
 });
 
-test('Mock minting account has balance', async () => {
+test.only('Mock minting account has balance', async () => {
 	await mockSetup();
 
 	const mockMintingAccount = get(user);
@@ -36,7 +36,7 @@ test('Mock minting account has balance', async () => {
 		owner: mockMintingAccount.principal,
 		subaccount: []
 	});
-	console.log('Balance of mock minting account:', icpBalance);
+	console.log('Balance of mock minting account', mockMintingAccount.accountId, ':', icpBalance);
 	expect(icpBalance > 0n).toBeTruthy();
 });
 
@@ -85,7 +85,7 @@ testWithII('e2e test stake', async ({ page, iiPage }) => {
 });
 
 
-testWithII.only('e2e test unstake', async ({ page, iiPage }) => {
+testWithII('e2e test unstake', async ({ page, iiPage }) => {
 	await page.goto('/');
 
 	await page.locator('[title="connect-btn"]').click();
