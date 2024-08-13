@@ -92,7 +92,6 @@ testWithII('e2e test stake', async ({ page, iiPage }) => {
 	await swap(page, 15);
 	expect(await isToastSuccess(page)).toBeFalsy();
 
-
 	await page.locator('.max-btn').click();
 	const maxAmountStake = parseFloat(
 		(await page
