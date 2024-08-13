@@ -33,7 +33,7 @@ test('has title', async ({ page }) => {
 	await expect(page).toHaveTitle('WaterNeuron | ICP Liquid Staking');
 });
 
-test('test urls', async ({ page }) => {
+testWithII.only('test urls', async ({ page, iiPage }) => {
 	await page.goto('/');
 	await expect(page).toHaveURL('/stake/');
 
@@ -45,6 +45,12 @@ test('test urls', async ({ page }) => {
 
 	await page.goto('/wallet/');
 	await expect(page).toHaveURL('/stake/');
+
+	await page.locator('[title="connect-btn"]').click();
+
+	await iiPage.signInWithNewIdentity({ selector: '[title="ii-connect-btn"]' });
+
+	await page.locator('#disconnect-btn').click();
 });
 
 testWithII('e2e test stake', async ({ page, iiPage }) => {
@@ -132,7 +138,7 @@ testWithII('e2e test unstake', async ({ page, iiPage }) => {
 	expect(await isToastSuccess(page)).toBeTruthy();
 });
 
-testWithII.only('e2e test send', async ({ page, iiPage }) => {
+testWithII('e2e test send', async ({ page, iiPage }) => {
 	await page.goto('/');
 
 	await page.locator('[title="connect-btn"]').click();
