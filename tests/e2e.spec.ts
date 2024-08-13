@@ -104,6 +104,7 @@ testWithII('e2e test stake', async ({ page, iiPage }) => {
 });
 
 testWithII('e2e test unstake', async ({ page, iiPage }) => {
+	test.setTimeout(60000);
 	await page.goto('/');
 
 	await page.locator('[title="connect-btn"]').click();
@@ -151,7 +152,7 @@ testWithII('e2e test unstake', async ({ page, iiPage }) => {
 	await expect(page.locator('.withdrawals-container')).toBeVisible();
 });
 
-testWithII.only('e2e test send', async ({ page, iiPage }) => {
+testWithII('e2e test send', async ({ page, iiPage }) => {
 	await page.goto('/');
 
 	await page.locator('[title="connect-btn"]').click();
@@ -225,7 +226,7 @@ testWithII.only('e2e test send', async ({ page, iiPage }) => {
 	expect(await isToastSuccess(page)).toBeTruthy();
 });
 
-test.only('e2e test sns', async ({ page }) => {
+test('e2e test sns', async ({ page }) => {
 	await page.goto('/sns');
 	const snsList = page.locator('.sns-listing').locator('div');
 	expect(await snsList.count()).toEqual(21);
@@ -238,8 +239,18 @@ test.only('e2e test sns', async ({ page }) => {
 	const encodedAccount = await encodedAccountLocator.evaluate((p) => p.textContent);
 	if (!encodedAccount) throw new Error('Invalid encoded account');
 
+	await page.locator('[title="notifyIcpDeposit-btn"]').click();
+	expect(await isToastSuccess(page)).toBeFalsy();
+
+	await page.locator('[title="retrieveNicp-btn"]').click();
+	expect(await isToastSuccess(page)).toBeFalsy();
+
 	supplyICP(encodedAccount)
+	await page.waitForTimeout(3000);
 
-	await page.locator('[title="connect-btn"]').click();
+	await page.locator('[title="notifyIcpDeposit-btn"]').click();
+	expect(await isToastSuccess(page)).toBeTruthy();
 
+	await page.locator('[title="retrieveNicp-btn"]').click();
+	expect(await isToastSuccess(page)).toBeTruthy();
 });
