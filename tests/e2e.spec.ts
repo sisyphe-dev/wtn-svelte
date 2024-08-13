@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { testWithII } from '@dfinity/internet-identity-playwright';
 import { user, canisters } from '$lib/stores';
 import { get } from 'svelte/store';
-import { mockSetup, supplyICP, swap, isToastSuccess, supplyNICP, send } from './utils/mockInternetIdentity';
+import { mockSetup, supplyICP, swap, isToastSuccess, supplyNICP, send } from './utils';
 
 test('Mock minting account has balance', async () => {
 	await mockSetup();

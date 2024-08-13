@@ -4,7 +4,7 @@ import { fetchActors } from '$lib/authentification';
 import { canisters, user } from '$lib/stores';
 import { User, Canisters } from '$lib/state';
 import { get } from 'svelte/store';
-import type { TransferArgs, Tokens, TransferArg } from '../../src/declarations/icp_ledger/icp_ledger.did';
+import type { TransferArgs, Tokens, TransferArg } from '../src/declarations/icp_ledger/icp_ledger.did';
 import { AccountIdentifier } from '@dfinity/ledger-icp';
 import { Page } from 'playwright';
 import { expect } from '@playwright/test';
