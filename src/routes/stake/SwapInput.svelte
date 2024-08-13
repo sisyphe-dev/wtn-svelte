@@ -19,10 +19,7 @@
 	<button
 		class="max-btn"
 		on:click={() => {
-			const fee =
-				asset.intoStr() === 'ICP'
-					? BigNumber(2).multipliedBy(asset.getTransferFee())
-					: asset.getTransferFee();
+			const fee = asset.intoStr() === "ICP" ? BigNumber(2).multipliedBy(asset.getTransferFee()) : BigNumber(1).multipliedBy(asset.getTransferFee());
 			const maxAmount = $user?.getBalance(asset.type).minus(fee).toNumber() ?? 0;
 			inputAmount.change(maxAmount && maxAmount >= 0 ? maxAmount : 0);
 		}}

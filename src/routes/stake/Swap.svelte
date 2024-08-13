@@ -55,7 +55,7 @@
 		if ($user.icpBalance().isGreaterThanOrEqualTo(amount) && amount.isGreaterThan(0)) {
 			try {
 				let amountE8s = numberToBigintE8s(amount);
-				const approveAmount = numberToBigintE8s(amount.multipliedBy(3));
+				const approveAmount = amountE8s * 3n;
 				const approval = await icpTransferApproved(
 					approveAmount,
 					{
@@ -95,7 +95,7 @@
 		if ($user.nicpBalance().isGreaterThanOrEqualTo(amount) && amount.isGreaterThan(0)) {
 			try {
 				let amountE8s = numberToBigintE8s(amount);
-				const approveAmount = numberToBigintE8s(amount.multipliedBy(3));
+				const approveAmount = 3n * amountE8s;
 				const approval = await nicpTransferApproved(
 					approveAmount,
 					{
