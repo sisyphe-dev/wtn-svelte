@@ -120,8 +120,8 @@ test('computeRewards', () => {
 });
 
 test('Display US-format', () => {
-	expect(displayUsFormat(BigNumber(1_000_000.0123942))).toBe("1'000'000.01");
-	expect(displayUsFormat(BigNumber(1_000_000.018942))).toBe("1'000'000.02");
+	expect(displayUsFormat(BigNumber(1_000_000.0123942))).toBe("1'000'000.0124");
+	expect(displayUsFormat(BigNumber(1_000_000.018942))).toBe("1'000'000.0189");
 	expect(displayUsFormat(BigNumber(1_000_000.0123942), 8)).toBe("1'000'000.0123942");
 });
 

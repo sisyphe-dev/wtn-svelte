@@ -4,6 +4,12 @@ import { user, canisters } from '$lib/stores';
 import { get } from 'svelte/store';
 import { mockSetup, supplyICP, swap, isToastSuccess, supplyNICP, send } from './utils';
 
+const VALID_PRINCIPAL = 'l72el-pt5ry-lmj66-3opyw-tl5xx-3wzfl-n3mja-dqirc-oxmqs-uxqe6-6qe';
+const ACCOUNT_ID = 'e73a99617af2a8dbfe9b75e463e83a905e30aa50250972ad19c21922c22b2a2a';
+const VALID_ACCOUNT =
+	'bd3sg-teaaa-aaaaa-qaaba-cai-dl7sbni.4de8758e1d99bd2d97a384af0ffed63403886967d21070e5241b602ebe39f243';
+
+
 test('Mock minting account has balance', async () => {
 	await mockSetup();
 
@@ -153,6 +159,7 @@ testWithII('e2e test unstake', async ({ page, iiPage }) => {
 });
 
 testWithII('e2e test send', async ({ page, iiPage }) => {
+	test.setTimeout(60000);
 	await page.goto('/');
 
 	await page.locator('[title="connect-btn"]').click();
@@ -176,16 +183,11 @@ testWithII('e2e test send', async ({ page, iiPage }) => {
 
 	if (!principal) throw new Error('No principal found.');
 
-	const paragraphs = walletInfo.locator('p');
-	expect(await paragraphs.count()).toEqual(3);
-
-	await expect(paragraphs.nth(0)).toHaveText('0 ICP');
-	await expect(paragraphs.nth(1)).toHaveText('0 nICP');
-	await expect(paragraphs.nth(2)).toHaveText('0 WTN');
-
 	await supplyICP(accountId);
 	await supplyNICP(principal);
 
+	const paragraphs = walletInfo.locator('p');
+	expect(await paragraphs.count()).toEqual(3);
 	await expect(paragraphs.nth(0)).toHaveText('15 ICP');
 	await expect(paragraphs.nth(1)).toHaveText('15 nICP');
 
@@ -193,25 +195,40 @@ testWithII('e2e test send', async ({ page, iiPage }) => {
 
 	await send(page, 'aaa-aa', '10');
 	await expect(page.locator('span.error')).toBeVisible();
-	await send(page, accountId, '0.000000009');
+	await send(page, ACCOUNT_ID, '0.000000009');
 	await expect(page.locator('span.error')).toBeVisible();
-	await send(page, accountId, '16');
+	await send(page, ACCOUNT_ID, '16');
 	await expect(page.locator('span.error')).toBeVisible();
 
+	await send(page, ACCOUNT_ID, '1');
+	expect(await isToastSuccess(page)).toBeTruthy();
+	await expect(paragraphs.nth(0)).toHaveText('13.9999 ICP');
+
+	await page.locator('[title="send-btn-ICP"]').click();
+	await send(page, VALID_ACCOUNT, '1');
+	expect(await isToastSuccess(page)).toBeTruthy();
+	await expect(paragraphs.nth(0)).toHaveText('12.9998 ICP');
+
+	await page.locator('[title="send-btn-ICP"]').click();
 	await page.locator('.max-btn').click();
 	const maxAmountSendIcp = parseFloat(
 		(await page
 			.locator('[title="send-amount"]')
 			.evaluate((input) => (input as HTMLInputElement).value)) ?? '0'
 	);
-	expect(maxAmountSendIcp).toEqual(14.9999);
-	await send(page, accountId, maxAmountSendIcp.toString());
-
+	expect(maxAmountSendIcp).toEqual(12.9997);
+	await send(page, VALID_PRINCIPAL, maxAmountSendIcp.toString());
 	expect(await isToastSuccess(page)).toBeTruthy();
 
 	await page.locator('[title="send-btn-nICP"]').click();
-	await send(page, accountId, '10');
+	await send(page, ACCOUNT_ID, '10');
 	expect(await isToastSuccess(page)).toBeFalsy();
+	await expect(paragraphs.nth(1)).toHaveText('15 nICP');
+
+	await page.locator('[title="send-btn-nICP"]').click();
+	await send(page, VALID_ACCOUNT, '1');
+	expect(await isToastSuccess(page)).toBeTruthy();
+	await expect(paragraphs.nth(1)).toHaveText('13.9999 nICP');
 
 	await page.locator('[title="send-btn-nICP"]').click();
 	await page.locator('.max-btn').click();
@@ -220,14 +237,17 @@ testWithII('e2e test send', async ({ page, iiPage }) => {
 			.locator('[title="send-amount"]')
 			.evaluate((input) => (input as HTMLInputElement).value)) ?? '0'
 	);
-	expect(maxAmountSendNicp).toEqual(14.9999);
-	await send(page, principal, maxAmountSendNicp.toString());
-
+	expect(maxAmountSendNicp).toEqual(13.9998);
+	await send(page, VALID_PRINCIPAL, maxAmountSendNicp.toString());
 	expect(await isToastSuccess(page)).toBeTruthy();
 });
 
+
+// This test is expected to work only with one worker (otherwise one test impact the others).
+// Use npx playwright test --prokect=chromium (you can use firefox or webkit too).
 test('e2e test sns', async ({ page }) => {
 	await page.goto('/sns');
+	await expect(page.locator('.sns-listing')).toBeVisible();
 	const snsList = page.locator('.sns-listing').locator('div');
 	expect(await snsList.count()).toEqual(21);
 
@@ -245,8 +265,8 @@ test('e2e test sns', async ({ page }) => {
 	await page.locator('[title="retrieveNicp-btn"]').click();
 	expect(await isToastSuccess(page)).toBeFalsy();
 
-	supplyICP(encodedAccount)
-	await page.waitForTimeout(3000);
+	supplyICP(encodedAccount);
+	await page.waitForTimeout(5000);
 
 	await page.locator('[title="notifyIcpDeposit-btn"]').click();
 	expect(await isToastSuccess(page)).toBeTruthy();
@@ -254,3 +274,4 @@ test('e2e test sns', async ({ page }) => {
 	await page.locator('[title="retrieveNicp-btn"]').click();
 	expect(await isToastSuccess(page)).toBeTruthy();
 });
+

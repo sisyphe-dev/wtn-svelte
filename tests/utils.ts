@@ -12,7 +12,6 @@ import type {
 import { AccountIdentifier } from '@dfinity/ledger-icp';
 import { Page } from 'playwright';
 import { expect } from '@playwright/test';
-import { Principal } from '@dfinity/principal';
 import { getMaybeAccount } from '$lib';
 
 const key = [
