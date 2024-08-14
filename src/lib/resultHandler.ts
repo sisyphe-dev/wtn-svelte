@@ -11,6 +11,7 @@ import type {
 import type {
 	ConversionError,
 	Result_1 as IcpToNicpResult,
+	NeuronId,
 	Result_2 as NicpToIcpResult,
 	TransferError,
 	TransferFromError
@@ -18,7 +19,8 @@ import type {
 import type {
 	BoomerangError,
 	Result as SnsIcpDepositResult,
-	Result_2 as SnsRetrieveNicpResult
+	Result_1 as SnsNicpDepositResult,
+	Result_2 as SnsRetrieveResult
 } from '../declarations/boomerang/boomerang.did';
 import { Asset, AssetType, bigintE8sToNumber, displayUsFormat } from '$lib';
 import type {
@@ -385,15 +387,32 @@ export function handleSnsIcpDepositResult(result: SnsIcpDepositResult): ToastRes
 			return { success: false, message: DEFAULT_ERROR_MESSAGE };
 	}
 }
+export function handleSnsNicpDepositResult(result: SnsNicpDepositResult, neuronId: [] | [NeuronId]): ToastResult {
+	const key = Object.keys(result)[0] as keyof SnsNicpDepositResult;
 
-export function handleSnsRetrieveNicpResult(result: SnsRetrieveNicpResult): ToastResult {
-	const key = Object.keys(result)[0] as keyof SnsRetrieveNicpResult;
+	switch (key) {
+		case 'Ok':
+			const neuron = neuronId.length === 0 ? "" : `Follow the <a target='_blank' style='text-decoration: underline; color: var(--text-color);' href='https://dashboard.internetcomputer.org/neuron/${neuronId[0].id}'>neuron</a>.`;
+			return {
+				success: true,
+				message: `Successful conversion at block index ${result[key]['block_index']}. ${neuron}`
+			};
+		case 'Err':
+			return handleBoomerangError(result[key]);
+
+		default:
+			return { success: false, message: DEFAULT_ERROR_MESSAGE };
+	}
+}
+
+export function handleSnsRetrieveResult(result: SnsRetrieveResult): ToastResult {
+	const key = Object.keys(result)[0] as keyof SnsRetrieveResult;
 
 	switch (key) {
 		case 'Ok':
 			return {
 				success: true,
-				message: `Successful conversion at <a target='_blank' style="text-decoration: underline; color: var(--text-color);" href="/wallet">block index ${result[key]}</a>.`
+				message: `Successful conversion at block index ${result[key]}.`
 			};
 		case 'Err':
 			return handleBoomerangError(result[key]);

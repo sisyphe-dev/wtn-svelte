@@ -55,7 +55,7 @@
 		if ($user.icpBalance().isGreaterThanOrEqualTo(amount) && amount.isGreaterThan(0)) {
 			try {
 				let amountE8s = numberToBigintE8s(amount);
-				const approveAmount = numberToBigintE8s(amount.multipliedBy(3));
+				const approveAmount = amountE8s * 3n;
 				const approval = await icpTransferApproved(
 					approveAmount,
 					{
@@ -95,7 +95,7 @@
 		if ($user.nicpBalance().isGreaterThanOrEqualTo(amount) && amount.isGreaterThan(0)) {
 			try {
 				let amountE8s = numberToBigintE8s(amount);
-				const approveAmount = numberToBigintE8s(amount.multipliedBy(3));
+				const approveAmount = 3n * amountE8s;
 				const approval = await nicpTransferApproved(
 					approveAmount,
 					{
@@ -158,6 +158,7 @@
 				class="header-btn"
 				style:text-align="start"
 				style:border-top-left-radius="8px"
+				title="stake-header"
 				on:click={() => {
 					stake = true;
 					invertExchangeRate = false;
@@ -170,6 +171,7 @@
 				class="header-btn"
 				style:text-align="end"
 				style:border-top-right-radius="8px"
+				title="unstake-header"
 				on:click={() => {
 					stake = false;
 					invertExchangeRate = false;
@@ -280,6 +282,7 @@
 					on:click={() => {
 						stake ? icpToNicp(BigNumber($inputAmount)) : nicpToIcp(BigNumber($inputAmount));
 					}}
+					title="stake-unstake-btn"
 				>
 					{#if $isConverting}
 						<div class="spinner"></div>

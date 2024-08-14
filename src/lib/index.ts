@@ -2,6 +2,8 @@ import { Principal } from '@dfinity/principal';
 import BigNumber from 'bignumber.js';
 import type { WithdrawalStatus } from '../declarations/water_neuron/water_neuron.did';
 import { AccountIdentifier } from '@dfinity/ledger-icp';
+import { decodeIcrcAccount } from '@dfinity/ledger-icrc';
+import type { Account } from '../declarations/icp_ledger/icp_ledger.did';
 
 export const E8S = BigNumber(10).pow(BigNumber(8));
 
@@ -10,7 +12,7 @@ export function displayPrincipal(principal: Principal) {
 	return a[0] + '...' + a[a.length - 1];
 }
 
-export function displayUsFormat(value: BigNumber, decimals = 2): string {
+export function displayUsFormat(value: BigNumber, decimals = 4): string {
 	const formatter = new Intl.NumberFormat('en-US', {
 		minimumFractionDigits: 0,
 		maximumFractionDigits: decimals
@@ -27,7 +29,7 @@ export function numberWithPrecision(x: BigNumber, decimals: BigNumber): BigNumbe
 
 export function numberToBigintE8s(x: BigNumber): bigint {
 	const xScaled = numberWithPrecision(x, BigNumber(8)).multipliedBy(E8S);
-	return BigInt(xScaled.toNumber());
+	return BigInt(xScaled.toFixed(0));
 }
 
 export function bigintE8sToNumber(x: bigint): BigNumber {
@@ -147,26 +149,6 @@ export function computeRewards(alreadyDistributed: BigNumber, converting: BigNum
 	return totalRewards;
 }
 
-export function nicpLeftUntilNextTier(alreadyDistributed: BigNumber): {
-	nicpLeft: BigNumber;
-	rate: BigNumber;
-} {
-	let cumulativeAmount = BigNumber(alreadyDistributed);
-
-	for (const [threshold, rate] of TIERS) {
-		const nicpThreshold = BigNumber(threshold);
-		const allocationRate = BigNumber(rate);
-		if (cumulativeAmount.isGreaterThan(nicpThreshold)) {
-			cumulativeAmount = cumulativeAmount.minus(nicpThreshold);
-			continue;
-		}
-		const nicpLeftBeforeNextTier = nicpThreshold.minus(cumulativeAmount);
-		return { nicpLeft: nicpLeftBeforeNextTier, rate: allocationRate };
-	}
-
-	return { nicpLeft: BigNumber(0), rate: BigNumber(0) };
-}
-
 export function renderStatus(status: WithdrawalStatus): string {
 	const key = Object.keys(status)[0] as keyof WithdrawalStatus;
 	switch (key) {
@@ -182,19 +164,13 @@ export function renderStatus(status: WithdrawalStatus): string {
 	  </a>
 	</p>`;
 		case 'NotFound':
-			return 'Withdrawal status not found.';
+			return 'Not found';
 		case 'WaitingToSplitNeuron':
 			return 'Waiting to Split Neuron';
 		case 'WaitingDissolvement':
-			return 'Waiting dissolvement';
-
-		// if (status[key]['neuron_id']['id']) {
-		// 	return displayStatus(status[key]['neuron_id']);
-		// } else {
-		// 	return 'Waiting dissolvement';
-		// }
+			return `Waiting Dissolvement`;
 		case 'WaitingToStartDissolving':
-			return `Waiting to Start Dissolving (Neuron ID: ${status[key]['neuron_id']['id']})`;
+			return `Waiting to Start Dissolving`;
 		default:
 			return 'Unknown Status';
 	}
@@ -207,11 +183,7 @@ export function displayTimeLeft(created_at: number, isMobile = false) {
 	const daysLeft = Math.floor(timeLeft / 60 / 60 / 24);
 	const hoursLeft = Math.floor((timeLeft - daysLeft * 60 * 60 * 24) / 60 / 60);
 
-	if (isMobile && daysLeft > 0) {
-		return `${daysLeft} days left`;
-	} else if (isMobile && hoursLeft > 0) {
-		return `${hoursLeft} hours left`;
-	} else if (daysLeft > 0 && hoursLeft > 0) {
+	if (!isMobile && daysLeft > 0 && hoursLeft > 0) {
 		return `${daysLeft} days and ${hoursLeft} hours left`;
 	} else if (daysLeft > 0) {
 		return `${daysLeft} days left`;
@@ -221,7 +193,7 @@ export function displayTimeLeft(created_at: number, isMobile = false) {
 	return `Less than an hour left`;
 }
 
-export const isMobile = window.innerWidth <= 767;
+export const isMobile = typeof window !== 'undefined' && window.innerWidth <= 767;
 
 export function isContainerHigher(type: 'receive' | 'send'): boolean {
 	let name: string;
@@ -250,6 +222,28 @@ export function isPrincipalValid(input: string): boolean {
 	}
 }
 
-export function principalToHex(principal: string): string {
-	return AccountIdentifier.fromPrincipal({ principal: Principal.fromText(principal) }).toHex();
+export function principalToHex(principalString: string): string {
+	try {
+		const principal = Principal.fromText(principalString);
+		return AccountIdentifier.fromPrincipal({ principal: principal }).toHex();
+	} catch (error) {
+		return '';
+	}
+}
+
+export function getMaybeAccount(accountString: string): Account | AccountIdentifier | undefined {
+	try {
+		if (accountString.length === 64) {
+			return AccountIdentifier.fromHex(accountString);
+		}
+		const icrcAccount = decodeIcrcAccount(accountString);
+
+		if (icrcAccount.subaccount) {
+			return { owner: icrcAccount.owner, subaccount: [icrcAccount.subaccount] } as Account;
+		} else {
+			return { owner: icrcAccount.owner, subaccount: [] } as Account;
+		}
+	} catch (error) {
+		return;
+	}
 }

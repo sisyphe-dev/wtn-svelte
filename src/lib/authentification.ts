@@ -16,13 +16,13 @@ import { Canisters, User } from './state';
 // 1 hour in nanoseconds
 const AUTH_MAX_TIME_TO_LIVE = BigInt(60 * 60 * 1000 * 1000 * 1000);
 
-export const DEV = import.meta.env.DEV;
-const INTERNET_IDENTITY_CANISTER_ID = DEV
-	? 'qhbym-qaaaa-aaaaa-aaafq-cai'
-	: 'rdmx6-jaaaa-aaaaa-aaadq-cai';
+export const DEV = import.meta.env ? import.meta.env.DEV : true;
 
 export const HOST = DEV ? 'http://127.0.1:8080' : 'https://ic0.app';
 
+const INTERNET_IDENTITY_CANISTER_ID = DEV
+	? 'br5f7-7uaaa-aaaaa-qaaca-cai'
+	: 'rdmx6-jaaaa-aaaaa-aaadq-cai';
 const CANISTER_ID_WTN_LEDGER = 'jcmow-hyaaa-aaaaq-aadlq-cai';
 const CANISTER_ID_ICP_LEDGER = 'ryjl3-tyaaa-aaaaa-aaaba-cai';
 const CANISTER_ID_NICP_LEDGER = DEV ? 'ny7ez-6aaaa-aaaam-acc5q-cai' : 'buwm7-7yaaa-aaaar-qagva-cai';
@@ -52,7 +52,7 @@ export async function internetIdentitySignIn(): Promise<AuthResult> {
 			const authClient = await AuthClient.create();
 			if (!(await authClient.isAuthenticated())) {
 				const identityProvider = import.meta.env.DEV
-					? `http://127.0.1:8080/?canisterId=${INTERNET_IDENTITY_CANISTER_ID}`
+					? `http://localhost:8080/?canisterId=${INTERNET_IDENTITY_CANISTER_ID}`
 					: `https://identity.${'ic0.app'}`;
 
 				const authClient = await AuthClient.create();

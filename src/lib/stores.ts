@@ -60,13 +60,15 @@ function createBoomerangSnsStore() {
 	const { subscribe, set, update } = writable<{
 		name: string;
 		principal: string;
-		encodedBoomerangAccount: string | undefined;
+		encodedStakingAccount: string | undefined;
+		encodedUnstakingAccount: string | undefined;
 		icpBalance: BigNumber | undefined;
 		nicpBalance: BigNumber | undefined;
 	}>({
 		name: '',
 		principal: '',
-		encodedBoomerangAccount: undefined,
+		encodedStakingAccount: undefined,
+		encodedUnstakingAccount: undefined,
 		icpBalance: undefined,
 		nicpBalance: undefined
 	});
@@ -75,15 +77,18 @@ function createBoomerangSnsStore() {
 		subscribe,
 		setPrincipal: (principal: string) => update((sns) => ({ ...sns, principal })),
 		setName: (name: string) => update((sns) => ({ ...sns, name })),
-		setEncodedBoomerangAccount: (encodedBoomerangAccount: string) =>
-			update((sns) => ({ ...sns, encodedBoomerangAccount })),
+		setEncodedStakingAccount: (encodedStakingAccount: string) =>
+			update((sns) => ({ ...sns, encodedStakingAccount })),
+		setEncodedUnstakingAccount: (encodedUnstakingAccount: string) =>
+			update((sns) => ({ ...sns, encodedUnstakingAccount })),
 		setIcpBalance: (icpBalance: BigNumber) => update((sns) => ({ ...sns, icpBalance })),
 		setNicpBalance: (nicpBalance: BigNumber) => update((sns) => ({ ...sns, nicpBalance })),
 		reset: () =>
 			set({
 				name: '',
 				principal: '',
-				encodedBoomerangAccount: undefined,
+				encodedStakingAccount: undefined,
+				encodedUnstakingAccount: undefined,
 				icpBalance: undefined,
 				nicpBalance: undefined
 			})
@@ -101,16 +106,22 @@ export const handleSnsChange = async (name?: string, principal?: string) => {
 		sns.setName(name);
 		const p = Principal.fromText(principal);
 		sns.setPrincipal(principal);
-		const [account, icpBalanceE8s, nicpBalanceE8s] = await Promise.all([
+		const [stakingAccount, unstakingAccount, icpBalanceE8s, nicpBalanceE8s] = await Promise.all([
 			fetchedCanisters.boomerang.get_staking_account(p),
+			fetchedCanisters.boomerang.get_unstaking_account(p),
 			fetchIcpBalance(p, fetchedCanisters.icpLedger),
 			fetchNicpBalance(p, fetchedCanisters.nicpLedger)
 		]);
-		const encodedBoomerangAccount = encodeIcrcAccount({
-			owner: account.owner,
-			subaccount: account.subaccount[0]
+		const encodedStakingAccount = encodeIcrcAccount({
+			owner: stakingAccount.owner,
+			subaccount: stakingAccount.subaccount[0]
 		});
-		sns.setEncodedBoomerangAccount(encodedBoomerangAccount);
+		const encodedUnstakingAccount = encodeIcrcAccount({
+			owner: unstakingAccount.owner,
+			subaccount: unstakingAccount.subaccount[0]
+		});
+		sns.setEncodedStakingAccount(encodedStakingAccount);
+		sns.setEncodedUnstakingAccount(encodedUnstakingAccount);
 		sns.setIcpBalance(bigintE8sToNumber(icpBalanceE8s));
 		sns.setNicpBalance(bigintE8sToNumber(nicpBalanceE8s));
 	} else {
