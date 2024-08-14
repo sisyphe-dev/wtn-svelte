@@ -9,7 +9,6 @@ const ACCOUNT_ID = 'e73a99617af2a8dbfe9b75e463e83a905e30aa50250972ad19c21922c22b
 const VALID_ACCOUNT =
 	'bd3sg-teaaa-aaaaa-qaaba-cai-dl7sbni.4de8758e1d99bd2d97a384af0ffed63403886967d21070e5241b602ebe39f243';
 
-
 test('Mock minting account has balance', async () => {
 	await mockSetup();
 
@@ -242,7 +241,6 @@ testWithII('e2e test send', async ({ page, iiPage }) => {
 	expect(await isToastSuccess(page)).toBeTruthy();
 });
 
-
 // This test is expected to work only with one worker (otherwise one test impact the others).
 // Use npx playwright test --prokect=chromium (you can use firefox or webkit too).
 test('e2e test sns', async ({ page }) => {
@@ -274,4 +272,3 @@ test('e2e test sns', async ({ page }) => {
 	await page.locator('[title="retrieveNicp-btn"]').click();
 	expect(await isToastSuccess(page)).toBeTruthy();
 });
-

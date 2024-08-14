@@ -62,7 +62,7 @@ export async function supplyICP(accountString: string) {
 			created_at_time: [],
 			amount: { e8s: 15n * 100_000_000n } as Tokens
 		} as TransferArgs);
-		
+
 		if (Object.keys(result)[0] === 'Err') throw new Error('Failed to transfer balance');
 	} else {
 		const result = await mockCanisters.icpLedger.icrc1_transfer({
@@ -89,7 +89,8 @@ export async function supplyNICP(accountString: string) {
 	const maybeAccount = getMaybeAccount(accountString);
 
 	if (!maybeAccount) throw new Error('Failed to decode account.');
-	if (maybeAccount instanceof AccountIdentifier) throw new Error('Acount ID provided. You should use principal.');
+	if (maybeAccount instanceof AccountIdentifier)
+		throw new Error('Acount ID provided. You should use principal.');
 	const result = await mockCanisters.nicpLedger.icrc1_transfer({
 		to: maybeAccount,
 		fee: [],
