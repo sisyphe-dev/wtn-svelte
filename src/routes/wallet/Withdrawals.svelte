@@ -150,17 +150,9 @@
 								</a>
 							</td>
 							<td>
-								{details.request.neuron_id[0]
-									? withdrawalStatuses[details.request.neuron_id[0].id.toString()]
-									: 'Waiting Dissolvement'}
+								{@html renderStatus(details.status)}
 							</td>
-							<!-- <td
-								>{#if renderStatus(details.status)}
-									-/-
-								{:then status}
-									{@html status}
-								{/await}
-							</td> -->
+
 							<td>{details.request.withdrawal_id}</td>
 						</tr>
 					{/if}

@@ -50,6 +50,7 @@
 			</button>
 			<button
 				class="action-btn"
+				title="send-btn-{asset.intoStr()}"
 				on:click={() => {
 					inSendingMenu.set(true);
 					selectedAsset.set(asset);
