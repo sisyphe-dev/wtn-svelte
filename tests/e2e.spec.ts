@@ -51,7 +51,7 @@ testWithII('test page navigation', async ({ page, iiPage }) => {
 	await expect(page).toHaveURL('/stake/');
 
 	await page.goto('/sns/');
-	await expect(page).toHaveURL('/sns/');
+	await expect(page).toHaveURL('/sns/boomerang-stake/');
 
 	await page.goto('/wallet/');
 	await expect(page).toHaveURL('/stake/');
@@ -240,7 +240,7 @@ testWithII('e2e test send', async ({ page, iiPage }) => {
 
 // This test is expected to work only with one worker (otherwise one test impact the others).
 // Use npx playwright test --prokect=chromium (you can use firefox or webkit too).
-test('e2e test sns', async ({ page }) => {
+test('e2e test boomerang stake', async ({ page }) => {
 	await page.goto('/sns');
 	await expect(page.locator('.sns-listing')).toBeVisible();
 	const snsList = page.locator('.sns-listing').locator('div');
@@ -268,4 +268,35 @@ test('e2e test sns', async ({ page }) => {
 
 	await page.locator('[title="retrieveNicp-btn"]').click();
 	expect(await isToastSuccess(page)).toBeTruthy();
+});
+
+
+test('e2e test boomerang unstake', async ({ page }) => {
+	await page.goto('/sns/boomerang-unstake');
+	await expect(page.locator('.sns-listing')).toBeVisible();
+	const snsList = page.locator('.sns-listing').locator('div');
+	expect(await snsList.count()).toEqual(21);
+
+	await page.waitForTimeout(3000);
+
+	const encodedAccountLocator = page.locator('.principal-container').locator('p');
+	expect(await encodedAccountLocator.evaluate((p) => p.textContent)).not.toBe('-/-');
+
+	const encodedAccount = await encodedAccountLocator.evaluate((p) => p.textContent);
+	if (!encodedAccount) throw new Error('Invalid encoded account');
+
+	await page.locator('[title="notifyNicpDeposit-btn"]').click();
+	expect(await isToastSuccess(page)).toBeFalsy();
+
+	await page.locator('[title="retrieveIcp-btn"]').click();
+	expect(await isToastSuccess(page)).toBeFalsy();
+
+	supplyNICP(encodedAccount);
+	await page.waitForTimeout(5000);
+
+	await page.locator('[title="notifyNicpDeposit-btn"]').click();
+	expect(await isToastSuccess(page)).toBeTruthy();
+
+	await page.locator('[title="retrieveIcp-btn"]').click();
+	expect(await isToastSuccess(page)).toBeFalsy();
 });
