@@ -7,7 +7,7 @@ import { mockSetup, supplyICP, swap, isToastSuccess, supplyNICP, send } from './
 const VALID_PRINCIPAL = 'l72el-pt5ry-lmj66-3opyw-tl5xx-3wzfl-n3mja-dqirc-oxmqs-uxqe6-6qe';
 const ACCOUNT_ID = 'e73a99617af2a8dbfe9b75e463e83a905e30aa50250972ad19c21922c22b2a2a';
 const VALID_ACCOUNT =
-	'bd3sg-teaaa-aaaaa-qaaba-cai-dl7sbni.4de8758e1d99bd2d97a384af0ffed63403886967d21070e5241b602ebe39f243';
+	'bd3sg-teaaa-aaaaa-qaaba-cai-kdmvzla.5f0e93000f4cbd9db8c36d27cad8b8a97706c0710154172029e54541e18fd180';
 
 test('Mock minting account has balance', async () => {
 	await mockSetup();
@@ -64,7 +64,6 @@ testWithII('test page navigation', async ({ page, iiPage }) => {
 });
 
 testWithII('e2e test stake', async ({ page, iiPage }) => {
-	test.setTimeout(60000);
 	await page.goto('/');
 
 	await page.locator('[title="connect-btn"]').click();
@@ -109,7 +108,6 @@ testWithII('e2e test stake', async ({ page, iiPage }) => {
 });
 
 testWithII('e2e test unstake', async ({ page, iiPage }) => {
-	test.setTimeout(60000);
 	await page.goto('/');
 
 	await page.locator('[title="connect-btn"]').click();
@@ -158,7 +156,6 @@ testWithII('e2e test unstake', async ({ page, iiPage }) => {
 });
 
 testWithII('e2e test send', async ({ page, iiPage }) => {
-	test.setTimeout(60000);
 	await page.goto('/');
 
 	await page.locator('[title="connect-btn"]').click();
