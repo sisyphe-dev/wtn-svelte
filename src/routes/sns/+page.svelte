@@ -219,9 +219,7 @@
 						<div class="spinner"></div>
 					</button>
 				{:else}
-					<button class="action-btn" on:click={notifyIcpDeposit}
-						>Confirm SNS deposit</button
-					>
+					<button class="action-btn" on:click={notifyIcpDeposit}>Confirm SNS deposit</button>
 				{/if}
 			</div>
 			<div class="step-container" in:fade={{ duration: 500 }}>
@@ -236,9 +234,7 @@
 						<div class="spinner"></div>
 					</button>
 				{:else}
-					<button class="action-btn" on:click={retrieveNicp}
-						>Retrieve nICP</button
-					>
+					<button class="action-btn" on:click={retrieveNicp}>Retrieve nICP</button>
 				{/if}
 			</div>
 		</div>
