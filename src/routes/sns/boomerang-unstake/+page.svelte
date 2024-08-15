@@ -255,16 +255,17 @@
 		font-weight: bold;
 		overflow-wrap: anywhere;
 		margin: 0;
+		color: var(--text-color);
 	}
 
 	.dashboard {
-		color: white;
+		color: var(--text-color);
 		padding: 0.5em;
 		font-family: var(--secondary-font);
 	}
 
 	h1 {
-		color: white;
+		color: var(--text-color);
 		font-size: 26px;
 		font-family: var(--main-font);
 		align-self: center;
@@ -276,8 +277,8 @@
 		padding-left: 0.4em;
 		height: 2em;
 		font-size: 15px;
-		color: white;
-		background: rgb(30, 52, 102);
+		color: var(--text-color);
+		background: var(--main-color);
 		outline: none;
 		margin-left: 1em;
 		border-radius: 0.4em;
@@ -373,7 +374,7 @@
 		width: 15em;
 		height: 3em;
 		text-decoration: none;
-		color: black;
+		color: white;
 	}
 
 	.action-btn:hover {
@@ -388,7 +389,7 @@
 		cursor: pointer;
 		border-radius: 0.3em;
 		transition: all 0.3s ease;
-		color: white;
+		color: var(--text-color);
 		font-weight: bold;
 		display: flex;
 		position: relative;
@@ -399,20 +400,20 @@
 		text-align: end;
 		width: fit-content;
 		padding: 0;
-		color: white;
+		color: var(--text-color);
 		font-family: var(--main-font);
 		font-size: 18px;
 	}
 
 	.governance-id {
-		color: white;
+		color: var(--text-color);
 		width: 60%;
 		display: flex;
 		align-items: center;
 	}
 
 	.sns-amount {
-		color: white;
+		color: var(--text-color);
 		width: 100%;
 		display: flex;
 		align-items: center;
