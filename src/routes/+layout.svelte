@@ -92,6 +92,8 @@
 		--page-background: #f1fff6;
 
 		--main-color: #283e95;
+		--main-color-transparent: #283e9575;
+		--main-nuanced-color: #7d98ff;
 		--border-color: #454545;
 		--background-color: #f1fff6;
 		--input-color: #f1fff6;

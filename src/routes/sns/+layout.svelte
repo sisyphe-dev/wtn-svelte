@@ -12,8 +12,8 @@
 <style>
 	/* === Layout === */
 	.sns-boomerang-container {
-		background-color: #0c2c4c;
-		border: 2px solid #66adff;
+		background-color: var(--background-color);
+		border: 2px solid var(--border-color);
 		border-radius: 10px;
 		display: flex;
 		height: 44em;

@@ -77,7 +77,7 @@
 
 	button:hover {
 		border: 2px solid transparent;
-		background-color: rgba(107, 249, 201, 0.5);
+		background-color: var(--main-color-transparent);
 	}
 
 	img {
@@ -93,8 +93,8 @@
 		align-items: center;
 		gap: 1em;
 		padding: 1em;
-		background-color: #183f66;
-		border-radius: 10px;
+		background-color: var(--main-nuanced-color);
+		border-radius: 8px;
 	}
 
 	/* === Component === */
@@ -127,7 +127,7 @@
 	/* === Utilities === */
 	.selected-sns {
 		border: 2px solid var(--main-color);
-		background-color: rgba(107, 249, 201, 0.5);
+		background-color: var(--main-color-transparent);
 	}
 
 	.default-sns {
@@ -159,7 +159,7 @@
 			font-size: 16px;
 			border-radius: 8px;
 			border: 2px solid var(--main-color);
-			background-color: rgba(107, 249, 201, 0.5);
+			background-color: var(--main-color-transparent);
 		}
 
 		img {
