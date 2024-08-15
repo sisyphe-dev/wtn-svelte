@@ -17,7 +17,7 @@
 				text: `${$selectedAsset.intoStr() === 'ICP' ? $user.accountId : $user.principal}`,
 				radius: 0.0, // 0.0 to 0.5
 				ecLevel: 'H', // L, M, Q, H
-				fill: 'rgb(12, 44, 76)',
+				fill: 'white',
 				background: null,
 				size: 1000 // in pixels
 			},
@@ -137,7 +137,7 @@
 	}
 
 	canvas {
-		background: oklab(0.88 -0.18 0.03);
+		background: var(--main-color);
 		padding: 1em;
 		border-radius: 8px;
 	}
@@ -150,7 +150,7 @@
 		max-width: 90dvw;
 		width: 35em;
 		background: var(--background-color);
-		color: white;
+		color: var(--text-color);
 		padding: 2em;
 		margin: 0.3em;
 		border-radius: 15px;
@@ -196,6 +196,7 @@
 
 	.finish-btn {
 		background: var(--main-color);
+		color: white;
 		min-width: 80px;
 		position: relative;
 		border: 2px solid black;
@@ -234,7 +235,6 @@
 		cursor: pointer;
 		border-radius: 0.3em;
 		transition: all 0.3s ease;
-		color: white;
 		font-weight: bold;
 		display: flex;
 		position: relative;

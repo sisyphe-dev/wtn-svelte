@@ -276,7 +276,7 @@
 		height: 3em;
 		font-size: 16px;
 		color: white;
-		background: var(--input-color);
+		background: var(--main-color);
 		outline: none;
 		margin-left: 1em;
 		width: 90%;
@@ -305,7 +305,7 @@
 		max-width: 35em;
 		width: 80vw;
 		background: var(--background-color);
-		color: white;
+		color: var(--text-color);
 		padding: 2em;
 		border-radius: 15px;
 		border: 2px solid var(--border-color);
@@ -353,6 +353,7 @@
 
 	.toggle-btn {
 		background: var(--main-color);
+		color: white;
 		min-width: 80px;
 		border-radius: 8px;
 		position: relative;

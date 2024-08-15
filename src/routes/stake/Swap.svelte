@@ -185,7 +185,7 @@
 			<SwapInput asset={stake ? Asset.fromText('ICP') : Asset.fromText('nICP')} />
 			<div class="paragraphs" in:fade={{ duration: 500 }}>
 				{#if stake}
-					<p style:color="var(--stake-text-color)">
+					<p style:color="var(--text-color)">
 						{#if exchangeRate}
 							You will receive {displayUsFormat(
 								computeReceiveAmount(stake, BigNumber($inputAmount), exchangeRate),
@@ -233,7 +233,7 @@
 						/>
 					</div>
 				{:else}
-					<p style:color="var(--stake-text-color)">
+					<p style:color="var(--text-color)">
 						{#if exchangeRate}
 							You will receive {displayUsFormat(
 								computeReceiveAmount(stake, BigNumber($inputAmount), exchangeRate),
@@ -318,7 +318,7 @@
 		font-family: var(--secondary-font);
 		font-size: 17px;
 		font-weight: bold;
-		color: var(--stake-text-color);
+		color: var(--text-color);
 		position: absolute;
 		top: 2.25em;
 		margin: 0;
