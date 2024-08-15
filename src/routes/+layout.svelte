@@ -97,9 +97,7 @@
 		--input-color: #f1fff6;
 		--stake-text-color: black;
 
-		--text-color: rgb(127 127 127);
-
-		--orange-color: #fa796e;
+		--not-selected-color : #5d6b77;
 		--faq-color: black;
 
 		--main-font: 'Akrobat-black';
@@ -109,11 +107,13 @@
 	:root[theme='light'] {
 		--svg-fill-color: #000000; /* Black for light theme */
 		--svg-opposite-color: #b3b3b3; /* Optional: Stroke color */
+		--text-color: #000000;
 	}
 
 	:root[theme='dark'] {
 		--svg-fill-color: #ffffff; /* White for dark theme */
 		--svg-opposite-color: #e1e1e1; /* Optional: Stroke color */
+		--text-color: rgb(127 127 127);
 	}
 
 	@font-face {

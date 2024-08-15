@@ -2,6 +2,7 @@
 	import { isLogging, inMobileMenu, user } from '$lib/stores';
 	import { displayUsFormat, displayPrincipal } from '$lib';
 	import { internetIdentityLogout } from '$lib/authentification';
+	import PowerOffIcon from '$lib/icons/PowerOffIcon.svelte';
 </script>
 
 <nav class:filter={$isLogging}>
@@ -37,7 +38,7 @@
 					user.set(undefined);
 				}}
 			>
-				<img src="/icon/power-off.svg" width="15em" height="15em" alt="Disconnect Icon" />
+			<PowerOffIcon />
 			</button>
 			<button
 				id="menu-btn"
@@ -48,10 +49,10 @@
 			>
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
-					height="24"
+					height="24px"
 					viewBox="0 -960 960 960"
-					width="24"
-					fill="white"
+					width="24px"
+					fill="var(--svg-fill-color)"
 				>
 					<path d="M120-240v-80h720v80H120Zm0-200v-80h720v80H120Zm0-200v-80h720v80H120Z"></path>
 				</svg>
@@ -66,7 +67,7 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		color: white;
+		color: var(--stake-text-color);
 		height: fit-content;
 		padding: 0 2vw;
 		margin-top: 2vh;
