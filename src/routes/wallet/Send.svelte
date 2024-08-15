@@ -5,7 +5,8 @@
 		numberToBigintE8s,
 		Asset,
 		E8S,
-		isContainerHigher
+		isContainerHigher,
+		getMaybeAccount
 	} from '$lib';
 	import {
 		inSendingMenu,
@@ -39,19 +40,6 @@
 		sendingDialog.showModal();
 		isHigher = isContainerHigher('send');
 	});
-
-	function getMaybeAccount(accountString: string): Account | AccountIdentifier | undefined {
-		try {
-			if (accountString.length === 64) {
-				return AccountIdentifier.fromHex(accountString);
-			}
-			const icrcAccount = decodeIcrcAccount(accountString);
-			const subaccount = icrcAccount.subaccount ?? [];
-			return { owner: icrcAccount.owner, subaccount } as Account;
-		} catch (error) {
-			return;
-		}
-	}
 
 	function isValidAmount(amount: BigNumber): boolean {
 		if (amount && $user) {
@@ -104,6 +92,16 @@
 					break;
 				case AssetType.nICP:
 					{
+						if (maybeAccount instanceof AccountIdentifier) {
+							toasts.add(
+								Toast.error(
+									'Transfer failed: nICP transfers require a principal. Please provide a valid principal.'
+								)
+							);
+							isSending = false;
+							inSendingMenu.set(false);
+							return;
+						}
 						const transferResult = await $canisters.nicpLedger.icrc1_transfer({
 							to: maybeAccount,
 							fee: [],
@@ -117,6 +115,16 @@
 					break;
 				case AssetType.WTN:
 					{
+						if (maybeAccount instanceof AccountIdentifier) {
+							toasts.add(
+								Toast.error(
+									'Transfer failed: wtn transfers require a principal. Please provide a valid principal.'
+								)
+							);
+							isSending = false;
+							inSendingMenu.set(false);
+							return;
+						}
 						const transferResult = await $canisters.wtnLedger.icrc1_transfer({
 							to: maybeAccount,
 							fee: [],
@@ -136,7 +144,8 @@
 				toasts.add(Toast.error(status.message));
 			}
 		} catch (error) {
-			toasts.add(Toast.error(`${error}`));
+			console.log(error);
+			toasts.add('Transfer failed. Try again.');
 		}
 		inSendingMenu.set(false);
 		isSending = false;
