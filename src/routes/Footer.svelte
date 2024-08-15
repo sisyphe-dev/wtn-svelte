@@ -30,7 +30,7 @@
 		<a class="item--5" href="https://github.com/WaterNeuron" target="_blank" rel="noreferrer">
 			<GithubIcon />
 		</a>
-		
+
 		<p>WaterNeuron</p>
 	</div>
 </footer>

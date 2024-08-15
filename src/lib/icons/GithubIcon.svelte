@@ -4,8 +4,8 @@
 	xmlns="http://www.w3.org/2000/svg"
 	xmlns:xlink="http://www.w3.org/1999/xlink"
 	fill="var(--svg-fill-color)"
-    height="30px" 
-        width="30px"
+	height="30px"
+	width="30px"
 	><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g
 		id="SVGRepo_tracerCarrier"
 		stroke-linecap="round"

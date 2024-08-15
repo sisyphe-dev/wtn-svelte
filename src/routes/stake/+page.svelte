@@ -3,6 +3,7 @@
 	import StatsWidget from './StatsWidget.svelte';
 	import Swap from './Swap.svelte';
 	import { fade, slide } from 'svelte/transition';
+	import DownArrowIcon from '$lib/icons/DownArrowIcon.svelte';
 
 	export let data;
 
@@ -39,14 +40,7 @@
 				}}
 			>
 				<h2>{section.title}</h2>
-				<img
-					width="20em"
-					height="20em"
-					src="/icon/down-arrow.svg"
-					alt="Down arrow."
-					class:arrow-down={!toggledMap[i]}
-					class:arrow-up={toggledMap[i]}
-				/>
+				<DownArrowIcon invert={!toggledMap[i]} />
 			</button>
 
 			{#if toggledMap[i]}

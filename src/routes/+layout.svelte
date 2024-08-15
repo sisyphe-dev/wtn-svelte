@@ -88,19 +88,13 @@
 <style>
 	/* === Variables === */
 	:root {
-		--title-color: black;
-		--page-background: #f1fff6;
-
 		--main-color: #283e95;
+		--background-color: #091121;
 		--main-color-transparent: #283e9575;
 		--main-nuanced-color: #7d98ff;
-		--border-color: #454545;
-		--background-color: #f1fff6;
-		--input-color: #f1fff6;
-		--stake-text-color: black;
 
-		--not-selected-color : #5d6b77;
-		--faq-color: black;
+		--not-selected-color: #5d6b77;
+
 		--anchor-color: white;
 
 		--main-font: 'Akrobat-black';
@@ -111,13 +105,23 @@
 		--svg-fill-color: #000000; /* Black for light theme */
 		--svg-opposite-color: #b3b3b3; /* Optional: Stroke color */
 		--text-color: #000000;
-		
+		--stake-text-color: #000000;
+		--page-background: #f1fff6;
+		--faq-color: #000000;
+		--title-color: #000000;
+		--input-color: #f1fff6;
+		--border-color: #454545;
 	}
 
 	:root[theme='dark'] {
 		--svg-fill-color: #ffffff; /* White for dark theme */
 		--svg-opposite-color: #e1e1e1; /* Optional: Stroke color */
-		--text-color: rgb(127 127 127);
+		--text-color: #cbcbcb;
+		--page-background: #091121;
+		--stake-text-color: #ffffff;
+		--faq-color: #ffffff;
+		--title-color: #ffffff;
+		--border-color: #d4d4d4;
 	}
 
 	@font-face {
@@ -180,7 +184,6 @@
 		gap: 3em;
 		padding-top: 2em;
 		margin-bottom: 4em;
-		color: white;
 	}
 
 	/* === Components === */

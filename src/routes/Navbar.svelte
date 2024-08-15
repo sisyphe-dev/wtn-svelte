@@ -38,7 +38,7 @@
 					user.set(undefined);
 				}}
 			>
-			<PowerOffIcon />
+				<PowerOffIcon />
 			</button>
 			<button
 				id="menu-btn"

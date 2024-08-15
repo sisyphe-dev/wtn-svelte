@@ -45,13 +45,13 @@
 	</div>
 	<div class="stat-item">
 		<b>APY</b>
-		<p
-			>{#if apy}
+		<p>
+			{#if apy}
 				{displayUsFormat(BigNumber(100).multipliedBy(apy))} %
 			{:else}
 				-/-
-			{/if}</p
-		>
+			{/if}
+		</p>
 	</div>
 	<div class="stat-item">
 		<b>Stakers</b>

@@ -1,10 +1,24 @@
 <svg height="30px" width="30px" viewBox="0 0 364 364" xmlns="http://www.w3.org/2000/svg">
 	<defs>
-		<linearGradient id="gradient-5" gradientUnits="userSpaceOnUse" x1="0%" y1="0%" x2="100%" y2="100%">
+		<linearGradient
+			id="gradient-5"
+			gradientUnits="userSpaceOnUse"
+			x1="0%"
+			y1="0%"
+			x2="100%"
+			y2="100%"
+		>
 			<stop offset="0%" style="stop-color: var(--svg-fill-color);" />
 			<stop offset="100%" style="stop-color:  var(--svg-fill-color);" />
 		</linearGradient>
-		<linearGradient id="gradient-6" gradientUnits="userSpaceOnUse" x1="0%" y1="0%" x2="100%" y2="100%">
+		<linearGradient
+			id="gradient-6"
+			gradientUnits="userSpaceOnUse"
+			x1="0%"
+			y1="0%"
+			x2="100%"
+			y2="100%"
+		>
 			<stop offset="0%" style="stop-color: var(--svg-fill-color);" />
 			<stop offset="100%" style="stop-color: var(--svg-opposite-color);" />
 		</linearGradient>

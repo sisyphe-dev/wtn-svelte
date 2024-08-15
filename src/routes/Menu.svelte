@@ -78,7 +78,11 @@
 	.background-menu {
 		height: 100vh;
 		width: 100vw;
-		background: radial-gradient(farthest-corner circle at 0% 0%, var(--background-color), var(--svg-opposite-color));
+		background: radial-gradient(
+			farthest-corner circle at 0% 0%,
+			var(--background-color),
+			var(--svg-opposite-color)
+		);
 		z-index: 1;
 	}
 
