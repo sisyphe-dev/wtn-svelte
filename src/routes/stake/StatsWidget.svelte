@@ -35,37 +35,43 @@
 <div class="stat-widget-container" in:fade={{ duration: 500 }}>
 	<div class="stat-item">
 		<b>Total Staked</b>
-		<b>
+		<p>
 			{#if $waterNeuronInfo}
 				{displayUsFormat($waterNeuronInfo.neuron8yStake().plus($waterNeuronInfo.neuron6mStake()))} ICP
 			{:else}
 				-/-
 			{/if}
-		</b>
+		</p>
 	</div>
 	<div class="stat-item">
 		<b>APY</b>
-		<b
+		<p
 			>{#if apy}
 				{displayUsFormat(BigNumber(100).multipliedBy(apy))} %
 			{:else}
 				-/-
-			{/if}</b
+			{/if}</p
 		>
 	</div>
 	<div class="stat-item">
 		<b>Stakers</b>
-		<b>
+		<p>
 			{#if stakersCount || stakersCount === 0}
 				{stakersCount}
 			{:else}
 				-/-
 			{/if}
-		</b>
+		</p>
 	</div>
 </div>
 
 <style>
+	/* === Base Style === */
+	p {
+		padding: 0;
+		margin: 0;
+	}
+
 	/* === Layout === */
 	.stat-widget-container {
 		background: var(--background-color);
