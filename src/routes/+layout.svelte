@@ -101,6 +101,7 @@
 
 		--not-selected-color : #5d6b77;
 		--faq-color: black;
+		--anchor-color: white;
 
 		--main-font: 'Akrobat-black';
 		--secondary-font: Arial;
@@ -110,6 +111,7 @@
 		--svg-fill-color: #000000; /* Black for light theme */
 		--svg-opposite-color: #b3b3b3; /* Optional: Stroke color */
 		--text-color: #000000;
+		
 	}
 
 	:root[theme='dark'] {

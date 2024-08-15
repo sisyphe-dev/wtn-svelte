@@ -63,6 +63,7 @@
 		width: 30em;
 		max-width: 90vw;
 		padding: 0 1%;
+		color: white;
 	}
 
 	.info-container {

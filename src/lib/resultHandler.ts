@@ -322,7 +322,7 @@ export function handleStakeResult(result: IcpToNicpResult): ToastResult {
 		case 'Ok':
 			return {
 				success: true,
-				message: `Successful conversion at <a target='_blank' style="text-decoration: underline; color: var(--text-color);" href=https://dashboard.internetcomputer.org/transaction/${result[key]['block_index']}>block index ${result[key]['block_index']}</a>.`
+				message: `Successful conversion at <a target='_blank' style="text-decoration: underline; color: var(--anchor-color);" href=https://dashboard.internetcomputer.org/transaction/${result[key]['block_index']}>block index ${result[key]['block_index']}</a>.`
 			};
 		case 'Err':
 			return handleConversionError(result[key]);
@@ -338,7 +338,7 @@ export function handleRetrieveResult(result: NicpToIcpResult): ToastResult {
 		case 'Ok':
 			return {
 				success: true,
-				message: `Successful conversion at block index ${result[key]['block_index']}. Follow your <a style="text-decoration: underline; color: var(--text-color);" href='/wallet'>withdrawal status</a>.`
+				message: `Successful conversion at block index ${result[key]['block_index']}. Follow your <a style="text-decoration: underline; color: var(--anchor-color);" href='/wallet'>withdrawal status</a>.`
 			};
 		case 'Err':
 			return handleConversionError(result[key]);
@@ -378,7 +378,7 @@ export function handleSnsIcpDepositResult(result: SnsIcpDepositResult): ToastRes
 		case 'Ok':
 			return {
 				success: true,
-				message: `Successful conversion at <a target='_blank' style="text-decoration: underline; color: var(--text-color);" href=https://dashboard.internetcomputer.org/transaction/${result[key]['block_index']}>block index ${result[key]['block_index']}</a>.`
+				message: `Successful conversion at <a target='_blank' style="text-decoration: underline; color: var(--anchor-color);" href=https://dashboard.internetcomputer.org/transaction/${result[key]['block_index']}>block index ${result[key]['block_index']}</a>.`
 			};
 		case 'Err':
 			return handleBoomerangError(result[key]);
@@ -398,7 +398,7 @@ export function handleSnsNicpDepositResult(
 			const neuron =
 				neuronId.length === 0
 					? ''
-					: `Follow the <a target='_blank' style='text-decoration: underline; color: var(--text-color);' href='https://dashboard.internetcomputer.org/neuron/${neuronId[0].id}'>neuron</a>.`;
+					: `Follow the <a target='_blank' style='text-decoration: underline; color: var(--anchor-color);' href='https://dashboard.internetcomputer.org/neuron/${neuronId[0].id}'>neuron</a>.`;
 			return {
 				success: true,
 				message: `Successful conversion at block index ${result[key]['block_index']}. ${neuron}`
@@ -435,7 +435,7 @@ export function handleTransferResult(result: TransferResult): ToastResult {
 		case 'Ok':
 			return {
 				success: true,
-				message: `Successful transfer at <a target='_blank' style="text-decoration: underline; color: var(--text-color);" href=https://dashboard.internetcomputer.org/transaction/${result[key]}>block index ${result[key]}</a>.`
+				message: `Successful transfer at <a target='_blank' style="text-decoration: underline; color: var(--anchor-color);" href=https://dashboard.internetcomputer.org/transaction/${result[key]}>block index ${result[key]}</a>.`
 			};
 		case 'Err':
 			return handleTransferError(result[key]);
@@ -462,7 +462,7 @@ export function handleIcrcTransferResult(result: Icrc1TransferResult, asset: Ass
 				default:
 					return {
 						success: true,
-						message: `Successful transfer at <a target='_blank' style="text-decoration: underline; color: var(--text-color);" href=${asset.getDashboardUrl()}${result[key]}>block index ${result[key]}</a>.`
+						message: `Successful transfer at <a target='_blank' style="text-decoration: underline; color: var(--anchor-color);" href=${asset.getDashboardUrl()}${result[key]}>block index ${result[key]}</a>.`
 					};
 			}
 
