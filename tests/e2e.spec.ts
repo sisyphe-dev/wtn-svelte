@@ -270,7 +270,6 @@ test('e2e test boomerang stake', async ({ page }) => {
 	expect(await isToastSuccess(page)).toBeTruthy();
 });
 
-
 test('e2e test boomerang unstake', async ({ page }) => {
 	await page.goto('/sns/boomerang-unstake');
 	await expect(page.locator('.sns-listing')).toBeVisible();

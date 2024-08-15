@@ -387,12 +387,18 @@ export function handleSnsIcpDepositResult(result: SnsIcpDepositResult): ToastRes
 			return { success: false, message: DEFAULT_ERROR_MESSAGE };
 	}
 }
-export function handleSnsNicpDepositResult(result: SnsNicpDepositResult, neuronId: [] | [NeuronId]): ToastResult {
+export function handleSnsNicpDepositResult(
+	result: SnsNicpDepositResult,
+	neuronId: [] | [NeuronId]
+): ToastResult {
 	const key = Object.keys(result)[0] as keyof SnsNicpDepositResult;
 
 	switch (key) {
 		case 'Ok':
-			const neuron = neuronId.length === 0 ? "" : `Follow the <a target='_blank' style='text-decoration: underline; color: var(--text-color);' href='https://dashboard.internetcomputer.org/neuron/${neuronId[0].id}'>neuron</a>.`;
+			const neuron =
+				neuronId.length === 0
+					? ''
+					: `Follow the <a target='_blank' style='text-decoration: underline; color: var(--text-color);' href='https://dashboard.internetcomputer.org/neuron/${neuronId[0].id}'>neuron</a>.`;
 			return {
 				success: true,
 				message: `Successful conversion at block index ${result[key]['block_index']}. ${neuron}`

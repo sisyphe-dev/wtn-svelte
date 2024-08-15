@@ -106,14 +106,14 @@
 		--secondary-font: Arial;
 	}
 
-	:root[theme="light"] {
-    	--svg-fill-color: #000000; /* Black for light theme */
-    	--svg-stroke-color: #000000; /* Optional: Stroke color */
+	:root[theme='light'] {
+		--svg-fill-color: #000000; /* Black for light theme */
+		--svg-opposite-color: #b3b3b3; /* Optional: Stroke color */
 	}
 
-	:root[theme="dark"] {
+	:root[theme='dark'] {
 		--svg-fill-color: #ffffff; /* White for dark theme */
-		--svg-stroke-color: #ffffff; /* Optional: Stroke color */
+		--svg-opposite-color: #e1e1e1; /* Optional: Stroke color */
 	}
 
 	@font-face {

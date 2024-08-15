@@ -1,7 +1,10 @@
 <script>
 	import { isLogging } from '$lib/stores';
-	import OpenChat from '$lib/icons/OpenChat';
-	import Telegram from '$lib/icons/Telegram';
+	import OpenChatIcon from '$lib/icons/OpenChatIcon.svelte';
+	import TelegramIcon from '$lib/icons/TelegramIcon.svelte';
+	import TwitterIcon from '$lib/icons/TwitterIcon.svelte';
+	import GitbookIcon from '$lib/icons/GitbookIcon.svelte';
+	import GithubIcon from '$lib/icons/GithubIcon.svelte';
 </script>
 
 <footer class:filter={$isLogging}>
@@ -13,21 +16,21 @@
 			rel="noreferrer"
 			target="_blank"
 		>
-			<OpenChat />
-		</a>
-		<a class="item--5" href="https://github.com/WaterNeuron" target="_blank" rel="noreferrer">
-			<img alt="Github Icon" src="/icon/github-white.svg" />
-		</a>
-		<a class="item--3" href="https://twitter.com/WaterNeuron" target="_blank" rel="noreferrer">
-			<img alt="Twitter Icon" src="/icon/twitter.svg" />
-		</a>
-
-		<a class="item--4" href="https://docs.waterneuron.fi/" rel="noreferrer" target="_blank">
-			<img alt="Git book icon" src="/icon/gitbook.svg" />
+			<OpenChatIcon />
 		</a>
 		<a class="item--2" href="https://t.me/waterneuron" rel="noreferrer" target="_blank">
-			<Telegram />
+			<TelegramIcon />
 		</a>
+		<a class="item--3" href="https://twitter.com/WaterNeuron" target="_blank" rel="noreferrer">
+			<TwitterIcon />
+		</a>
+		<a class="item--4" href="https://docs.waterneuron.fi/" rel="noreferrer" target="_blank">
+			<GitbookIcon />
+		</a>
+		<a class="item--5" href="https://github.com/WaterNeuron" target="_blank" rel="noreferrer">
+			<GithubIcon />
+		</a>
+		
 		<p>WaterNeuron</p>
 	</div>
 </footer>
@@ -57,12 +60,13 @@
 		position: absolute;
 		bottom: -1em;
 		font-family: var(--main-font);
+		color: var(--svg-fill-color);
 	}
 
 	a {
 		position: absolute;
-		top: 100%;
-		left: 50;
+		top: 0%;
+		left: 50%;
 		transform: translate(-50%, -50%);
 	}
 
@@ -90,32 +94,22 @@
 	}
 
 	.item--1 {
-		top: 35%;
 		left: 8%;
-		transform: translate(-50%, -50%);
+		top: 35%;
 	}
 
 	.item--2 {
-		top: 10%;
 		left: 23%;
-		transform: translate(-50%, -50%);
-	}
-
-	.item--3 {
-		top: 0%;
-		left: 50%;
-		transform: translate(-50%, -50%);
+		top: 10%;
 	}
 
 	.item--4 {
+		left: 77%;
 		top: 10%;
-		right: 23%;
-		transform: translate(50%, -50%);
 	}
 
 	.item--5 {
+		left: 92%;
 		top: 35%;
-		right: 8%;
-		transform: translate(50%, -50%);
 	}
 </style>
