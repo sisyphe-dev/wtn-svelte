@@ -34,7 +34,7 @@
 	<div class="address-container">
 		<h2>ICP Account Id</h2>
 		<div class="principal-container">
-			<p>{$user?.accountId}</p>
+			<p title="accountIdentifier-hex">{$user?.accountId}</p>
 			<button
 				class="copy-btn"
 				on:click={() => {
@@ -54,7 +54,7 @@
 	<div class="address-container">
 		<h2>Principal Address</h2>
 		<div class="principal-container">
-			<p>{$user?.principal}</p>
+			<p title="principal-user">{$user?.principal}</p>
 			<button
 				class="copy-btn"
 				on:click={() => {
