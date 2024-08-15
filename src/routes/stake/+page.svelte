@@ -98,13 +98,13 @@
 	}
 
 	h1 {
-		color: white;
+		color: var(--faq-color);
 		font-size: 42px;
 		font-family: var(--main-font);
 	}
 
 	h2 {
-		color: white;
+		color: var(--faq-color);
 		font-size: 1.5em;
 		text-align: start;
 	}
@@ -123,7 +123,7 @@
 		background: none;
 		border: none;
 		border-bottom: 2px solid;
-		border-color: white;
+		border-color: var(--faq-color);
 		margin-top: 2em;
 		padding-top: 2em;
 		width: 100%;

@@ -1,5 +1,7 @@
 <script>
 	import { isLogging } from '$lib/stores';
+	import OpenChat from '$lib/icons/OpenChat';
+	import Telegram from '$lib/icons/Telegram';
 </script>
 
 <footer class:filter={$isLogging}>
@@ -11,7 +13,7 @@
 			rel="noreferrer"
 			target="_blank"
 		>
-			<img alt="Open chat icon" src="/icon/openchat.svg" />
+			<OpenChat />
 		</a>
 		<a class="item--5" href="https://github.com/WaterNeuron" target="_blank" rel="noreferrer">
 			<img alt="Github Icon" src="/icon/github-white.svg" />
@@ -24,7 +26,7 @@
 			<img alt="Git book icon" src="/icon/gitbook.svg" />
 		</a>
 		<a class="item--2" href="https://t.me/waterneuron" rel="noreferrer" target="_blank">
-			<img alt="Telegram icon" src="/icon/telegram.svg" />
+			<Telegram />
 		</a>
 		<p>WaterNeuron</p>
 	</div>

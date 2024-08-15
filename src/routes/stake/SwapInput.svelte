@@ -34,12 +34,12 @@
 <style>
 	/* === Base Styles === */
 	h2 {
-		color: white;
+		color: var(--stake-text-color);
 		margin: 0;
 	}
 
 	span {
-		color: white;
+		color: var(--stake-text-color);
 		text-decoration: underline;
 		font-size: 12px;
 	}
@@ -49,7 +49,7 @@
 		padding-left: 0.4em;
 		height: 3em;
 		font-size: 20px;
-		color: white;
+		color: var(--stake-text-color);
 		background: var(--input-color);
 		outline: none;
 		width: 80%;
@@ -69,6 +69,7 @@
 		border-radius: 1em;
 		padding: 1em;
 		background: var(--input-color);
+		border: 2px solid var(--border-color);
 	}
 
 	/* === Components === */
@@ -79,7 +80,6 @@
 		flex-direction: row-reverse;
 		align-items: center;
 		padding: 1em;
-		color: white;
 		background: var(--input-color);
 		gap: 1em;
 		cursor: pointer;

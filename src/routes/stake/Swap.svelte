@@ -164,7 +164,7 @@
 					inputAmount.reset();
 				}}
 				class:selected={stake}
-				class:not-selected={!stake}><h2 class="header-txt" style:left="5%">Stake ICP</h2></button
+				class:not-selected={!stake}><h2 style:left="5%">Stake ICP</h2></button
 			>
 			<button
 				class="header-btn"
@@ -176,14 +176,14 @@
 					inputAmount.reset();
 				}}
 				class:selected={!stake}
-				class:not-selected={stake}><h2 class="header-txt" style:right="5%">Unstake nICP</h2></button
+				class:not-selected={stake}><h2 style:right="5%">Unstake nICP</h2></button
 			>
 		</div>
 		<div class="swap-container">
 			<SwapInput asset={stake ? Asset.fromText('ICP') : Asset.fromText('nICP')} />
 			<div class="paragraphs" in:fade={{ duration: 500 }}>
 				{#if stake}
-					<p style:color="var(--orange-color)">
+					<p style:color="var(--stake-text-color)">
 						{#if exchangeRate}
 							You will receive {displayUsFormat(
 								computeReceiveAmount(stake, BigNumber($inputAmount), exchangeRate),
@@ -309,14 +309,14 @@
 	}
 
 	span {
-		color: black;
+		color: white;
 	}
 
 	h2 {
 		font-family: var(--secondary-font);
 		font-size: 17px;
 		font-weight: bold;
-		color: white;
+		color: var(--stake-text-color);
 		position: absolute;
 		top: 2.25em;
 		margin: 0;
@@ -424,8 +424,11 @@
 	.not-selected {
 		border-bottom: 2px solid var(--border-color);
 		background-color: #5d6b77;
-		color: #c7c7c7;
 		cursor: pointer;
+	}
+
+	.not-selected h2 {
+		color: #cfcfcf;
 	}
 
 	/* === Animation === */

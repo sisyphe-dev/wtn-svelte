@@ -68,8 +68,9 @@
 <style>
 	/* === Layout === */
 	.stat-widget-container {
-		background: rgb(40 71 105);
-		color: white;
+		background: var(--background-color);
+		border: 2px solid var(--border-color);
+		color: var(--stake-text-color);
 		padding: 1em;
 		padding-left: 2em;
 		padding-right: 2em;

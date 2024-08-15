@@ -107,6 +107,10 @@
 		font-size: 13px;
 	}
 
+	h1 {
+		color: var(--title-color);
+	}
+
 	p {
 		text-align: end;
 		font-weight: normal;
@@ -144,6 +148,7 @@
 		align-items: center;
 		height: fit-content;
 		font-size: 16px;
+		color: var(--stake-text-color);
 		padding: 0.5em;
 		margin: 0;
 	}
