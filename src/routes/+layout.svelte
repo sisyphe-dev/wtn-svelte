@@ -89,7 +89,6 @@
 	/* === Variables === */
 	:root {
 		--main-color: #283e95;
-		--background-color: #091121;
 		--main-color-transparent: #283e9575;
 		--main-nuanced-color: #7d98ff;
 
@@ -111,6 +110,7 @@
 		--title-color: #000000;
 		--input-color: #f1fff6;
 		--border-color: #454545;
+		--background-color: #f1fff6;
 	}
 
 	:root[theme='dark'] {
@@ -122,6 +122,7 @@
 		--faq-color: #ffffff;
 		--title-color: #ffffff;
 		--border-color: #d4d4d4;
+		--background-color: #091121;
 	}
 
 	@font-face {
