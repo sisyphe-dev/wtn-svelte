@@ -2,6 +2,8 @@ import { Principal } from '@dfinity/principal';
 import BigNumber from 'bignumber.js';
 import type { WithdrawalStatus } from '../declarations/water_neuron/water_neuron.did';
 import { AccountIdentifier } from '@dfinity/ledger-icp';
+import { decodeIcrcAccount } from '@dfinity/ledger-icrc';
+import type { Account } from '../declarations/icp_ledger/icp_ledger.did';
 
 export const E8S = BigNumber(10).pow(BigNumber(8));
 
@@ -252,4 +254,21 @@ export function isPrincipalValid(input: string): boolean {
 
 export function principalToHex(principal: string): string {
 	return AccountIdentifier.fromPrincipal({ principal: Principal.fromText(principal) }).toHex();
+}
+
+export function getMaybeAccount(accountString: string): Account | AccountIdentifier | undefined {
+	try {
+		if (accountString.length === 64) {
+			return AccountIdentifier.fromHex(accountString);
+		}
+		const icrcAccount = decodeIcrcAccount(accountString);
+
+		if (icrcAccount.subaccount) {
+			return { owner: icrcAccount.owner, subaccount: [icrcAccount.subaccount] } as Account;
+		} else {
+			return { owner: icrcAccount.owner, subaccount: [] } as Account;
+		}
+	} catch (error) {
+		return;
+	}
 }
