@@ -34,8 +34,10 @@
 
 	const handlePrincipalInputChange = async () => {
 		if (!$canisters || $sns.name !== 'Custom') return;
-		if (isPrincipalValid(principalInput)) {
-			await handleSnsChange('Custom', principalInput);
+
+		const filteredInput = principalInput.replace(/\s+/g, '');
+		if (isPrincipalValid(filteredInput)) {
+			await handleSnsChange('Custom', filteredInput);
 		}
 	};
 
