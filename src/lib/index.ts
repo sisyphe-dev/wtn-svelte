@@ -12,7 +12,7 @@ export function displayPrincipal(principal: Principal) {
 	return a[0] + '...' + a[a.length - 1];
 }
 
-export function displayUsFormat(value: BigNumber, decimals = 2): string {
+export function displayUsFormat(value: BigNumber, decimals = 4): string {
 	const formatter = new Intl.NumberFormat('en-US', {
 		minimumFractionDigits: 0,
 		maximumFractionDigits: decimals
@@ -29,7 +29,7 @@ export function numberWithPrecision(x: BigNumber, decimals: BigNumber): BigNumbe
 
 export function numberToBigintE8s(x: BigNumber): bigint {
 	const xScaled = numberWithPrecision(x, BigNumber(8)).multipliedBy(E8S);
-	return BigInt(xScaled.toNumber());
+	return BigInt(xScaled.toFixed(0));
 }
 
 export function bigintE8sToNumber(x: bigint): BigNumber {
@@ -184,19 +184,13 @@ export function renderStatus(status: WithdrawalStatus): string {
 	  </a>
 	</p>`;
 		case 'NotFound':
-			return 'Withdrawal status not found.';
+			return 'Not found';
 		case 'WaitingToSplitNeuron':
 			return 'Waiting to Split Neuron';
 		case 'WaitingDissolvement':
-			return 'Waiting dissolvement';
-
-		// if (status[key]['neuron_id']['id']) {
-		// 	return displayStatus(status[key]['neuron_id']);
-		// } else {
-		// 	return 'Waiting dissolvement';
-		// }
+			return 'Waiting Dissolvement';
 		case 'WaitingToStartDissolving':
-			return `Waiting to Start Dissolving (Neuron ID: ${status[key]['neuron_id']['id']})`;
+			return `Waiting to Start Dissolving`;
 		default:
 			return 'Unknown Status';
 	}
@@ -247,13 +241,19 @@ export function isPrincipalValid(input: string): boolean {
 	try {
 		Principal.fromText(input);
 		return true;
-	} catch (error) {
+	} catch (_) {
 		return false;
 	}
 }
 
-export function principalToHex(principal: string): string {
-	return AccountIdentifier.fromPrincipal({ principal: Principal.fromText(principal) }).toHex();
+export function principalToHex(principalString: string): string {
+	try {
+		const principal = Principal.fromText(principalString);
+		return AccountIdentifier.fromPrincipal({ principal: principal }).toHex();
+	} catch (error) {
+		console.log('[principalToHex]', error);
+		return '';
+	}
 }
 
 export function getMaybeAccount(accountString: string): Account | AccountIdentifier | undefined {
@@ -269,6 +269,7 @@ export function getMaybeAccount(accountString: string): Account | AccountIdentif
 			return { owner: icrcAccount.owner, subaccount: [] } as Account;
 		}
 	} catch (error) {
+		console.log('[getMaybeAccount]', error);
 		return;
 	}
 }

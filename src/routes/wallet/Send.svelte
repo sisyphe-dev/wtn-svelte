@@ -212,8 +212,7 @@
 			</div>
 			{#if !BigNumber($inputAmount).isNaN() && BigNumber($inputAmount).isGreaterThanOrEqualTo($user?.getBalance($selectedAsset.type) ?? BigNumber(0))}
 				<span class="error"> Not enough treasury. </span>
-			{/if}
-			{#if !BigNumber($inputAmount).isNaN() && BigNumber($inputAmount).isLessThan(BigNumber(1).dividedBy(E8S))}
+			{:else if !BigNumber($inputAmount).isNaN() && BigNumber($inputAmount).isLessThan(BigNumber(1).dividedBy(E8S))}
 				<span class="error">Minimum amount: 0.00000001</span>
 			{/if}
 		</div>
