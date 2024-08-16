@@ -152,7 +152,6 @@
 							<td>
 								{@html renderStatus(details.status)}
 							</td>
-
 							<td>{details.request.withdrawal_id}</td>
 						</tr>
 					{/if}
