@@ -243,12 +243,11 @@
 				>
 					<span>Continue</span>
 				</button>
-			{/if}	
+			{/if}
 		</div>
 	</div>
 	<Toast />
 </dialog>
-
 
 <style>
 	/* === Base Styles === */
