@@ -149,26 +149,6 @@ export function computeRewards(alreadyDistributed: BigNumber, converting: BigNum
 	return totalRewards;
 }
 
-export function nicpLeftUntilNextTier(alreadyDistributed: BigNumber): {
-	nicpLeft: BigNumber;
-	rate: BigNumber;
-} {
-	let cumulativeAmount = BigNumber(alreadyDistributed);
-
-	for (const [threshold, rate] of TIERS) {
-		const nicpThreshold = BigNumber(threshold);
-		const allocationRate = BigNumber(rate);
-		if (cumulativeAmount.isGreaterThan(nicpThreshold)) {
-			cumulativeAmount = cumulativeAmount.minus(nicpThreshold);
-			continue;
-		}
-		const nicpLeftBeforeNextTier = nicpThreshold.minus(cumulativeAmount);
-		return { nicpLeft: nicpLeftBeforeNextTier, rate: allocationRate };
-	}
-
-	return { nicpLeft: BigNumber(0), rate: BigNumber(0) };
-}
-
 export function renderStatus(status: WithdrawalStatus): string {
 	const key = Object.keys(status)[0] as keyof WithdrawalStatus;
 	switch (key) {
@@ -203,11 +183,7 @@ export function displayTimeLeft(created_at: number, isMobile = false) {
 	const daysLeft = Math.floor(timeLeft / 60 / 60 / 24);
 	const hoursLeft = Math.floor((timeLeft - daysLeft * 60 * 60 * 24) / 60 / 60);
 
-	if (isMobile && daysLeft > 0) {
-		return `${daysLeft} days left`;
-	} else if (isMobile && hoursLeft > 0) {
-		return `${hoursLeft} hours left`;
-	} else if (daysLeft > 0 && hoursLeft > 0) {
+	if (!isMobile && daysLeft > 0 && hoursLeft > 0) {
 		return `${daysLeft} days and ${hoursLeft} hours left`;
 	} else if (daysLeft > 0) {
 		return `${daysLeft} days left`;
@@ -217,7 +193,7 @@ export function displayTimeLeft(created_at: number, isMobile = false) {
 	return `Less than an hour left`;
 }
 
-export const isMobile = window.innerWidth <= 767;
+export const isMobile = typeof window !== 'undefined' && window.innerWidth <= 767;
 
 export function isContainerHigher(type: 'receive' | 'send'): boolean {
 	let name: string;

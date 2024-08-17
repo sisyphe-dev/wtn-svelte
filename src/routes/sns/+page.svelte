@@ -182,6 +182,7 @@
 					<span class="sns-amount">
 						Choose the amount of ICP to transfer:
 						<input
+							title="sns-amount-input"
 							type="text"
 							maxlength="20"
 							bind:value={$inputAmount}
@@ -222,7 +223,9 @@
 						<div class="spinner"></div>
 					</button>
 				{:else}
-					<button class="action-btn" on:click={notifyIcpDeposit}>Confirm SNS deposit</button>
+					<button class="action-btn" title="notifyIcpDeposit-btn" on:click={notifyIcpDeposit}
+						>Confirm SNS deposit</button
+					>
 				{/if}
 			</div>
 			<div class="step-container" in:fade={{ duration: 500 }}>
@@ -237,7 +240,9 @@
 						<div class="spinner"></div>
 					</button>
 				{:else}
-					<button class="action-btn" on:click={retrieveNicp}>Retrieve nICP</button>
+					<button class="action-btn" title="retrieveNicp-btn" on:click={retrieveNicp}
+						>Retrieve nICP</button
+					>
 				{/if}
 			</div>
 		</div>

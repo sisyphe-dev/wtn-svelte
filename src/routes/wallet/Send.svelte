@@ -179,7 +179,7 @@
 		{/if}
 		<div>
 			<p>Destination</p>
-			<input type="text" placeholder="Address" bind:value={principal} />
+			<input type="text" placeholder="Address" title="send-destination" bind:value={principal} />
 			{#if principal && !getMaybeAccount(principal)}
 				<span class="error"> Please enter a valid address. </span>
 			{/if}
@@ -188,6 +188,7 @@
 			<p>Amount</p>
 			<div class="amount-input">
 				<input
+					title="send-amount"
 					type="text"
 					maxlength="20"
 					bind:value={$inputAmount}
@@ -237,6 +238,7 @@
 				>
 				<button
 					class="toggle-btn"
+					title="continue-btn"
 					on:click={() => {
 						icrcTransfer(BigNumber($inputAmount), principal);
 					}}

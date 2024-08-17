@@ -5,7 +5,7 @@
 </script>
 
 <nav class:filter={$isLogging}>
-	<a href="/stake" class="menu-selection-container">
+	<a href="/stake" class="menu-selection-container" title="home-btn">
 		<img src="/tokens/WTN.webp" width="75em" height="75em" alt="WTN logo" />
 		<div class="wave-title">
 			<h1 id="static-header">WaterNeuron</h1>
@@ -14,6 +14,7 @@
 	<div class="right-container">
 		{#if !$user}
 			<button
+				title="connect-btn"
 				class="smart"
 				on:click={() => {
 					isLogging.set(true);
@@ -24,9 +25,9 @@
 		{:else}
 			<a href="/wallet" class="wallet-btn" id="wallet-info">
 				<h2 style:font-weight={'bold'}>{displayPrincipal($user.principal)}</h2>
-				<p id="special">{displayUsFormat($user.icpBalance())} ICP</p>
-				<p>{displayUsFormat($user.nicpBalance())} nICP</p>
-				<p>{displayUsFormat($user.wtnBalance())} WTN</p>
+				<p title="icp-balance-nav">{displayUsFormat($user.icpBalance())} ICP</p>
+				<p title="nicp-balance-nav">{displayUsFormat($user.nicpBalance())} nICP</p>
+				<p title="wtn-balance-nav">{displayUsFormat($user.wtnBalance())} WTN</p>
 			</a>
 			<button
 				id="disconnect-btn"
