@@ -118,7 +118,7 @@
 						if (maybeAccount instanceof AccountIdentifier) {
 							toasts.add(
 								Toast.error(
-									'Transfer failed: wtn transfers require a principal. Please provide a valid principal.'
+									'Transfer failed: WTN transfers require a principal. Please provide a valid principal.'
 								)
 							);
 							isSending = false;
