@@ -168,7 +168,7 @@ export function renderStatus(status: WithdrawalStatus): string {
 		case 'WaitingToSplitNeuron':
 			return 'Waiting to Split Neuron';
 		case 'WaitingDissolvement':
-			return `Waiting Dissolvement`;
+			return 'Waiting Dissolvement';
 		case 'WaitingToStartDissolving':
 			return `Waiting to Start Dissolving`;
 		default:
