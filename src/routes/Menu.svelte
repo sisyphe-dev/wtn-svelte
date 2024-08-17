@@ -7,7 +7,7 @@
 	<div class="menu-container">
 		<div class="menu-panel">
 			<a
-				href="/stake"
+				href="/"
 				on:click={() => {
 					inMobileMenu.set(false);
 				}}>Stake</a
@@ -19,7 +19,7 @@
 				}}>Wallet</a
 			>
 			<a
-				href="/stake"
+				href="/"
 				on:click={async () => {
 					await internetIdentityLogout();
 
