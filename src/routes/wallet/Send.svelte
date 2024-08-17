@@ -18,7 +18,7 @@
 		handleInputAmount
 	} from '$lib/stores';
 	import { onMount } from 'svelte';
-	import { Toast } from '$lib/toast';
+	import { Toast as ToastMessage } from '$lib/toast';
 	import BigNumber from 'bignumber.js';
 	import { type Account, AccountIdentifier } from '@dfinity/ledger-icp';
 	import { decodeIcrcAccount } from '@dfinity/ledger-icrc';
@@ -30,6 +30,7 @@
 	} from '$lib/resultHandler';
 	import type { Tokens, TransferArgs, TransferArg } from '$declarations/icp_ledger.did';
 	import { fade } from 'svelte/transition';
+	import Toast from '../Toast.svelte';
 
 	let principal: string;
 	let isSending = false;
@@ -94,12 +95,11 @@
 					{
 						if (maybeAccount instanceof AccountIdentifier) {
 							toasts.add(
-								Toast.error(
+								ToastMessage.error(
 									'Transfer failed: nICP transfers require a principal. Please provide a valid principal.'
 								)
 							);
 							isSending = false;
-							inSendingMenu.set(false);
 							return;
 						}
 						const transferResult = await $canisters.nicpLedger.icrc1_transfer({
@@ -117,12 +117,11 @@
 					{
 						if (maybeAccount instanceof AccountIdentifier) {
 							toasts.add(
-								Toast.error(
+								ToastMessage.error(
 									'Transfer failed: WTN transfers require a principal. Please provide a valid principal.'
 								)
 							);
 							isSending = false;
-							inSendingMenu.set(false);
 							return;
 						}
 						const transferResult = await $canisters.wtnLedger.icrc1_transfer({
@@ -139,15 +138,15 @@
 			}
 
 			if (status.success) {
-				toasts.add(Toast.success(status.message));
+				toasts.add(ToastMessage.success(status.message));
+				inSendingMenu.set(false);
 			} else {
-				toasts.add(Toast.error(status.message));
+				toasts.add(ToastMessage.error(status.message));
 			}
 		} catch (error) {
 			console.log(error);
 			toasts.add('Transfer failed. Try again.');
 		}
-		inSendingMenu.set(false);
 		isSending = false;
 		inputAmount.reset();
 	}
@@ -212,8 +211,7 @@
 			</div>
 			{#if !BigNumber($inputAmount).isNaN() && BigNumber($inputAmount).isGreaterThanOrEqualTo($user?.getBalance($selectedAsset.type) ?? BigNumber(0))}
 				<span class="error"> Not enough treasury. </span>
-			{/if}
-			{#if !BigNumber($inputAmount).isNaN() && BigNumber($inputAmount).isLessThan(BigNumber(1).dividedBy(E8S))}
+			{:else if !BigNumber($inputAmount).isNaN() && BigNumber($inputAmount).isLessThan(BigNumber(1).dividedBy(E8S))}
 				<span class="error">Minimum amount: 0.00000001</span>
 			{/if}
 		</div>
@@ -248,18 +246,19 @@
 			{/if}
 		</div>
 	</div>
+	<Toast />
 </dialog>
 
 <style>
 	/* === Base Styles === */
 
 	::backdrop {
-		backdrop-filter: blur(10px);
+		backdrop-filter: blur(5px);
 	}
 
 	dialog {
 		display: flex;
-		background: none;
+		background: transparent;
 		justify-content: center;
 		height: fit-content;
 		min-height: 100%;
