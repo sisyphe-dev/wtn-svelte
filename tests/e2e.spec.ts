@@ -45,16 +45,16 @@ test('has title', async ({ page }) => {
 
 testWithII('test page navigation', async ({ page, iiPage }) => {
 	await page.goto('/');
-	await expect(page).toHaveURL('/stake/');
+	await expect(page).toHaveURL('/');
 
 	await page.goto('/any');
-	await expect(page).toHaveURL('/stake/');
+	await expect(page).toHaveURL('/');
 
 	await page.goto('/sns/');
 	await expect(page).toHaveURL('/sns/');
 
 	await page.goto('/wallet/');
-	await expect(page).toHaveURL('/stake/');
+	await expect(page).toHaveURL('/');
 
 	await page.locator('[title="connect-btn"]').click();
 

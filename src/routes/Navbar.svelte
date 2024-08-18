@@ -5,7 +5,7 @@
 </script>
 
 <nav class:filter={$isLogging}>
-	<a href="/stake" class="menu-selection-container" title="home-btn">
+	<a href="/" class="menu-selection-container" title="home-btn">
 		<img src="/tokens/WTN.webp" width="75em" height="75em" alt="WTN logo" />
 		<div class="wave-title">
 			<h1 id="static-header">WaterNeuron</h1>
