@@ -1,8 +1,17 @@
 <script lang="ts">
+	import en from './lang/en.json';
+	import es from './lang/es.json';
+	import ru from './lang/ru.json';
+	import ja from './lang/ja.json';
 	import { language } from '$lib/stores';
 	import { fade, slide } from 'svelte/transition';
 
-	export let data;
+	const data = {
+		en: en,
+		es: es,
+		ru: ru,
+		ja: ja
+	};
 
 	function getContent(language: string) {
 		switch (language) {
