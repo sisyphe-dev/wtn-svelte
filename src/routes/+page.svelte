@@ -10,4 +10,4 @@
 
 <StatsWidget />
 <Swap />
-<Faq  {data} />
+<Faq {data} />
