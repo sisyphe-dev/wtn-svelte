@@ -81,7 +81,9 @@
 			<slot />
 		</div>
 		<Footer />
-		<Toast />
+		{#if !$inSendingMenu}
+			<Toast />
+		{/if}
 	</div>
 {/if}
 

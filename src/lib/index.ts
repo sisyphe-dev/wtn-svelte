@@ -168,7 +168,7 @@ export function renderStatus(status: WithdrawalStatus): string {
 		case 'WaitingToSplitNeuron':
 			return 'Waiting to Split Neuron';
 		case 'WaitingDissolvement':
-			return `Waiting Dissolvement`;
+			return 'Waiting Dissolvement';
 		case 'WaitingToStartDissolving':
 			return `Waiting to Start Dissolving`;
 		default:
@@ -217,7 +217,7 @@ export function isPrincipalValid(input: string): boolean {
 	try {
 		Principal.fromText(input);
 		return true;
-	} catch (error) {
+	} catch (_) {
 		return false;
 	}
 }
@@ -227,6 +227,7 @@ export function principalToHex(principalString: string): string {
 		const principal = Principal.fromText(principalString);
 		return AccountIdentifier.fromPrincipal({ principal: principal }).toHex();
 	} catch (error) {
+		console.log('[principalToHex]', error);
 		return '';
 	}
 }
@@ -244,6 +245,7 @@ export function getMaybeAccount(accountString: string): Account | AccountIdentif
 			return { owner: icrcAccount.owner, subaccount: [] } as Account;
 		}
 	} catch (error) {
+		console.log('[getMaybeAccount]', error);
 		return;
 	}
 }

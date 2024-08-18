@@ -49,7 +49,8 @@
 	}
 
 	export async function icpToNicp(amount: BigNumber) {
-		if (!$user || $isConverting || !$canisters || amount.isNaN()) return;
+		if (!$user || $isConverting || !$canisters || amount.isNaN() || amount.isLessThan(BigNumber(1)))
+			return;
 		isConverting.set(true);
 
 		if ($user.icpBalance().isGreaterThanOrEqualTo(amount) && amount.isGreaterThan(0)) {
@@ -89,9 +90,15 @@
 	}
 
 	export async function nicpToIcp(amount: BigNumber) {
-		if (!$user || $isConverting || !$canisters || amount.isNaN()) return;
+		if (
+			!$user ||
+			$isConverting ||
+			!$canisters ||
+			amount.isNaN() ||
+			amount.isLessThan(BigNumber(10).dividedBy($waterNeuronInfo.exchangeRate()))
+		)
+			return;
 		isConverting.set(true);
-
 		if ($user.nicpBalance().isGreaterThanOrEqualTo(amount) && amount.isGreaterThan(0)) {
 			try {
 				let amountE8s = numberToBigintE8s(amount);
@@ -184,6 +191,17 @@
 		<div class="swap-container">
 			<SwapInput asset={stake ? Asset.fromText('ICP') : Asset.fromText('nICP')} />
 			<div class="paragraphs" in:fade={{ duration: 500 }}>
+				{#if $inputAmount && isNaN(parseFloat($inputAmount))}
+					<span class="error">Cannot read amount</span>
+				{:else if stake && $inputAmount && parseFloat($inputAmount) < 1}
+					<span class="error">Minimum amount: 1 ICP</span>
+				{:else if !stake && $inputAmount && parseFloat($inputAmount) < 10 / $waterNeuronInfo
+								.exchangeRate()
+								.toNumber()}
+					<span class="error"
+						>Minimum amount: {BigNumber(10).dividedBy($waterNeuronInfo.exchangeRate())} nicp</span
+					>
+				{/if}
 				{#if stake}
 					<p style:color="var(--orange-color)">
 						{#if exchangeRate}
@@ -360,6 +378,18 @@
 		justify-content: space-around;
 		flex-direction: column;
 		height: 8em;
+		position: relative;
+	}
+
+	.error {
+		color: red;
+		margin-left: 1em;
+		font-size: 16px;
+		font-family: var(--secondary-font);
+		position: absolute;
+		top: 0;
+		flex-wrap: wrap;
+		max-width: 45%;
 	}
 
 	/* === Components === */

@@ -21,6 +21,7 @@ const key = [
 
 const parsedKey = JSON.stringify(key);
 
+// The key is used to generate an intermediary account dispatching ICP/nICP tokens to testing accounts.
 // AccountId = 90526bdfd692793cba1f96bde9079994ce4d40033746f04c12064ea599e2c274
 // Principal = syna7-6ipnd-myx4g-ia46u-nxwok-u5nrr-yxgpi-iang7-lvru2-i7n23-tqe
 
@@ -41,7 +42,7 @@ export const mockSetup = async () => {
 	}
 };
 
-export async function supplyICP(accountString: string) {
+export async function transferICP(accountString: string) {
 	await mockSetup();
 	const mockMintingAccount = get(user);
 	const mockCanisters = get(canisters);
@@ -78,7 +79,7 @@ export async function supplyICP(accountString: string) {
 	}
 }
 
-export async function supplyNICP(accountString: string) {
+export async function transferNICP(accountString: string) {
 	await mockSetup();
 	const mockMintingAccount = get(user);
 	const mockCanisters = get(canisters);
