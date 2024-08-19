@@ -16,6 +16,11 @@
 			"treasury": 335933
 		},
 		{
+			"name": "DOGMI",
+			"governance_id": "ni4my-zaaaa-aaaaq-aadra-cai",
+			"treasury": 12051
+		},
+		{
 			"name": "ELNA AI",
 			"governance_id": "gdnpl-daaaa-aaaaq-aacna-cai",
 			"treasury": 166591
@@ -76,12 +81,12 @@
 			"treasury": 21856
 		},
 		{
-			"name": "Sonic",
+			"name": "SONIC",
 			"governance_id": "qgj7v-3qaaa-aaaaq-aabwa-cai",
 			"treasury": 295800
 		},
 		{
-			"name": "Trax",
+			"name": "TRAX",
 			"governance_id": "elxqo-raaaa-aaaaq-aacba-cai",
 			"treasury": 174000
 		},

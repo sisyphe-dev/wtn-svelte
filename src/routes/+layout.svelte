@@ -49,7 +49,7 @@
 		signIn('reload').then(() => {
 			updateBalances();
 			updateWaterNeuronInfo();
-			handleSnsChange();
+			handleSnsChange('BOOM DAO', 'xomae-vyaaa-aaaaq-aabhq-cai');
 		});
 
 		const intervalId = setInterval(async () => {
@@ -81,7 +81,9 @@
 			<slot />
 		</div>
 		<Footer />
-		<Toast />
+		{#if !$inSendingMenu}
+			<Toast />
+		{/if}
 	</div>
 {/if}
 

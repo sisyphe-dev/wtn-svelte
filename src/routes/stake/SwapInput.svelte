@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { Asset, handleInput } from '$lib';
-	import { inputValue, user } from '$lib/stores';
+	import { Asset } from '$lib';
+	import { inputAmount, user, handleInputAmount } from '$lib/stores';
 	import { fade } from 'svelte/transition';
 	import BigNumber from 'bignumber.js';
 
@@ -11,16 +11,20 @@
 	<input
 		type="text"
 		maxlength="20"
-		bind:value={$inputValue}
+		bind:value={$inputAmount}
 		placeholder="Amount"
-		on:input={handleInput}
+		on:input={handleInputAmount}
+		title="swap-input"
 	/>
 	<button
 		class="max-btn"
 		on:click={() => {
-			const fee = BigNumber(2).multipliedBy(asset.getTransferFee());
+			const fee =
+				asset.intoStr() === 'ICP'
+					? BigNumber(2).multipliedBy(asset.getTransferFee())
+					: BigNumber(1).multipliedBy(asset.getTransferFee());
 			const maxAmount = $user?.getBalance(asset.type).minus(fee).toNumber() ?? 0;
-			inputValue.change(maxAmount && maxAmount >= 0 ? maxAmount : 0);
+			inputAmount.change(maxAmount && maxAmount >= 0 ? maxAmount : 0);
 		}}
 	>
 		<div class="max-btn-items">
@@ -67,7 +71,7 @@
 		justify-content: space-between;
 		align-items: center;
 		border-radius: 1em;
-		padding: 1em;
+		padding: 0.5em;
 		background: var(--input-color);
 		border: 2px solid var(--border-color);
 	}
