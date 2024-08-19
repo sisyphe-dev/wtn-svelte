@@ -265,13 +265,13 @@
 	}
 
 	.dashboard {
-		color: white;
+		color: var(--stake-text-color);
 		padding: 0.5em;
 		font-family: var(--secondary-font);
 	}
 
 	h1 {
-		color: white;
+		color: var(--title-color);
 		font-size: 26px;
 		font-family: var(--main-font);
 		align-self: center;
@@ -279,12 +279,12 @@
 	}
 
 	input {
-		border: none;
+		border: var(--input-border);
 		padding-left: 0.4em;
 		height: 2em;
 		font-size: 15px;
-		color: white;
-		background: rgb(30, 52, 102);
+		color: var(--stake-text-color);
+		background: var(--input-color);
 		outline: none;
 		margin-left: 1em;
 		border-radius: 0.4em;
@@ -292,8 +292,8 @@
 
 	/* === Layout === */
 	.sns-stake-container {
-		background-color: #0c2c4c;
-		border: 2px solid #66adff;
+		background-color: var(--background-color);
+		border: 2px solid var(--border-color);
 		border-radius: 10px;
 		display: flex;
 		height: 44em;
@@ -328,6 +328,7 @@
 		justify-content: center;
 		width: 80%;
 		height: 4em;
+		color: var(--stake-text-color);
 	}
 
 	.account-container {
@@ -390,7 +391,7 @@
 		width: 15em;
 		height: 3em;
 		text-decoration: none;
-		color: black;
+		color: var(--main-button-text-color);
 	}
 
 	.action-btn:hover {
@@ -416,20 +417,20 @@
 		text-align: end;
 		width: fit-content;
 		padding: 0;
-		color: white;
+		color: var(--stake-text-color);
 		font-family: var(--main-font);
 		font-size: 18px;
 	}
 
 	.governance-id {
-		color: white;
+		color: var(--stake-text-color);
 		width: 60%;
 		display: flex;
 		align-items: center;
 	}
 
 	.sns-amount {
-		color: white;
+		color: var(--stake-text-color);
 		width: 100%;
 		display: flex;
 		align-items: center;

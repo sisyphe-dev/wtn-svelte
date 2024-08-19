@@ -60,21 +60,22 @@
 				//const isDarkPreferred = window.matchMedia(
 				//"(prefers-color-scheme: dark)"
 				//).matches;
-				const isDarkPreferred = true;
-				const currentTheme =
-					localStorage.waterNeuronTheme === null ||
-					localStorage.waterNeuronTheme === undefined ||
-					localStorage.waterNeuronTheme === ""
-						? undefined
-						: JSON.parse(localStorage.waterNeuronTheme);
+				const isDarkPreferred = false;
+				//const currentTheme =
+				//	localStorage.waterNeuronTheme === null ||
+				//	localStorage.waterNeuronTheme === undefined ||
+				//	localStorage.waterNeuronTheme === ""
+				//		? undefined
+				//		: JSON.parse(localStorage.waterNeuronTheme);
 
 				// Attribute is the value of THEME_ATTRIBUTE constant
 				document.documentElement.setAttribute(
-				"theme",
-				currentTheme ?? (isDarkPreferred ? "dark" : "light")
+					'theme',
+					// currentTheme ?? (isDarkPreferred ? "dark" : "light")
+					isDarkPreferred ? 'dark' : 'light'
 				);
 			} catch (error) {
-				console.error("Error initializing theme", error);
+				console.error('Error initializing theme', error);
 			}
 		</script>
 

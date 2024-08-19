@@ -81,7 +81,6 @@
 		font-family: var(--secondary-font);
 		font-weight: 600;
 		font-size: 20px;
-		color: black;
 	}
 
 	/* === Layout === */
@@ -98,6 +97,7 @@
 	/* === Components === */
 	.login-btn {
 		background: var(--main-color);
+		color: var(--main-button-text-color);
 	}
 
 	#close-btn {

@@ -41,7 +41,7 @@
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		color: white;
+		color: var(--text-color);
 		height: fit-content;
 		width: 100%;
 		margin-bottom: 2vh;

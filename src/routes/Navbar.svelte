@@ -2,6 +2,7 @@
 	import { isLogging, inMobileMenu, user } from '$lib/stores';
 	import { displayUsFormat, displayPrincipal } from '$lib';
 	import { internetIdentityLogout } from '$lib/authentification';
+	import PowerOffIcon from '$lib/icons/PowerOffIcon.svelte';
 </script>
 
 <nav class:filter={$isLogging}>
@@ -37,7 +38,7 @@
 					user.set(undefined);
 				}}
 			>
-				<img src="/icon/power-off.svg" width="15em" height="15em" alt="Disconnect Icon" />
+				<PowerOffIcon />
 			</button>
 			<button
 				id="menu-btn"
@@ -141,6 +142,7 @@
 		display: flex;
 		align-items: center;
 		gap: 1em;
+		color: var(--title-color);
 	}
 
 	/* === Components === */
@@ -155,7 +157,9 @@
 	}
 
 	.smart:hover {
-		background-color: #1e3466;
+		background-color: var(--main-color);
+		color: var(--main-button-text-color);
+		cursor: pointer;
 	}
 
 	.wallet-action-btn {
@@ -177,6 +181,10 @@
 		margin: 0;
 	}
 
+	.wallet-btn:hover {
+		cursor: pointer;
+	}
+
 	#menu-btn {
 		display: none;
 	}
@@ -186,6 +194,7 @@
 	}
 	#wallet-info:hover {
 		background-color: var(--input-color);
+		cursor: pointer;
 	}
 
 	/* === Utillities === */

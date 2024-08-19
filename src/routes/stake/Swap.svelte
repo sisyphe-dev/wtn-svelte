@@ -22,6 +22,8 @@
 	import type { ConversionArg } from '$declarations/water_neuron/water_neuron.did';
 	import type { Account } from '@dfinity/ledger-icp';
 	import { onMount, afterUpdate } from 'svelte';
+	import ChangeIcon from '$lib/icons/ChangeIcon.svelte';
+	import ErrorIcon from '$lib/icons/ErrorIcon.svelte';
 	import { fade } from 'svelte/transition';
 
 	let stake = true;
@@ -194,12 +196,12 @@
 				{#if $inputAmount && isNaN(parseFloat($inputAmount))}
 					<span class="error">Cannot read amount</span>
 				{:else if stake && $inputAmount && parseFloat($inputAmount) < 1}
-					<span class="error">Minimum amount: 1 ICP</span>
+					<span class="error"><ErrorIcon /> Minimum amount is 1 ICP</span>
 				{:else if !stake && $inputAmount && parseFloat($inputAmount) < 10 / $waterNeuronInfo
 								.exchangeRate()
 								.toNumber()}
 					<span class="error"
-						>Minimum amount: {BigNumber(10).dividedBy($waterNeuronInfo.exchangeRate())} nicp</span
+						>Minimum amount is {BigNumber(10).dividedBy($waterNeuronInfo.exchangeRate())} nICP</span
 					>
 				{/if}
 				{#if stake}
@@ -214,8 +216,8 @@
 						{/if}
 					</p>
 					<p style:display="flex">
-						<button class="change-btn" on:click={() => (invertExchangeRate = !invertExchangeRate)}
-							><img alt="Change icon" src="/icon/change.svg" height="25px" width="25px" />
+						<button class="change-btn" on:click={() => (invertExchangeRate = !invertExchangeRate)}>
+							<ChangeIcon />
 						</button>
 						{#if exchangeRate}
 							{#if invertExchangeRate}
@@ -251,7 +253,7 @@
 						/>
 					</div>
 				{:else}
-					<p style:color="var(--orange-color)">
+					<p style:color="var(--stake-text-color)">
 						{#if exchangeRate}
 							You will receive {displayUsFormat(
 								computeReceiveAmount(stake, BigNumber($inputAmount), exchangeRate),
@@ -262,8 +264,8 @@
 						{/if}
 					</p>
 					<p>
-						<button class="change-btn" on:click={() => (invertExchangeRate = !invertExchangeRate)}
-							><img alt="Change icon" src="/icon/change.svg" height="25px" width="25px" />
+						<button class="change-btn" on:click={() => (invertExchangeRate = !invertExchangeRate)}>
+							<ChangeIcon />
 						</button>
 						{#if exchangeRate}
 							{#if !invertExchangeRate}
@@ -330,7 +332,7 @@
 	}
 
 	span {
-		color: white;
+		color: var(--main-button-text-color);
 	}
 
 	h2 {
@@ -352,6 +354,7 @@
 		box-shadow: rgba(41, 49, 71, 0.1) 0px 8px 16px;
 		width: 30em;
 		max-width: 97vw;
+		border-radius: 10px;
 	}
 
 	.header-container {
@@ -364,9 +367,9 @@
 		display: flex;
 		flex-direction: column;
 		padding: 1em;
-		border-left: 2px solid var(--border-color);
-		border-right: 2px solid var(--border-color);
-		border-bottom: 2px solid var(--border-color);
+		border-left: var(--border-size) solid var(--border-color);
+		border-right: var(--border-size) solid var(--border-color);
+		border-bottom: var(--border-size) solid var(--border-color);
 		border-bottom-left-radius: 10px;
 		border-bottom-right-radius: 10px;
 		background-color: var(--background-color);
@@ -382,14 +385,17 @@
 	}
 
 	.error {
-		color: red;
+		color: var(--stake-text-color);
 		margin-left: 1em;
 		font-size: 16px;
 		font-family: var(--secondary-font);
 		position: absolute;
 		top: 0;
 		flex-wrap: wrap;
-		max-width: 45%;
+		display: flex;
+		max-width: 55%;
+		align-items: center;
+		gap: 0.5em;
 	}
 
 	/* === Components === */
@@ -404,6 +410,9 @@
 		border: none;
 		display: flex;
 		width: fit-content;
+		background: none;
+		width: 24px;
+		height: 24px;
 		height: fit-content;
 		background: transparent;
 		padding: 0;
@@ -448,14 +457,14 @@
 
 	/* === Utilities === */
 	.selected {
-		border-left: 2px solid var(--border-color);
-		border-top: 2px solid var(--border-color);
-		border-right: 2px solid var(--border-color);
+		border-left: var(--border-size) solid var(--border-color);
+		border-top: var(--border-size) solid var(--border-color);
+		border-right: var(--border-size) solid var(--border-color);
 		background-color: var(--background-color);
 	}
 
 	.not-selected {
-		border-bottom: 2px solid var(--border-color);
+		border-bottom: var(--border-size) solid var(--border-color);
 		background-color: #5d6b77;
 		cursor: pointer;
 	}
