@@ -71,7 +71,7 @@
 		justify-content: space-between;
 		align-items: center;
 		border-radius: 1em;
-		padding: 1em;
+		padding: 0.5em;
 		background: var(--input-color);
 		border: 2px solid var(--border-color);
 	}

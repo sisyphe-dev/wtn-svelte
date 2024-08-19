@@ -2,7 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { user, selectedAsset } from '$lib/stores';
 
-	if (!$user || !$selectedAsset) goto('/stake');
+	if (!$user || !$selectedAsset) goto('/');
 
 	import Withdrawals from './Withdrawals.svelte';
 	import { Asset, isMobile } from '$lib';
