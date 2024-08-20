@@ -34,7 +34,7 @@
 			<div class="spinner"></div>
 		</button>
 	{:else}
-		<button class="login-btn" on:click={internetIdentityConnection}>
+		<button class="login-btn" on:click={internetIdentityConnection} title="ii-connect-btn">
 			<img src="/icon/astronaut.webp" width="50em" height="50em" alt="Dfinity Astronaut." />
 			<h2>Internet Identity</h2>
 		</button>
@@ -81,7 +81,6 @@
 		font-family: var(--secondary-font);
 		font-weight: 600;
 		font-size: 20px;
-		color: black;
 	}
 
 	/* === Layout === */
@@ -98,6 +97,7 @@
 	/* === Components === */
 	.login-btn {
 		background: var(--main-color);
+		color: var(--main-button-text-color);
 	}
 
 	#close-btn {

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" theme="light">
 	<head>
 		<meta charset="utf-8" />
 		<title>WaterNeuron | ICP Liquid Staking</title>
@@ -55,26 +55,23 @@
 		<meta property="twitter:description" content="Liquid stake ICP" />
 		<meta property="twitter:image" content="%sveltekit.assets%/twitter-card-min.png" />
 
-		<script theme-loader>
+		<script>
 			try {
-				//const isDarkPreferred = window.matchMedia(
-				//"(prefers-color-scheme: dark)"
-				//).matches;
-				const isDarkPreferred = true;
-				const currentTheme =
-				localStorage.waterNeuronTheme === null ||
-				localStorage.waterNeuronTheme === undefined ||
-				localStorage.waterNeuronTheme === ""
-					? undefined
-					: JSON.parse(localStorage.waterNeuronTheme);
+				const isDarkPreferred = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-				// Attribute is the value of THEME_ATTRIBUTE constant
+				const currentTheme =
+					localStorage.nnsTheme === null ||
+					localStorage.nnsTheme === undefined ||
+					localStorage.nnsTheme === ''
+						? undefined
+						: JSON.parse(localStorage.nnsTheme);
+
 				document.documentElement.setAttribute(
-				"theme",
-				currentTheme ?? (isDarkPreferred ? "dark" : "light")
+					'theme',
+					currentTheme ?? (isDarkPreferred ? 'dark' : 'light')
 				);
 			} catch (error) {
-				console.error("Error initializing theme", error);
+				console.error('Error initializing theme', error);
 			}
 		</script>
 

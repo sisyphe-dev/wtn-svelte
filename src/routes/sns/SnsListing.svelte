@@ -65,7 +65,7 @@
 	}
 
 	button {
-		color: white;
+		color: var(--stake-text-color);
 		cursor: pointer;
 		display: flex;
 		width: 90%;
@@ -77,7 +77,7 @@
 
 	button:hover {
 		border: 2px solid transparent;
-		background-color: rgba(107, 249, 201, 0.5);
+		background-color: var(--sns-selected-button-color);
 	}
 
 	img {
@@ -93,8 +93,9 @@
 		align-items: center;
 		gap: 1em;
 		padding: 1em;
-		background-color: #183f66;
-		border-radius: 10px;
+		background-color: var(--background-color);
+		border-radius: 8px;
+		border-right: 2px solid var(--border-color);
 	}
 
 	/* === Component === */
@@ -127,7 +128,7 @@
 	/* === Utilities === */
 	.selected-sns {
 		border: 2px solid var(--main-color);
-		background-color: rgba(107, 249, 201, 0.5);
+		background-color: var(--sns-selected-button-color);
 	}
 
 	.default-sns {
@@ -159,7 +160,7 @@
 			font-size: 16px;
 			border-radius: 8px;
 			border: 2px solid var(--main-color);
-			background-color: rgba(107, 249, 201, 0.5);
+			background-color: var(--sns-selected-button-color);
 		}
 
 		img {

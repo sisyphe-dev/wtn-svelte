@@ -50,6 +50,7 @@
 			</button>
 			<button
 				class="action-btn"
+				title="send-btn-{asset.intoStr()}"
 				on:click={() => {
 					inSendingMenu.set(true);
 					selectedAsset.set(asset);
@@ -104,7 +105,7 @@
 
 	.airdrop-allocation {
 		position: absolute;
-		color: lightgrey;
+		color: var(--text-color);
 		top: 50%;
 		width: 60%;
 		margin-top: 1em;
@@ -121,6 +122,7 @@
 
 	.action-btn {
 		background: var(--main-color);
+		color: var(--main-button-text-color);
 		min-width: 80px;
 		border-radius: 8px;
 		position: relative;

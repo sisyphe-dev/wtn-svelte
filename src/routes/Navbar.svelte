@@ -2,18 +2,25 @@
 	import { isLogging, inMobileMenu, user } from '$lib/stores';
 	import { displayUsFormat, displayPrincipal } from '$lib';
 	import { internetIdentityLogout } from '$lib/authentification';
+	import { ThemeToggle } from '@dfinity/gix-components';
+	import PowerOffIcon from '$lib/icons/PowerOffIcon.svelte';
 </script>
 
 <nav class:filter={$isLogging}>
-	<a href="/stake" class="menu-selection-container">
+	<a href="/" class="menu-selection-container" title="home-btn">
 		<img src="/tokens/WTN.webp" width="75em" height="75em" alt="WTN logo" />
 		<div class="wave-title">
 			<h1 id="static-header">WaterNeuron</h1>
 		</div>
 	</a>
+
 	<div class="right-container">
+		<div class="theme-toggle">
+			<ThemeToggle />
+		</div>
 		{#if !$user}
 			<button
+				title="connect-btn"
 				class="smart"
 				on:click={() => {
 					isLogging.set(true);
@@ -24,9 +31,9 @@
 		{:else}
 			<a href="/wallet" class="wallet-btn" id="wallet-info">
 				<h2 style:font-weight={'bold'}>{displayPrincipal($user.principal)}</h2>
-				<p id="special">{displayUsFormat($user.icpBalance())} ICP</p>
-				<p>{displayUsFormat($user.nicpBalance())} nICP</p>
-				<p>{displayUsFormat($user.wtnBalance())} WTN</p>
+				<p title="icp-balance-nav">{displayUsFormat($user.icpBalance())} ICP</p>
+				<p title="nicp-balance-nav">{displayUsFormat($user.nicpBalance())} nICP</p>
+				<p title="wtn-balance-nav">{displayUsFormat($user.wtnBalance())} WTN</p>
 			</a>
 			<button
 				id="disconnect-btn"
@@ -36,7 +43,7 @@
 					user.set(undefined);
 				}}
 			>
-				<img src="/icon/power-off.svg" width="15em" height="15em" alt="Disconnect Icon" />
+				<PowerOffIcon />
 			</button>
 			<button
 				id="menu-btn"
@@ -60,6 +67,18 @@
 </nav>
 
 <style>
+	.theme-toggle {
+		color: var(--title-color);
+	}
+
+	.theme-toggle label {
+		color: var(--main-color);
+	}
+
+	.theme-toggle label::after {
+		color: var(--title-color);
+	}
+
 	/* === Base Styles === */
 	nav {
 		display: flex;
@@ -140,6 +159,7 @@
 		display: flex;
 		align-items: center;
 		gap: 1em;
+		color: var(--title-color);
 	}
 
 	/* === Components === */
@@ -154,7 +174,9 @@
 	}
 
 	.smart:hover {
-		background-color: #1e3466;
+		background-color: var(--main-color);
+		color: var(--main-button-text-color);
+		cursor: pointer;
 	}
 
 	.wallet-action-btn {
@@ -176,6 +198,10 @@
 		margin: 0;
 	}
 
+	.wallet-btn:hover {
+		cursor: pointer;
+	}
+
 	#menu-btn {
 		display: none;
 	}
@@ -185,6 +211,7 @@
 	}
 	#wallet-info:hover {
 		background-color: var(--input-color);
+		cursor: pointer;
 	}
 
 	/* === Utillities === */

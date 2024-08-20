@@ -37,7 +37,10 @@
 		<b>Total Staked</b>
 		<b>
 			{#if $waterNeuronInfo}
-				{displayUsFormat($waterNeuronInfo.neuron8yStake().plus($waterNeuronInfo.neuron6mStake()))} ICP
+				{displayUsFormat(
+					$waterNeuronInfo.neuron8yStake().plus($waterNeuronInfo.neuron6mStake()),
+					2
+				)} ICP
 			{:else}
 				-/-
 			{/if}
@@ -47,7 +50,7 @@
 		<b>APY</b>
 		<b
 			>{#if apy}
-				{displayUsFormat(BigNumber(100).multipliedBy(apy))} %
+				{displayUsFormat(BigNumber(100).multipliedBy(apy), 1)} %
 			{:else}
 				-/-
 			{/if}</b
@@ -69,7 +72,7 @@
 	/* === Layout === */
 	.stat-widget-container {
 		background: var(--background-color);
-		border: 2px solid var(--border-color);
+		border: var(--border-size) solid var(--border-color);
 		color: var(--stake-text-color);
 		padding: 1em;
 		padding-left: 2em;

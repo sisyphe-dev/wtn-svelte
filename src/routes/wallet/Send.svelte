@@ -5,7 +5,8 @@
 		numberToBigintE8s,
 		Asset,
 		E8S,
-		isContainerHigher
+		isContainerHigher,
+		getMaybeAccount
 	} from '$lib';
 	import {
 		inSendingMenu,
@@ -17,7 +18,7 @@
 		handleInputAmount
 	} from '$lib/stores';
 	import { onMount } from 'svelte';
-	import { Toast } from '$lib/toast';
+	import { Toast as ToastMessage } from '$lib/toast';
 	import BigNumber from 'bignumber.js';
 	import { type Account, AccountIdentifier } from '@dfinity/ledger-icp';
 	import { decodeIcrcAccount } from '@dfinity/ledger-icrc';
@@ -29,6 +30,7 @@
 	} from '$lib/resultHandler';
 	import type { Tokens, TransferArgs, TransferArg } from '$declarations/icp_ledger.did';
 	import { fade } from 'svelte/transition';
+	import Toast from '../Toast.svelte';
 
 	let principal: string;
 	let isSending = false;
@@ -39,19 +41,6 @@
 		sendingDialog.showModal();
 		isHigher = isContainerHigher('send');
 	});
-
-	function getMaybeAccount(accountString: string): Account | AccountIdentifier | undefined {
-		try {
-			if (accountString.length === 64) {
-				return AccountIdentifier.fromHex(accountString);
-			}
-			const icrcAccount = decodeIcrcAccount(accountString);
-			const subaccount = icrcAccount.subaccount ?? [];
-			return { owner: icrcAccount.owner, subaccount } as Account;
-		} catch (error) {
-			return;
-		}
-	}
 
 	function isValidAmount(amount: BigNumber): boolean {
 		if (amount && $user) {
@@ -104,6 +93,15 @@
 					break;
 				case AssetType.nICP:
 					{
+						if (maybeAccount instanceof AccountIdentifier) {
+							toasts.add(
+								ToastMessage.error(
+									'Transfer failed: nICP transfers require a principal. Please provide a valid principal.'
+								)
+							);
+							isSending = false;
+							return;
+						}
 						const transferResult = await $canisters.nicpLedger.icrc1_transfer({
 							to: maybeAccount,
 							fee: [],
@@ -117,6 +115,15 @@
 					break;
 				case AssetType.WTN:
 					{
+						if (maybeAccount instanceof AccountIdentifier) {
+							toasts.add(
+								ToastMessage.error(
+									'Transfer failed: WTN transfers require a principal. Please provide a valid principal.'
+								)
+							);
+							isSending = false;
+							return;
+						}
 						const transferResult = await $canisters.wtnLedger.icrc1_transfer({
 							to: maybeAccount,
 							fee: [],
@@ -131,14 +138,15 @@
 			}
 
 			if (status.success) {
-				toasts.add(Toast.success(status.message));
+				toasts.add(ToastMessage.success(status.message));
+				inSendingMenu.set(false);
 			} else {
-				toasts.add(Toast.error(status.message));
+				toasts.add(ToastMessage.error(status.message));
 			}
 		} catch (error) {
-			toasts.add(Toast.error(`${error}`));
+			console.log(error);
+			toasts.add('Transfer failed. Try again.');
 		}
-		inSendingMenu.set(false);
 		isSending = false;
 		inputAmount.reset();
 	}
@@ -171,7 +179,7 @@
 		{/if}
 		<div>
 			<p>Destination</p>
-			<input type="text" placeholder="Address" bind:value={principal} />
+			<input type="text" placeholder="Address" title="send-destination" bind:value={principal} />
 			{#if principal && !getMaybeAccount(principal)}
 				<span class="error"> Please enter a valid address. </span>
 			{/if}
@@ -180,6 +188,7 @@
 			<p>Amount</p>
 			<div class="amount-input">
 				<input
+					title="send-amount"
 					type="text"
 					maxlength="20"
 					bind:value={$inputAmount}
@@ -203,8 +212,7 @@
 			</div>
 			{#if !BigNumber($inputAmount).isNaN() && BigNumber($inputAmount).isGreaterThanOrEqualTo($user?.getBalance($selectedAsset.type) ?? BigNumber(0))}
 				<span class="error"> Not enough treasury. </span>
-			{/if}
-			{#if !BigNumber($inputAmount).isNaN() && BigNumber($inputAmount).isLessThan(BigNumber(1).dividedBy(E8S))}
+			{:else if !BigNumber($inputAmount).isNaN() && BigNumber($inputAmount).isLessThan(BigNumber(1).dividedBy(E8S))}
 				<span class="error">Minimum amount: 0.00000001</span>
 			{/if}
 		</div>
@@ -230,6 +238,7 @@
 				>
 				<button
 					class="toggle-btn"
+					title="continue-btn"
 					on:click={() => {
 						icrcTransfer(BigNumber($inputAmount), principal);
 					}}
@@ -239,18 +248,19 @@
 			{/if}
 		</div>
 	</div>
+	<Toast />
 </dialog>
 
 <style>
 	/* === Base Styles === */
 
 	::backdrop {
-		backdrop-filter: blur(10px);
+		backdrop-filter: blur(5px);
 	}
 
 	dialog {
 		display: flex;
-		background: none;
+		background: transparent;
 		justify-content: center;
 		height: fit-content;
 		min-height: 100%;
@@ -261,11 +271,11 @@
 	}
 
 	input {
-		border: none;
+		border: var(--input-border);
 		padding-left: 0.4em;
 		height: 3em;
 		font-size: 16px;
-		color: white;
+		color: var(--stake-text-color);
 		background: var(--input-color);
 		outline: none;
 		margin-left: 1em;
@@ -284,7 +294,7 @@
 	}
 
 	button {
-		color: black;
+		color: var(--main-button-text-color);
 	}
 
 	/* === Layout === */
@@ -295,7 +305,7 @@
 		max-width: 35em;
 		width: 80vw;
 		background: var(--background-color);
-		color: white;
+		color: var(--stake-text-color);
 		padding: 2em;
 		border-radius: 15px;
 		border: 2px solid var(--border-color);

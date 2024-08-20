@@ -2,7 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { user, selectedAsset } from '$lib/stores';
 
-	if (!$user || !$selectedAsset) goto('/stake');
+	if (!$user || !$selectedAsset) goto('/');
 
 	import Withdrawals from './Withdrawals.svelte';
 	import { Asset, isMobile } from '$lib';
@@ -34,7 +34,7 @@
 	<div class="address-container">
 		<h2>ICP Account Id</h2>
 		<div class="principal-container">
-			<p>{$user?.accountId}</p>
+			<p title="accountIdentifier-hex">{$user?.accountId}</p>
 			<button
 				class="copy-btn"
 				on:click={() => {
@@ -54,7 +54,7 @@
 	<div class="address-container">
 		<h2>Principal Address</h2>
 		<div class="principal-container">
-			<p>{$user?.principal}</p>
+			<p title="principal-user">{$user?.principal}</p>
 			<button
 				class="copy-btn"
 				on:click={() => {
@@ -96,10 +96,10 @@
 
 	/* === Layout === */
 	.wallet-menu-container {
-		background-color: #0c2c4c;
-		border: 2px solid #66adff;
+		background-color: var(--page-background);
+		border: 2px solid var(--border-color);
 		border-radius: 10px;
-		color: white;
+		color: var(--stake-text-color);
 		padding: 2em;
 		display: flex;
 		flex-direction: column;
