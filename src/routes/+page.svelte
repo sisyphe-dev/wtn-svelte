@@ -3,7 +3,7 @@
 	import Stake from './stake/Stake.svelte';
 	import Unstake from './stake/Unstake.svelte';
 	import Faq from './Faq.svelte';
-	import { inputAmount	} from '$lib/stores';
+	import { inputAmount } from '$lib/stores';
 	import type { Account } from '@dfinity/ledger-icp';
 	import { fade } from 'svelte/transition';
 
@@ -20,7 +20,7 @@
 			title="stake-header"
 			on:click={() => {
 				inputAmount.reset();
-				stake=true;
+				stake = true;
 			}}
 			class:selected={stake}
 			class:not-selected={!stake}><h2 style:left="1em">Stake ICP</h2></button
@@ -32,7 +32,7 @@
 			title="unstake-header"
 			on:click={() => {
 				inputAmount.reset();
-				stake=false;
+				stake = false;
 			}}
 			class:selected={!stake}
 			class:not-selected={stake}><h2 style:right="1em">Unstake nICP</h2></button
