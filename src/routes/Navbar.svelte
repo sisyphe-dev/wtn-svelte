@@ -2,6 +2,7 @@
 	import { isLogging, inMobileMenu, user } from '$lib/stores';
 	import { displayUsFormat, displayPrincipal } from '$lib';
 	import { internetIdentityLogout } from '$lib/authentification';
+	import { ThemeToggle } from '@dfinity/gix-components';
 	import PowerOffIcon from '$lib/icons/PowerOffIcon.svelte';
 </script>
 
@@ -12,6 +13,10 @@
 			<h1 id="static-header">WaterNeuron</h1>
 		</div>
 	</a>
+	<div class="theme-toggle">
+		<ThemeToggle />
+	</div>
+
 	<div class="right-container">
 		{#if !$user}
 			<button
@@ -62,6 +67,18 @@
 </nav>
 
 <style>
+	.theme-toggle {
+		color: var(--title-color);
+	}
+
+	.theme-toggle label {
+		color: var(--main-color);
+	}
+
+	.theme-toggle label::after {
+		color: var(--title-color);
+	}
+
 	/* === Base Styles === */
 	nav {
 		display: flex;
