@@ -112,9 +112,7 @@
 		{#if $inputAmount && isNaN(parseFloat($inputAmount))}
 			<span class="error">Cannot read amount</span>
 		{:else if $inputAmount && parseFloat($inputAmount) < minimumWithdraw.toNumber()}
-			<span class="error"
-				>Minimum amount: {minimumWithdraw} nICP</span
-			>
+			<span class="error">Minimum amount: {minimumWithdraw} nICP</span>
 		{/if}
 
 		<p style:color="var(--orange-color)">
