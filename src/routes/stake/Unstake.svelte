@@ -111,8 +111,9 @@
 	<div class="paragraphs" in:fade={{ duration: 500 }}>
 		{#if $inputAmount && isNaN(parseFloat($inputAmount))}
 			<span class="error">Cannot read amount</span>
+		{:else if $inputAmount && minimumWithdraw && parseFloat($inputAmount) < minimumWithdraw}
+			<span class="error">Minimum amount: {minimumWithdraw} nICP</span>
 		{/if}
-
 		<p style:color="var(--orange-color)">
 			{#if exchangeRate}
 				You will receive {displayUsFormat(
@@ -138,13 +139,6 @@
 			{/if}
 		</p>
 		<p>Waiting Time: 6 months</p>
-		<p>
-			{#if minimumWithdraw}
-				Minimum Amount: {minimumWithdraw} nICP
-			{:else}
-				-/-
-			{/if}
-		</p>
 	</div>
 	{#if !$user}
 		<button
