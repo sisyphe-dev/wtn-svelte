@@ -38,6 +38,7 @@
 	p {
 		font-weight: lighter;
 		font-family: sans-serif;
+		color: var(--main-button-text-color);
 	}
 
 	/* === Layout === */
@@ -68,7 +69,7 @@
 	.info-container {
 		display: flex;
 		align-items: center;
-		gap: 1em;
+		gap: 0.5em;
 		margin-right: 1em;
 	}
 

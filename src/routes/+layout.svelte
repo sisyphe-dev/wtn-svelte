@@ -91,6 +91,7 @@
 	/* === Variables === */
 	:root {
 		--orange-color: #fa796e;
+		--toast-text-color: var(--main-button-text-color);
 
 		--border-size: 1px;
 
@@ -151,7 +152,7 @@
 		--border-color: rgb(102, 173, 255);
 		--background-color: rgb(12, 44, 76);
 		--input-color: #1e3466;
-		--text-color: rgb(176, 163, 217);
+		--text-color: rgb(181 181 181);
 
 		--faq-color: white;
 
