@@ -131,14 +131,14 @@
 
 		--svg-fill-color: #000000;
 		--svg-stroke-color: #000000;
-
+		--svg-opposite-color: #b3b3b3;
 		--sns-selected-button-color: rgb(107 180 249 / 50%);
 	}
 
 	:root[theme='dark'] {
-		--svg-fill-color: #ffffff; /* White for dark theme */
-		--svg-stroke-color: #ffffff; /* Optional: Stroke color */
-
+		--svg-fill-color: #ffffff;
+		--svg-stroke-color: #ffffff;
+		--svg-opposite-color: #e1e1e1;
 		--stake-text-color: white;
 
 		--main-color: oklab(0.88 -0.18 0.03);

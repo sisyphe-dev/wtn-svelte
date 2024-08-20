@@ -2,7 +2,7 @@
 	<rect x="1.25" y="1.25" width="21.5" height="21.5" rx="10.75" fill="none" />
 	<path
 		d="M7 11L11 15L17 9"
-		stroke="white"
+		stroke="var(--main-color)"
 		stroke-width="1.5"
 		stroke-linecap="round"
 		stroke-linejoin="round"
