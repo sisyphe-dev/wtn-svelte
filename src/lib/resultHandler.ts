@@ -20,6 +20,11 @@ import type {
 	Result as SnsIcpDepositResult,
 	Result_2 as SnsRetrieveNicpResult
 } from '../declarations/boomerang/boomerang.did';
+import type {
+	Result as IcpSwapResult,
+	Result_2 as IcpSwapApproveResult,
+	Error as IcpSwapError
+} from '../declarations/icpswap/icpswap.did';
 import { Asset, AssetType, bigintE8sToNumber, displayUsFormat } from '$lib';
 import type {
 	TransferResult,
@@ -35,7 +40,7 @@ export interface ToastResult {
 	message: string;
 }
 
-function handleApproveError(error: ApproveError) {
+function handleApproveError(error: ApproveError): ToastResult {
 	const key = Object.keys(error)[0] as keyof ApproveError;
 
 	switch (key) {
@@ -443,6 +448,71 @@ export function handleIcrcTransferResult(result: Icrc1TransferResult, asset: Ass
 
 		case 'Err':
 			return handleTransferFromError(result[key]);
+
+		default:
+			return {
+				success: false,
+				message: DEFAULT_ERROR_MESSAGE
+			};
+	}
+}
+
+export function handleIcpswapError(error: IcpSwapError): ToastResult {
+	const key = Object.keys(error)[0] as keyof IcpSwapError;
+
+	switch (key) {
+		case 'CommonError':
+			return {
+				success: false,
+				message: 'Icpswap call failed. Please try again.'
+			};
+		case 'InternalError':
+			return {
+				success: false,
+				message: `${error[key]}`
+			};
+		case 'UnsupportedToken':
+			return {
+				success: false,
+				message: `${error[key]}`
+			};
+		case 'InsufficientFunds':
+			return {
+				success: false,
+				message: 'Sorry, there are not enough funds in this account.'
+			};
+		default:
+			return {
+				success: false,
+				message: DEFAULT_ERROR_MESSAGE
+			};
+	}
+}
+
+export function handleIcpswapApproveResult(result: IcpSwapApproveResult): ToastResult {
+	const key = Object.keys(result)[0] as keyof IcpSwapApproveResult;
+	switch (key) {
+		case 'Ok':
+			return { success: true, message: '' };
+		case 'Err':
+			return handleTransferError(result[key]);
+
+		default:
+			return {
+				success: false,
+				message: DEFAULT_ERROR_MESSAGE
+			};
+	}
+}
+
+export function handleIcpswapResult(result: IcpSwapResult): ToastResult {
+	console.log(result);
+	const key = Object.keys(result)[0] as keyof IcpSwapResult;
+	switch (key) {
+		case 'Ok':
+			return { success: true, message: `Successful transfer at block index ${result[key]}` };
+		case 'Err':
+			return handleTransferError(result[key]);
 
 		default:
 			return {

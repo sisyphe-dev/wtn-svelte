@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Asset, AssetType, computeRewards, displayUsFormat, numberToBigintE8s } from '$lib';
+	import { CANISTER_ID_NICP_LEDGER, CANISTER_ID_ICPSWAP } from '$lib/authentification';
 	import SwapInput from './SwapInput.svelte';
 	import { Toast } from '$lib/toast';
 	import {
@@ -17,8 +18,13 @@
 		nicpTransferApproved,
 		handleStakeResult,
 		handleRetrieveResult,
+		handleIcpswapApproveResult,
+		handleIcpswapResult,
+		handleApproveResult,
 		DEFAULT_ERROR_MESSAGE
 	} from '$lib/resultHandler';
+	import type { ApproveArgs } from '../declarations/icrc_ledger/icrc_ledger.did';
+	import type { DepositArgs, SwapArgs, WithdrawArgs } from '$declarations/icpswap/icpswap.did';
 	import type { ConversionArg } from '$declarations/water_neuron/water_neuron.did';
 	import type { Account } from '@dfinity/ledger-icp';
 	import { onMount, afterUpdate } from 'svelte';
@@ -48,7 +54,7 @@
 		}
 	}
 
-	export async function icpToNicp(amount: BigNumber) {
+	async function icpToNicp(amount: BigNumber) {
 		if (!$user || $isConverting || !$canisters || amount.isNaN() || amount.isLessThan(BigNumber(1)))
 			return;
 		isConverting.set(true);
@@ -66,13 +72,13 @@
 					$canisters.icpLedger
 				);
 				if (!approval.success) {
-					toasts.add(Toast.error(approval.message ?? DEFAULT_ERROR_MESAGE));
+					toasts.add(Toast.error(approval.message ?? DEFAULT_ERROR_MESSAGE));
 				} else {
 					const conversionResult = await $canisters.waterNeuron.icp_to_nicp({
 						maybe_subaccount: [],
 						amount_e8s: amountE8s
 					} as ConversionArg);
-					let status = handleStakeResult(conversionResult);
+					const status = handleStakeResult(conversionResult);
 					if (status.success) {
 						toasts.add(Toast.success(status.message));
 					} else {
@@ -89,7 +95,7 @@
 		isConverting.set(false);
 	}
 
-	export async function nicpToIcp(amount: BigNumber) {
+	async function nicpToIcp(amount: BigNumber) {
 		if (
 			!$user ||
 			$isConverting ||
@@ -118,7 +124,7 @@
 						maybe_subaccount: [],
 						amount_e8s: amountE8s
 					} as ConversionArg);
-					let status = handleRetrieveResult(conversionResult);
+					const status = handleRetrieveResult(conversionResult);
 					if (status.success) {
 						toasts.add(Toast.success(status.message));
 					} else {
@@ -133,6 +139,78 @@
 			toasts.add(Toast.error('Sorry, there are not enough funds in this account.'));
 		}
 		isConverting.set(false);
+	}
+
+	async function fastUnstake(amount: BigNumber) {
+		if (!$canisters || !$user || $isConverting || amount.isNaN()) return;
+		const fee = 10_000n;
+		try {
+			let amountE8s = numberToBigintE8s(amount);
+
+			// 1. Approve
+			const spender = {
+				owner: Principal.fromText(CANISTER_ID_ICPSWAP),
+				subaccount: []
+			} as Account;
+
+			const approveResult: ApproveResult = await $canisters.nicpLedger.icrc2_approve({
+				spender,
+				fee: [],
+				memo: [],
+				from_subaccount: [],
+				created_at_time: [],
+				expires_at: [],
+				expected_allowance: [],
+				amount: numberToBigintE8s(amount)
+			} as ApproveArgs);
+
+			let status = handleApproveResult(approvalResult);
+			if (!status.success) {
+				toasts.add(Toast.error(status.message));
+				return;
+			}
+
+			// 2. Deposit
+			const depositResult = await $canisters.icpswap.depositFrom({
+				fee,
+				token: CANISTER_ID_NICP_LEDGER,
+				amount: amountE8s - fee
+			} as DepositArgs);
+			status = handleIcpswapResult(depositResult);
+			if (!status.success) {
+				toasts.add(Toast.error(status.message));
+				return;
+			}
+
+			// 3. Swap
+			const swapResult = await $canisters.icpswap.swap({
+				amountIn: amountE8s.toString(),
+				zeroForOne: true,
+				amountOutMinimum: fee.toString()
+			} as SwapArgs);
+			status = handleIcpswapResult(swapResult);
+			if (!status.success) {
+				toasts.add(Toast.error(status.message));
+				return;
+			}
+
+			// 4. Withdraw
+			const withdrawResult = await $canisters.icpswap.withdraw({
+				fee,
+				token: 'ICP',
+				amount: amountE8s - 2n * fee
+			} as WithdrawArgs);
+			status = handleIcpswapResult(withdrawResult);
+			if (!status.success) {
+				toasts.add(Toast.error(status.message));
+			} else {
+				toasts.add(Toast.success(status.message));
+			}
+		} catch (error) {
+			console.log(error);
+			toasts.add(Toast.error(DEFAULT_ERROR_MESSAGE));
+			return;
+		}
 	}
 
 	const fetchData = async () => {
@@ -285,6 +363,13 @@
 					</p>
 				{/if}
 			</div>
+			<button
+				on:click={() => {
+					fastUnstake(BigNumber($inputAmount));
+				}}
+			>
+				Fast unstake
+			</button>
 			{#if !$user}
 				<button
 					class="swap-btn"

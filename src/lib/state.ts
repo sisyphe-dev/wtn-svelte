@@ -4,6 +4,7 @@ import { Principal } from '@dfinity/principal';
 import BigNumber from 'bignumber.js';
 import type { _SERVICE as icrcLedgerInterface } from '../declarations/icrc_ledger/icrc_ledger.did';
 import type { _SERVICE as icpLedgerInterface } from '../declarations/icp_ledger/icp_ledger.did';
+import type { _SERVICE as icpswapInterface } from '../declarations/icpswap/icpswap.did';
 import type { _SERVICE as boomerangInterface } from '../declarations/boomerang/boomerang.did';
 import type {
 	CanisterInfo,
@@ -109,6 +110,7 @@ export class Canisters {
 	public nicpLedger: icrcLedgerInterface;
 	public waterNeuron: waterNeuronInterface;
 	public boomerang: boomerangInterface;
+	public icpswap: icpswapInterface;
 
 	constructor(actors: Actors) {
 		this.nicpLedger = actors.nicpLedger;
@@ -116,6 +118,7 @@ export class Canisters {
 		this.icpLedger = actors.icpLedger;
 		this.waterNeuron = actors.waterNeuron;
 		this.boomerang = actors.boomerang;
+		this.icpswap = actors.icpswap;
 	}
 }
 
