@@ -116,11 +116,11 @@
 
 		--title-color: black;
 		--border-color: #454545;
-		--page-background: #f1fff6;
-		--background-color: #f1fff6;
-		--qr-code-background: #f1fff6;
+		--page-background: #fcfffd;
+		--background-color: #fcfffd;
+		--qr-code-background: #fcfffd;
 
-		--input-color: #f1fff6;
+		--input-color: #fcfffd;
 
 		--main-button-text-color: white;
 

@@ -13,11 +13,11 @@
 			<h1 id="static-header">WaterNeuron</h1>
 		</div>
 	</a>
-	<div class="theme-toggle">
-		<ThemeToggle />
-	</div>
 
 	<div class="right-container">
+		<div class="theme-toggle">
+			<ThemeToggle />
+		</div>
 		{#if !$user}
 			<button
 				title="connect-btn"
