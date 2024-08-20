@@ -91,6 +91,7 @@
 	/* === Variables === */
 	:root {
 		--orange-color: #fa796e;
+		--toast-text-color: var(--main-button-text-color);
 
 		--border-size: 1px;
 
@@ -131,14 +132,14 @@
 
 		--svg-fill-color: #000000;
 		--svg-stroke-color: #000000;
-
+		--svg-opposite-color: #b3b3b3;
 		--sns-selected-button-color: rgb(107 180 249 / 50%);
 	}
 
 	:root[theme='dark'] {
-		--svg-fill-color: #ffffff; /* White for dark theme */
-		--svg-stroke-color: #ffffff; /* Optional: Stroke color */
-
+		--svg-fill-color: #ffffff;
+		--svg-stroke-color: #ffffff;
+		--svg-opposite-color: #e1e1e1;
 		--stake-text-color: white;
 
 		--main-color: oklab(0.88 -0.18 0.03);
@@ -151,7 +152,7 @@
 		--border-color: rgb(102, 173, 255);
 		--background-color: rgb(12, 44, 76);
 		--input-color: #1e3466;
-		--text-color: rgb(176, 163, 217);
+		--text-color: rgb(181 181 181);
 
 		--faq-color: white;
 
