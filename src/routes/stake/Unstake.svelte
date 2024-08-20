@@ -111,11 +111,9 @@
 	<div class="paragraphs" in:fade={{ duration: 500 }}>
 		{#if $inputAmount && isNaN(parseFloat($inputAmount))}
 			<span class="error">Cannot read amount</span>
-		{:else if $inputAmount && parseFloat($inputAmount) < 10 / $waterNeuronInfo
-						.exchangeRate()
-						.toNumber()}
+		{:else if $inputAmount && parseFloat($inputAmount) < minimumWithdraw.toNumber()}
 			<span class="error"
-				>Minimum amount: {BigNumber(10).dividedBy($waterNeuronInfo.exchangeRate())} nicp</span
+				>Minimum amount: {minimumWithdraw} nICP</span
 			>
 		{/if}
 

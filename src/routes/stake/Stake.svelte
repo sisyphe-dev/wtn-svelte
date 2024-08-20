@@ -33,7 +33,6 @@
 	let invertExchangeRate = false;
 	let exchangeRate: BigNumber;
 	let totalIcpDeposited: BigNumber;
-	let minimumWithdraw: BigNumber;
 
 	async function icpToNicp(amount: BigNumber) {
 		if (!$user || $isConverting || !$canisters || amount.isNaN() || amount.isLessThan(BigNumber(1)))
@@ -81,7 +80,6 @@
 			try {
 				exchangeRate = $waterNeuronInfo.exchangeRate();
 				totalIcpDeposited = $waterNeuronInfo.totalIcpDeposited();
-				minimumWithdraw = BigNumber(10).multipliedBy(exchangeRate);
 			} catch (error) {
 				console.error('Error fetching data:', error);
 			}
