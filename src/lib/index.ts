@@ -256,3 +256,21 @@ export function isContainerHigher(type: 'receive' | 'send'): boolean {
 
 	return containerHeight >= viewportHeight;
 }
+
+export function computeReceiveAmount(
+	stake: boolean,
+	value: BigNumber,
+	exchangeRate: BigNumber
+): BigNumber {
+	if (value.isNaN()) return BigNumber(0);
+
+	if (exchangeRate) {
+		if (stake) {
+			return value.multipliedBy(exchangeRate);
+		} else {
+			return value.dividedBy(exchangeRate);
+		}
+	} else {
+		return BigNumber(0);
+	}
+}
