@@ -5,16 +5,16 @@
 	import { onMount, afterUpdate } from 'svelte';
 	import { fade } from 'svelte/transition';
 
-	let totalIcpDeposited: BigNumber;
+	let totalStaked: BigNumber;
 	let apy: BigNumber;
 	let stakersCount: Number;
 
 	const fetchData = async () => {
 		if ($waterNeuronInfo)
 			try {
-				totalIcpDeposited = $waterNeuronInfo.totalIcpDeposited();
 				apy = $waterNeuronInfo.apy();
 				stakersCount = $waterNeuronInfo.stakersCount();
+				totalStaked = $waterNeuronInfo.neuron8yStake().plus($waterNeuronInfo.neuron6mStake());
 			} catch (error) {
 				console.error('Error fetching data:', error);
 			}
@@ -37,10 +37,7 @@
 		<b>Total Staked</b>
 		<b>
 			{#if $waterNeuronInfo}
-				{displayUsFormat(
-					$waterNeuronInfo.neuron8yStake().plus($waterNeuronInfo.neuron6mStake()),
-					2
-				)} ICP
+				{displayUsFormat(totalStaked, 2)} ICP
 			{:else}
 				-/-
 			{/if}
