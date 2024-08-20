@@ -1,0 +1,36 @@
+type Token = 
+ record {
+   address: text;
+   standard: text;
+ };
+type SwapFeeReceiver = 
+ service {
+   claim: (principal, Token, nat) -> (Result);
+   getCycleInfo: () -> (Result_1);
+   getVersion: () -> (text) query;
+   transfer: (Token, principal, nat) -> (Result);
+   transferAll: (Token, principal) -> (Result);
+ };
+type Result_1 = 
+ variant {
+   err: Error;
+   ok: CycleInfo;
+ };
+type Result = 
+ variant {
+   err: Error;
+   ok: nat;
+ };
+type Error = 
+ variant {
+   CommonError;
+   InsufficientFunds;
+   InternalError: text;
+   UnsupportedToken: text;
+ };
+type CycleInfo = 
+ record {
+   available: nat;
+   balance: nat;
+ };
+service : () -> SwapFeeReceiver
