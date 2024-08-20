@@ -19,7 +19,7 @@
 						<ErrorIcon />
 					{/if}
 				</div>
-				<p>{@html toast.message}</p>
+				<p title="toast-message">{@html toast.message}</p>
 			</div>
 			<button
 				class="toast-close"

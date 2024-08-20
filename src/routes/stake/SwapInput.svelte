@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { Asset, handleInput } from '$lib';
-	import { inputValue, user } from '$lib/stores';
+	import { Asset } from '$lib';
+	import { inputAmount, user, handleInputAmount } from '$lib/stores';
 	import { fade } from 'svelte/transition';
 	import BigNumber from 'bignumber.js';
 
@@ -11,16 +11,20 @@
 	<input
 		type="text"
 		maxlength="20"
-		bind:value={$inputValue}
+		bind:value={$inputAmount}
 		placeholder="Amount"
-		on:input={handleInput}
+		on:input={handleInputAmount}
+		title="swap-input"
 	/>
 	<button
 		class="max-btn"
 		on:click={() => {
-			const fee = BigNumber(2).multipliedBy(asset.getTransferFee());
+			const fee =
+				asset.intoStr() === 'ICP'
+					? BigNumber(2).multipliedBy(asset.getTransferFee())
+					: BigNumber(1).multipliedBy(asset.getTransferFee());
 			const maxAmount = $user?.getBalance(asset.type).minus(fee).toNumber() ?? 0;
-			inputValue.change(maxAmount && maxAmount >= 0 ? maxAmount : 0);
+			inputAmount.change(maxAmount && maxAmount >= 0 ? maxAmount : 0);
 		}}
 	>
 		<div class="max-btn-items">
@@ -50,7 +54,7 @@
 		height: 3em;
 		font-size: 20px;
 		color: white;
-		background: rgb(30, 52, 102);
+		background: var(--input-color);
 		outline: none;
 		width: 80%;
 	}
@@ -67,8 +71,8 @@
 		justify-content: space-between;
 		align-items: center;
 		border-radius: 1em;
-		padding: 1em;
-		background: rgb(30, 52, 102);
+		padding: 0.5em;
+		background: var(--input-color);
 	}
 
 	/* === Components === */
@@ -80,7 +84,7 @@
 		align-items: center;
 		padding: 1em;
 		color: white;
-		background: rgb(30, 52, 102);
+		background: var(--input-color);
 		gap: 1em;
 		cursor: pointer;
 	}

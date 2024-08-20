@@ -3,7 +3,7 @@
 	import SwapInput from './SwapInput.svelte';
 	import { Toast } from '$lib/toast';
 	import {
-		inputValue,
+		inputAmount,
 		waterNeuronInfo,
 		canisters,
 		user,
@@ -49,13 +49,14 @@
 	}
 
 	export async function icpToNicp(amount: BigNumber) {
-		if (!$user || $isConverting || !$canisters) return;
+		if (!$user || $isConverting || !$canisters || amount.isNaN() || amount.isLessThan(BigNumber(1)))
+			return;
 		isConverting.set(true);
 
 		if ($user.icpBalance().isGreaterThanOrEqualTo(amount) && amount.isGreaterThan(0)) {
 			try {
 				let amountE8s = numberToBigintE8s(amount);
-				const approveAmount = numberToBigintE8s(amount.multipliedBy(3));
+				const approveAmount = amountE8s * 3n;
 				const approval = await icpTransferApproved(
 					approveAmount,
 					{
@@ -89,13 +90,19 @@
 	}
 
 	export async function nicpToIcp(amount: BigNumber) {
-		if (!$user || $isConverting || !$canisters) return;
+		if (
+			!$user ||
+			$isConverting ||
+			!$canisters ||
+			amount.isNaN() ||
+			amount.isLessThan(BigNumber(10).dividedBy($waterNeuronInfo.exchangeRate()))
+		)
+			return;
 		isConverting.set(true);
-
 		if ($user.nicpBalance().isGreaterThanOrEqualTo(amount) && amount.isGreaterThan(0)) {
 			try {
 				let amountE8s = numberToBigintE8s(amount);
-				const approveAmount = numberToBigintE8s(amount.multipliedBy(3));
+				const approveAmount = amountE8s * 3n;
 				const approval = await nicpTransferApproved(
 					approveAmount,
 					{
@@ -158,10 +165,11 @@
 				class="header-btn"
 				style:text-align="start"
 				style:border-top-left-radius="8px"
+				title="stake-header"
 				on:click={() => {
 					stake = true;
 					invertExchangeRate = false;
-					inputValue.set('');
+					inputAmount.reset();
 				}}
 				class:selected={stake}
 				class:not-selected={!stake}><h2 class="header-txt" style:left="5%">Stake ICP</h2></button
@@ -170,10 +178,11 @@
 				class="header-btn"
 				style:text-align="end"
 				style:border-top-right-radius="8px"
+				title="unstake-header"
 				on:click={() => {
 					stake = false;
 					invertExchangeRate = false;
-					inputValue.set('');
+					inputAmount.reset();
 				}}
 				class:selected={!stake}
 				class:not-selected={stake}><h2 class="header-txt" style:right="5%">Unstake nICP</h2></button
@@ -182,11 +191,22 @@
 		<div class="swap-container">
 			<SwapInput asset={stake ? Asset.fromText('ICP') : Asset.fromText('nICP')} />
 			<div class="paragraphs" in:fade={{ duration: 500 }}>
+				{#if $inputAmount && isNaN(parseFloat($inputAmount))}
+					<span class="error">Cannot read amount</span>
+				{:else if stake && $inputAmount && parseFloat($inputAmount) < 1}
+					<span class="error">Minimum amount: 1 ICP</span>
+				{:else if !stake && $inputAmount && parseFloat($inputAmount) < 10 / $waterNeuronInfo
+								.exchangeRate()
+								.toNumber()}
+					<span class="error"
+						>Minimum amount: {BigNumber(10).dividedBy($waterNeuronInfo.exchangeRate())} nicp</span
+					>
+				{/if}
 				{#if stake}
 					<p style:color="var(--orange-color)">
 						{#if exchangeRate}
 							You will receive {displayUsFormat(
-								computeReceiveAmount(stake, BigNumber($inputValue), exchangeRate),
+								computeReceiveAmount(stake, BigNumber($inputAmount), exchangeRate),
 								8
 							)} nICP
 						{:else}
@@ -199,9 +219,9 @@
 						</button>
 						{#if exchangeRate}
 							{#if invertExchangeRate}
-								1 nICP = {displayUsFormat(BigNumber(1).dividedBy(exchangeRate))} ICP
+								1 nICP = {displayUsFormat(BigNumber(1).dividedBy(exchangeRate), 8)} ICP
 							{:else}
-								1 ICP = {displayUsFormat(exchangeRate)} nICP
+								1 ICP = {displayUsFormat(exchangeRate, 8)} nICP
 							{/if}
 						{:else}
 							-/-
@@ -214,7 +234,7 @@
 								{displayUsFormat(
 									computeRewards(
 										totalIcpDeposited,
-										computeReceiveAmount(stake, BigNumber($inputValue), exchangeRate)
+										computeReceiveAmount(stake, BigNumber($inputAmount), exchangeRate)
 									),
 									8
 								)}
@@ -234,7 +254,7 @@
 					<p style:color="var(--orange-color)">
 						{#if exchangeRate}
 							You will receive {displayUsFormat(
-								computeReceiveAmount(stake, BigNumber($inputValue), exchangeRate),
+								computeReceiveAmount(stake, BigNumber($inputAmount), exchangeRate),
 								8
 							)} ICP
 						{:else}
@@ -247,9 +267,9 @@
 						</button>
 						{#if exchangeRate}
 							{#if !invertExchangeRate}
-								1 nICP = {displayUsFormat(BigNumber(1).dividedBy(exchangeRate))} ICP
+								1 nICP = {displayUsFormat(BigNumber(1).dividedBy(exchangeRate), 8)} ICP
 							{:else}
-								1 ICP = {displayUsFormat(exchangeRate)} nICP
+								1 ICP = {displayUsFormat(exchangeRate, 8)} nICP
 							{/if}
 						{:else}
 							-/-
@@ -278,8 +298,9 @@
 				<button
 					class="swap-btn"
 					on:click={() => {
-						stake ? icpToNicp(BigNumber($inputValue)) : nicpToIcp(BigNumber($inputValue));
+						stake ? icpToNicp(BigNumber($inputAmount)) : nicpToIcp(BigNumber($inputAmount));
 					}}
+					title="stake-unstake-btn"
 				>
 					{#if $isConverting}
 						<div class="spinner"></div>
@@ -326,12 +347,11 @@
 	/* === Layout === */
 	.main-container {
 		display: flex;
-		place-content: center;
+		justify-content: start;
 		flex-direction: column;
 		box-shadow: rgba(41, 49, 71, 0.1) 0px 8px 16px;
 		width: 30em;
 		max-width: 97vw;
-		height: auto;
 	}
 
 	.header-container {
@@ -358,6 +378,18 @@
 		justify-content: space-around;
 		flex-direction: column;
 		height: 8em;
+		position: relative;
+	}
+
+	.error {
+		color: red;
+		margin-left: 1em;
+		font-size: 16px;
+		font-family: var(--secondary-font);
+		position: absolute;
+		top: 0;
+		flex-wrap: wrap;
+		max-width: 45%;
 	}
 
 	/* === Components === */

@@ -6,6 +6,16 @@
 			"type": "custom",
 			"wasm": "wasm/waterneuron.wasm.gz"
 		},
+		"boomerang": {
+			"candid": "candid/boomerang.did",
+			"type": "custom",
+			"wasm": "wasm/boomerang.wasm"
+		},
+		"internet_identity": {
+			"candid": "candid/internet_identity.did",
+			"type": "custom",
+			"wasm": "wasm/internet_identity_dev.wasm.gz"
+		},
 		"dapp_frontend": {
 			"source": ["dist"],
 			"type": "assets",

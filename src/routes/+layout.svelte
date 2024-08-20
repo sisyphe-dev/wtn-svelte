@@ -4,15 +4,19 @@
 	import Connect from './Connect.svelte';
 	import Send from './wallet/Send.svelte';
 	import Menu from './Menu.svelte';
+	import SnsMenu from './sns/SnsMenu.svelte';
 	import Receive from './wallet/Receive.svelte';
 	import {
 		isLogging,
 		inMobileMenu,
 		inSendingMenu,
 		inReceivingMenu,
+		inSnsMenu,
 		user,
 		canisters,
-		waterNeuronInfo
+		waterNeuronInfo,
+		sns,
+		handleSnsChange
 	} from '$lib/stores';
 	import { onMount } from 'svelte';
 	import {
@@ -45,13 +49,12 @@
 		signIn('reload').then(() => {
 			updateBalances();
 			updateWaterNeuronInfo();
+			handleSnsChange('BOOM DAO', 'xomae-vyaaa-aaaaq-aabhq-cai');
 		});
 
 		const intervalId = setInterval(async () => {
-			if ($waterNeuronInfo && $canisters) {
-				await updateBalances();
-				await updateWaterNeuronInfo();
-			}
+			await updateBalances();
+			await updateWaterNeuronInfo();
 		}, 5000);
 
 		return () => clearInterval(intervalId);
@@ -69,6 +72,8 @@
 {/if}
 {#if $inMobileMenu}
 	<Menu />
+{:else if $inSnsMenu}
+	<SnsMenu />
 {:else}
 	<div class="page-container">
 		<Navbar />
@@ -76,7 +81,9 @@
 			<slot />
 		</div>
 		<Footer />
-		<Toast />
+		{#if !$inSendingMenu}
+			<Toast />
+		{/if}
 	</div>
 {/if}
 
@@ -86,6 +93,7 @@
 		--main-color: oklab(0.88 -0.18 0.03);
 		--border-color: rgb(102, 173, 255);
 		--background-color: rgb(12, 44, 76);
+		--input-color: #1e3466;
 		--text-color: rgb(176, 163, 217);
 		--orange-color: #fa796e;
 		--main-font: 'Akrobat-black';
@@ -149,7 +157,7 @@
 		min-height: 45vh;
 		flex-grow: 1;
 		width: 100%;
-		gap: 1.5em;
+		gap: 3em;
 		padding-top: 2em;
 		margin-bottom: 4em;
 		color: white;

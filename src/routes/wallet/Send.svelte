@@ -3,20 +3,34 @@
 		AssetType,
 		displayUsFormat,
 		numberToBigintE8s,
-		handleInput,
 		Asset,
 		E8S,
-		isContainerHigher
+		isContainerHigher,
+		getMaybeAccount
 	} from '$lib';
-	import { inSendingMenu, selectedAsset, user, toasts, canisters, inputValue } from '$lib/stores';
+	import {
+		inSendingMenu,
+		selectedAsset,
+		user,
+		toasts,
+		canisters,
+		inputAmount,
+		handleInputAmount
+	} from '$lib/stores';
 	import { onMount } from 'svelte';
-	import { Toast } from '$lib/toast';
+	import { Toast as ToastMessage } from '$lib/toast';
 	import BigNumber from 'bignumber.js';
 	import { type Account, AccountIdentifier } from '@dfinity/ledger-icp';
+	import { decodeIcrcAccount } from '@dfinity/ledger-icrc';
 	import { Principal } from '@dfinity/principal';
-	import { handleIcrcTransferResult, handleTransferResult, type ToastResult } from '$lib/resultHandler';
+	import {
+		handleIcrcTransferResult,
+		handleTransferResult,
+		type ToastResult
+	} from '$lib/resultHandler';
 	import type { Tokens, TransferArgs, TransferArg } from '$declarations/icp_ledger.did';
 	import { fade } from 'svelte/transition';
+	import Toast from '../Toast.svelte';
 
 	let principal: string;
 	let isSending = false;
@@ -27,24 +41,6 @@
 		sendingDialog.showModal();
 		isHigher = isContainerHigher('send');
 	});
-
-	function getReceiver(input: string): Principal | AccountIdentifier | undefined {
-		try {
-			return Principal.fromText(input);
-		} catch (e) {
-			if ($selectedAsset.type === AssetType.ICP) {
-				try {
-					if (input.length !== 64) return undefined;
-					const accountId = AccountIdentifier.fromHex(input);
-					return accountId;
-				} catch (error) {
-					toasts.add(Toast.error('Unable to identify user.'));
-					return undefined;
-				}
-			}
-			return undefined;
-		}
-	}
 
 	function isValidAmount(amount: BigNumber): boolean {
 		if (amount && $user) {
@@ -57,38 +53,24 @@
 		}
 	}
 
-	async function icrcTransfer(amount: BigNumber, input: string) {
+	async function icrcTransfer(amount: BigNumber, accountString: string) {
 		if (isSending || amount.isNaN() || !isValidAmount(amount) || !principal || !$canisters) return;
 
 		isSending = true;
 		const amount_e8s = numberToBigintE8s(amount);
-		const receiver = getReceiver(input);
-		if (!receiver) {
+		const maybeAccount = getMaybeAccount(accountString);
+		if (!maybeAccount) {
 			isSending = false;
 			return;
 		}
-
 		try {
 			let status: ToastResult;
 			switch ($selectedAsset.type) {
 				case AssetType.ICP:
 					{
-						if (receiver instanceof Principal) {
-							const transferResult = await $canisters.icpLedger.icrc1_transfer({
-								to: {
-									owner: receiver,
-									subaccount: []
-								} as Account,
-								fee: [],
-								memo: [],
-								from_subaccount: [],
-								created_at_time: [],
-								amount: amount_e8s
-							} as TransferArg);
-							status = handleIcrcTransferResult(transferResult, Asset.fromText('ICP'));
-						} else {
+						if (maybeAccount instanceof AccountIdentifier) {
 							const transferResult = await $canisters.icpLedger.transfer({
-								to: receiver.toUint8Array(),
+								to: maybeAccount.toUint8Array(),
 								fee: { e8s: 10000n } as Tokens,
 								memo: 0n,
 								from_subaccount: [],
@@ -96,16 +78,32 @@
 								amount: { e8s: amount_e8s } as Tokens
 							} as TransferArgs);
 							status = handleTransferResult(transferResult);
+						} else {
+							const transferResult = await $canisters.icpLedger.icrc1_transfer({
+								to: maybeAccount,
+								fee: [],
+								memo: [],
+								from_subaccount: [],
+								created_at_time: [],
+								amount: amount_e8s
+							} as TransferArg);
+							status = handleIcrcTransferResult(transferResult, Asset.fromText('ICP'));
 						}
 					}
 					break;
 				case AssetType.nICP:
 					{
+						if (maybeAccount instanceof AccountIdentifier) {
+							toasts.add(
+								ToastMessage.error(
+									'Transfer failed: nICP transfers require a principal. Please provide a valid principal.'
+								)
+							);
+							isSending = false;
+							return;
+						}
 						const transferResult = await $canisters.nicpLedger.icrc1_transfer({
-							to: {
-								owner: receiver,
-								subaccount: []
-							} as Account,
+							to: maybeAccount,
 							fee: [],
 							memo: [],
 							from_subaccount: [],
@@ -117,11 +115,17 @@
 					break;
 				case AssetType.WTN:
 					{
+						if (maybeAccount instanceof AccountIdentifier) {
+							toasts.add(
+								ToastMessage.error(
+									'Transfer failed: WTN transfers require a principal. Please provide a valid principal.'
+								)
+							);
+							isSending = false;
+							return;
+						}
 						const transferResult = await $canisters.wtnLedger.icrc1_transfer({
-							to: {
-								owner: receiver,
-								subaccount: []
-							} as Account,
+							to: maybeAccount,
 							fee: [],
 							memo: [],
 							from_subaccount: [],
@@ -134,18 +138,17 @@
 			}
 
 			if (status.success) {
-				toasts.add(Toast.success(status.message));
+				toasts.add(ToastMessage.success(status.message));
+				inSendingMenu.set(false);
 			} else {
-				toasts.add(Toast.error(status.message));
+				toasts.add(ToastMessage.error(status.message));
 			}
-			inSendingMenu.set(false);
-			isSending = false;
 		} catch (error) {
-			toasts.add(Toast.error(`${error}`));
+			console.log(error);
+			toasts.add('Transfer failed. Try again.');
 		}
-		inSendingMenu.set(false);
 		isSending = false;
-		inputValue.set('');
+		inputAmount.reset();
 	}
 </script>
 
@@ -176,8 +179,8 @@
 		{/if}
 		<div>
 			<p>Destination</p>
-			<input type="text" placeholder="Address" bind:value={principal} />
-			{#if principal && !getReceiver(principal)}
+			<input type="text" placeholder="Address" title="send-destination" bind:value={principal} />
+			{#if principal && !getMaybeAccount(principal)}
 				<span class="error"> Please enter a valid address. </span>
 			{/if}
 		</div>
@@ -185,11 +188,12 @@
 			<p>Amount</p>
 			<div class="amount-input">
 				<input
+					title="send-amount"
 					type="text"
 					maxlength="20"
-					bind:value={$inputValue}
+					bind:value={$inputAmount}
 					placeholder="Amount"
-					on:input={handleInput}
+					on:input={handleInputAmount}
 				/>
 				<button
 					class="max-btn"
@@ -200,16 +204,15 @@
 								? $user.getBalance($selectedAsset.type).minus(fee)
 								: BigNumber(0);
 
-						inputValue.change(amount.toNumber() && amount.toNumber() >= 0 ? amount.toNumber() : 0);
+						inputAmount.change(amount.toNumber() && amount.toNumber() >= 0 ? amount.toNumber() : 0);
 					}}
 				>
 					MAX
 				</button>
 			</div>
-			{#if BigNumber($inputValue).isGreaterThanOrEqualTo($user?.getBalance($selectedAsset.type) ?? BigNumber(0))}
+			{#if !BigNumber($inputAmount).isNaN() && BigNumber($inputAmount).isGreaterThanOrEqualTo($user?.getBalance($selectedAsset.type) ?? BigNumber(0))}
 				<span class="error"> Not enough treasury. </span>
-			{/if}
-			{#if BigNumber($inputValue).isLessThan(BigNumber(1).dividedBy(E8S))}
+			{:else if !BigNumber($inputAmount).isNaN() && BigNumber($inputAmount).isLessThan(BigNumber(1).dividedBy(E8S))}
 				<span class="error">Minimum amount: 0.00000001</span>
 			{/if}
 		</div>
@@ -230,13 +233,14 @@
 					class="toggle-btn"
 					on:click={() => {
 						inSendingMenu.set(false);
-						inputValue.set('');
+						inputAmount.reset();
 					}}>Cancel</button
 				>
 				<button
 					class="toggle-btn"
+					title="continue-btn"
 					on:click={() => {
-						icrcTransfer(BigNumber($inputValue), principal);
+						icrcTransfer(BigNumber($inputAmount), principal);
 					}}
 				>
 					<span>Continue</span>
@@ -244,18 +248,19 @@
 			{/if}
 		</div>
 	</div>
+	<Toast />
 </dialog>
 
 <style>
 	/* === Base Styles === */
 
 	::backdrop {
-		backdrop-filter: blur(10px);
+		backdrop-filter: blur(5px);
 	}
 
 	dialog {
 		display: flex;
-		background: none;
+		background: transparent;
 		justify-content: center;
 		height: fit-content;
 		min-height: 100%;
@@ -271,7 +276,7 @@
 		height: 3em;
 		font-size: 16px;
 		color: white;
-		background: rgb(30, 52, 102);
+		background: var(--input-color);
 		outline: none;
 		margin-left: 1em;
 		width: 90%;

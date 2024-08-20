@@ -34,7 +34,7 @@
 			<div class="spinner"></div>
 		</button>
 	{:else}
-		<button class="login-btn" on:click={internetIdentityConnection}>
+		<button class="login-btn" on:click={internetIdentityConnection} title="ii-connect-btn">
 			<img src="/icon/astronaut.webp" width="50em" height="50em" alt="Dfinity Astronaut." />
 			<h2>Internet Identity</h2>
 		</button>
@@ -60,7 +60,7 @@
 	/* === Base Styles === */
 	button {
 		gap: 0.3em;
-		border-radius: 0.3em;
+		border-radius: 8px;
 		border: 2px solid black;
 		box-shadow: 3px 3px 0 0 black;
 		width: 100%;

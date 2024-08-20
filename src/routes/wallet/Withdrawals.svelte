@@ -42,7 +42,6 @@
 			});
 
 			if (process.env.DFX_NETWORK !== 'ic') {
-				console.log('fetching root key');
 				agent.fetchRootKey().catch((err) => {
 					console.warn(
 						'Unable to fetch root key. Check to ensure that your local replica is running'
@@ -151,17 +150,8 @@
 								</a>
 							</td>
 							<td>
-								{details.request.neuron_id[0]
-									? withdrawalStatuses[details.request.neuron_id[0].id.toString()]
-									: 'Waiting Dissolvement'}
+								{@html renderStatus(details.status)}
 							</td>
-							<!-- <td
-								>{#if renderStatus(details.status)}
-									-/-
-								{:then status}
-									{@html status}
-								{/await}
-							</td> -->
 							<td>{details.request.withdrawal_id}</td>
 						</tr>
 					{/if}
