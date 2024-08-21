@@ -1,6 +1,8 @@
 <svg
 	fill="#000000"
 	viewBox="0 0 24 24"
+	width="25px"
+	height="25px"
 	id="exchange"
 	data-name="Flat Line"
 	xmlns="http://www.w3.org/2000/svg"
