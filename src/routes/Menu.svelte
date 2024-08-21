@@ -40,7 +40,7 @@
 				height="32px"
 				viewBox="0 0 24 24"
 				fill="none"
-				stroke="white"
+				stroke="var(--stake-text-color)"
 				stroke-width="2"
 				stroke-linecap="round"
 				stroke-linejoin="round"
@@ -65,7 +65,7 @@
 	}
 
 	a {
-		color: white;
+		color: var(--stake-text-color);
 		font-weight: 200;
 		text-align: start;
 		text-decoration: none;
@@ -78,7 +78,7 @@
 	.background-menu {
 		height: 100vh;
 		width: 100vw;
-		background: radial-gradient(farthest-corner circle at 0% 0%, rgb(18 69 89), #0f0f4d);
+		background: var(--background-color);
 		z-index: 1;
 	}
 

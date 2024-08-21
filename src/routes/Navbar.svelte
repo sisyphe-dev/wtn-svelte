@@ -57,7 +57,7 @@
 					height="24"
 					viewBox="0 -960 960 960"
 					width="24"
-					fill="white"
+					fill="var(--title-color)"
 				>
 					<path d="M120-240v-80h720v80H120Zm0-200v-80h720v80H120Zm0-200v-80h720v80H120Z"></path>
 				</svg>
@@ -70,7 +70,7 @@
 	.theme-toggle {
 		color: var(--title-color);
 	}
-	
+
 	/* === Base Styles === */
 	nav {
 		display: flex;
