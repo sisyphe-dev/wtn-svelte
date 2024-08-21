@@ -34,6 +34,7 @@
 	import { fade } from 'svelte/transition';
 
 	let invertExchangeRate = false;
+	let isFastUnstake = true;
 	let exchangeRate: BigNumber;
 	let minimumWithdraw: BigNumber;
 
@@ -201,7 +202,11 @@
 		</p>
 	</div>
 	<div class="unstake-selection-container">
-		<button class="unstake-container">
+		<button
+			class="unstake-container"
+			class:selected={isFastUnstake}
+			on:click={() => (isFastUnstake = true)}
+		>
 			<h2>Immediately</h2>
 			<span>via ICPSwap</span>
 			<p style:color="var(--orange-color)">
@@ -215,7 +220,11 @@
 				{/if}
 			</p>
 		</button>
-		<button class="unstake-container">
+		<button
+			class="unstake-container"
+			class:selected={!isFastUnstake}
+			on:click={() => (isFastUnstake = false)}
+		>
 			<h2>Delayed in 6 months</h2>
 			<span>via WaterNeuron</span>
 			<p style:color="var(--orange-color)">
@@ -237,7 +246,7 @@
 				isLogging.update(() => true);
 			}}
 		>
-			<span>Connect your wallet</span>
+			Connect your wallet
 		</button>
 	{:else}
 		<button
@@ -314,9 +323,10 @@
 		flex-grow: 1;
 		align-items: center;
 		flex-direction: column;
-		background: none;
+		background: transparent;
 		color: white;
 		border: none;
+		border-radius: 8px;
 	}
 
 	/* === Components === */
@@ -365,7 +375,7 @@
 
 	/* === Utilities === /*
 	.selected { 
-		background: var(--background-color);
+		background-color: black;
 	}
 
 	/* === Animation === */
