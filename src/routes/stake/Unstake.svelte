@@ -7,6 +7,7 @@
 		numberToBigintE8s,
 		computeReceiveAmount
 	} from '$lib';
+	import ChangeIcon from '$lib/icons/ChangeIcon.svelte';
 	import SwapInput from './SwapInput.svelte';
 	import { Toast } from '$lib/toast';
 	import {
@@ -114,7 +115,7 @@
 		{:else if $inputAmount && minimumWithdraw && parseFloat($inputAmount) < minimumWithdraw}
 			<span class="error">Minimum amount: {displayUsFormat(minimumWithdraw, 4)} nICP</span>
 		{/if}
-		<p style:color="var(--orange-color)">
+		<p style:color="var(--important-text-color)">
 			{#if exchangeRate}
 				You will receive {displayUsFormat(
 					computeReceiveAmount(false, BigNumber($inputAmount), exchangeRate),
@@ -125,8 +126,8 @@
 			{/if}
 		</p>
 		<p>
-			<button class="change-btn" on:click={() => (invertExchangeRate = !invertExchangeRate)}
-				><img alt="Change icon" src="/icon/change.svg" height="25px" width="25px" />
+			<button class="change-btn" on:click={() => (invertExchangeRate = !invertExchangeRate)}>
+				<ChangeIcon />
 			</button>
 			{#if exchangeRate}
 				{#if !invertExchangeRate}
@@ -181,7 +182,7 @@
 	}
 
 	span {
-		color: black;
+		color: var(--main-button-text-color);
 	}
 	/* === Layout === */
 	.swap-container {
@@ -260,7 +261,7 @@
 	.spinner {
 		width: 2em;
 		height: 2em;
-		border: 3px solid black;
+		border: 3px solid var(--main-button-text-color);
 		border-top-color: transparent;
 		border-radius: 50%;
 		animation: spin 1s linear infinite;

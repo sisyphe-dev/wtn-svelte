@@ -6,7 +6,7 @@
 		height="14"
 		rx="0.75"
 		transform="rotate(45 14.4194 4.52441)"
-		fill="black"
+		fill="var(--main-button-text-color)"
 	/>
 	<rect
 		x="4.5199"
@@ -15,6 +15,6 @@
 		height="14"
 		rx="0.75"
 		transform="rotate(-45 4.5199 5.58496)"
-		fill="black"
+		fill="var(--main-button-text-color)"
 	/>
 </svg>

@@ -23,8 +23,10 @@
 				stake = true;
 			}}
 			class:selected={stake}
-			class:not-selected={!stake}><h2 style:left="1em">Stake ICP</h2></button
+			class:not-selected={!stake}
 		>
+			<h2 style:left="1em">Stake ICP</h2>
+		</button>
 		<button
 			class="header-btn"
 			style:text-align="end"
@@ -52,7 +54,6 @@
 		font-family: var(--secondary-font);
 		font-size: 17px;
 		font-weight: bold;
-		color: white;
 	}
 
 	/* === Layout === */
@@ -62,7 +63,7 @@
 		flex-direction: column;
 		box-shadow: rgba(41, 49, 71, 0.1) 0px 8px 16px;
 		width: 30em;
-		max-width: 97vw;
+		max-width: 99vw;
 	}
 
 	.header-container {
@@ -72,11 +73,16 @@
 	/* === Components === */
 	.header-btn {
 		border: none;
-		color: white;
+		color: var(--stake-text-color);
 		width: 100%;
 		height: 4.5em;
-		border: 2px solid transparent;
 		padding: 0 2em;
+	}
+
+	@media (max-width: 767px) {
+		.header-btn {
+			padding: 0 1em;
+		}
 	}
 
 	/* === Utilities === */

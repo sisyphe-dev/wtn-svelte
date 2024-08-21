@@ -2,6 +2,8 @@
 	import { isLogging, inMobileMenu, user } from '$lib/stores';
 	import { displayUsFormat, displayPrincipal } from '$lib';
 	import { internetIdentityLogout } from '$lib/authentification';
+	import { ThemeToggle } from '@dfinity/gix-components';
+	import PowerOffIcon from '$lib/icons/PowerOffIcon.svelte';
 </script>
 
 <nav class:filter={$isLogging}>
@@ -11,7 +13,11 @@
 			<h1 id="static-header">WaterNeuron</h1>
 		</div>
 	</a>
+
 	<div class="right-container">
+		<div class="theme-toggle">
+			<ThemeToggle />
+		</div>
 		{#if !$user}
 			<button
 				title="connect-btn"
@@ -37,7 +43,7 @@
 					user.set(undefined);
 				}}
 			>
-				<img src="/icon/power-off.svg" width="15em" height="15em" alt="Disconnect Icon" />
+				<PowerOffIcon />
 			</button>
 			<button
 				id="menu-btn"
@@ -61,6 +67,10 @@
 </nav>
 
 <style>
+	.theme-toggle {
+		color: var(--title-color);
+	}
+	
 	/* === Base Styles === */
 	nav {
 		display: flex;
@@ -108,6 +118,10 @@
 		font-size: 13px;
 	}
 
+	h1 {
+		color: var(--title-color);
+	}
+
 	p {
 		text-align: end;
 		font-weight: normal;
@@ -137,6 +151,7 @@
 		display: flex;
 		align-items: center;
 		gap: 1em;
+		color: var(--title-color);
 	}
 
 	/* === Components === */
@@ -145,12 +160,15 @@
 		align-items: center;
 		height: fit-content;
 		font-size: 16px;
+		color: var(--stake-text-color);
 		padding: 0.5em;
 		margin: 0;
 	}
 
 	.smart:hover {
-		background-color: #1e3466;
+		background-color: var(--main-color);
+		color: var(--main-button-text-color);
+		cursor: pointer;
 	}
 
 	.wallet-action-btn {
@@ -172,6 +190,10 @@
 		margin: 0;
 	}
 
+	.wallet-btn:hover {
+		cursor: pointer;
+	}
+
 	#menu-btn {
 		display: none;
 	}
@@ -181,6 +203,7 @@
 	}
 	#wallet-info:hover {
 		background-color: var(--input-color);
+		cursor: pointer;
 	}
 
 	/* === Utillities === */

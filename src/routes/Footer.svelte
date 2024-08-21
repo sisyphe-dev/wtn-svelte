@@ -1,5 +1,10 @@
 <script>
 	import { isLogging } from '$lib/stores';
+	import OpenChatIcon from '$lib/icons/OpenChatIcon.svelte';
+	import TelegramIcon from '$lib/icons/TelegramIcon.svelte';
+	import TwitterIcon from '$lib/icons/TwitterIcon.svelte';
+	import GitbookIcon from '$lib/icons/GitbookIcon.svelte';
+	import GithubIcon from '$lib/icons/GithubIcon.svelte';
 </script>
 
 <footer class:filter={$isLogging}>
@@ -11,20 +16,19 @@
 			rel="noreferrer"
 			target="_blank"
 		>
-			<img alt="Open chat icon" src="/icon/openchat.svg" />
+			<OpenChatIcon />
 		</a>
 		<a class="item--5" href="https://github.com/WaterNeuron" target="_blank" rel="noreferrer">
-			<img alt="Github Icon" src="/icon/github-white.svg" />
+			<GithubIcon />
 		</a>
 		<a class="item--3" href="https://twitter.com/WaterNeuron" target="_blank" rel="noreferrer">
-			<img alt="Twitter Icon" src="/icon/twitter.svg" />
+			<TwitterIcon />
 		</a>
-
 		<a class="item--4" href="https://docs.waterneuron.fi/" rel="noreferrer" target="_blank">
-			<img alt="Git book icon" src="/icon/gitbook.svg" />
+			<GitbookIcon />
 		</a>
 		<a class="item--2" href="https://t.me/waterneuron" rel="noreferrer" target="_blank">
-			<img alt="Telegram icon" src="/icon/telegram.svg" />
+			<TelegramIcon />
 		</a>
 		<p>WaterNeuron</p>
 	</div>
@@ -37,7 +41,7 @@
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		color: white;
+		color: var(--text-color);
 		height: fit-content;
 		width: 100%;
 		margin-bottom: 2vh;

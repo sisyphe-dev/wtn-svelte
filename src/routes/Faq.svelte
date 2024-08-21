@@ -5,6 +5,7 @@
 	import ja from './lang/ja.json';
 	import { language } from '$lib/stores';
 	import { fade, slide } from 'svelte/transition';
+	import DownArrowIcon from '$lib/icons/DownArrowIcon.svelte';
 
 	const data = {
 		en: en,
@@ -44,14 +45,7 @@
 				}}
 			>
 				<h2>{section.title}</h2>
-				<img
-					width="20em"
-					height="20em"
-					src="/icon/down-arrow.svg"
-					alt="Down arrow."
-					class:arrow-down={!toggledMap[i]}
-					class:arrow-up={toggledMap[i]}
-				/>
+				<DownArrowIcon invert={toggledMap[i]} />
 			</button>
 
 			{#if toggledMap[i]}
@@ -103,13 +97,13 @@
 	}
 
 	h1 {
-		color: white;
+		color: var(--faq-color);
 		font-size: 42px;
 		font-family: var(--main-font);
 	}
 
 	h2 {
-		color: white;
+		color: var(--faq-color);
 		font-size: 1.5em;
 		text-align: start;
 	}
@@ -128,7 +122,7 @@
 		background: none;
 		border: none;
 		border-bottom: 2px solid;
-		border-color: white;
+		border-color: var(--faq-color);
 		margin-top: 2em;
 		padding-top: 2em;
 		width: 100%;
@@ -149,15 +143,7 @@
 		display: flex;
 	}
 
-	/* Utilities */
-	.arrow-up {
-		transform: rotate(0);
-	}
-
-	.arrow-down {
-		transform: rotate(180deg);
-	}
-
+	/* === Utilities === */
 	.language-active {
 		text-decoration: underline;
 	}
