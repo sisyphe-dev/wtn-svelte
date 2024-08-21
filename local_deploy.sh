@@ -26,6 +26,7 @@ dfx deploy wtn_ledger --argument "(variant { Init = record { minting_account = r
 dfx deploy boomerang --argument "(record { water_neuron_id = principal \"$water_neuron_id\"; nicp_ledger_id = principal \"$nicp_ledger_id\"; wtn_ledger_id = principal \"$wtn_ledger_id\"; icp_ledger_id = principal \"$icp_ledger_id\" })"
 
 dfx identity use icp-ident-RqOPnjj5ERjAEnwlvfKw
+
 # water neuron account id: 0be44491707d4b564caa515730dca79f70837811dd6202b2f498b26f4e59a01c
 dfx ledger transfer --memo 0 --icp 3 0be44491707d4b564caa515730dca79f70837811dd6202b2f498b26f4e59a01c
 

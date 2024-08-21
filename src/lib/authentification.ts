@@ -22,9 +22,7 @@ export const DEV = import.meta.env ? import.meta.env.DEV : true;
 
 export const HOST = DEV ? 'http://127.0.1:8080' : 'https://ic0.app';
 
-const CANISTER_ID_INTERNET_IDENTITY = DEV
-	? 'qhbym-qaaaa-aaaaa-aaafq-cai'
-	: 'rdmx6-jaaaa-aaaaa-aaadq-cai';
+const CANISTER_ID_II = DEV ? 'br5f7-7uaaa-aaaaa-qaaca-cai' : 'rdmx6-jaaaa-aaaaa-aaadq-cai';
 const CANISTER_ID_WTN_LEDGER = 'jcmow-hyaaa-aaaaq-aadlq-cai';
 const CANISTER_ID_ICP_LEDGER = 'ryjl3-tyaaa-aaaaa-aaaba-cai';
 export const CANISTER_ID_NICP_LEDGER = DEV
@@ -56,7 +54,7 @@ export async function internetIdentitySignIn(): Promise<AuthResult> {
 			const authClient = await AuthClient.create();
 			if (!(await authClient.isAuthenticated())) {
 				const identityProvider = import.meta.env.DEV
-					? `http://localhost:8080/?canisterId=${CANISTER_ID_INTERNET_IDENTITY}`
+					? `http://localhost:8080/?canisterId=${CANISTER_ID_II}`
 					: `https://identity.${'ic0.app'}`;
 
 				const authClient = await AuthClient.create();
