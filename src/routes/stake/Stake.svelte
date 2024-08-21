@@ -106,7 +106,7 @@
 		{:else if $inputAmount && parseFloat($inputAmount) < 1}
 			<span class="error">Minimum amount: 1 ICP</span>
 		{/if}
-		<p style:color="var(--orange-color)">
+		<p style:color="var(--important-text-color)">
 			{#if exchangeRate}
 				You will receive {displayUsFormat(
 					computeReceiveAmount(true, BigNumber($inputAmount), exchangeRate),

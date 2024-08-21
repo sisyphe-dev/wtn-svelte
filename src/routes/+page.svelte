@@ -63,7 +63,7 @@
 		flex-direction: column;
 		box-shadow: rgba(41, 49, 71, 0.1) 0px 8px 16px;
 		width: 30em;
-		max-width: 97vw;
+		max-width: 99vw;
 	}
 
 	.header-container {
@@ -76,8 +76,13 @@
 		color: var(--stake-text-color);
 		width: 100%;
 		height: 4.5em;
-		border: 2px solid transparent;
 		padding: 0 2em;
+	}
+
+	@media (max-width: 767px) {
+		.header-btn {
+			padding: 0 1em;
+		}
 	}
 
 	/* === Utilities === */

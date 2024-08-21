@@ -334,7 +334,7 @@
 		position: absolute;
 		right: 8%;
 		background: none;
-		color: white;
+		color: var(--stake-text-color);
 		border: none;
 		cursor: pointer;
 	}

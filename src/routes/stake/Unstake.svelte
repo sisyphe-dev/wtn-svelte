@@ -115,7 +115,7 @@
 		{:else if $inputAmount && minimumWithdraw && parseFloat($inputAmount) < minimumWithdraw}
 			<span class="error">Minimum amount: {displayUsFormat(minimumWithdraw, 4)} nICP</span>
 		{/if}
-		<p style:color="var(--orange-color)">
+		<p style:color="var(--important-text-color)">
 			{#if exchangeRate}
 				You will receive {displayUsFormat(
 					computeReceiveAmount(false, BigNumber($inputAmount), exchangeRate),
