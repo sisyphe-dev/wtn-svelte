@@ -113,6 +113,7 @@
 
 	:root[theme='light'] {
 		--main-color: #283e95;
+		--important-text-color: black;
 		--stake-text-color: black;
 
 		--title-color: black;
@@ -131,16 +132,15 @@
 		--faq-color: black;
 
 		--svg-fill-color: #000000;
-		--svg-stroke-color: #000000;
 		--svg-opposite-color: #b3b3b3;
 		--sns-selected-button-color: rgb(107 180 249 / 50%);
 	}
 
 	:root[theme='dark'] {
 		--svg-fill-color: #ffffff;
-		--svg-stroke-color: #ffffff;
-		--svg-opposite-color: #e1e1e1;
+		--svg-opposite-color: #7f7f7f;
 		--stake-text-color: white;
+		--important-text-color: var(--orange-color);
 
 		--main-color: oklab(0.88 -0.18 0.03);
 		--qr-code-background: oklab(0.88 -0.18 0.03);
