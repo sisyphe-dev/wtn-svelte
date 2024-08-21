@@ -214,7 +214,7 @@
 	</div>
 	<div class="unstake-selection-container">
 		<button
-			class="unstake-container"
+			class="unstake-container left"
 			class:selected={isFastUnstake}
 			class:not-selected={!isFastUnstake}
 			on:click={() => (isFastUnstake = true)}
@@ -233,7 +233,7 @@
 			</p>
 		</button>
 		<button
-			class="unstake-container"
+			class="unstake-container right"
 			class:not-selected={isFastUnstake}
 			class:selected={!isFastUnstake}
 			on:click={() => (isFastUnstake = false)}
@@ -339,7 +339,6 @@
 		background: transparent;
 		color: white;
 		border: none;
-		border-radius: 6px;
 	}
 
 	/* === Components === */
@@ -394,6 +393,18 @@
 
 	.not-selected {
 		background-color: var(--unselected-background-color);
+	}
+
+	.left {
+		align-items: start;
+		border-top-left-radius: 6px;
+		border-bottom-left-radius: 6px;
+	}
+
+	.right {
+		align-items: end;
+		border-top-right-radius: 6px;
+		border-bottom-right-radius: 6px;
 	}
 
 	/* === Animation === */
