@@ -182,21 +182,13 @@
 <div class="swap-container">
 	<SwapInput asset={Asset.fromText('nICP')} />
 	<div class="paragraphs-container" in:fade={{ duration: 500 }}>
-		{#if $inputAmount && isNaN(parseFloat($inputAmount))}
-			<span class="error">Cannot read amount</span>
-		{:else if $inputAmount && minimumWithdraw && parseFloat($inputAmount) < minimumWithdraw}
-			<span class="error">Minimum: {displayUsFormat(minimumWithdraw, 4)} nICP</span>
-		{/if}
-		<p style:color="var(--important-text-color)">
-			{#if exchangeRate}
-				You will receive {displayUsFormat(
-					computeReceiveAmount(false, BigNumber($inputAmount), exchangeRate),
-					8
-				)} ICP
-			{:else}
-				-/-
+		<span class="error">
+			{#if $inputAmount && isNaN(parseFloat($inputAmount))}
+				Cannot read amount
+			{:else if $inputAmount && minimumWithdraw && parseFloat($inputAmount) < minimumWithdraw}
+				Minimum: {displayUsFormat(minimumWithdraw, 4)} nICP
 			{/if}
-		</p>
+		</span>
 		<p>
 			<button class="change-btn" on:click={() => (invertExchangeRate = !invertExchangeRate)}>
 				<ChangeIcon />
@@ -220,7 +212,7 @@
 			on:click={() => (isFastUnstake = true)}
 		>
 			<h2>Immediately</h2>
-			<span>via ICPSwap</span>
+			<p>via ICPSwap</p>
 			<p style:color="var(--orange-color)">
 				{#if exchangeRate}
 					You will receive {displayUsFormat(
@@ -239,7 +231,7 @@
 			on:click={() => (isFastUnstake = false)}
 		>
 			<h2>Delayed in 6 months</h2>
-			<span>via WaterNeuron</span>
+			<p>via WaterNeuron</p>
 			<p style:color="var(--orange-color)">
 				{#if exchangeRate}
 					You will receive {displayUsFormat(
@@ -259,7 +251,7 @@
 				isLogging.update(() => true);
 			}}
 		>
-			Connect your wallet
+			<span>Connect your wallet</span>
 		</button>
 	{:else}
 		<button
@@ -280,10 +272,9 @@
 
 <style>
 	/* === Base Styles === */
-	p {
+		p {
 		color: var(--text-color);
 		font-family: var(--secondary-font);
-		font-weight: bold;
 		text-align: end;
 		margin: 0;
 		display: flex;
@@ -293,16 +284,14 @@
 	}
 
 	span {
-		color: var(--unselected-text-color);
-		font-family: var(--secondary-font);
-		margin: 0;
-		font-size: 14px;
-		font-style: italic;
+		color: var(--main-button-text-color);
 	}
 
 	h2 {
-		font-family: var(--main-font);
+		font-family: var(--secondary-font);
+		font-size: 16px;
 		margin: 0;
+		color: var(--title-color);
 	}
 
 	/* === Layout === */
@@ -329,6 +318,7 @@
 		display: flex;
 		border: 2px solid var(--border-color);
 		border-radius: 8px;
+		padding: 1em;
 	}
 
 	.unstake-container {
@@ -339,6 +329,8 @@
 		background: transparent;
 		color: white;
 		border: none;
+		border-radius: 6px;
+		padding: 1em;
 	}
 
 	/* === Components === */
@@ -387,24 +379,20 @@
 
 	/* === Utilities === */
 	.selected {
-		background-color: var(--background-color);
+		background-color: #283e9521;
 		color: var(--title-color);
 	}
 
 	.not-selected {
-		background-color: var(--unselected-background-color);
+		background-color: var(--background-color);
 	}
 
 	.left {
 		align-items: start;
-		border-top-left-radius: 6px;
-		border-bottom-left-radius: 6px;
 	}
 
 	.right {
 		align-items: end;
-		border-top-right-radius: 6px;
-		border-bottom-right-radius: 6px;
 	}
 
 	/* === Animation === */
