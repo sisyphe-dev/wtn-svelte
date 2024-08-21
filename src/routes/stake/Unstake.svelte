@@ -38,7 +38,6 @@
 
 	let invertExchangeRate = false;
 	let exchangeRate: BigNumber;
-	let totalIcpDeposited: BigNumber;
 	let minimumWithdraw: BigNumber;
 
 	async function nicpToIcp(amount: BigNumber) {
@@ -163,7 +162,6 @@
 		if ($waterNeuronInfo)
 			try {
 				exchangeRate = $waterNeuronInfo.exchangeRate();
-				totalIcpDeposited = $waterNeuronInfo.totalIcpDeposited();
 				minimumWithdraw = BigNumber(10).multipliedBy(exchangeRate);
 			} catch (error) {
 				console.error('Error fetching data:', error);
@@ -184,22 +182,12 @@
 
 <div class="swap-container">
 	<SwapInput asset={Asset.fromText('nICP')} />
-	<div class="paragraphs" in:fade={{ duration: 500 }}>
+	<div class="paragraphs-container" in:fade={{ duration: 500 }}>
 		{#if $inputAmount && isNaN(parseFloat($inputAmount))}
 			<span class="error">Cannot read amount</span>
 		{:else if $inputAmount && minimumWithdraw && parseFloat($inputAmount) < minimumWithdraw}
 			<span class="error">Minimum: {displayUsFormat(minimumWithdraw, 4)} nICP</span>
 		{/if}
-		<p style:color="var(--orange-color)">
-			{#if exchangeRate}
-				You will receive {displayUsFormat(
-					computeReceiveAmount(false, BigNumber($inputAmount), exchangeRate),
-					8
-				)} ICP
-			{:else}
-				-/-
-			{/if}
-		</p>
 		<p>
 			<button class="change-btn" on:click={() => (invertExchangeRate = !invertExchangeRate)}
 				><img alt="Change icon" src="/icon/change.svg" height="25px" width="25px" />
@@ -214,7 +202,36 @@
 				-/-
 			{/if}
 		</p>
-		<p>Waiting Time: 6 months</p>
+	</div>
+	<div class="unstake-selection-container">
+		<button class="unstake-container">
+			<h2>Immediately</h2>
+			<span>via ICPSwap</span>
+			<p style:color="var(--orange-color)">
+				{#if exchangeRate}
+					You will receive {displayUsFormat(
+						computeReceiveAmount(false, BigNumber($inputAmount), exchangeRate),
+						8
+					)} ICP
+				{:else}
+					-/-
+				{/if}
+			</p>
+		</button>
+		<button class="unstake-container">
+			<h2>Delayed in 6 months</h2>
+			<span>via WaterNeuron</span>
+			<p style:color="var(--orange-color)">
+				{#if exchangeRate}
+					You will receive {displayUsFormat(
+						computeReceiveAmount(false, BigNumber($inputAmount), exchangeRate),
+						8
+					)} ICP
+				{:else}
+					-/-
+				{/if}
+			</p>
+		</button>
 	</div>
 	{#if !$user}
 		<button
@@ -257,8 +274,18 @@
 	}
 
 	span {
-		color: black;
+		color: white;
+		font-family: var(--secondary-font);
+		margin: 0;
+		font-size: 14px;
+		font-style: italic;
 	}
+
+	h2 {
+		font-family: var(--main-font);
+		margin: 0;
+	}
+
 	/* === Layout === */
 	.swap-container {
 		display: flex;
@@ -273,23 +300,26 @@
 		gap: 1em;
 	}
 
-	.paragraphs {
+	.paragraphs-container {
 		display: flex;
-		justify-content: space-around;
-		flex-direction: column;
-		height: 8em;
-		position: relative;
+		justify-content: space-between;
+		width: 100%;
 	}
 
-	.error {
-		color: red;
-		margin-left: 1em;
-		font-size: 16px;
-		font-family: var(--secondary-font);
-		position: absolute;
-		top: 0;
-		flex-wrap: wrap;
-		max-width: 45%;
+	.unstake-selection-container {
+		display: flex;
+		border: 2px solid var(--border-color);
+		border-radius: 8px;
+	}
+
+	.unstake-container {
+		display: flex;
+		flex-grow: 1;
+		align-items: center;
+		flex-direction: column;
+		background: none;
+		color: white;
+		border: none;
 	}
 
 	/* === Components === */
@@ -325,6 +355,20 @@
 
 	.swap-btn:hover {
 		box-shadow: 6px 6px 0 0 black;
+	}
+
+	.error {
+		color: red;
+		margin-left: 1em;
+		font-size: 16px;
+		font-family: var(--secondary-font);
+		flex-wrap: wrap;
+		max-width: 45%;
+	}
+
+	/* === Utilities === /*
+	.selected { 
+		background: var(--background-color);
 	}
 
 	/* === Animation === */
