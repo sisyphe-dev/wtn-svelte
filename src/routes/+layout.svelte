@@ -90,14 +90,74 @@
 <style>
 	/* === Variables === */
 	:root {
+		--orange-color: #fa796e;
+		--toast-text-color: var(--main-button-text-color);
+
+		--border-size: 1px;
+
+		--main-font: 'Akrobat-black';
+		--secondary-font: Arial;
+
+		--padding: 8px;
+		--padding-0_25x: calc(var(--padding) / 4);
+		--padding-0_5x: calc(var(--padding) / 2);
+		--padding-1_5x: calc(1.5 * var(--padding));
+		--padding-2x: calc(2 * var(--padding));
+		--padding-3x: calc(3 * var(--padding));
+		--padding-4x: calc(4 * var(--padding));
+		--padding-6x: calc(6 * var(--padding));
+		--padding-8x: calc(8 * var(--padding));
+		--card-background-contrast: var(--main-color);
+		--card-background: white;
+	}
+
+	:root[theme='light'] {
+		--main-color: #283e95;
+		--important-text-color: black;
+		--stake-text-color: black;
+
+		--title-color: black;
+		--border-color: #454545;
+		--page-background: #fcfffd;
+		--background-color: #fcfffd;
+		--qr-code-background: #fcfffd;
+
+		--input-color: #fcfffd;
+
+		--main-button-text-color: white;
+
+		--input-border: 2px solid var(--border-color);
+
+		--text-color: rgb(127 127 127);
+		--faq-color: black;
+
+		--svg-fill-color: #000000;
+		--svg-opposite-color: #b3b3b3;
+		--sns-selected-button-color: rgb(107 180 249 / 50%);
+	}
+
+	:root[theme='dark'] {
+		--svg-fill-color: #ffffff;
+		--svg-opposite-color: #7f7f7f;
+		--stake-text-color: white;
+		--important-text-color: var(--orange-color);
+
 		--main-color: oklab(0.88 -0.18 0.03);
+		--qr-code-background: oklab(0.88 -0.18 0.03);
+
+		--main-button-text-color: black;
+		--input-border: none;
+		--title-color: white;
+
 		--border-color: rgb(102, 173, 255);
 		--background-color: rgb(12, 44, 76);
 		--input-color: #1e3466;
-		--text-color: rgb(176, 163, 217);
-		--orange-color: #fa796e;
-		--main-font: 'Akrobat-black';
-		--secondary-font: Arial;
+		--text-color: rgb(181 181 181);
+
+		--faq-color: white;
+
+		--page-background: radial-gradient(farthest-corner circle at 0% 0%, rgb(18 69 89), #0f0f4d);
+		--sns-selected-button-color: rgba(107, 249, 201, 0.5);
 	}
 
 	@font-face {
@@ -114,7 +174,7 @@
 		height: fit-content;
 		min-height: 100%;
 		width: 100vw;
-		background: radial-gradient(farthest-corner circle at 0% 0%, rgb(18 69 89), #0f0f4d);
+		background: var(--page-background);
 	}
 
 	.page-container::-webkit-scrollbar {

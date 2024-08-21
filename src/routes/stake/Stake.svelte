@@ -8,6 +8,7 @@
 	} from '$lib';
 	import SwapInput from './SwapInput.svelte';
 	import { Toast } from '$lib/toast';
+	import ChangeIcon from '$lib/icons/ChangeIcon.svelte';
 	import {
 		inputAmount,
 		waterNeuronInfo,
@@ -104,7 +105,7 @@
 		{:else if $inputAmount && parseFloat($inputAmount) < 1}
 			<span class="error">Minimum: 1 ICP</span>
 		{/if}
-		<p style:color="var(--orange-color)">
+		<p style:color="var(--important-text-color)">
 			{#if exchangeRate}
 				You will receive {displayUsFormat(
 					computeReceiveAmount(true, BigNumber($inputAmount), exchangeRate),
@@ -115,8 +116,8 @@
 			{/if}
 		</p>
 		<p style:display="flex">
-			<button class="change-btn" on:click={() => (invertExchangeRate = !invertExchangeRate)}
-				><img alt="Change icon" src="/icon/change.svg" height="25px" width="25px" />
+			<button class="change-btn" on:click={() => (invertExchangeRate = !invertExchangeRate)}>
+				<ChangeIcon />
 			</button>
 			{#if exchangeRate}
 				{#if invertExchangeRate}
@@ -187,7 +188,7 @@
 	}
 
 	span {
-		color: black;
+		color: var(--main-button-text-color);
 	}
 
 	/* === Layout === */
@@ -279,7 +280,7 @@
 	.spinner {
 		width: 2em;
 		height: 2em;
-		border: 3px solid black;
+		border: 3px solid var(--main-button-text-color);
 		border-top-color: transparent;
 		border-radius: 50%;
 		animation: spin 1s linear infinite;

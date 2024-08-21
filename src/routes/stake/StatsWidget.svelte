@@ -5,16 +5,16 @@
 	import { onMount, afterUpdate } from 'svelte';
 	import { fade } from 'svelte/transition';
 
-	let totalIcpDeposited: BigNumber;
+	let totalStaked: BigNumber;
 	let apy: BigNumber;
 	let stakersCount: Number;
 
 	const fetchData = async () => {
 		if ($waterNeuronInfo)
 			try {
-				totalIcpDeposited = $waterNeuronInfo.totalIcpDeposited();
 				apy = $waterNeuronInfo.apy();
 				stakersCount = $waterNeuronInfo.stakersCount();
+				totalStaked = $waterNeuronInfo.neuron8yStake().plus($waterNeuronInfo.neuron6mStake());
 			} catch (error) {
 				console.error('Error fetching data:', error);
 			}
@@ -36,8 +36,8 @@
 	<div class="stat-item">
 		<b>Total Staked</b>
 		<b>
-			{#if $waterNeuronInfo}
-				{displayUsFormat($waterNeuronInfo.neuron8yStake().plus($waterNeuronInfo.neuron6mStake()))} ICP
+			{#if totalStaked}
+				{displayUsFormat(totalStaked, 2)} ICP
 			{:else}
 				-/-
 			{/if}
@@ -47,7 +47,7 @@
 		<b>APY</b>
 		<b
 			>{#if apy}
-				{displayUsFormat(BigNumber(100).multipliedBy(apy))} %
+				{displayUsFormat(BigNumber(100).multipliedBy(apy), 1)} %
 			{:else}
 				-/-
 			{/if}</b
@@ -68,8 +68,9 @@
 <style>
 	/* === Layout === */
 	.stat-widget-container {
-		background: rgb(40 71 105);
-		color: white;
+		background: var(--background-color);
+		border: var(--border-size) solid var(--border-color);
+		color: var(--stake-text-color);
 		padding: 1em;
 		padding-left: 2em;
 		padding-right: 2em;
