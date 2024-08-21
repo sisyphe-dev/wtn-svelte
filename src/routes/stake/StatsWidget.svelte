@@ -36,7 +36,7 @@
 	<div class="stat-item">
 		<b>Total Staked</b>
 		<b>
-			{#if $waterNeuronInfo}
+			{#if totalStaked}
 				{displayUsFormat(totalStaked, 2)} ICP
 			{:else}
 				-/-
