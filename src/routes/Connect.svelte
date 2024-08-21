@@ -81,6 +81,7 @@
 		font-family: var(--secondary-font);
 		font-weight: 600;
 		font-size: 20px;
+		color: var(--main-button-text-color);
 	}
 
 	/* === Layout === */
