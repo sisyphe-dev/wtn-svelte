@@ -143,15 +143,7 @@
 		display: flex;
 	}
 
-	/* Utilities */
-	.arrow-up {
-		transform: rotate(0);
-	}
-
-	.arrow-down {
-		transform: rotate(180deg);
-	}
-
+	/* === Utilities === */
 	.language-active {
 		text-decoration: underline;
 	}

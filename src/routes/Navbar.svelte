@@ -70,15 +70,7 @@
 	.theme-toggle {
 		color: var(--title-color);
 	}
-
-	.theme-toggle label {
-		color: var(--main-color);
-	}
-
-	.theme-toggle label::after {
-		color: var(--title-color);
-	}
-
+	
 	/* === Base Styles === */
 	nav {
 		display: flex;

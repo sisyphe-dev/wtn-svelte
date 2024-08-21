@@ -466,7 +466,7 @@
 	.spinner {
 		width: 1em;
 		height: 1em;
-		border: 3px solid black;
+		border: 3px solid var(--main-button-text-color);
 		border-top-color: transparent;
 		border-radius: 50%;
 		animation: spin 1s linear infinite;
