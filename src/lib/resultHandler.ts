@@ -329,7 +329,7 @@ export function handleStakeResult(result: IcpToNicpResult): ToastResult {
 	}
 }
 
-export function handleRetrieveResult(result: NicpToIcpResult): ToastResult {
+export function handleUnstakeResult(result: NicpToIcpResult): ToastResult {
 	const key = Object.keys(result)[0] as keyof NicpToIcpResult;
 
 	switch (key) {
