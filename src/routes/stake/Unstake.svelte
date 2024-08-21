@@ -1,7 +1,6 @@
 <script lang="ts">
 	import {
 		Asset,
-		AssetType,
 		computeRewards,
 		displayUsFormat,
 		numberToBigintE8s,
@@ -20,9 +19,7 @@
 	} from '$lib/stores';
 	import BigNumber from 'bignumber.js';
 	import {
-		icpTransferApproved,
 		nicpTransferApproved,
-		handleStakeResult,
 		handleUnstakeResult,
 		handleIcpswapApproveResult,
 		handleIcpswapResult,

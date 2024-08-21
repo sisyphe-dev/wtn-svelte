@@ -20,7 +20,6 @@
 	import BigNumber from 'bignumber.js';
 	import {
 		icpTransferApproved,
-		nicpTransferApproved,
 		handleStakeResult,
 		DEFAULT_ERROR_MESSAGE
 	} from '$lib/resultHandler';
