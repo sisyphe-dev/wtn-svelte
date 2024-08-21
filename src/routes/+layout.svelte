@@ -91,6 +91,8 @@
 	/* === Variables === */
 	:root {
 		--orange-color: #fa796e;
+		--unselected-background-color: #5d6b77;
+		--unselected-background-text-color: #c7c7c7; 
 		--toast-text-color: var(--main-button-text-color);
 
 		--border-size: 1px;

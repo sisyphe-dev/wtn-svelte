@@ -178,7 +178,6 @@
 	p {
 		color: var(--text-color);
 		font-family: var(--secondary-font);
-		font-weight: bold;
 		text-align: end;
 		margin: 0;
 		display: flex;
@@ -209,8 +208,9 @@
 		display: flex;
 		justify-content: space-around;
 		flex-direction: column;
-		height: 8em;
 		position: relative;
+		gap: 0.5em;
+		font-style: italic;
 	}
 
 	.error {

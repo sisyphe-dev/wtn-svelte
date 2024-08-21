@@ -95,8 +95,8 @@
 
 	.not-selected {
 		border-bottom: 2px solid var(--border-color);
-		background-color: #5d6b77;
-		color: #c7c7c7;
+		background-color: var(--unselected-background-color);
+		color: var(--unselected-background-text-color);
 		cursor: pointer;
 	}
 </style>

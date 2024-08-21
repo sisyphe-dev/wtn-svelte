@@ -216,6 +216,7 @@
 		<button
 			class="unstake-container"
 			class:selected={isFastUnstake}
+			class:not-selected={!isFastUnstake}
 			on:click={() => (isFastUnstake = true)}
 		>
 			<h2>Immediately</h2>
@@ -233,6 +234,7 @@
 		</button>
 		<button
 			class="unstake-container"
+			class:not-selected={isFastUnstake}
 			class:selected={!isFastUnstake}
 			on:click={() => (isFastUnstake = false)}
 		>
@@ -291,7 +293,7 @@
 	}
 
 	span {
-		color: white;
+		color: var(--unselected-text-color);
 		font-family: var(--secondary-font);
 		margin: 0;
 		font-size: 14px;
@@ -337,7 +339,7 @@
 		background: transparent;
 		color: white;
 		border: none;
-		border-radius: 8px;
+		border-radius: 6px;
 	}
 
 	/* === Components === */
@@ -384,9 +386,14 @@
 		max-width: 45%;
 	}
 
-	/* === Utilities === /*
-	.selected { 
-		background-color: black;
+	/* === Utilities === */
+	.selected {
+		background-color: var(--background-color);
+		color: var(--title-color);
+	}
+
+	.not-selected {
+		background-color: var(--unselected-background-color);
 	}
 
 	/* === Animation === */
