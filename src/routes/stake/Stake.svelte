@@ -103,7 +103,7 @@
 		{#if $inputAmount && isNaN(parseFloat($inputAmount))}
 			<span class="error">Cannot read amount</span>
 		{:else if $inputAmount && parseFloat($inputAmount) < 1}
-			<span class="error">Minimum amount: 1 ICP</span>
+			<span class="error">Minimum: 1 ICP</span>
 		{/if}
 		<p style:color="var(--orange-color)">
 			{#if exchangeRate}

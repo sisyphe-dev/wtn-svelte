@@ -24,9 +24,13 @@
 		nicpTransferApproved,
 		handleStakeResult,
 		handleUnstakeResult,
+		handleIcpswapApproveResult,
+		handleIcpswapResult,
+		handleApproveResult,
 		DEFAULT_ERROR_MESSAGE
 	} from '$lib/resultHandler';
 	import type { ApproveArgs } from '../declarations/icrc_ledger/icrc_ledger.did';
+	import type { DepositArgs, SwapArgs, WithdrawArgs } from '$declarations/icpswap/icpswap.did';
 	import type { ConversionArg } from '$declarations/water_neuron/water_neuron.did';
 	import type { Account } from '@dfinity/ledger-icp';
 	import { onMount, afterUpdate } from 'svelte';
@@ -83,6 +87,78 @@
 		isConverting.set(false);
 	}
 
+	async function fastUnstake(amount: BigNumber) {
+		if (!$canisters || !$user || $isConverting || amount.isNaN()) return;
+		const fee = 10_000n;
+		try {
+			let amountE8s = numberToBigintE8s(amount);
+
+			// 1. Approve
+			const spender = {
+				owner: Principal.fromText(CANISTER_ID_ICPSWAP),
+				subaccount: []
+			} as Account;
+
+			const approveResult: ApproveResult = await $canisters.nicpLedger.icrc2_approve({
+				spender,
+				fee: [],
+				memo: [],
+				from_subaccount: [],
+				created_at_time: [],
+				expires_at: [],
+				expected_allowance: [],
+				amount: numberToBigintE8s(amount)
+			} as ApproveArgs);
+
+			let status = handleApproveResult(approvalResult);
+			if (!status.success) {
+				toasts.add(Toast.error(status.message));
+				return;
+			}
+
+			// 2. Deposit
+			const depositResult = await $canisters.icpswap.depositFrom({
+				fee,
+				token: CANISTER_ID_NICP_LEDGER,
+				amount: amountE8s - fee
+			} as DepositArgs);
+			status = handleIcpswapResult(depositResult);
+			if (!status.success) {
+				toasts.add(Toast.error(status.message));
+				return;
+			}
+
+			// 3. Swap
+			const swapResult = await $canisters.icpswap.swap({
+				amountIn: amountE8s.toString(),
+				zeroForOne: true,
+				amountOutMinimum: fee.toString()
+			} as SwapArgs);
+			status = handleIcpswapResult(swapResult);
+			if (!status.success) {
+				toasts.add(Toast.error(status.message));
+				return;
+			}
+
+			// 4. Withdraw
+			const withdrawResult = await $canisters.icpswap.withdraw({
+				fee,
+				token: 'ICP',
+				amount: amountE8s - 2n * fee
+			} as WithdrawArgs);
+			status = handleIcpswapResult(withdrawResult);
+			if (!status.success) {
+				toasts.add(Toast.error(status.message));
+			} else {
+				toasts.add(Toast.success(status.message));
+			}
+		} catch (error) {
+			console.log(error);
+			toasts.add(Toast.error(DEFAULT_ERROR_MESSAGE));
+			return;
+		}
+	}
+
 	const fetchData = async () => {
 		if ($waterNeuronInfo)
 			try {
@@ -112,7 +188,7 @@
 		{#if $inputAmount && isNaN(parseFloat($inputAmount))}
 			<span class="error">Cannot read amount</span>
 		{:else if $inputAmount && minimumWithdraw && parseFloat($inputAmount) < minimumWithdraw}
-			<span class="error">Minimum amount: {displayUsFormat(minimumWithdraw, 4)} nICP</span>
+			<span class="error">Minimum: {displayUsFormat(minimumWithdraw, 4)} nICP</span>
 		{/if}
 		<p style:color="var(--orange-color)">
 			{#if exchangeRate}

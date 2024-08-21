@@ -22,7 +22,7 @@ export const DEV = import.meta.env ? import.meta.env.DEV : true;
 
 export const HOST = DEV ? 'http://127.0.1:8080' : 'https://ic0.app';
 
-const CANISTER_ID_II = DEV ? 'br5f7-7uaaa-aaaaa-qaaca-cai' : 'rdmx6-jaaaa-aaaaa-aaadq-cai';
+const CANISTER_ID_II = DEV ? 'iidmm-fiaaa-aaaaq-aadmq-cai':'rdmx6-jaaaa-aaaaa-aaadq-cai';
 const CANISTER_ID_WTN_LEDGER = 'jcmow-hyaaa-aaaaq-aadlq-cai';
 const CANISTER_ID_ICP_LEDGER = 'ryjl3-tyaaa-aaaaa-aaaba-cai';
 export const CANISTER_ID_NICP_LEDGER = DEV
