@@ -8,6 +8,7 @@
 		computeReceiveAmount
 	} from '$lib';
 	import ChangeIcon from '$lib/icons/ChangeIcon.svelte';
+	import QuestionIcon from '$lib/icons/QuestionIcon.svelte';
 	import SwapInput from './SwapInput.svelte';
 	import { Toast } from '$lib/toast';
 	import {
@@ -44,6 +45,7 @@
 	let exchangeRate: BigNumber;
 	let minimumWithdraw: BigNumber;
 	let fastUnstakeAmount: BigNumber;
+	let showHelp = false;
 
 	async function nicpToIcp(amount: BigNumber) {
 		if (
@@ -281,7 +283,7 @@
 	</div>
 	<div class="unstake-selection-container">
 		<button
-			class="unstake-container left"
+			class="unstake-container"
 			class:selected={isFastUnstake}
 			class:not-selected={!isFastUnstake}
 			on:click={() => (isFastUnstake = true)}
@@ -295,9 +297,20 @@
 					-/-
 				{/if}
 			</p>
+			<button 
+				class="help-btn" 
+				on:mouseover={() => (showHelp = true)}
+				on:mouseleave={() => (showHelp = false)}> 
+				Failed swap?  
+				<p style:display={showHelp ? 'flex' : 'none'} class="help-content">
+					If a swap is unsuccessful, click
+					here to retrieve the deposited nICP to your wallet.
+				</p>
+			</button>
+
 		</button>
 		<button
-			class="unstake-container right"
+			class="unstake-container"
 			class:not-selected={isFastUnstake}
 			class:selected={!isFastUnstake}
 			on:click={() => (isFastUnstake = false)}
@@ -316,28 +329,31 @@
 			</p>
 		</button>
 	</div>
-	<p>Failed retrieve your ICP?</p>
 	{#if !$user}
 		<button
-			class="swap-btn"
+			class="main-btn swap-btn"
 			on:click={() => {
 				isLogging.update(() => true);
 			}}
 		>
-			<span>Connect your wallet</span>
+			Connect your wallet
 		</button>
 	{:else}
 		<button
-			class="swap-btn"
+			class="main-btn swap-btn"
 			on:click={() => {
-				nicpToIcp(BigNumber($inputAmount));
+				if (isFastUnstake) {
+					fastUnstake(BigNumber($inputAmount));
+				} else {
+					nicpToIcp(BigNumber($inputAmount));
+				}
 			}}
 			title="stake-unstake-btn"
 		>
 			{#if $isConverting}
 				<div class="spinner"></div>
 			{:else}
-				<span>Unstake</span>
+				Unstake
 			{/if}
 		</button>
 	{/if}
@@ -354,10 +370,6 @@
 		justify-content: end;
 		align-items: center;
 		gap: 0.2em;
-	}
-
-	span {
-		color: var(--main-button-text-color);
 	}
 
 	h2 {
@@ -396,15 +408,14 @@
 
 	.unstake-container {
 		display: flex;
-		flex-grow: 1;
-		align-items: center;
+		width: 50%;
 		flex-direction: column;
 		background: transparent;
 		color: white;
 		border: none;
 		border-radius: 6px;
 		padding: 1em;
-		align-items: start;
+		gap: 1em;
 	}
 
 	/* === Components === */
@@ -419,27 +430,30 @@
 		cursor: pointer;
 	}
 
-	.swap-btn {
+	.main-btn {
 		background: var(--main-color);
-		min-width: 80px;
-		max-width: fit-content;
 		position: relative;
 		border: 2px solid black;
 		border-radius: 8px;
-		font-size: 16px;
-		font-weight: bold;
 		box-shadow: 3px 3px 0 0 black;
-		padding: 0 1em 0 1em;
-		max-width: none;
-		height: 4em;
 		cursor: pointer;
 		display: flex;
 		justify-content: center;
 		align-items: center;
+		color: var(--main-button-text-color);
 	}
 
-	.swap-btn:hover {
+	.main-btn:hover {
 		box-shadow: 6px 6px 0 0 black;
+	}
+
+	.swap-btn {
+		min-width: 80px;
+		width: 100%;
+		padding: 0 1em 0 1em;
+		font-weight: bold;
+		font-size: 16px;
+		height: 4em;
 	}
 
 	.error {
@@ -451,6 +465,41 @@
 		max-width: 45%;
 	}
 
+	.help-message {
+		font-style: italic;
+		color: var(--title-color);
+		font-size: 14px;
+	}
+
+	.help-btn {
+		display: flex;
+		position: relative;
+		background: none; 
+		border: none;
+		text-decoration: underline;
+		font-style: italic;
+		font-size: 12px;
+		padding: 0;
+		color: var(--text-color);
+		cursor: pointer;
+	}
+
+	.help-content {
+		background: var(--background-color);
+		color: var(--text-color);
+		text-align: left;
+		padding: 1em;
+		font-style: italic;
+		border-radius: 8px;
+		width: 200px;
+		position: absolute;
+		bottom: 2em;
+		left: -50%;
+		z-index: 1;
+		border: 1px solid black;
+		box-shadow: 3px 3px 0 0 black;
+	}
+
 	/* === Utilities === */
 	.selected {
 		background-color: #283e9521;
@@ -460,13 +509,6 @@
 	.not-selected {
 		background-color: var(--background-color);
 		cursor: pointer;
-	}
-
-	.left {
-		align-items: start;
-	}
-
-	.right {
 	}
 
 	/* === Animation === */
