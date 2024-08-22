@@ -316,6 +316,7 @@
 			</p>
 		</button>
 	</div>
+	<p>Failed retrieve your ICP?</p>
 	{#if !$user}
 		<button
 			class="swap-btn"
