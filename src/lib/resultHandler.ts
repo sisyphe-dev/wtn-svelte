@@ -22,7 +22,6 @@ import type {
 } from '../declarations/boomerang/boomerang.did';
 import type {
 	Result as IcpSwapResult,
-	Result_7 as IcpSwapUnusedBalanceResult,
 	Error as IcpSwapError
 } from '../declarations/icpswap/icpswap.did';
 import { Asset, AssetType, bigintE8sToNumber, displayUsFormat } from '$lib';
@@ -457,29 +456,53 @@ export function handleIcrcTransferResult(result: Icrc1TransferResult, asset: Ass
 	}
 }
 
-export function handleIcpswapError(error: IcpSwapError): ToastResult {
+export function handleIcpswapError(
+	error: IcpSwapError,
+	action: 'deposit' | 'withdrawIcp' | 'withdrawNicp' | 'swap' | 'quote'
+): ToastResult {
 	const key = Object.keys(error)[0] as keyof IcpSwapError;
-
+	let message: string;
+	switch (action) {
+		case 'deposit':
+			message = 'Deposit call failed. Please try again.';
+			break;
+		case 'withdrawIcp':
+			message = 'Withdraw call failed. Please try again.';
+			break;
+		case 'withdrawNicp':
+			message = 'Withdraw call failed. Please try again.';
+			break;
+		case 'swap':
+			message = 'Swap call failed. Please try again.';
+			break;
+		case 'quote':
+			message = 'Quote call failed. Please try again.';
+			break;
+		default:
+			message = 'Icpswap call failed. Please try again.';
+	}
+	console.log('[Icpswap call] error:', error[key]);
 	switch (key) {
 		case 'CommonError':
 			return {
 				success: false,
-				message: 'Icpswap call failed. Please try again.'
+				message
 			};
 		case 'InternalError':
+			console.log(error[key]);
 			return {
 				success: false,
-				message: `${error[key]}`
+				message
 			};
 		case 'UnsupportedToken':
 			return {
 				success: false,
-				message: `${error[key]}`
+				message
 			};
 		case 'InsufficientFunds':
 			return {
 				success: false,
-				message: 'Sorry, there are not enough funds in this account.'
+				message
 			};
 		default:
 			return {
@@ -513,7 +536,7 @@ export function handleIcpswapResult(
 					};
 			}
 		case 'err':
-			return handleTransferError(result[key]);
+			return handleIcpswapError(result[key], action);
 
 		default:
 			return {

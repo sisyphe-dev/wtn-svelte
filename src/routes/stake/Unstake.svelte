@@ -8,7 +8,6 @@
 		computeReceiveAmount
 	} from '$lib';
 	import ChangeIcon from '$lib/icons/ChangeIcon.svelte';
-	import QuestionIcon from '$lib/icons/QuestionIcon.svelte';
 	import SwapInput from './SwapInput.svelte';
 	import { Toast } from '$lib/toast';
 	import {
@@ -33,12 +32,13 @@
 		CANISTER_ID_ICPSWAP,
 		CANISTER_ID_NICP_LEDGER
 	} from '$lib/authentification';
-	import type { ApproveArgs } from '../declarations/icrc_ledger/icrc_ledger.did';
+	import type { ApproveArgs, ApproveResult } from '../declarations/icrc_ledger/icrc_ledger.did';
 	import type { DepositArgs, SwapArgs, WithdrawArgs } from '$declarations/icpswap/icpswap.did';
 	import type { ConversionArg } from '$declarations/water_neuron/water_neuron.did';
 	import type { Account } from '@dfinity/ledger-icp';
 	import { onMount, afterUpdate } from 'svelte';
 	import { fade } from 'svelte/transition';
+	import { Principal } from '@dfinity/principal';
 
 	let invertExchangeRate = false;
 	let isFastUnstake = true;
@@ -96,42 +96,53 @@
 	async function fastUnstake(amount: BigNumber) {
 		if (!$canisters || !$user || $isConverting || amount.isNaN()) return;
 		const fee = 10_000n;
+		isConverting.set(true);
 		try {
 			let amountE8s = numberToBigintE8s(amount);
-
 			// 1. Approve
 			const spender = {
 				owner: Principal.fromText(CANISTER_ID_ICPSWAP),
 				subaccount: []
 			} as Account;
 
-			const approveResult: ApproveResult = await $canisters.nicpLedger.icrc2_approve({
-				spender,
-				fee: [],
-				memo: [],
-				from_subaccount: [],
-				created_at_time: [],
-				expires_at: [],
-				expected_allowance: [],
-				amount: amountE8s
-			} as ApproveArgs);
+			const allowanceResult: Allowance = await $canisters.nicpLedger.icrc2_allowance({
+				account: { owner: $user.principal, subaccount: [] } as Account,
+				spender
+			} as AllowanceArgs);
+			const allowance = allowanceResult['allowance'];
+			if (amount > allowance) {
+				const approveResult: ApproveResult = await $canisters.nicpLedger.icrc2_approve({
+					spender,
+					fee: [],
+					memo: [],
+					from_subaccount: [],
+					created_at_time: [],
+					expires_at: [],
+					expected_allowance: [],
+					amount: amountE8s
+				} as ApproveArgs);
 
-			let status = handleApproveResult(approvalResult);
-			if (!status.success) {
-				toasts.add(Toast.error(status.message));
-				return;
+				const status = handleApproveResult(approveResult);
+				if (!status.success) {
+					toasts.add(Toast.error(status.message));
+					isConverting.set(false);
+					return;
+				}
 			}
 
 			// 2. Deposit
 			const depositResult = await $canisters.icpswap.depositFrom({
 				fee,
 				token: CANISTER_ID_NICP_LEDGER,
-				amount: amountE8s
+				amount: amountE8s - fee
 			} as DepositArgs);
-			status = handleIcpswapResult(depositResult, 'deposit');
+			let status = handleIcpswapResult(depositResult, 'deposit');
 			if (!status.success) {
 				toasts.add(Toast.error(status.message));
+				isConverting.set(false);
 				return;
+			} else {
+				toasts.add(Toast.success(status.message));
 			}
 
 			// 3. Swap
@@ -144,6 +155,7 @@
 			status = handleIcpswapResult(swapResult, 'swap');
 			if (!status.success) {
 				toasts.add(Toast.error(status.message));
+				isConverting.set(false);
 				return;
 			}
 
@@ -160,50 +172,66 @@
 			} else {
 				toasts.add(Toast.success(status.message));
 			}
+			isConverting.set(false);
 		} catch (error) {
-			console.log(error);
+			console.log('[fastUnstake] error:', error);
 			toasts.add(Toast.error(DEFAULT_ERROR_MESSAGE));
+			isConverting.set(false);
 			return;
 		}
 	}
 
-	async function withdrawTokens() {
+	async function withdrawIcpswapTokens() {
 		if (!$canisters || !$user) return;
-		const result = await $canisters.icpswap.getUserUnusedBalance($user.principal.toString());
-		const key = Object.keys(result)[0] as keyof IcpSwapUnusedBalanceResult;
+		const fee = 10_000n;
+		isConverting.set(true);
+		try {
+			const result = await $canisters.icpswap.getUserUnusedBalance($user.principal);
+			const key = Object.keys(result)[0] as keyof IcpSwapUnusedBalanceResult;
 
-		switch (key) {
-			case 'err':
-				console.log(result(key));
-				toasts.add(Toast.error('Failed to fetch balances on ICPswap. Please retry.'));
-				break;
-			case 'ok':
-				const nicpBalanceE8s = result[key]['balance0'];
-				const withdrawNicpResult = await $canisters.icpswap.withdraw({
-					fee,
-					token: CANISTER_ID_NICP_LEDGER,
-					amount: nicpBalanceE8s - fee
-				} as WithdrawArgs);
-				status = handleIcpswapResult(withdrawNicpResult, 'withdrawNicp');
-				if (!status.success) {
-					toasts.add(Toast.error(status.message));
-				} else {
-					toasts.add(Toast.success(status.message));
-				}
+			switch (key) {
+				case 'err':
+					console.log(result(key));
+					toasts.add(Toast.error('Failed to fetch balances on ICPswap. Please retry.'));
+					break;
+				case 'ok':
+					const nicpBalanceE8s = result[key]['balance0'];
+					if (nicpBalanceE8s > fee) {
+						const withdrawNicpResult = await $canisters.icpswap.withdraw({
+							fee,
+							token: CANISTER_ID_NICP_LEDGER,
+							amount: nicpBalanceE8s - fee
+						} as WithdrawArgs);
+						console.log(withdrawNicpResult);
+						const status = handleIcpswapResult(withdrawNicpResult, 'withdrawNicp');
+						console.log(status);
+						if (!status.success) {
+							toasts.add(Toast.error(status.message));
+						} else {
+							toasts.add(Toast.success(status.message));
+						}
+					}
 
-				const icpBalanceE8s = result[key]['balance1'];
-				const withdrawIcpResult = await $canisters.icpswap.withdraw({
-					fee,
-					token: CANISTER_ID_ICP_LEDGER,
-					amount: icpBalanceE8s - fee
-				} as WithdrawArgs);
-				status = handleIcpswapResult(withdrawIcpResult, 'withdrawIcp');
-				if (!status.success) {
-					toasts.add(Toast.error(status.message));
-				} else {
-					toasts.add(Toast.success(status.message));
-				}
+					const icpBalanceE8s = result[key]['balance1'];
+					if (icpBalanceE8s > fee) {
+						const withdrawIcpResult = await $canisters.icpswap.withdraw({
+							fee,
+							token: CANISTER_ID_ICP_LEDGER,
+							amount: icpBalanceE8s - fee
+						} as WithdrawArgs);
+						const status = handleIcpswapResult(withdrawIcpResult, 'withdrawIcp');
+						if (!status.success) {
+							toasts.add(Toast.error(status.message));
+						} else {
+							toasts.add(Toast.success(status.message));
+						}
+					}
+			}
+		} catch (error) {
+			console.log('[withdrawIcpswapTokens] error:', error);
+			toasts.add(Toast.success(DEFAULT_ERROR_MESSAGE));
 		}
+		isConverting.set(false);
 	}
 
 	const computeReceiveAmountFastUnstake = async () => {
@@ -290,24 +318,24 @@
 		>
 			<h2>Immediately</h2>
 			<p>via ICPSwap</p>
-			<p style:color="var(--orange-color)">
+			<p>
 				{#if fastUnstakeAmount}
 					You will receive {displayUsFormat(fastUnstakeAmount, 8)} ICP
 				{:else}
 					-/-
 				{/if}
 			</p>
-			<button 
-				class="help-btn" 
+			<button
+				class="help-btn"
 				on:mouseover={() => (showHelp = true)}
-				on:mouseleave={() => (showHelp = false)}> 
-				Failed swap?  
+				on:mouseleave={() => (showHelp = false)}
+				on:click={withdrawIcpswapTokens}
+			>
+				Failed swap?
 				<p style:display={showHelp ? 'flex' : 'none'} class="help-content">
-					If a swap is unsuccessful, click
-					here to retrieve the deposited nICP to your wallet.
+					If a swap is unsuccessful, click here to retrieve the deposited nICP to your wallet.
 				</p>
 			</button>
-
 		</button>
 		<button
 			class="unstake-container"
@@ -317,7 +345,7 @@
 		>
 			<h2>Delayed in 6 months</h2>
 			<p>via WaterNeuron</p>
-			<p style:color="var(--orange-color)">
+			<p>
 				{#if exchangeRate}
 					You will receive {displayUsFormat(
 						computeReceiveAmount(false, BigNumber($inputAmount), exchangeRate),
@@ -465,16 +493,10 @@
 		max-width: 45%;
 	}
 
-	.help-message {
-		font-style: italic;
-		color: var(--title-color);
-		font-size: 14px;
-	}
-
 	.help-btn {
 		display: flex;
 		position: relative;
-		background: none; 
+		background: none;
 		border: none;
 		text-decoration: underline;
 		font-style: italic;
