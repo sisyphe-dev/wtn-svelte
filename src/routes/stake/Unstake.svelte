@@ -94,7 +94,7 @@
 	}
 
 	async function fastUnstake(amount: BigNumber) {
-		if (!$canisters || !$user || $isConverting || amount.isNaN()) return;
+		if (!$canisters || !$user || $isConverting || amount.isNaN() || !fastUnstakeAmount) return;
 		const fee = 10_000n;
 		isConverting.set(true);
 		try {
@@ -146,11 +146,12 @@
 			}
 
 			// 3. Swap
-			const amountOut = amount.minus(amount.multipliedBy(BigNumber(0.2)));
+			const amountIn = depositResult['ok'];
+			const amountOut = numberToBigintE8s(fastUnstakeAmount.multipliedBy(BigNumber(0.98)));
 			const swapResult = await $canisters.icpswap.swap({
-				amountIn: amountE8s.toString(),
+				amountIn: amountIn.toString(),
 				zeroForOne: true,
-				amountOutMinimum: numberToBigintE8s(amountOut).toString()
+				amountOutMinimum: amountOut.toString()
 			} as SwapArgs);
 			status = handleIcpswapResult(swapResult, 'swap');
 			if (!status.success) {
@@ -241,11 +242,12 @@
 			const amount = BigNumber($inputAmount);
 			if (amount.isNaN()) return BigNumber(0);
 
-			const amountOut = amount.minus(amount.multipliedBy(BigNumber(0.02)));
+			const amountIn = numberToBigintE8s(amount);
+			const amountOut = amountIn - numberToBigintE8s(amount.multipliedBy(BigNumber(0.02)));
 			const result = await $canisters.icpswap.quote({
-				amountIn: numberToBigintE8s(amount).toString(),
+				amountIn: amountIn.toString(),
 				zeroForOne: true,
-				amountOutMinimum: numberToBigintE8s(amountOut).toString()
+				amountOutMinimum: amountOut.toString()
 			} as SwapArgs);
 
 			const status = handleIcpswapResult(result, 'quote');
@@ -328,6 +330,7 @@
 			<button
 				class="help-btn"
 				on:mouseover={() => (showHelp = true)}
+				on:focus={() => (showHelp =true)}
 				on:mouseleave={() => (showHelp = false)}
 				on:click={withdrawIcpswapTokens}
 			>
