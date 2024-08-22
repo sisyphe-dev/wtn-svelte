@@ -24,7 +24,7 @@ export const HOST = DEV ? 'http://127.0.1:8080' : 'https://ic0.app';
 
 const CANISTER_ID_II = DEV ? 'iidmm-fiaaa-aaaaq-aadmq-cai' : 'rdmx6-jaaaa-aaaaa-aaadq-cai';
 const CANISTER_ID_WTN_LEDGER = 'jcmow-hyaaa-aaaaq-aadlq-cai';
-const CANISTER_ID_ICP_LEDGER = 'ryjl3-tyaaa-aaaaa-aaaba-cai';
+export const CANISTER_ID_ICP_LEDGER = 'ryjl3-tyaaa-aaaaa-aaaba-cai';
 export const CANISTER_ID_NICP_LEDGER = DEV
 	? 'ny7ez-6aaaa-aaaam-acc5q-cai'
 	: 'buwm7-7yaaa-aaaar-qagva-cai';
@@ -212,12 +212,6 @@ export function fetchActors(agent?: HttpAgent, isInternetIdentity = false): Prom
 				agent,
 				canisterId: CANISTER_ID_ICPSWAP
 			});
-
-			console.log(
-				SubAccount.fromPrincipal(
-					Principal.fromText('hudsi-btfzv-gsj5f-osgu5-bgxkx-p7hqg-43rto-5r2iv-4ajey-hg6ip-7qe')
-				)
-			);
 
 			resolve({ icpLedger, wtnLedger, nicpLedger, waterNeuron, boomerang, icpswap });
 		} catch (error) {

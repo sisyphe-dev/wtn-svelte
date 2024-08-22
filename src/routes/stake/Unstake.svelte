@@ -4,6 +4,7 @@
 		computeRewards,
 		displayUsFormat,
 		numberToBigintE8s,
+		bigintE8sToNumber,
 		computeReceiveAmount
 	} from '$lib';
 	import ChangeIcon from '$lib/icons/ChangeIcon.svelte';
@@ -22,11 +23,15 @@
 	import {
 		nicpTransferApproved,
 		handleUnstakeResult,
-		handleIcpswapApproveResult,
 		handleIcpswapResult,
 		handleApproveResult,
 		DEFAULT_ERROR_MESSAGE
 	} from '$lib/resultHandler';
+	import {
+		CANISTER_ID_ICP_LEDGER,
+		CANISTER_ID_ICPSWAP,
+		CANISTER_ID_NICP_LEDGER
+	} from '$lib/authentification';
 	import type { ApproveArgs } from '../declarations/icrc_ledger/icrc_ledger.did';
 	import type { DepositArgs, SwapArgs, WithdrawArgs } from '$declarations/icpswap/icpswap.did';
 	import type { ConversionArg } from '$declarations/water_neuron/water_neuron.did';
@@ -38,6 +43,7 @@
 	let isFastUnstake = true;
 	let exchangeRate: BigNumber;
 	let minimumWithdraw: BigNumber;
+	let fastUnstakeAmount: BigNumber;
 
 	async function nicpToIcp(amount: BigNumber) {
 		if (
@@ -105,7 +111,7 @@
 				created_at_time: [],
 				expires_at: [],
 				expected_allowance: [],
-				amount: numberToBigintE8s(amount)
+				amount: amountE8s
 			} as ApproveArgs);
 
 			let status = handleApproveResult(approvalResult);
@@ -118,33 +124,35 @@
 			const depositResult = await $canisters.icpswap.depositFrom({
 				fee,
 				token: CANISTER_ID_NICP_LEDGER,
-				amount: amountE8s - fee
+				amount: amountE8s
 			} as DepositArgs);
-			status = handleIcpswapResult(depositResult);
+			status = handleIcpswapResult(depositResult, 'deposit');
 			if (!status.success) {
 				toasts.add(Toast.error(status.message));
 				return;
 			}
 
 			// 3. Swap
+			const amountOut = amount.minus(amount.multipliedBy(BigNumber(0.2)));
 			const swapResult = await $canisters.icpswap.swap({
 				amountIn: amountE8s.toString(),
 				zeroForOne: true,
-				amountOutMinimum: fee.toString()
+				amountOutMinimum: numberToBigintE8s(amountOut).toString()
 			} as SwapArgs);
-			status = handleIcpswapResult(swapResult);
+			status = handleIcpswapResult(swapResult, 'swap');
 			if (!status.success) {
 				toasts.add(Toast.error(status.message));
 				return;
 			}
 
 			// 4. Withdraw
+			const amountToWithdrawE8s = swapResult['ok'];
 			const withdrawResult = await $canisters.icpswap.withdraw({
 				fee,
-				token: 'ICP',
-				amount: amountE8s - 2n * fee
+				token: CANISTER_ID_ICP_LEDGER,
+				amount: amountToWithdrawE8s
 			} as WithdrawArgs);
-			status = handleIcpswapResult(withdrawResult);
+			status = handleIcpswapResult(withdrawResult, 'withdrawIcp');
 			if (!status.success) {
 				toasts.add(Toast.error(status.message));
 			} else {
@@ -156,6 +164,71 @@
 			return;
 		}
 	}
+
+	async function withdrawTokens() {
+		if (!$canisters || !$user) return;
+		const result = await $canisters.icpswap.getUserUnusedBalance($user.principal.toString());
+		const key = Object.keys(result)[0] as keyof IcpSwapUnusedBalanceResult;
+
+		switch (key) {
+			case 'err':
+				console.log(result(key));
+				toasts.add(Toast.error('Failed to fetch balances on ICPswap. Please retry.'));
+				break;
+			case 'ok':
+				const nicpBalanceE8s = result[key]['balance0'];
+				const withdrawNicpResult = await $canisters.icpswap.withdraw({
+					fee,
+					token: CANISTER_ID_NICP_LEDGER,
+					amount: nicpBalanceE8s - fee
+				} as WithdrawArgs);
+				status = handleIcpswapResult(withdrawNicpResult, 'withdrawNicp');
+				if (!status.success) {
+					toasts.add(Toast.error(status.message));
+				} else {
+					toasts.add(Toast.success(status.message));
+				}
+
+				const icpBalanceE8s = result[key]['balance1'];
+				const withdrawIcpResult = await $canisters.icpswap.withdraw({
+					fee,
+					token: CANISTER_ID_ICP_LEDGER,
+					amount: icpBalanceE8s - fee
+				} as WithdrawArgs);
+				status = handleIcpswapResult(withdrawIcpResult, 'withdrawIcp');
+				if (!status.success) {
+					toasts.add(Toast.error(status.message));
+				} else {
+					toasts.add(Toast.success(status.message));
+				}
+		}
+	}
+
+	const computeReceiveAmountFastUnstake = async () => {
+		if (!$canisters) return;
+
+		try {
+			const amount = BigNumber($inputAmount);
+			if (amount.isNaN()) return BigNumber(0);
+
+			const amountOut = amount.minus(amount.multipliedBy(BigNumber(0.02)));
+			const result = await $canisters.icpswap.quote({
+				amountIn: numberToBigintE8s(amount).toString(),
+				zeroForOne: true,
+				amountOutMinimum: numberToBigintE8s(amountOut).toString()
+			} as SwapArgs);
+
+			const status = handleIcpswapResult(result, 'quote');
+			if (status.success) {
+				fastUnstakeAmount = bigintE8sToNumber(result['ok']);
+			} else {
+				fastUnstakeAmount = BigNumber(0);
+			}
+		} catch (error) {
+			console.log(error);
+			fastUnstakeAmount = undefined;
+		}
+	};
 
 	const fetchData = async () => {
 		if ($waterNeuronInfo)
@@ -177,6 +250,8 @@
 		const intervalId = setInterval(fetchData, 5000);
 		return () => clearInterval(intervalId);
 	});
+
+	$: $inputAmount, computeReceiveAmountFastUnstake();
 </script>
 
 <div class="swap-container">
@@ -214,11 +289,8 @@
 			<h2>Immediately</h2>
 			<p>via ICPSwap</p>
 			<p style:color="var(--orange-color)">
-				{#if exchangeRate}
-					You will receive {displayUsFormat(
-						computeReceiveAmount(false, BigNumber($inputAmount), exchangeRate),
-						8
-					)} ICP
+				{#if fastUnstakeAmount}
+					You will receive {displayUsFormat(fastUnstakeAmount, 8)} ICP
 				{:else}
 					-/-
 				{/if}
@@ -272,7 +344,7 @@
 
 <style>
 	/* === Base Styles === */
-		p {
+	p {
 		color: var(--text-color);
 		font-family: var(--secondary-font);
 		text-align: end;
@@ -331,6 +403,7 @@
 		border: none;
 		border-radius: 6px;
 		padding: 1em;
+		align-items: start;
 	}
 
 	/* === Components === */
@@ -385,6 +458,7 @@
 
 	.not-selected {
 		background-color: var(--background-color);
+		cursor: pointer;
 	}
 
 	.left {
@@ -392,7 +466,6 @@
 	}
 
 	.right {
-		align-items: end;
 	}
 
 	/* === Animation === */

@@ -22,7 +22,7 @@ import type {
 } from '../declarations/boomerang/boomerang.did';
 import type {
 	Result as IcpSwapResult,
-	Result_2 as IcpSwapApproveResult,
+	Result_7 as IcpSwapUnusedBalanceResult,
 	Error as IcpSwapError
 } from '../declarations/icpswap/icpswap.did';
 import { Asset, AssetType, bigintE8sToNumber, displayUsFormat } from '$lib';
@@ -489,29 +489,30 @@ export function handleIcpswapError(error: IcpSwapError): ToastResult {
 	}
 }
 
-export function handleIcpswapApproveResult(result: IcpSwapApproveResult): ToastResult {
-	const key = Object.keys(result)[0] as keyof IcpSwapApproveResult;
-	switch (key) {
-		case 'Ok':
-			return { success: true, message: '' };
-		case 'Err':
-			return handleTransferError(result[key]);
-
-		default:
-			return {
-				success: false,
-				message: DEFAULT_ERROR_MESSAGE
-			};
-	}
-}
-
-export function handleIcpswapResult(result: IcpSwapResult): ToastResult {
-	console.log(result);
+export function handleIcpswapResult(
+	result: IcpSwapResult,
+	action: 'deposit' | 'withdrawIcp' | 'withdrawNicp' | 'swap' | 'quote'
+): ToastResult {
 	const key = Object.keys(result)[0] as keyof IcpSwapResult;
 	switch (key) {
-		case 'Ok':
-			return { success: true, message: `Successful transfer at block index ${result[key]}` };
-		case 'Err':
+		case 'ok':
+			const amount = displayUsFormat(bigintE8sToNumber(result[key]));
+			switch (action) {
+				case 'deposit':
+					return { success: true, message: `Successful deposit of ${amount} nICP on ICPswap.` };
+				case 'withdrawIcp':
+					return { success: true, message: `Successful withdraw of ${amount} ICP on ICPswap.` };
+				case 'withdrawNicp':
+					return { success: true, message: `Successful withdraw of ${amount} nICP on ICPswap.` };
+				case 'swap':
+					return { success: true, message: `Successful swap on ICPswap. ${amount} ICP retrieved.` };
+				case 'quote':
+					return {
+						success: true,
+						message: `Successful quote on ICPswap. ${amount} ICP should be retrieved.`
+					};
+			}
+		case 'err':
 			return handleTransferError(result[key]);
 
 		default:
