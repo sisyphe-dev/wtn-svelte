@@ -110,7 +110,7 @@
 				spender
 			} as AllowanceArgs);
 			const allowance = allowanceResult['allowance'];
-			if (amount > allowance) {
+			if (numberToBigintE8s(amount) > allowance) {
 				const approveResult: ApproveResult = await $canisters.nicpLedger.icrc2_approve({
 					spender,
 					fee: [],
@@ -290,7 +290,7 @@
 		<span class="error">
 			{#if $inputAmount && isNaN(parseFloat($inputAmount))}
 				Cannot read amount
-			{:else if $inputAmount && minimumWithdraw && parseFloat($inputAmount) < minimumWithdraw}
+			{:else if !isFastUnstake && $inputAmount && minimumWithdraw && parseFloat($inputAmount) < minimumWithdraw}
 				Minimum: {displayUsFormat(minimumWithdraw, 4)} nICP
 			{/if}
 		</span>
