@@ -327,6 +327,8 @@
 					-/-
 				{/if}
 			</p>
+			<p style:font-style="italic" style:font-size="10px">2% slippage</p>
+
 			<button
 				class="help-btn"
 				on:mouseover={() => (showHelp = true)}
@@ -346,8 +348,8 @@
 			class:selected={!isFastUnstake}
 			on:click={() => (isFastUnstake = false)}
 		>
-			<h2>Delayed in 6 months</h2>
-			<p>via WaterNeuron</p>
+			<h2>In 6 months <p>via WaterNeuron</p></h2>
+			
 			<p>
 				{#if exchangeRate}
 					You will receive {displayUsFormat(
@@ -408,6 +410,7 @@
 		font-size: 16px;
 		margin: 0;
 		color: var(--title-color);
+		display: flex;
 	}
 
 	/* === Layout === */
@@ -448,7 +451,10 @@
 		padding: 1em;
 		gap: 1em;
 	}
-
+	
+	.unstake-container > p {
+		align-self: end;
+	}
 	/* === Components === */
 	.change-btn {
 		border: none;
