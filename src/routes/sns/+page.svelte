@@ -72,7 +72,7 @@
 			const retrieveResult = await $canisters.boomerang.retrieve_nicp(
 				Principal.fromText($sns.principal)
 			);
-			const result = await handleSnsRetrieveNicpResult(retrieveResult);
+			const result = handleSnsRetrieveNicpResult(retrieveResult);
 			if (result.success) {
 				toasts.add(Toast.success(result.message));
 			} else {
