@@ -333,7 +333,7 @@
 				>
 					<InfoIcon />
 					<p style:display={showImmediateHelp ? 'flex' : 'none'} class="help-content">
-						Immediate unstake via ICPSwap, traded at the current price with 2% slippage. 
+						Immediate unstake via ICPSwap, traded at the current price with 2% slippage.
 					</p>
 				</button>
 			</div>
@@ -364,7 +364,7 @@
 			class:selected={!isFastUnstake}
 			on:click={() => (isFastUnstake = false)}
 		>
-			<div class="delay-header"> 
+			<div class="delay-header">
 				<h2>Delayed</h2>
 				<button
 					class="help-btn"
@@ -375,7 +375,8 @@
 				>
 					<InfoIcon />
 					<p style:display={showDelayedHelp ? 'flex' : 'none'} class="help-content">
-						The protocol will split and dissolve a 6 months neuron. The nICP will be sent to your wallet as soon as the dissolve delay ends.  
+						The protocol will split and dissolve a 6 months neuron. The nICP will be sent to your
+						wallet as soon as the dissolve delay ends.
 					</p>
 				</button>
 			</div>
@@ -523,7 +524,7 @@
 	}
 
 	.error {
-		display: flex; 
+		display: flex;
 		align-items: center;
 		color: var(--title-color);
 		gap: 10px;

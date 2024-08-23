@@ -103,9 +103,9 @@
 	<div class="paragraphs" in:fade={{ duration: 500 }}>
 		<span class="error">
 			{#if $inputAmount && isNaN(parseFloat($inputAmount))}
-			<ErrorIcon /> Cannot read amount
+				<ErrorIcon /> Cannot read amount
 			{:else if $inputAmount && parseFloat($inputAmount) < 1}
-			<ErrorIcon /> Minimum: 1 ICP
+				<ErrorIcon /> Minimum: 1 ICP
 			{/if}
 		</span>
 		<p style:color="var(--important-text-color)">
@@ -211,7 +211,7 @@
 	}
 
 	.error {
-		display: flex; 
+		display: flex;
 		align-items: center;
 		color: var(--title-color);
 		gap: 10px;
