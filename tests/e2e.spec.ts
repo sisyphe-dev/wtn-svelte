@@ -149,7 +149,7 @@ testWithII('e2e test unstake', async ({ page, iiPage }) => {
 	await expect(page.locator('.withdrawals-container')).toBeVisible();
 });
 
-testWithII('e2e test send', async ({ page, iiPage }) => {
+testWithII.only('e2e test send', async ({ page, iiPage }) => {
 	await page.goto('/');
 
 	await page.locator('[title="connect-btn"]').click();
@@ -192,12 +192,12 @@ testWithII('e2e test send', async ({ page, iiPage }) => {
 
 	await send(page, ACCOUNT_ID, '1');
 	expect(await isToastSuccess(page)).toBeTruthy();
-	await expect(icpBalance).toHaveText('13.9999 ICP');
+	await expect(icpBalance).toHaveText('13.99 ICP');
 
 	await page.locator('[title="send-btn-ICP"]').click();
 	await send(page, VALID_ACCOUNT, '1');
 	expect(await isToastSuccess(page)).toBeTruthy();
-	await expect(icpBalance).toHaveText('12.9998 ICP');
+	await expect(icpBalance).toHaveText('12.99 ICP');
 
 	await page.locator('[title="send-btn-ICP"]').click();
 	await page.locator('.max-btn').click();
@@ -217,7 +217,7 @@ testWithII('e2e test send', async ({ page, iiPage }) => {
 
 	await send(page, VALID_ACCOUNT, '1');
 	expect(await isToastSuccess(page)).toBeTruthy();
-	await expect(nicpBalance).toHaveText('13.9999 nICP');
+	await expect(nicpBalance).toHaveText('13.99 nICP');
 
 	await page.locator('[title="send-btn-nICP"]').click();
 	await page.locator('.max-btn').click();

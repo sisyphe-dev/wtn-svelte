@@ -137,45 +137,10 @@
 			"type": "custom",
 			"wasm": ""
 		},
-		"swap_pool": {
-			"candid": "candid/icpswap/swap_pool.did",
+		"icpswap": {
+			"candid": "candid/icpswap.did",
 			"type": "custom",
-			"wasm": "wasm/icpswap/swap_pool.wasm"
-		},
-		"base_index": {
-			"candid": "candid/icpswap/base_index.did",
-			"type": "custom",
-			"wasm": "wasm/icpswap/base_index.wasm"
-		},
-		"node_index": {
-			"candid": "candid/icpswap/node_index.did",
-			"type": "custom",
-			"wasm": "wasm/icpswap/node_index.wasm"
-		},
-		"price": {
-			"candid": "candid/icpswap/price.did",
-			"type": "custom",
-			"wasm": "wasm/icpswap/price.wasm"
-		},
-		"trusted_canister_manager": {
-			"candid": "candid/icpswap/trusted_canister_manager.did",
-			"type": "custom",
-			"wasm": "wasm/icpswap/trusted_canister_manager.wasm"
-		},
-		"swap_fee_receiver": {
-			"candid": "candid/icpswap/swap_fee_receiver.did",
-			"type": "custom",
-			"wasm": "wasm/icpswap/swap_fee_receiver.wasm"
-		},
-		"swap_factory": {
-			"candid": "candid/icpswap/swap_factory.did",
-			"type": "custom",
-			"wasm": "wasm/icpswap/swap_factory.wasm"
-		},
-		"passcode_manager": {
-			"candid": "candid/icpswap/passcode_manager.did",
-			"type": "custom",
-			"wasm": "wasm/icpswap/passcode_manager.wasm"
+			"wasm": ""
 		}
 	},
 	"output_env_file": ".env",

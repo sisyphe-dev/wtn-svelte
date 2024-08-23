@@ -4,8 +4,6 @@
 	width="25px"
 	height="25px"
 	id="exchange"
-	width="25px"
-	height="25px"
 	data-name="Flat Line"
 	xmlns="http://www.w3.org/2000/svg"
 	class="icon flat-line"
