@@ -164,10 +164,10 @@
 <style>
 	/* === Layout === */
 	.withdrawals-container {
-		background-color: #0c2c4c;
-		border: 2px solid #66adff;
+		background-color: var(--background-color);
+		border: 2px solid var(--border-color);
 		border-radius: 10px;
-		color: white;
+		color: var(--stake-text-color);
 		padding: 2em;
 		display: flex;
 		flex-direction: column;
@@ -201,7 +201,7 @@
 
 	a {
 		text-decoration: underline;
-		color: var(--text-color);
+		color: var(--stake-text-color);
 	}
 
 	/* === Responsive === */
