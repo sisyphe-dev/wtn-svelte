@@ -12,13 +12,21 @@ export function displayPrincipal(principal: Principal) {
 	return a[0] + '...' + a[a.length - 1];
 }
 
-export function displayUsFormat(value: BigNumber, decimals = 4): string {
-	const formatter = new Intl.NumberFormat('en-US', {
-		minimumFractionDigits: 0,
-		maximumFractionDigits: decimals
-	});
+export function displayUsFormat(value: BigNumber, decimals = 2): string {
+	const factor = new BigNumber(10).pow(decimals);
+	const truncatedValue = value
+		.multipliedBy(factor)
+		.integerValue(BigNumber.ROUND_DOWN)
+		.dividedBy(factor);
 
-	return formatter.format(value.toNumber()).replace(/,/g, "'");
+	const converted = truncatedValue.toFixed(decimals);
+
+	return new Intl.NumberFormat('en-US', {
+		minimumFractionDigits: decimals,
+		maximumFractionDigits: decimals
+	})
+		.format(Number(converted))
+		.replace(/,/g, "'");
 }
 
 export function numberWithPrecision(x: BigNumber, decimals: BigNumber): BigNumber {
