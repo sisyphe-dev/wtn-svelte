@@ -1,6 +1,8 @@
 <svg
 	fill="#000000"
 	viewBox="0 0 24 24"
+	width="25px"
+	height="25px"
 	id="exchange"
 	width="25px"
 	height="25px"

@@ -397,7 +397,7 @@ export function handleSnsRetrieveNicpResult(result: SnsRetrieveNicpResult): Toas
 		case 'Ok':
 			return {
 				success: true,
-				message: `Successful conversion at <a target='_blank' style="text-decoration: underline; color: var(--toast-text-color);" href="/wallet">block index ${result[key]}</a>.`
+				message: `Successful conversion at <a target='_blank' style="text-decoration: underline; color: var(--toast-text-color);" href="https://221bravo.app/blocks/NICP">block index ${result[key]}</a>.`
 			};
 		case 'Err':
 			return handleBoomerangError(result[key]);

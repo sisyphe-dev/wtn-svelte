@@ -31,9 +31,9 @@
 		{:else}
 			<a href="/wallet" class="wallet-btn" id="wallet-info">
 				<h2 style:font-weight={'bold'}>{displayPrincipal($user.principal)}</h2>
-				<p title="icp-balance-nav">{displayUsFormat($user.icpBalance())} ICP</p>
-				<p title="nicp-balance-nav">{displayUsFormat($user.nicpBalance())} nICP</p>
-				<p title="wtn-balance-nav">{displayUsFormat($user.wtnBalance())} WTN</p>
+				<p title="icp-balance-nav">{displayUsFormat($user.icpBalance(), 2)} ICP</p>
+				<p title="nicp-balance-nav">{displayUsFormat($user.nicpBalance(), 2)} nICP</p>
+				<p title="wtn-balance-nav">{displayUsFormat($user.wtnBalance(), 2)} WTN</p>
 			</a>
 			<button
 				id="disconnect-btn"
