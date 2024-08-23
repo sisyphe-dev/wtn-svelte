@@ -9,6 +9,7 @@
 	import SwapInput from './SwapInput.svelte';
 	import { Toast } from '$lib/toast';
 	import ChangeIcon from '$lib/icons/ChangeIcon.svelte';
+	import ErrorIcon from '$lib/icons/ErrorIcon.svelte';
 	import {
 		inputAmount,
 		waterNeuronInfo,
@@ -100,11 +101,13 @@
 <div class="swap-container">
 	<SwapInput asset={Asset.fromText('ICP')} />
 	<div class="paragraphs" in:fade={{ duration: 500 }}>
-		{#if $inputAmount && isNaN(parseFloat($inputAmount))}
-			<span class="error">Cannot read amount</span>
-		{:else if $inputAmount && parseFloat($inputAmount) < 1}
-			<span class="error">Minimum: 1 ICP</span>
-		{/if}
+		<span class="error">
+			{#if $inputAmount && isNaN(parseFloat($inputAmount))}
+			<ErrorIcon /> Cannot read amount
+			{:else if $inputAmount && parseFloat($inputAmount) < 1}
+			<ErrorIcon /> Minimum: 1 ICP
+			{/if}
+		</span>
 		<p style:color="var(--important-text-color)">
 			{#if exchangeRate}
 				You will receive {displayUsFormat(
@@ -186,10 +189,6 @@
 		gap: 0.2em;
 	}
 
-	span {
-		color: var(--main-button-text-color);
-	}
-
 	/* === Layout === */
 	.swap-container {
 		display: flex;
@@ -206,21 +205,22 @@
 
 	.paragraphs {
 		display: flex;
-		justify-content: space-around;
 		flex-direction: column;
 		position: relative;
 		gap: 0.5em;
 	}
 
 	.error {
-		color: red;
+		display: flex; 
+		align-items: center;
+		color: var(--title-color);
+		gap: 10px;
 		margin-left: 1em;
 		font-size: 16px;
 		font-family: var(--secondary-font);
-		position: absolute;
-		top: 0;
 		flex-wrap: wrap;
 		max-width: 45%;
+		position: absolute;
 	}
 
 	/* === Components === */
@@ -264,6 +264,7 @@
 		display: flex;
 		justify-content: center;
 		align-items: center;
+		color: var(--main-button-text-color);
 	}
 
 	.swap-btn:hover {

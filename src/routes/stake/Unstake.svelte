@@ -9,6 +9,7 @@
 	} from '$lib';
 	import ChangeIcon from '$lib/icons/ChangeIcon.svelte';
 	import InfoIcon from '$lib/icons/InfoIcon.svelte';
+	import ErrorIcon from '$lib/icons/ErrorIcon.svelte';
 	import SwapInput from './SwapInput.svelte';
 	import { Toast } from '$lib/toast';
 	import {
@@ -294,9 +295,9 @@
 	<div class="paragraphs-container" in:fade={{ duration: 500 }}>
 		<span class="error">
 			{#if $inputAmount && isNaN(parseFloat($inputAmount))}
-				Cannot read amount
+				<ErrorIcon /> Cannot read amount
 			{:else if !isFastUnstake && $inputAmount && minimumWithdraw && parseFloat($inputAmount) < minimumWithdraw}
-				Minimum: {displayUsFormat(minimumWithdraw, 4)} nICP
+				<ErrorIcon /> Minimum: {displayUsFormat(minimumWithdraw, 4)} nICP
 			{/if}
 		</span>
 		<p>
@@ -357,6 +358,7 @@
 			</button>
 		</button>
 		<button
+			title="delayed-btn"
 			class="unstake-container"
 			class:not-selected={isFastUnstake}
 			class:selected={!isFastUnstake}
@@ -521,7 +523,10 @@
 	}
 
 	.error {
-		color: red;
+		display: flex; 
+		align-items: center;
+		color: var(--title-color);
+		gap: 10px;
 		margin-left: 1em;
 		font-size: 16px;
 		font-family: var(--secondary-font);
