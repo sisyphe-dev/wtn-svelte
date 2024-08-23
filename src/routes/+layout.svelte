@@ -133,6 +133,8 @@
 		--text-color: rgb(127 127 127);
 		--faq-color: black;
 
+		--unstake-selection-color: #283e9521;
+
 		--svg-fill-color: #000000;
 		--svg-opposite-color: #b3b3b3;
 		--sns-selected-button-color: rgb(107 180 249 / 50%);
@@ -155,6 +157,8 @@
 		--background-color: rgb(12, 44, 76);
 		--input-color: #1e3466;
 		--text-color: rgb(181 181 181);
+
+		--unstake-selection-color: #a9bbff54;
 
 		--faq-color: white;
 

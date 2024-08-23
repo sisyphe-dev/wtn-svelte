@@ -574,7 +574,7 @@
 
 	/* === Utilities === */
 	.selected {
-		background-color: #283e9521;
+		background-color: var(--unstake-selection-color);
 		color: var(--title-color);
 	}
 
