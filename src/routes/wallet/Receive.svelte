@@ -17,7 +17,7 @@
 				text: `${$selectedAsset.intoStr() === 'ICP' ? $user.accountId : $user.principal}`,
 				radius: 0.0, // 0.0 to 0.5
 				ecLevel: 'H', // L, M, Q, H
-				fill: 'black',
+				fill: 'white',
 				background: null,
 				size: 1000 // in pixels
 			},

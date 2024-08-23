@@ -119,7 +119,7 @@
 		--border-color: #454545;
 		--page-background: #fcfffd;
 		--background-color: #fcfffd;
-		--qr-code-background: #fcfffd;
+		--qr-code-background: #283e95;
 
 		--input-color: #fcfffd;
 

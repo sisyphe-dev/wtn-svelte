@@ -150,7 +150,6 @@
 	.right-container {
 		display: flex;
 		align-items: center;
-		gap: 1em;
 		color: var(--title-color);
 	}
 
