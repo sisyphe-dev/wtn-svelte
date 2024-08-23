@@ -150,6 +150,7 @@
 	.right-container {
 		display: flex;
 		align-items: center;
+		gap: 1em;
 		color: var(--title-color);
 	}
 
@@ -233,6 +234,10 @@
 		img {
 			height: 5em;
 			width: 5em;
+		}
+
+		.right-container { 
+			gap: 0;
 		}
 	}
 </style>
