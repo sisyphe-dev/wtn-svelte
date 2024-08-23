@@ -5,7 +5,7 @@ dfx nns install
 dfx canister create water_neuron --specified-id n76cn-tyaaa-aaaam-acc5a-cai
 dfx canister create nicp_ledger --specified-id ny7ez-6aaaa-aaaam-acc5q-cai
 dfx canister create wtn_ledger --specified-id jcmow-hyaaa-aaaaq-aadlq-cai
-dfx canister create internet_identity --specified-id br5f7-7uaaa-aaaaa-qaaca-cai
+dfx canister create internet_identity --specified-id iidmm-fiaaa-aaaaq-aadmq-cai
 dfx canister create boomerang --specified-id bd3sg-teaaa-aaaaa-qaaba-cai
 
 dfx deploy water_neuron --argument '(variant{Init=record{nicp_ledger_id=principal "ny7ez-6aaaa-aaaam-acc5q-cai"; wtn_ledger_id=principal "jcmow-hyaaa-aaaaq-aadlq-cai"; wtn_governance_id=principal "jcmow-hyaaa-aaaaq-aadlq-cai"}})' --mode reinstall -y
