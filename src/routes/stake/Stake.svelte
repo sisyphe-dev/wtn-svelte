@@ -210,7 +210,6 @@
 		flex-direction: column;
 		position: relative;
 		gap: 0.5em;
-		font-style: italic;
 	}
 
 	.error {

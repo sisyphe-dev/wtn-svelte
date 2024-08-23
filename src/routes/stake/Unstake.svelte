@@ -8,6 +8,7 @@
 		computeReceiveAmount
 	} from '$lib';
 	import ChangeIcon from '$lib/icons/ChangeIcon.svelte';
+	import InfoIcon from '$lib/icons/InfoIcon.svelte';
 	import SwapInput from './SwapInput.svelte';
 	import { Toast } from '$lib/toast';
 	import {
@@ -45,7 +46,9 @@
 	let exchangeRate: BigNumber;
 	let minimumWithdraw: BigNumber;
 	let fastUnstakeAmount: BigNumber;
-	let showHelp = false;
+	let showFailedHelp = false;
+	let showImmediateHelp = false;
+	let showDelayedHelp = false;
 
 	async function nicpToIcp(amount: BigNumber) {
 		if (
@@ -318,26 +321,37 @@
 			class:not-selected={!isFastUnstake}
 			on:click={() => (isFastUnstake = true)}
 		>
-			<h2>Immediately</h2>
-			<p>via ICPSwap</p>
+			<div class="delay-header">
+				<h2>Immediately</h2>
+				<button
+					class="help-btn"
+					on:mouseover={() => (showImmediateHelp = true)}
+					on:focus={() => (showImmediateHelp = true)}
+					on:mouseleave={() => (showImmediateHelp = false)}
+					on:click={withdrawIcpswapTokens}
+				>
+					<InfoIcon />
+					<p style:display={showImmediateHelp ? 'flex' : 'none'} class="help-content">
+						Immediate unstake via ICPSwap, traded at the current price with 2% slippage. 
+					</p>
+				</button>
+			</div>
 			<p>
 				{#if fastUnstakeAmount}
-					You will receive {displayUsFormat(fastUnstakeAmount, 8)} ICP
+					Receive {displayUsFormat(fastUnstakeAmount, 8)} ICP
 				{:else}
 					-/-
 				{/if}
 			</p>
-			<p style:font-style="italic" style:font-size="10px">2% slippage</p>
-
 			<button
 				class="help-btn"
-				on:mouseover={() => (showHelp = true)}
-				on:focus={() => (showHelp =true)}
-				on:mouseleave={() => (showHelp = false)}
+				on:mouseover={() => (showFailedHelp = true)}
+				on:focus={() => (showFailedHelp = true)}
+				on:mouseleave={() => (showFailedHelp = false)}
 				on:click={withdrawIcpswapTokens}
 			>
 				Failed swap?
-				<p style:display={showHelp ? 'flex' : 'none'} class="help-content">
+				<p style:display={showFailedHelp ? 'flex' : 'none'} class="help-content">
 					If a swap is unsuccessful, click here to retrieve the deposited nICP to your wallet.
 				</p>
 			</button>
@@ -348,11 +362,24 @@
 			class:selected={!isFastUnstake}
 			on:click={() => (isFastUnstake = false)}
 		>
-			<h2>In 6 months <p>via WaterNeuron</p></h2>
-			
+			<div class="delay-header"> 
+				<h2>Delayed</h2>
+				<button
+					class="help-btn"
+					on:mouseover={() => (showDelayedHelp = true)}
+					on:focus={() => (showDelayedHelp = true)}
+					on:mouseleave={() => (showDelayedHelp = false)}
+					on:click={withdrawIcpswapTokens}
+				>
+					<InfoIcon />
+					<p style:display={showDelayedHelp ? 'flex' : 'none'} class="help-content">
+						The protocol will split and dissolve a 6 months neuron. The nICP will be sent to your wallet as soon as the dissolve delay ends.  
+					</p>
+				</button>
+			</div>
 			<p>
 				{#if exchangeRate}
-					You will receive {displayUsFormat(
+					Receive {displayUsFormat(
 						computeReceiveAmount(false, BigNumber($inputAmount), exchangeRate),
 						8
 					)} ICP
@@ -451,9 +478,9 @@
 		padding: 1em;
 		gap: 1em;
 	}
-	
+
 	.unstake-container > p {
-		align-self: end;
+		align-self: start;
 	}
 	/* === Components === */
 	.change-btn {
@@ -525,10 +552,18 @@
 		width: 200px;
 		position: absolute;
 		bottom: 2em;
-		left: -50%;
+		left: 50%;
+		transform: translate(-50%, 0);
 		z-index: 1;
 		border: 1px solid black;
 		box-shadow: 3px 3px 0 0 black;
+	}
+
+	.delay-header {
+		display: flex;
+		width: 100%;
+		justify-content: space-between;
+		align-items: center;
 	}
 
 	/* === Utilities === */
