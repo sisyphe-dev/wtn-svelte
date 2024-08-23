@@ -481,7 +481,10 @@ export function handleIcpswapError(
 		default:
 			message = 'Icpswap call failed. Please try again.';
 	}
-	console.log('[Icpswap call] error:', error[key]);
+
+	if (action !== 'quote') {
+		console.log('[Icpswap call] error:', error[key]);
+	}
 	switch (key) {
 		case 'CommonError':
 			return {
