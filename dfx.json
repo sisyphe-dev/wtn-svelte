@@ -140,7 +140,7 @@
 		"icpswap": {
 			"candid": "candid/icpswap.did",
 			"type": "custom",
-			"wasm": ""
+			"wasm": "wasm/icpswap.wasm"
 		}
 	},
 	"output_env_file": ".env",
