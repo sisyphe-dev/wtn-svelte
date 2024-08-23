@@ -522,7 +522,7 @@ export function handleIcpswapResult(
 	const key = Object.keys(result)[0] as keyof IcpSwapResult;
 	switch (key) {
 		case 'ok':
-			const amount = displayUsFormat(bigintE8sToNumber(result[key]));
+			const amount = displayUsFormat(bigintE8sToNumber(result[key]), 4);
 			switch (action) {
 				case 'deposit':
 					return { success: true, message: `Successful deposit of ${amount} nICP on ICPswap.` };
