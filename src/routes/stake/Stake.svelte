@@ -221,6 +221,7 @@
 		flex-wrap: wrap;
 		max-width: 45%;
 		position: absolute;
+		font-size: 14px;
 	}
 
 	/* === Components === */

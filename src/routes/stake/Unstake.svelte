@@ -533,6 +533,7 @@
 		font-family: var(--secondary-font);
 		flex-wrap: wrap;
 		max-width: 45%;
+		font-size: 14px;
 	}
 
 	.help-btn {
