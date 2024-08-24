@@ -339,7 +339,7 @@
 			</div>
 			<p>
 				{#if fastUnstakeAmount}
-					Receive {displayUsFormat(fastUnstakeAmount, 8)} ICP
+					Receive {displayUsFormat(fastUnstakeAmount.minus(BigNumber(0.0002)), 8)} ICP
 				{:else}
 					-/-
 				{/if}
