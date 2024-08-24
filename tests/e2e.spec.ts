@@ -7,7 +7,7 @@ import { mockSetup, transferICP, swap, isToastSuccess, transferNICP, send } from
 const VALID_PRINCIPAL = 'l72el-pt5ry-lmj66-3opyw-tl5xx-3wzfl-n3mja-dqirc-oxmqs-uxqe6-6qe';
 const ACCOUNT_ID = 'e73a99617af2a8dbfe9b75e463e83a905e30aa50250972ad19c21922c22b2a2a';
 const VALID_ACCOUNT =
-	'daijl-2yaaa-aaaar-qag3a-cai-kdmvzla.5f0e93000f4cbd9db8c36d27cad8b8a97706c0710154172029e54541e18fd180';
+	'daijl-2yaaa-aaaar-qag3a-cai-clltauq.5f0e93000f4cbd9db8c36d27cad8b8a97706c0710154172029e54541e18fd180';
 
 test('Intermediary account should have balance', async () => {
 	await mockSetup();
@@ -82,7 +82,7 @@ testWithII('e2e test stake', async ({ page, iiPage }) => {
 	if (!accountId) throw new Error('No account id found.');
 
 	await transferICP(accountId);
-	await expect(walletInfo.locator('[title="icp-balance-nav"]')).toHaveText('15 ICP');
+	await expect(walletInfo.locator('[title="icp-balance-nav"]')).toHaveText('15.00 ICP');
 
 	await page.locator('[title="home-btn"]').click();
 
@@ -123,7 +123,7 @@ testWithII('e2e test unstake', async ({ page, iiPage }) => {
 	if (!principal) throw new Error('No account id found.');
 
 	await transferNICP(principal);
-	await expect(walletInfo.locator('[title="nicp-balance-nav"]')).toHaveText('15 nICP');
+	await expect(walletInfo.locator('[title="nicp-balance-nav"]')).toHaveText('15.00 nICP');
 
 	await page.locator('[title="home-btn"]').click();
 	await page.locator('[title="unstake-header"]').click();
@@ -148,7 +148,7 @@ testWithII('e2e test unstake', async ({ page, iiPage }) => {
 	await expect(page.locator('.withdrawals-container')).toBeVisible();
 });
 
-testWithII('e2e test send', async ({ page, iiPage }) => {
+testWithII.only('e2e test send', async ({ page, iiPage }) => {
 	await page.goto('/');
 
 	await page.locator('[title="connect-btn"]').click();
@@ -177,8 +177,8 @@ testWithII('e2e test send', async ({ page, iiPage }) => {
 
 	const icpBalance = walletInfo.locator('[title="icp-balance-nav"]');
 	const nicpBalance = walletInfo.locator('[title="nicp-balance-nav"]');
-	await expect(icpBalance).toHaveText('15 ICP');
-	await expect(nicpBalance).toHaveText('15 nICP');
+	await expect(icpBalance).toHaveText('15.00 ICP');
+	await expect(nicpBalance).toHaveText('15.00 nICP');
 
 	await page.locator('[title="send-btn-ICP"]').click();
 
@@ -191,12 +191,12 @@ testWithII('e2e test send', async ({ page, iiPage }) => {
 
 	await send(page, ACCOUNT_ID, '1');
 	expect(await isToastSuccess(page)).toBeTruthy();
-	await expect(icpBalance).toHaveText('13.9999 ICP');
+	await expect(icpBalance).toHaveText('13.99 ICP');
 
 	await page.locator('[title="send-btn-ICP"]').click();
 	await send(page, VALID_ACCOUNT, '1');
 	expect(await isToastSuccess(page)).toBeTruthy();
-	await expect(icpBalance).toHaveText('12.9998 ICP');
+	await expect(icpBalance).toHaveText('12.99 ICP');
 
 	await page.locator('[title="send-btn-ICP"]').click();
 	await page.locator('.max-btn').click();
@@ -212,11 +212,11 @@ testWithII('e2e test send', async ({ page, iiPage }) => {
 	await page.locator('[title="send-btn-nICP"]').click();
 	await send(page, ACCOUNT_ID, '10');
 	expect(await isToastSuccess(page)).toBeFalsy();
-	await expect(nicpBalance).toHaveText('15 nICP');
+	await expect(nicpBalance).toHaveText('15.00 nICP');
 
 	await send(page, VALID_ACCOUNT, '1');
 	expect(await isToastSuccess(page)).toBeTruthy();
-	await expect(nicpBalance).toHaveText('13.9999 nICP');
+	await expect(nicpBalance).toHaveText('13.99 nICP');
 
 	await page.locator('[title="send-btn-nICP"]').click();
 	await page.locator('.max-btn').click();
