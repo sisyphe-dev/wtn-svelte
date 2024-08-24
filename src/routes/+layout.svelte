@@ -90,7 +90,6 @@
 <style>
 	/* === Variables === */
 	:root {
-		--orange-color: #fa796e;
 		--toast-text-color: var(--main-button-text-color);
 
 		--border-size: 1px;
@@ -120,7 +119,7 @@
 		--border-color: #454545;
 		--page-background: #fcfffd;
 		--background-color: #fcfffd;
-		--qr-code-background: #fcfffd;
+		--qr-code-background: #283e95;
 
 		--input-color: #fcfffd;
 
@@ -140,24 +139,23 @@
 		--svg-fill-color: #ffffff;
 		--svg-opposite-color: #7f7f7f;
 		--stake-text-color: white;
-		--important-text-color: var(--orange-color);
 
-		--main-color: oklab(0.88 -0.18 0.03);
-		--qr-code-background: oklab(0.88 -0.18 0.03);
+		--main-color: #4c66dc;
+		--qr-code-background: #4c66dc;
 
-		--main-button-text-color: black;
-		--input-border: none;
+		--main-button-text-color: #fcfffd;
 		--title-color: white;
 
-		--border-color: rgb(102, 173, 255);
-		--background-color: rgb(12, 44, 76);
-		--input-color: #1e3466;
+		--border-color: rgb(158 163 178);
+		--input-border: 2px solid var(--border-color);
+		--background-color: #0d1432;
+		--input-color: #0d1432;
 		--text-color: rgb(181 181 181);
 
 		--faq-color: white;
 
-		--page-background: radial-gradient(farthest-corner circle at 0% 0%, rgb(18 69 89), #0f0f4d);
-		--sns-selected-button-color: rgba(107, 249, 201, 0.5);
+		--page-background: #0d1432;
+		--sns-selected-button-color: #404f9987;
 	}
 
 	@font-face {

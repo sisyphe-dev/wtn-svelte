@@ -3,6 +3,7 @@
 	import { isMobile } from '$lib';
 	import snsMetadata from './sns_metadata.json';
 	import { Principal } from '@dfinity/principal';
+	import DownArrowIcon from '$lib/icons/DownArrowIcon.svelte';
 </script>
 
 <div class="sns-selection-container">
@@ -33,7 +34,9 @@
 		<div class="select-container">
 			<button on:click={() => inSnsMenu.set(true)}>
 				<span>{$sns.name}</span>
-				<img width="20em" height="20em" src="/icon/down-arrow.svg" alt="Down arrow." />
+				<div class="down-arrow">
+					<DownArrowIcon invert={false} />
+				</div>
 			</button>
 		</div>
 	{/if}
@@ -163,7 +166,7 @@
 			background-color: var(--sns-selected-button-color);
 		}
 
-		img {
+		.down-arrow {
 			position: absolute;
 			right: 1em;
 		}

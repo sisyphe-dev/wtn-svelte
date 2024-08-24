@@ -235,5 +235,9 @@
 			height: 5em;
 			width: 5em;
 		}
+
+		.right-container {
+			gap: 0;
+		}
 	}
 </style>

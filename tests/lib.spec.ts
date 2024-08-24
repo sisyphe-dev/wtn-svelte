@@ -24,9 +24,9 @@ const VALID_PRINCIPAL = 'l72el-pt5ry-lmj66-3opyw-tl5xx-3wzfl-n3mja-dqirc-oxmqs-u
 const WRONG_PRINCIPAL = 'aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaa-aaa';
 const ACCOUNT_ID = 'e73a99617af2a8dbfe9b75e463e83a905e30aa50250972ad19c21922c22b2a2a';
 const VALID_ACCOUNT =
-	'bd3sg-teaaa-aaaaa-qaaba-cai-dl7sbni.4de8758e1d99bd2d97a384af0ffed63403886967d21070e5241b602ebe39f243';
+	'daijl-2yaaa-aaaar-qag3a-cai-dl7sbni.4de8758e1d99bd2d97a384af0ffed63403886967d21070e5241b602ebe39f243';
 const WRONG_ACCOUNT =
-	'bd3sg-teaaa-aaaaa-qaaba-cai-aaaaaaa.4de8758e1d99bd2d97a384af0ffed63403886967d21070e5241b602ebe39f243';
+	'daijl-2yaaa-aaaar-qag3a-cai-aaaaaaa.4de8758e1d99bd2d97a384af0ffed63403886967d21070e5241b602ebe39f243';
 
 test('numberWithPrecision test', () => {
 	expect(numberWithPrecision(BigNumber(12.436), BigNumber(2)).eq(BigNumber(12.43))).toBeTruthy();
