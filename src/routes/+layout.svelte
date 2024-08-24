@@ -90,7 +90,6 @@
 <style>
 	/* === Variables === */
 	:root {
-		--orange-color: #fa796e;
 		--unselected-header-color: #5d6b77;
 		--unselected-header-text-color: #c7c7c7;
 		--toast-text-color: var(--main-button-text-color);
