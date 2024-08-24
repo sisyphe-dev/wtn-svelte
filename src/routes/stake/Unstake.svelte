@@ -352,7 +352,7 @@
 				on:click={withdrawIcpswapTokens}
 			>
 				Failed swap?
-				<p style:display={showFailedHelp ? 'flex' : 'none'} class="help-content">
+				<p style:display={showFailedHelp ? 'flex' : 'none'} class="help-content left transform-left">
 					If a swap is unsuccessful, click here to retrieve the deposited nICP to your wallet.
 				</p>
 			</button>
@@ -374,7 +374,7 @@
 					on:click={withdrawIcpswapTokens}
 				>
 					<InfoIcon />
-					<p style:display={showDelayedHelp ? 'flex' : 'none'} class="help-content">
+					<p style:display={showDelayedHelp ? 'flex' : 'none'} class="help-content transform-right">
 						The protocol will split and dissolve a 6 months neuron. The nICP will be sent to your
 						wallet as soon as the dissolve delay ends.
 					</p>
@@ -614,6 +614,24 @@
 		}
 		to {
 			transform: scale(1.2);
+		}
+	}
+
+	@media (max-width: 767px) {
+		.swap-container {
+			padding: 1em 0.4em;
+		}
+
+		.transform-left {
+			transform: translate(0%, 0);
+		} 
+
+		.transform-right {
+			transform: translate(-100%, 0);
+		}
+
+		.left { 
+			left: 0;
 		}
 	}
 </style>
