@@ -562,7 +562,7 @@
 		transform: translate(-50%, 0);
 		z-index: 1;
 		border: 1px solid black;
-		box-shadow: 3px 3px 0 0 black;
+		box-shadow: 3px 3px 0 0 #8e8b8b;
 	}
 
 	.delay-header {

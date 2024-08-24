@@ -82,7 +82,7 @@ testWithII('e2e test stake', async ({ page, iiPage }) => {
 	if (!accountId) throw new Error('No account id found.');
 
 	await transferICP(accountId);
-	await expect(walletInfo.locator('[title="icp-balance-nav"]')).toHaveText('15.00 ICP');
+	await expect(walletInfo.locator('[title="icp-balance-nav"]')).toHaveText('15 ICP');
 
 	await page.locator('[title="home-btn"]').click();
 
@@ -123,7 +123,7 @@ testWithII('e2e test unstake', async ({ page, iiPage }) => {
 	if (!principal) throw new Error('No account id found.');
 
 	await transferNICP(principal);
-	await expect(walletInfo.locator('[title="nicp-balance-nav"]')).toHaveText('15.00 nICP');
+	await expect(walletInfo.locator('[title="nicp-balance-nav"]')).toHaveText('15 nICP');
 
 	await page.locator('[title="home-btn"]').click();
 	await page.locator('[title="unstake-header"]').click();
@@ -178,8 +178,8 @@ testWithII('e2e test send', async ({ page, iiPage }) => {
 
 	const icpBalance = walletInfo.locator('[title="icp-balance-nav"]');
 	const nicpBalance = walletInfo.locator('[title="nicp-balance-nav"]');
-	await expect(icpBalance).toHaveText('15.00 ICP');
-	await expect(nicpBalance).toHaveText('15.00 nICP');
+	await expect(icpBalance).toHaveText('15 ICP');
+	await expect(nicpBalance).toHaveText('15 nICP');
 
 	await page.locator('[title="send-btn-ICP"]').click();
 
@@ -213,7 +213,7 @@ testWithII('e2e test send', async ({ page, iiPage }) => {
 	await page.locator('[title="send-btn-nICP"]').click();
 	await send(page, ACCOUNT_ID, '10');
 	expect(await isToastSuccess(page)).toBeFalsy();
-	await expect(nicpBalance).toHaveText('15.00 nICP');
+	await expect(nicpBalance).toHaveText('15 nICP');
 
 	await send(page, VALID_ACCOUNT, '1');
 	expect(await isToastSuccess(page)).toBeTruthy();
