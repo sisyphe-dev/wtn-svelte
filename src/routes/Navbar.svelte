@@ -236,7 +236,7 @@
 			width: 5em;
 		}
 
-		.right-container { 
+		.right-container {
 			gap: 0;
 		}
 	}

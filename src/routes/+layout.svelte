@@ -139,7 +139,6 @@
 		--svg-fill-color: #ffffff;
 		--svg-opposite-color: #7f7f7f;
 		--stake-text-color: white;
-		--important-text-color: var(--orange-color);
 
 		--main-color: #4c66dc;
 		--qr-code-background: #4c66dc;
@@ -156,7 +155,7 @@
 		--faq-color: white;
 
 		--page-background: #0d1432;
-		--sns-selected-button-color: rgba(107, 249, 201, 0.5);
+		--sns-selected-button-color: #404f9987;
 	}
 
 	@font-face {
