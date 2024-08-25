@@ -140,9 +140,9 @@
 				token: CANISTER_ID_NICP_LEDGER,
 				amount: amountE8s - fee
 			} as DepositArgs);
-			let status = handleIcpswapResult(depositResult, 'deposit');
-			if (!status.success) {
-				toasts.add(Toast.error(status.message));
+			const depositStatus = handleIcpswapResult(depositResult, 'deposit');
+			if (!depositStatus.success) {
+				toasts.add(Toast.error(depositStatus.message));
 				isConverting.set(false);
 				return;
 			}
@@ -155,7 +155,7 @@
 				zeroForOne: true,
 				amountOutMinimum: amountOut.toString()
 			} as SwapArgs);
-			swapStatus = handleIcpswapResult(swapResult, 'swap');
+			const swapStatus = handleIcpswapResult(swapResult, 'swap');
 			if (!swapStatus.success) {
 				toasts.add(Toast.error(swapStatus.message));
 				isConverting.set(false);
@@ -171,9 +171,9 @@
 			} as WithdrawArgs);
 			const withdrawStatus = handleIcpswapResult(withdrawResult, 'withdrawIcp');
 			if (withdrawStatus.success) {
-				toasts.add(Toast.error(swapStatus.message));
+				toasts.add(Toast.success(swapStatus.message));
 			} else {
-				toasts.add(Toast.success(withdrawStatus.message));
+				toasts.add(Toast.error(withdrawStatus.message));
 			}
 			isConverting.set(false);
 		} catch (error) {

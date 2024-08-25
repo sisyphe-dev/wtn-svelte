@@ -63,7 +63,7 @@ export async function internetIdentitySignIn(): Promise<AuthResult> {
 				await authClient.login({
 					maxTimeToLive: AUTH_MAX_TIME_TO_LIVE,
 					allowPinAuthentication: true,
-					derivationOrigin: undefined,
+					derivationOrigin: derivation,
 					onSuccess: async () => {
 						const identity: Identity = authClient?.getIdentity();
 						const agent = new HttpAgent({
