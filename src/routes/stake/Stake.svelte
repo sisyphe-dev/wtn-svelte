@@ -207,7 +207,7 @@
 		display: flex;
 		flex-direction: column;
 		position: relative;
-		gap: 0.5em;
+		gap: 1em;
 	}
 
 	.error {
