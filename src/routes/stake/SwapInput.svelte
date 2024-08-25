@@ -12,7 +12,7 @@
 		type="text"
 		maxlength="20"
 		bind:value={$inputAmount}
-		placeholder="Amount"
+		placeholder="0.00"
 		on:input={handleInputAmount}
 		title="swap-input"
 	/>

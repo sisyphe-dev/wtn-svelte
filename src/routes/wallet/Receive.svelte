@@ -155,7 +155,7 @@
 		padding: 2em;
 		margin: 0.3em;
 		border-radius: 15px;
-		border: 2px solid var(--border-color);
+		border: var(--input-border);
 		gap: 1em;
 		height: fit-content;
 		overflow-x: hidden;

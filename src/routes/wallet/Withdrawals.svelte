@@ -165,7 +165,7 @@
 	/* === Layout === */
 	.withdrawals-container {
 		background-color: var(--background-color);
-		border: 2px solid var(--border-color);
+		border: var(--input-border);
 		border-radius: 10px;
 		color: var(--stake-text-color);
 		padding: 2em;

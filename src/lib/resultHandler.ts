@@ -522,20 +522,31 @@ export function handleIcpswapResult(
 	const key = Object.keys(result)[0] as keyof IcpSwapResult;
 	switch (key) {
 		case 'ok':
-			const amount = displayUsFormat(bigintE8sToNumber(result[key]), 4);
 			switch (action) {
 				case 'deposit':
-					return { success: true, message: `Successful deposit of ${amount} nICP on ICPswap.` };
+					return { success: true, message: `Successful deposit on ICPswap.` };
 				case 'withdrawIcp':
-					return { success: true, message: `Successful withdraw of ${amount} ICP on ICPswap.` };
+					const withdrawIcpAmount = displayUsFormat(bigintE8sToNumber(result[key]), 4);
+					return {
+						success: true,
+						message: `Successful withdraw of ${withdrawIcpAmount} ICP on ICPswap.`
+					};
 				case 'withdrawNicp':
-					return { success: true, message: `Successful withdraw of ${amount} nICP on ICPswap.` };
+					const withdrawNicpAmount = displayUsFormat(bigintE8sToNumber(result[key]), 4);
+					return {
+						success: true,
+						message: `Successful withdraw of ${withdrawNicpAmount} nICP on ICPswap.`
+					};
 				case 'swap':
-					return { success: true, message: `Successful swap on ICPswap. ${amount} ICP retrieved.` };
+					const swapAmount = displayUsFormat(bigintE8sToNumber(result[key] - 10_000n), 4);
+					return {
+						success: true,
+						message: `Successful swap on ICPswap. ${swapAmount} ICP retrieved.`
+					};
 				case 'quote':
 					return {
 						success: true,
-						message: `Successful quote on ICPswap. ${amount} ICP should be retrieved.`
+						message: ''
 					};
 			}
 		case 'err':

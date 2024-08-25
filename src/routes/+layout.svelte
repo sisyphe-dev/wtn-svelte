@@ -93,6 +93,7 @@
 		--unselected-header-color: #5d6b77;
 		--unselected-header-text-color: #c7c7c7;
 		--toast-text-color: var(--main-button-text-color);
+		--input-border: 1px solid var(--border-color);
 
 		--border-size: 1px;
 
@@ -127,8 +128,6 @@
 
 		--main-button-text-color: white;
 
-		--input-border: 2px solid var(--border-color);
-
 		--text-color: rgb(127 127 127);
 		--faq-color: black;
 
@@ -151,7 +150,6 @@
 		--title-color: white;
 
 		--border-color: rgb(158 163 178);
-		--input-border: 2px solid var(--border-color);
 		--background-color: #0d1432;
 		--input-color: #0d1432;
 		--text-color: rgb(181 181 181);

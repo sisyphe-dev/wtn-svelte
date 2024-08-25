@@ -46,7 +46,7 @@
 	let isFastUnstake = true;
 	let exchangeRate: BigNumber;
 	let minimumWithdraw: BigNumber;
-	let fastUnstakeAmount: BigNumber;
+	let fastUnstakeAmount = BigNumber(0);
 	let showFailedHelp = false;
 	let showImmediateHelp = false;
 	let showDelayedHelp = false;
@@ -145,8 +145,6 @@
 				toasts.add(Toast.error(status.message));
 				isConverting.set(false);
 				return;
-			} else {
-				toasts.add(Toast.success(status.message));
 			}
 
 			// 3. Swap
@@ -157,9 +155,9 @@
 				zeroForOne: true,
 				amountOutMinimum: amountOut.toString()
 			} as SwapArgs);
-			status = handleIcpswapResult(swapResult, 'swap');
-			if (!status.success) {
-				toasts.add(Toast.error(status.message));
+			swapStatus = handleIcpswapResult(swapResult, 'swap');
+			if (!swapStatus.success) {
+				toasts.add(Toast.error(swapStatus.message));
 				isConverting.set(false);
 				return;
 			}
@@ -171,11 +169,11 @@
 				token: CANISTER_ID_ICP_LEDGER,
 				amount: amountToWithdrawE8s
 			} as WithdrawArgs);
-			status = handleIcpswapResult(withdrawResult, 'withdrawIcp');
-			if (!status.success) {
-				toasts.add(Toast.error(status.message));
+			const withdrawStatus = handleIcpswapResult(withdrawResult, 'withdrawIcp');
+			if (withdrawStatus.success) {
+				toasts.add(Toast.error(swapStatus.message));
 			} else {
-				toasts.add(Toast.success(status.message));
+				toasts.add(Toast.success(withdrawStatus.message));
 			}
 			isConverting.set(false);
 		} catch (error) {
@@ -338,10 +336,10 @@
 				</button>
 			</div>
 			<p>
-				{#if fastUnstakeAmount}
+				{#if fastUnstakeAmount.isGreaterThanOrEqualTo(0.0002)}
 					Receive {displayUsFormat(fastUnstakeAmount.minus(BigNumber(0.0002)), 8)} ICP
 				{:else}
-					-/-
+					Receive 0 ICP
 				{/if}
 			</p>
 			<button
@@ -352,7 +350,10 @@
 				on:click={withdrawIcpswapTokens}
 			>
 				Failed swap?
-				<p style:display={showFailedHelp ? 'flex' : 'none'} class="help-content left transform-left">
+				<p
+					style:display={showFailedHelp ? 'flex' : 'none'}
+					class="help-content left transform-left"
+				>
 					If a swap is unsuccessful, click here to retrieve the deposited nICP to your wallet.
 				</p>
 			</button>
@@ -448,9 +449,9 @@
 		display: flex;
 		flex-direction: column;
 		padding: 1em;
-		border-left: 2px solid var(--border-color);
-		border-right: 2px solid var(--border-color);
-		border-bottom: 2px solid var(--border-color);
+		border-left: var(--input-border);
+		border-right: var(--input-border);
+		border-bottom: var(--input-border);
 		border-bottom-left-radius: 10px;
 		border-bottom-right-radius: 10px;
 		background-color: var(--background-color);
@@ -465,7 +466,7 @@
 
 	.unstake-selection-container {
 		display: flex;
-		border: 2px solid var(--border-color);
+		border: var(--input-border);
 		border-radius: 8px;
 		padding: 1em;
 	}
@@ -542,7 +543,6 @@
 		background: none;
 		border: none;
 		text-decoration: underline;
-		font-style: italic;
 		font-size: 12px;
 		padding: 0;
 		color: var(--text-color);
@@ -554,7 +554,6 @@
 		color: var(--text-color);
 		text-align: left;
 		padding: 1em;
-		font-style: italic;
 		border-radius: 8px;
 		width: 200px;
 		position: absolute;
@@ -562,8 +561,8 @@
 		left: 50%;
 		transform: translate(-50%, 0);
 		z-index: 1;
-		border: 1px solid black;
-		box-shadow: 3px 3px 0 0 #8e8b8b;
+		border: var(--input-border);
+		box-shadow: 2px 2px 0 0 #8e8b8b;
 	}
 
 	.delay-header {
@@ -624,13 +623,13 @@
 
 		.transform-left {
 			transform: translate(0%, 0);
-		} 
+		}
 
 		.transform-right {
 			transform: translate(-100%, 0);
 		}
 
-		.left { 
+		.left {
 			left: 0;
 		}
 	}

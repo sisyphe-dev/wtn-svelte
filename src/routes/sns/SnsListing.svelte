@@ -98,7 +98,7 @@
 		padding: 1em;
 		background-color: var(--background-color);
 		border-radius: 8px;
-		border-right: 2px solid var(--border-color);
+		border-right: var(--input-border);
 	}
 
 	/* === Component === */

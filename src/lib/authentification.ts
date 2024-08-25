@@ -25,7 +25,9 @@ export const HOST = DEV ? 'http://127.0.1:8080' : 'https://ic0.app';
 const CANISTER_ID_II = DEV ? 'iidmm-fiaaa-aaaaq-aadmq-cai' : 'rdmx6-jaaaa-aaaaa-aaadq-cai';
 const CANISTER_ID_WTN_LEDGER = 'jcmow-hyaaa-aaaaq-aadlq-cai';
 export const CANISTER_ID_ICP_LEDGER = 'ryjl3-tyaaa-aaaaa-aaaba-cai';
-export const CANISTER_ID_NICP_LEDGER = DEV ? 'ny7ez-6aaaa-aaaam-acc5q-cai' : 'buwm7-7yaaa-aaaar-qagva-cai';
+export const CANISTER_ID_NICP_LEDGER = DEV
+	? 'ny7ez-6aaaa-aaaam-acc5q-cai'
+	: 'buwm7-7yaaa-aaaar-qagva-cai';
 export const CANISTER_ID_BOOMERANG = 'daijl-2yaaa-aaaar-qag3a-cai';
 export const CANISTER_ID_WATER_NEURON = DEV
 	? 'n76cn-tyaaa-aaaam-acc5a-cai'
@@ -61,7 +63,7 @@ export async function internetIdentitySignIn(): Promise<AuthResult> {
 				await authClient.login({
 					maxTimeToLive: AUTH_MAX_TIME_TO_LIVE,
 					allowPinAuthentication: true,
-					derivationOrigin: derivation,
+					derivationOrigin: undefined,
 					onSuccess: async () => {
 						const identity: Identity = authClient?.getIdentity();
 						const agent = new HttpAgent({

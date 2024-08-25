@@ -194,9 +194,9 @@
 		display: flex;
 		flex-direction: column;
 		padding: 1em;
-		border-left: 2px solid var(--border-color);
-		border-right: 2px solid var(--border-color);
-		border-bottom: 2px solid var(--border-color);
+		border-left: var(--input-border);
+		border-right: var(--input-border);
+		border-bottom: var(--input-border);
 		border-bottom-left-radius: 10px;
 		border-bottom-right-radius: 10px;
 		background-color: var(--background-color);

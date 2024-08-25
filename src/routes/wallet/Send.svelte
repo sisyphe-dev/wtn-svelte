@@ -308,7 +308,7 @@
 		color: var(--stake-text-color);
 		padding: 2em;
 		border-radius: 15px;
-		border: 2px solid var(--border-color);
+		border: var(--input-border);
 	}
 
 	.header-container {

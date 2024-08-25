@@ -87,17 +87,17 @@
 
 	/* === Utilities === */
 	.selected {
-		border-left: 2px solid var(--border-color);
-		border-top: 2px solid var(--border-color);
-		border-right: 2px solid var(--border-color);
+		border-left: var(--input-border);
+		border-top: var(--input-border);
+		border-right: var(--input-border);
 		background-color: var(--background-color);
 	}
 
 	.not-selected {
-		border-left: 2px solid #5d6b77;
-		border-top: 2px solid #5d6b77;
-		border-right: 2px solid #5d6b77;
-		border-bottom: 2px solid var(--border-color);
+		border-left: 1px solid #5d6b77;
+		border-top: 1px solid #5d6b77;
+		border-right: 1px solid #5d6b77;
+		border-bottom: var(--input-border);
 		background-color: var(--unselected-header-color);
 		color: var(--unselected-header-text-color);
 		cursor: pointer;
