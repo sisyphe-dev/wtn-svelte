@@ -1,12 +1,5 @@
 <script lang="ts">
-	import {
-		Asset,
-		AssetType,
-		computeRewards,
-		displayUsFormat,
-		numberToBigintE8s,
-		computeReceiveAmount
-	} from '$lib';
+	import { Asset, AssetType, displayUsFormat, numberToBigintE8s, computeReceiveAmount } from '$lib';
 	import ChangeIcon from '$lib/icons/ChangeIcon.svelte';
 	import SwapInput from './SwapInput.svelte';
 	import { Toast } from '$lib/toast';

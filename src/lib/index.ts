@@ -22,7 +22,7 @@ export function displayUsFormat(value: BigNumber, decimals = 2): string {
 	const converted = truncatedValue.toFixed(decimals);
 
 	return new Intl.NumberFormat('en-US', {
-		minimumFractionDigits: decimals,
+		minimumFractionDigits: 0,
 		maximumFractionDigits: decimals
 	})
 		.format(Number(converted))
