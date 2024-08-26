@@ -134,7 +134,7 @@
 			<p style:margin-right={'2.5em'}>
 				Future WTN Airdrop:
 				{#if totalIcpDeposited && !BigNumber($inputAmount).isNaN()}
-					{displayUsFormat(computeRewards(totalIcpDeposited, BigNumber($inputAmount)), 8)}
+					{displayUsFormat(computeRewards(totalIcpDeposited, BigNumber($inputAmount)), 3)}
 				{:else}
 					-/-
 				{/if}
