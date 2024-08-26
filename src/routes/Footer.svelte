@@ -3,7 +3,7 @@
 	import OpenChatIcon from '$lib/icons/OpenChatIcon.svelte';
 	import TelegramIcon from '$lib/icons/TelegramIcon.svelte';
 	import TwitterIcon from '$lib/icons/TwitterIcon.svelte';
-	import GitbookIcon from '$lib/icons/GitbookIcon.svelte';
+	import GitBookIcon from '$lib/icons/GitBookIcon.svelte';
 	import GithubIcon from '$lib/icons/GithubIcon.svelte';
 </script>
 
@@ -25,7 +25,7 @@
 			<TwitterIcon />
 		</a>
 		<a class="item--4" href="https://docs.waterneuron.fi/" rel="noreferrer" target="_blank">
-			<GitbookIcon />
+			<GitBookIcon />
 		</a>
 		<a class="item--2" href="https://t.me/waterneuron" rel="noreferrer" target="_blank">
 			<TelegramIcon />

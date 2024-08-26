@@ -47,7 +47,7 @@
 		<b>APY</b>
 		<b
 			>{#if apy}
-				{displayUsFormat(BigNumber(100).multipliedBy(apy), 1)} %
+				{displayUsFormat(BigNumber(100).multipliedBy(apy), 1)}%
 			{:else}
 				-/-
 			{/if}</b
