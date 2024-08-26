@@ -49,7 +49,7 @@
 		<b>TVL</b>
 		<b>
 			{#if totalStaked}
-				{displayUsFormat(totalStaked, 2)} ICP
+				{displayUsFormat(totalStaked, 0)} ICP
 			{:else}
 				-/-
 			{/if}
