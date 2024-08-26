@@ -9,26 +9,39 @@
 	let apy: BigNumber;
 	let stakersCount: Number;
 
-	const fetchData = async () => {
-		if ($waterNeuronInfo)
+	async function getLedgerBalanceStoreEntries() {
+		try {
+			const url = 'https://buwm7-7yaaa-aaaar-qagva-cai.raw.icp0.io/metrics';
+			const response = await fetch(url);
+
+			if (!response.ok) {
+				throw new Error(`HTTP error! status: ${response.status}`);
+			}
+
+			const data = await response.text();
+			const match = data.match(/ledger_balance_store_entries\s+(\d+)/);
+			if (match) {
+				stakersCount = parseInt(match[1], 10);
+			}
+		} catch (error) {
+			console.error('Error fetching or parsing data:', error);
+		}
+	}
+
+	afterUpdate(() => {
+		if ($waterNeuronInfo) {
 			try {
 				apy = $waterNeuronInfo.apy();
-				stakersCount = $waterNeuronInfo.stakersCount();
+				// stakersCount = $waterNeuronInfo.stakersCount();
 				totalStaked = $waterNeuronInfo.neuron8yStake().plus($waterNeuronInfo.neuron6mStake());
 			} catch (error) {
 				console.error('Error fetching data:', error);
 			}
-	};
-
-	afterUpdate(() => {
-		if ($waterNeuronInfo) {
-			fetchData();
 		}
 	});
 
 	onMount(() => {
-		const intervalId = setInterval(fetchData, 5000);
-		return () => clearInterval(intervalId);
+		getLedgerBalanceStoreEntries();
 	});
 </script>
 
