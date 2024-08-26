@@ -32,7 +32,6 @@
 		if ($waterNeuronInfo) {
 			try {
 				apy = $waterNeuronInfo.apy();
-				// stakersCount = $waterNeuronInfo.stakersCount();
 				totalStaked = $waterNeuronInfo.neuron8yStake().plus($waterNeuronInfo.neuron6mStake());
 			} catch (error) {
 				console.error('Error fetching data:', error);
