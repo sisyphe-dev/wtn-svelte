@@ -110,6 +110,7 @@ test('computeRewards', () => {
 	expect(computeRewards(BigNumber(20_000), BigNumber(100)).eq(BigNumber(800))).toBeTruthy();
 	expect(computeRewards(BigNumber(0), BigNumber(10)).eq(BigNumber(80))).toBeTruthy();
 	expect(computeRewards(BigNumber(totalThresholds), BigNumber(10)).isZero()).toBeTruthy();
+	expect(computeRewards(BigNumber(100_000), BigNumber(1)).eq(BigNumber(4))).toBeTruthy();
 	expect(totalThresholds).toBe(10_160_000);
 
 	const total = TIERS.reduce(

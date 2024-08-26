@@ -134,13 +134,10 @@
 			<p style:margin-right={'2.5em'}>
 				Future WTN Airdrop:
 				{#if exchangeRate && totalIcpDeposited}
-					{displayUsFormat(
-						computeRewards(
-							totalIcpDeposited,
-							computeReceiveAmount(true, BigNumber($inputAmount), exchangeRate)
-						),
-						8
-					)}
+					{computeRewards(
+						totalIcpDeposited,
+						computeReceiveAmount(true, BigNumber($inputAmount), exchangeRate)
+					).toFixed(2)}
 				{:else}
 					-/-
 				{/if}
