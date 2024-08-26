@@ -83,10 +83,6 @@
 		background-color: var(--sns-selected-button-color);
 	}
 
-	img {
-		transform: rotate(180deg);
-	}
-
 	/* === Layout === */
 	.sns-selection-container {
 		display: flex;

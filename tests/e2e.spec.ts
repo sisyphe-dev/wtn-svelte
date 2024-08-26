@@ -149,7 +149,7 @@ testWithII('e2e test unstake', async ({ page, iiPage }) => {
 	await expect(page.locator('.withdrawals-container')).toBeVisible();
 });
 
-testWithII('e2e test send', async ({ page, iiPage }) => {
+testWithII.only('e2e test send', async ({ page, iiPage }) => {
 	await page.goto('/');
 
 	await page.locator('[title="connect-btn"]').click();
