@@ -154,7 +154,6 @@ export function computeRewards(alreadyDistributed: BigNumber, converting: BigNum
 		}
 	}
 
-	console.log(totalRewards);
 	return totalRewards;
 }
 
