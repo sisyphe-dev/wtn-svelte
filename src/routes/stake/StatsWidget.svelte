@@ -46,7 +46,7 @@
 
 <div class="stat-widget-container" in:fade={{ duration: 500 }}>
 	<div class="stat-item">
-		<b>Total Staked</b>
+		<b>TVL</b>
 		<b>
 			{#if totalStaked}
 				{displayUsFormat(totalStaked, 2)} ICP
@@ -66,7 +66,7 @@
 		>
 	</div>
 	<div class="stat-item">
-		<b>Stakers</b>
+		<b>Holders</b>
 		<b>
 			{#if stakersCount || stakersCount === 0}
 				{stakersCount}
