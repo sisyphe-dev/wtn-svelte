@@ -298,7 +298,7 @@
 				<ErrorIcon /> Minimum: {displayUsFormat(minimumWithdraw, 4)} nICP
 			{/if}
 		</span>
-		<p>
+		<p style:padding-right="0.4em">
 			<button class="change-btn" on:click={() => (invertExchangeRate = !invertExchangeRate)}>
 				<ChangeIcon />
 			</button>

@@ -61,7 +61,10 @@ const DAO_SHARE = BigNumber(0.1);
 const APY_6M = BigNumber(0.08);
 const APY_8Y = BigNumber(0.15);
 
-export async function fetchWtnAllocation(principal: Principal, waterNeuron: waterNeuronInterface): Promise<bigint | undefined> {
+export async function fetchWtnAllocation(
+	principal: Principal,
+	waterNeuron: waterNeuronInterface
+): Promise<bigint | undefined> {
 	try {
 		return await waterNeuron.get_airdrop_allocation([principal]);
 	} catch (e) {
