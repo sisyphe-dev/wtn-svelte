@@ -96,7 +96,7 @@
 		isConverting.set(false);
 	}
 
-	const approveInSwap = async (spender: Approve, amountE8s: bigint, fee: bigint) => {
+	const approveInFastUnstake = async (spender: Approve, amountE8s: bigint, fee: bigint) => {
 		const approveResult: ApproveResult = await $canisters.nicpLedger.icrc2_approve({
 			spender,
 			fee: [],
@@ -115,7 +115,7 @@
 		}
 	};
 
-	const depositInSwap = async (amountE8s: bigint, fee: bigint) => {
+	const depositInFastUnstake = async (amountE8s: bigint, fee: bigint) => {
 		const depositResult = await $canisters.icpswap.depositFrom({
 			fee,
 			token: CANISTER_ID_NICP_LEDGER,
@@ -135,7 +135,7 @@
 		return depositResult;
 	};
 
-	const swapInSwap = async (amountIn: string, amountOut: string) => {
+	const swapInFastUnstake = async (amountIn: string, amountOut: string) => {
 		const swapResult = await $canisters.icpswap.swap({
 			amountIn: amountIn.toString(),
 			zeroForOne: true,
@@ -155,7 +155,7 @@
 		return swapResult;
 	};
 
-	const withdrawInSwap = async (amountToWithdrawE8s: bigint) => {
+	const withdrawInFastUnstake = async (amountToWithdrawE8s: bigint) => {
 		const withdrawResult = await $canisters.icpswap.withdraw({
 			fee,
 			token: CANISTER_ID_ICP_LEDGER,
@@ -194,20 +194,20 @@
 			} as AllowanceArgs);
 			const allowance = allowanceResult['allowance'];
 			if (numberToBigintE8s(amount) > allowance) {
-				await approveInSwap(spender, amountE8s, fee);
+				await approveInFastUnstake(spender, amountE8s, fee);
 			}
 
 			// 2. Deposit
-			const depositResult = await depositInSwap(amountE8s - fee, fee);
+			const depositResult = await depositInFastUnstake(amountE8s - fee, fee);
 
 			// 3. Swap
 			const amountIn = depositResult['ok'];
 			const amountOut = numberToBigintE8s(fastUnstakeAmount.multipliedBy(BigNumber(0.98)));
-			const swapResult = await swapInSwap(amountIn, amountOut);
+			const swapResult = await swapInFastUnstake(amountIn, amountOut);
 
 			// 4. Withdraw
 			const amountToWithdrawE8s = swapResult['ok'];
-			await withdrawInSwap(amountToWithdrawE8s);
+			await withdrawInFastUnstake(amountToWithdrawE8s);
 		} catch (error) {
 			console.log('[fastUnstake] error:', error);
 			toasts.add(Toast.error(DEFAULT_ERROR_MESSAGE));
