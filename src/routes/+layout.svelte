@@ -35,7 +35,7 @@
 			$user.icpBalanceE8s = await fetchIcpBalance($user.principal, $canisters.icpLedger);
 			$user.nicpBalanceE8s = await fetchNicpBalance($user.principal, $canisters.nicpLedger);
 			$user.wtnBalanceE8s = await fetchWtnBalance($user.principal, $canisters.wtnLedger);
-			$user.wtnAllocationE8s = await fetchWtnAllocation($user.principal);
+			$user.wtnAllocationE8s = await fetchWtnAllocation($user.principal, $canisters.waterNeuron);
 		}
 	}
 

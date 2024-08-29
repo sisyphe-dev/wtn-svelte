@@ -10,11 +10,7 @@ import type {
 	CanisterInfo,
 	_SERVICE as waterNeuronInterface
 } from '../declarations/water_neuron/water_neuron.did';
-import { idlFactory as idlFactoryWaterNeuron } from '../declarations/water_neuron';
-import { HOST, CANISTER_ID_WATER_NEURON, type Actors } from './authentification';
-import { HttpAgent, Actor, makeNonceTransform } from '@dfinity/agent';
-import { Ed25519KeyIdentity } from '@dfinity/identity';
-import { IDL } from '@dfinity/candid';
+import type { Actors } from './authentification';
 
 export class User {
 	public principal: Principal;
@@ -65,39 +61,8 @@ const DAO_SHARE = BigNumber(0.1);
 const APY_6M = BigNumber(0.08);
 const APY_8Y = BigNumber(0.15);
 
-async function createSecp256k1IdentityActor(
-	canisterId: Principal,
-	idl: IDL.InterfaceFactory
-): Promise<any> {
-	const dummyIdentity = Ed25519KeyIdentity.generate();
-
-	const dummyAgent = Promise.resolve(new HttpAgent({ host: HOST, identity: dummyIdentity })).then(
-		async (agent) => {
-			if (process.env.DFX_NETWORK !== 'ic') {
-				agent.fetchRootKey().catch((err) => {
-					console.warn(
-						'Unable to fetch root key. Check to ensure that your local replica is running'
-					);
-					console.error(err);
-				});
-			}
-			agent.addTransform('query', makeNonceTransform());
-			return agent;
-		}
-	);
-
-	return Actor.createActor(idl, {
-		canisterId,
-		agent: await dummyAgent
-	}) as any;
-}
-
-export async function fetchWtnAllocation(principal: Principal): Promise<bigint | undefined> {
+export async function fetchWtnAllocation(principal: Principal, waterNeuron: waterNeuronInterface): Promise<bigint | undefined> {
 	try {
-		const waterNeuron = await createSecp256k1IdentityActor(
-			Principal.fromText(CANISTER_ID_WATER_NEURON),
-			idlFactoryWaterNeuron
-		);
 		return await waterNeuron.get_airdrop_allocation([principal]);
 	} catch (e) {
 		console.log('Error while fetching airdrop allocation:', e);
