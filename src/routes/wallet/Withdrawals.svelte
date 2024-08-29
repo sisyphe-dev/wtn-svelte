@@ -50,7 +50,9 @@
 				});
 			}
 
-			withdrawalRequests = await waterNeuron.get_withdrawal_requests([$user.principal]);
+			withdrawalRequests = await waterNeuron.get_withdrawal_requests([
+				{ owner: $user.principal, subaccount: [] }
+			]);
 			await fetchStatuses();
 		}
 	};
