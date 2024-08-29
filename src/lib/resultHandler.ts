@@ -20,10 +20,6 @@ import type {
 	Result as SnsIcpDepositResult,
 	Result_2 as SnsRetrieveNicpResult
 } from '../declarations/boomerang/boomerang.did';
-import type {
-	Result as IcpSwapResult,
-	Error as IcpSwapError
-} from '../declarations/icpswap/icpswap.did';
 import { Asset, AssetType, bigintE8sToNumber, displayUsFormat } from '$lib';
 import type {
 	TransferResult,
@@ -447,110 +443,6 @@ export function handleIcrcTransferResult(result: Icrc1TransferResult, asset: Ass
 
 		case 'Err':
 			return handleTransferFromError(result[key]);
-
-		default:
-			return {
-				success: false,
-				message: DEFAULT_ERROR_MESSAGE
-			};
-	}
-}
-
-export function handleIcpswapError(
-	error: IcpSwapError,
-	action: 'deposit' | 'withdrawIcp' | 'withdrawNicp' | 'swap' | 'quote'
-): ToastResult {
-	const key = Object.keys(error)[0] as keyof IcpSwapError;
-	let message: string;
-	switch (action) {
-		case 'deposit':
-			message = 'Deposit call failed. Please try again.';
-			break;
-		case 'withdrawIcp':
-			message = 'Withdraw call failed. Please try again.';
-			break;
-		case 'withdrawNicp':
-			message = 'Withdraw call failed. Please try again.';
-			break;
-		case 'swap':
-			message = 'Swap call failed. Please try again.';
-			break;
-		case 'quote':
-			message = 'Quote call failed. Please try again.';
-			break;
-		default:
-			message = 'Icpswap call failed. Please try again.';
-	}
-
-	if (action !== 'quote') {
-		console.log('[Icpswap call] error:', error[key]);
-	}
-	switch (key) {
-		case 'CommonError':
-			return {
-				success: false,
-				message
-			};
-		case 'InternalError':
-			console.log(error[key]);
-			return {
-				success: false,
-				message
-			};
-		case 'UnsupportedToken':
-			return {
-				success: false,
-				message
-			};
-		case 'InsufficientFunds':
-			return {
-				success: false,
-				message
-			};
-		default:
-			return {
-				success: false,
-				message: DEFAULT_ERROR_MESSAGE
-			};
-	}
-}
-
-export function handleIcpswapResult(
-	result: IcpSwapResult,
-	action: 'deposit' | 'withdrawIcp' | 'withdrawNicp' | 'swap' | 'quote'
-): ToastResult {
-	const key = Object.keys(result)[0] as keyof IcpSwapResult;
-	switch (key) {
-		case 'ok':
-			switch (action) {
-				case 'deposit':
-					return { success: true, message: `Successful deposit on ICPswap.` };
-				case 'withdrawIcp':
-					const withdrawIcpAmount = displayUsFormat(bigintE8sToNumber(result[key]), 4);
-					return {
-						success: true,
-						message: `Successful withdraw of ${withdrawIcpAmount} ICP on ICPswap.`
-					};
-				case 'withdrawNicp':
-					const withdrawNicpAmount = displayUsFormat(bigintE8sToNumber(result[key]), 4);
-					return {
-						success: true,
-						message: `Successful withdraw of ${withdrawNicpAmount} nICP on ICPswap.`
-					};
-				case 'swap':
-					const swapAmount = displayUsFormat(bigintE8sToNumber(result[key] - 10_000n), 4);
-					return {
-						success: true,
-						message: `Successful swap on ICPswap. ${swapAmount} ICP retrieved.`
-					};
-				case 'quote':
-					return {
-						success: true,
-						message: ''
-					};
-			}
-		case 'err':
-			return handleIcpswapError(result[key], action);
 
 		default:
 			return {

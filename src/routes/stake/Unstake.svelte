@@ -25,7 +25,6 @@
 	import {
 		nicpTransferApproved,
 		handleUnstakeResult,
-		handleIcpswapResult,
 		handleApproveResult,
 		DEFAULT_ERROR_MESSAGE
 	} from '$lib/resultHandler';
@@ -97,6 +96,86 @@
 		isConverting.set(false);
 	}
 
+	const approveInSwap = async (spender: Approve, amountE8s: bigint, fee: bigint) => {
+		const approveResult: ApproveResult = await $canisters.nicpLedger.icrc2_approve({
+			spender,
+			fee: [],
+			memo: [],
+			from_subaccount: [],
+			created_at_time: [],
+			expires_at: [],
+			expected_allowance: [],
+			amount: amountE8s
+		} as ApproveArgs);
+
+		const status = handleApproveResult(approveResult);
+		if (!status.success) {
+			toasts.add(Toast.error(status.message));
+			isConverting.set(false);
+		}
+	};
+
+	const depositInSwap = async (amountE8s: bigint, fee: bigint) => {
+		const depositResult = await $canisters.icpswap.depositFrom({
+			fee,
+			token: CANISTER_ID_NICP_LEDGER,
+			amount: amountE8s - fee
+		} as DepositArgs);
+		const key = Object.keys(depositResult)[0] as keyof IcpSwapResult;
+		switch (key) {
+			case 'ok':
+				break;
+			case 'err':
+				const error = depositResult[key];
+				const errorKey = Object.keys(error)[0] as keyof IcpSwapError;
+				console.log('[ICPSwap deposit] error:', error[errorKey]);
+				toasts.add(Toast.error('Failed to deposit nICP on ICPSwap. Please try again.'));
+				break;
+		}
+		return depositResult;
+	};
+
+	const swapInSwap = async (amountIn: string, amountOut: string) => {
+		const swapResult = await $canisters.icpswap.swap({
+			amountIn: amountIn.toString(),
+			zeroForOne: true,
+			amountOutMinimum: amountOut.toString()
+		} as SwapArgs);
+		const key = Object.keys(swapResult)[0] as keyof IcpSwapResult;
+		switch (key) {
+			case 'ok':
+				break;
+			case 'err':
+				const error = swapResult[key];
+				const errorKey = Object.keys(error)[0] as keyof IcpSwapError;
+				console.log('[ICPSwap swap] error:', error[errorKey]);
+				toasts.add(Toast.error('Failed swap. Please try again.'));
+				break;
+		}
+		return swapResult;
+	};
+
+	const withdrawInSwap = async (amountToWithdrawE8s: bigint) => {
+		const withdrawResult = await $canisters.icpswap.withdraw({
+			fee,
+			token: CANISTER_ID_ICP_LEDGER,
+			amount: amountToWithdrawE8s
+		} as WithdrawArgs);
+		const key = Object.keys(withdrawResult)[0] as keyof IcpSwapResult;
+		switch (key) {
+			case 'ok':
+				const swapAmount = displayUsFormat(bigintE8sToNumber(withdrawResult[key]), 4);
+				toasts.add(Toast.success(`Successful swap. ${swapAmount} ICP retrieved.`));
+				break;
+			case 'err':
+				const error = withdrawResult[key];
+				const errorKey = Object.keys(error)[0] as keyof IcpSwapError;
+				console.log('[ICPSwap withdraw] error:', error[errorKey]);
+				toasts.add(Toast.error('Failed swap. Please try again.'));
+				break;
+		}
+	};
+
 	async function fastUnstake(amount: BigNumber) {
 		if (!$canisters || !$user || $isConverting || amount.isNaN() || !fastUnstakeAmount) return;
 		const fee = 10_000n;
@@ -115,73 +194,25 @@
 			} as AllowanceArgs);
 			const allowance = allowanceResult['allowance'];
 			if (numberToBigintE8s(amount) > allowance) {
-				const approveResult: ApproveResult = await $canisters.nicpLedger.icrc2_approve({
-					spender,
-					fee: [],
-					memo: [],
-					from_subaccount: [],
-					created_at_time: [],
-					expires_at: [],
-					expected_allowance: [],
-					amount: amountE8s
-				} as ApproveArgs);
-
-				const status = handleApproveResult(approveResult);
-				if (!status.success) {
-					toasts.add(Toast.error(status.message));
-					isConverting.set(false);
-					return;
-				}
+				await approveInSwap(spender, amountE8s, fee);
 			}
 
 			// 2. Deposit
-			const depositResult = await $canisters.icpswap.depositFrom({
-				fee,
-				token: CANISTER_ID_NICP_LEDGER,
-				amount: amountE8s - fee
-			} as DepositArgs);
-			const depositStatus = handleIcpswapResult(depositResult, 'deposit');
-			if (!depositStatus.success) {
-				toasts.add(Toast.error(depositStatus.message));
-				isConverting.set(false);
-				return;
-			}
+			const depositResult = await depositInSwap(amountE8s - fee, fee);
 
 			// 3. Swap
 			const amountIn = depositResult['ok'];
 			const amountOut = numberToBigintE8s(fastUnstakeAmount.multipliedBy(BigNumber(0.98)));
-			const swapResult = await $canisters.icpswap.swap({
-				amountIn: amountIn.toString(),
-				zeroForOne: true,
-				amountOutMinimum: amountOut.toString()
-			} as SwapArgs);
-			const swapStatus = handleIcpswapResult(swapResult, 'swap');
-			if (!swapStatus.success) {
-				toasts.add(Toast.error(swapStatus.message));
-				isConverting.set(false);
-				return;
-			}
+			const swapResult = await swapInSwap(amountIn, amountOut);
 
 			// 4. Withdraw
 			const amountToWithdrawE8s = swapResult['ok'];
-			const withdrawResult = await $canisters.icpswap.withdraw({
-				fee,
-				token: CANISTER_ID_ICP_LEDGER,
-				amount: amountToWithdrawE8s
-			} as WithdrawArgs);
-			const withdrawStatus = handleIcpswapResult(withdrawResult, 'withdrawIcp');
-			if (withdrawStatus.success) {
-				toasts.add(Toast.success(swapStatus.message));
-			} else {
-				toasts.add(Toast.error(withdrawStatus.message));
-			}
-			isConverting.set(false);
+			await withdrawInSwap(amountToWithdrawE8s);
 		} catch (error) {
 			console.log('[fastUnstake] error:', error);
 			toasts.add(Toast.error(DEFAULT_ERROR_MESSAGE));
-			isConverting.set(false);
-			return;
 		}
+		isConverting.set(false);
 	}
 
 	async function withdrawIcpswapTokens() {
@@ -205,13 +236,21 @@
 							token: CANISTER_ID_NICP_LEDGER,
 							amount: nicpBalanceE8s - fee
 						} as WithdrawArgs);
-						console.log(withdrawNicpResult);
-						const status = handleIcpswapResult(withdrawNicpResult, 'withdrawNicp');
-						console.log(status);
-						if (!status.success) {
-							toasts.add(Toast.error(status.message));
-						} else {
-							toasts.add(Toast.success(status.message));
+
+						const key = Object.keys(withdrawNicpResult)[0] as keyof IcpSwapResult;
+						switch (key) {
+							case 'ok':
+								const withdrawNicpAmount = displayUsFormat(
+									bigintE8sToNumber(withdrawNicpResult[key]),
+									4
+								);
+								toasts.add(
+									Toast.success(`Successful withdraw of ${withdrawNicpAmount} nICP on ICPswap.`)
+								);
+								break;
+							case 'err':
+								toasts.add(Toast.error('Failed to withdraw nICP on ICPSwap. Please try again.'));
+								break;
 						}
 					}
 
@@ -222,11 +261,21 @@
 							token: CANISTER_ID_ICP_LEDGER,
 							amount: icpBalanceE8s - fee
 						} as WithdrawArgs);
-						const status = handleIcpswapResult(withdrawIcpResult, 'withdrawIcp');
-						if (!status.success) {
-							toasts.add(Toast.error(status.message));
-						} else {
-							toasts.add(Toast.success(status.message));
+
+						const key = Object.keys(withdrawIcpResult)[0] as keyof IcpSwapResult;
+						switch (key) {
+							case 'ok':
+								const withdrawIcpAmount = displayUsFormat(
+									bigintE8sToNumber(withdrawIcpResult[key]),
+									4
+								);
+								toasts.add(
+									Toast.success(`Successful withdraw of ${withdrawIcpAmount} ICP on ICPswap.`)
+								);
+								break;
+							case 'err':
+								toasts.add(Toast.error('Failed to withdraw ICP on ICPSwap. Please try again.'));
+								break;
 						}
 					}
 			}
@@ -252,11 +301,14 @@
 				amountOutMinimum: amountOut.toString()
 			} as SwapArgs);
 
-			const status = handleIcpswapResult(result, 'quote');
-			if (status.success) {
-				fastUnstakeAmount = bigintE8sToNumber(result['ok']);
-			} else {
-				fastUnstakeAmount = BigNumber(0);
+			const key = Object.keys(result)[0] as keyof IcpSwapResult;
+			switch (key) {
+				case 'ok':
+					fastUnstakeAmount = bigintE8sToNumber(result['ok']);
+					break;
+				case 'err':
+					fastUnstakeAmount = BigNumber(0);
+					break;
 			}
 		} catch (error) {
 			console.log(error);
