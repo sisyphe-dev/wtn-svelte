@@ -442,9 +442,7 @@
 					-/-
 				{/if}
 			</p>
-			<h2 class="waiting-time">
-				Waiting time: 6 months
-			</h2>
+			<h2 class="waiting-time">Waiting time: 6 months</h2>
 		</button>
 	</div>
 	{#if !$user}
@@ -628,6 +626,7 @@
 
 	.waiting-time {
 		font-size: 13px;
+		text-align: start;
 	}
 
 	/* === Utilities === */
