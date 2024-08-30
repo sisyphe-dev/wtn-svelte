@@ -627,6 +627,7 @@
 	.waiting-time {
 		font-size: 13px;
 		text-align: start;
+		font-weight: lighter;
 	}
 
 	/* === Utilities === */
