@@ -21,7 +21,7 @@
 					height="32px"
 					viewBox="0 0 24 24"
 					fill="none"
-					stroke="white"
+					stroke="var(--svg-fill-color)"
 					stroke-width="2"
 					stroke-linecap="round"
 					stroke-linejoin="round"
@@ -62,7 +62,7 @@
 	/* === Base Styles === */
 	h1 {
 		font-family: var(--main-font);
-		color: white;
+		color: var(--title-color);
 	}
 	/* === Layout === */
 	.background-menu {
@@ -109,7 +109,7 @@
 	}
 
 	.sns-btn-selection {
-		color: white;
+		color: var(--title-color);
 		cursor: pointer;
 		display: flex;
 		width: 80%;
