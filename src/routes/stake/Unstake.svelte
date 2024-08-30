@@ -49,6 +49,7 @@
 	let showFailedHelp = false;
 	let showImmediateHelp = false;
 	let showDelayedHelp = false;
+	const FEE = 10_000n;
 
 	async function nicpToIcp(amount: BigNumber) {
 		if (
@@ -96,7 +97,7 @@
 		isConverting.set(false);
 	}
 
-	const approveInFastUnstake = async (spender: Approve, amountE8s: bigint, fee: bigint) => {
+	const approveInFastUnstake = async (spender: Approve, amountE8s: bigint) => {
 		const approveResult: ApproveResult = await $canisters.nicpLedger.icrc2_approve({
 			spender,
 			fee: [],
@@ -115,11 +116,11 @@
 		}
 	};
 
-	const depositInFastUnstake = async (amountE8s: bigint, fee: bigint) => {
+	const depositInFastUnstake = async (amountE8s: bigint) => {
 		const depositResult = await $canisters.icpswap.depositFrom({
-			fee,
+			fee: FEE,
 			token: CANISTER_ID_NICP_LEDGER,
-			amount: amountE8s - fee
+			amount: amountE8s - FEE
 		} as DepositArgs);
 		const key = Object.keys(depositResult)[0] as keyof IcpSwapResult;
 		switch (key) {
@@ -157,7 +158,7 @@
 
 	const withdrawInFastUnstake = async (amountToWithdrawE8s: bigint) => {
 		const withdrawResult = await $canisters.icpswap.withdraw({
-			fee,
+			fee: FEE,
 			token: CANISTER_ID_ICP_LEDGER,
 			amount: amountToWithdrawE8s
 		} as WithdrawArgs);
@@ -178,7 +179,6 @@
 
 	async function fastUnstake(amount: BigNumber) {
 		if (!$canisters || !$user || $isConverting || amount.isNaN() || !fastUnstakeAmount) return;
-		const fee = 10_000n;
 		isConverting.set(true);
 		try {
 			let amountE8s = numberToBigintE8s(amount);
@@ -194,11 +194,11 @@
 			} as AllowanceArgs);
 			const allowance = allowanceResult['allowance'];
 			if (numberToBigintE8s(amount) > allowance) {
-				await approveInFastUnstake(spender, amountE8s, fee);
+				await approveInFastUnstake(spender, amountE8s);
 			}
 
 			// 2. Deposit
-			const depositResult = await depositInFastUnstake(amountE8s - fee, fee);
+			const depositResult = await depositInFastUnstake(amountE8s);
 
 			// 3. Swap
 			const amountIn = depositResult['ok'];
@@ -215,9 +215,8 @@
 		isConverting.set(false);
 	}
 
-	async function withdrawIcpswapTokens() {
+	const withdrawIcpswapTokens = async () => {
 		if (!$canisters || !$user) return;
-		const fee = 10_000n;
 		isConverting.set(true);
 		try {
 			const result = await $canisters.icpswap.getUserUnusedBalance($user.principal);
@@ -230,11 +229,11 @@
 					break;
 				case 'ok':
 					const nicpBalanceE8s = result[key]['balance0'];
-					if (nicpBalanceE8s > fee) {
+					if (nicpBalanceE8s > FEE) {
 						const withdrawNicpResult = await $canisters.icpswap.withdraw({
-							fee,
+							fee: FEE,
 							token: CANISTER_ID_NICP_LEDGER,
-							amount: nicpBalanceE8s - fee
+							amount: nicpBalanceE8s - FEE
 						} as WithdrawArgs);
 
 						const key = Object.keys(withdrawNicpResult)[0] as keyof IcpSwapResult;
@@ -255,11 +254,11 @@
 					}
 
 					const icpBalanceE8s = result[key]['balance1'];
-					if (icpBalanceE8s > fee) {
+					if (icpBalanceE8s > FEE) {
 						const withdrawIcpResult = await $canisters.icpswap.withdraw({
-							fee,
+							fee: FEE,
 							token: CANISTER_ID_ICP_LEDGER,
-							amount: icpBalanceE8s - fee
+							amount: icpBalanceE8s - FEE
 						} as WithdrawArgs);
 
 						const key = Object.keys(withdrawIcpResult)[0] as keyof IcpSwapResult;
@@ -284,7 +283,7 @@
 			toasts.add(Toast.success(DEFAULT_ERROR_MESSAGE));
 		}
 		isConverting.set(false);
-	}
+	};
 
 	const computeReceiveAmountFastUnstake = async () => {
 		if (!$canisters) return;
@@ -383,7 +382,7 @@
 				>
 					<InfoIcon />
 					<p style:display={showImmediateHelp ? 'flex' : 'none'} class="help-content">
-						Immediate unstake via ICPSwap, traded at the current price with 2% slippage.
+						Immediate unstake via ICPSwap, traded at the current price with a 2% max-slippage.
 					</p>
 				</button>
 			</div>
@@ -428,8 +427,8 @@
 				>
 					<InfoIcon />
 					<p style:display={showDelayedHelp ? 'flex' : 'none'} class="help-content transform-right">
-						The protocol will split and dissolve a 6 months neuron. The nICP will be sent to your
-						wallet as soon as the dissolve delay ends.
+						The ICP will be sent to your wallet as soon as the 6 months dissolve delay is elapsed,
+						it is the minimum amount of time to get rewards on ICP.
 					</p>
 				</button>
 			</div>
