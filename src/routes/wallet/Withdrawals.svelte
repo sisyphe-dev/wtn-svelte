@@ -6,7 +6,7 @@
 		displayTimeLeft,
 		isMobile
 	} from '$lib';
-	import { user } from '$lib/stores';
+	import { user, canisters } from '$lib/stores';
 	import { onMount } from 'svelte';
 	import type { WithdrawalDetails, NeuronId } from '$declarations/water_neuron/water_neuron.did';
 	import { idlFactory as idlFactoryWaterNeuron } from '$declarations/water_neuron';
@@ -31,26 +31,8 @@
 	}
 
 	const fetchWithdrawals = async () => {
-		if ($user) {
-			const agent = new HttpAgent({
-				host: HOST
-			});
-
-			const waterNeuron: waterNeuronInterface = Actor.createActor(idlFactoryWaterNeuron, {
-				agent,
-				canisterId: CANISTER_ID_WATER_NEURON
-			});
-
-			if (process.env.DFX_NETWORK !== 'ic') {
-				agent.fetchRootKey().catch((err) => {
-					console.warn(
-						'Unable to fetch root key. Check to ensure that your local replica is running'
-					);
-					console.error(err);
-				});
-			}
-
-			withdrawalRequests = await waterNeuron.get_withdrawal_requests([
+		if ($user && $canisters) {
+			withdrawalRequests = await $canisters.waterNeuron.get_withdrawal_requests([
 				{ owner: $user.principal, subaccount: [] }
 			]);
 			await fetchStatuses();
@@ -167,7 +149,7 @@
 	/* === Layout === */
 	.withdrawals-container {
 		background-color: var(--background-color);
-		border: 2px solid var(--border-color);
+		border: var(--input-border);
 		border-radius: 10px;
 		color: var(--stake-text-color);
 		padding: 2em;

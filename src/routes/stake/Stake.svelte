@@ -9,6 +9,7 @@
 	import SwapInput from './SwapInput.svelte';
 	import { Toast } from '$lib/toast';
 	import ChangeIcon from '$lib/icons/ChangeIcon.svelte';
+	import ErrorIcon from '$lib/icons/ErrorIcon.svelte';
 	import {
 		inputAmount,
 		waterNeuronInfo,
@@ -21,7 +22,6 @@
 	import BigNumber from 'bignumber.js';
 	import {
 		icpTransferApproved,
-		nicpTransferApproved,
 		handleStakeResult,
 		DEFAULT_ERROR_MESSAGE
 	} from '$lib/resultHandler';
@@ -101,11 +101,13 @@
 <div class="swap-container">
 	<SwapInput asset={Asset.fromText('ICP')} />
 	<div class="paragraphs" in:fade={{ duration: 500 }}>
-		{#if $inputAmount && isNaN(parseFloat($inputAmount))}
-			<span class="error">Cannot read amount</span>
-		{:else if $inputAmount && parseFloat($inputAmount) < 1}
-			<span class="error">Minimum amount: 1 ICP</span>
-		{/if}
+		<span class="error">
+			{#if $inputAmount && isNaN(parseFloat($inputAmount))}
+				<ErrorIcon /> Cannot read amount
+			{:else if $inputAmount && parseFloat($inputAmount) < 1}
+				<ErrorIcon /> Minimum: 1 ICP
+			{/if}
+		</span>
 		<p style:color="var(--important-text-color)">
 			{#if exchangeRate}
 				You will receive {displayUsFormat(
@@ -173,7 +175,6 @@
 	p {
 		color: var(--text-color);
 		font-family: var(--secondary-font);
-		font-weight: bold;
 		text-align: end;
 		margin: 0;
 		display: flex;
@@ -182,18 +183,14 @@
 		gap: 0.2em;
 	}
 
-	span {
-		color: var(--main-button-text-color);
-	}
-
 	/* === Layout === */
 	.swap-container {
 		display: flex;
 		flex-direction: column;
 		padding: 1em;
-		border-left: 2px solid var(--border-color);
-		border-right: 2px solid var(--border-color);
-		border-bottom: 2px solid var(--border-color);
+		border-left: var(--input-border);
+		border-right: var(--input-border);
+		border-bottom: var(--input-border);
 		border-bottom-left-radius: 10px;
 		border-bottom-right-radius: 10px;
 		background-color: var(--background-color);
@@ -202,21 +199,23 @@
 
 	.paragraphs {
 		display: flex;
-		justify-content: space-around;
 		flex-direction: column;
-		height: 8em;
 		position: relative;
+		gap: 1em;
 	}
 
 	.error {
-		color: red;
+		display: flex;
+		align-items: center;
+		color: var(--title-color);
+		gap: 0.2em;
 		margin-left: 1em;
 		font-size: 16px;
 		font-family: var(--secondary-font);
-		position: absolute;
-		top: 0;
 		flex-wrap: wrap;
 		max-width: 45%;
+		position: absolute;
+		font-size: 14px;
 	}
 
 	/* === Components === */
@@ -260,6 +259,7 @@
 		display: flex;
 		justify-content: center;
 		align-items: center;
+		color: var(--main-button-text-color);
 	}
 
 	.swap-btn:hover {

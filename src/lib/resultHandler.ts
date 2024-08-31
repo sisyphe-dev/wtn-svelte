@@ -35,7 +35,7 @@ export interface ToastResult {
 	message: string;
 }
 
-function handleApproveError(error: ApproveError) {
+function handleApproveError(error: ApproveError): ToastResult {
 	const key = Object.keys(error)[0] as keyof ApproveError;
 
 	switch (key) {

@@ -25,5 +25,8 @@
 	},
 	"staging_frontend": {
 		"ic": "47pxu-byaaa-aaaap-ahpsa-cai"
+	},
+	"icpswap-pool": {
+		"ic": "e5a7x-pqaaa-aaaag-qkcga-cai"
 	}
 }

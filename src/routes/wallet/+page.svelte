@@ -97,7 +97,7 @@
 	/* === Layout === */
 	.wallet-menu-container {
 		background-color: var(--page-background);
-		border: 2px solid var(--border-color);
+		border: var(--input-border);
 		border-radius: 10px;
 		color: var(--stake-text-color);
 		padding: 2em;

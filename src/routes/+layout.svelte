@@ -35,7 +35,7 @@
 			$user.icpBalanceE8s = await fetchIcpBalance($user.principal, $canisters.icpLedger);
 			$user.nicpBalanceE8s = await fetchNicpBalance($user.principal, $canisters.nicpLedger);
 			$user.wtnBalanceE8s = await fetchWtnBalance($user.principal, $canisters.wtnLedger);
-			$user.wtnAllocationE8s = await fetchWtnAllocation($user.principal);
+			$user.wtnAllocationE8s = await fetchWtnAllocation($user.principal, $canisters.waterNeuron);
 		}
 	}
 
@@ -90,7 +90,10 @@
 <style>
 	/* === Variables === */
 	:root {
+		--unselected-header-color: #5d6b77;
+		--unselected-header-text-color: #c7c7c7;
 		--toast-text-color: var(--main-button-text-color);
+		--input-border: 1px solid var(--border-color);
 
 		--border-size: 1px;
 
@@ -125,10 +128,10 @@
 
 		--main-button-text-color: white;
 
-		--input-border: 2px solid var(--border-color);
-
 		--text-color: rgb(127 127 127);
 		--faq-color: black;
+
+		--unstake-selection-color: #283e9521;
 
 		--svg-fill-color: #000000;
 		--svg-opposite-color: #b3b3b3;
@@ -147,10 +150,11 @@
 		--title-color: white;
 
 		--border-color: rgb(158 163 178);
-		--input-border: 2px solid var(--border-color);
 		--background-color: #0d1432;
 		--input-color: #0d1432;
 		--text-color: rgb(181 181 181);
+
+		--unstake-selection-color: #a9bbff54;
 
 		--faq-color: white;
 

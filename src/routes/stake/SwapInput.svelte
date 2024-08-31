@@ -12,7 +12,7 @@
 		type="text"
 		maxlength="20"
 		bind:value={$inputAmount}
-		placeholder="Amount"
+		placeholder="0.00"
 		on:input={handleInputAmount}
 		title="swap-input"
 	/>
@@ -71,7 +71,7 @@
 		justify-content: space-between;
 		align-items: center;
 		border-radius: 1em;
-		padding: 0.5em;
+		padding: 0 0.5em;
 		background: var(--input-color);
 		border: var(--input-border);
 	}
@@ -84,7 +84,7 @@
 		flex-direction: row-reverse;
 		align-items: center;
 		padding: 1em;
-		background: var(--input-color);
+		background: none;
 		gap: 1em;
 		cursor: pointer;
 	}
