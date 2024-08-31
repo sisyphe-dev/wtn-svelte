@@ -9,8 +9,8 @@ import { idlFactory as idlFactoryWaterNeuron } from '../declarations/water_neuro
 import type { _SERVICE as waterNeuronInterface } from '../declarations/water_neuron/water_neuron.did';
 import { idlFactory as idlFactoryBoomerang } from '../declarations/boomerang';
 import type { _SERVICE as boomerangInterface } from '../declarations/boomerang/boomerang.did';
-import type { _SERVICE as icpswapInterface } from '../declarations/icpswap/icpswap.did';
-import { idlFactory as idlFactoryIcpswap } from '../declarations/icpswap';
+import type { _SERVICE as icpswapPoolInterface } from '../declarations/icpswap_pool/icpswap_pool.did';
+import { idlFactory as idlFactoryIcpswapPool } from '../declarations/icpswap_pool';
 
 import { user, canisters } from './stores';
 import { Canisters, User } from './state';
@@ -32,7 +32,7 @@ export const CANISTER_ID_BOOMERANG = 'daijl-2yaaa-aaaar-qag3a-cai';
 export const CANISTER_ID_WATER_NEURON = DEV
 	? 'n76cn-tyaaa-aaaam-acc5a-cai'
 	: 'tsbvt-pyaaa-aaaar-qafva-cai';
-export const CANISTER_ID_ICPSWAP = 'e5a7x-pqaaa-aaaag-qkcga-cai';
+export const CANISTER_ID_ICPSWAP_POOL = 'e5a7x-pqaaa-aaaag-qkcga-cai';
 
 export interface AuthResult {
 	actors: Actors;
@@ -45,7 +45,7 @@ export interface Actors {
 	wtnLedger: icrcLedgerInterface;
 	waterNeuron: waterNeuronInterface;
 	boomerang: boomerangInterface;
-	icpswap: icpswapInterface;
+	icpswapPool: icpswapPoolInterface;
 }
 
 export async function internetIdentitySignIn(): Promise<AuthResult> {
@@ -168,7 +168,6 @@ export async function internetIdentityLogout() {
 	const autClient = await AuthClient.create();
 	await autClient.logout();
 }
-import { AccountIdentifier, type Account, SubAccount } from '@dfinity/ledger-icp';
 
 export function fetchActors(agent?: HttpAgent, isInternetIdentity = false): Promise<Actors> {
 	return new Promise<Actors>(async (resolve, reject) => {
@@ -208,12 +207,12 @@ export function fetchActors(agent?: HttpAgent, isInternetIdentity = false): Prom
 				agent,
 				canisterId: CANISTER_ID_BOOMERANG
 			});
-			const icpswap: icpswapInterface = Actor.createActor(idlFactoryIcpswap, {
+			const icpswapPool: icpswapPoolInterface = Actor.createActor(idlFactoryIcpswapPool, {
 				agent,
-				canisterId: CANISTER_ID_ICPSWAP
+				canisterId: CANISTER_ID_ICPSWAP_POOL
 			});
 
-			resolve({ icpLedger, wtnLedger, nicpLedger, waterNeuron, boomerang, icpswap });
+			resolve({ icpLedger, wtnLedger, nicpLedger, waterNeuron, boomerang, icpswapPool });
 		} catch (error) {
 			reject(error);
 		}

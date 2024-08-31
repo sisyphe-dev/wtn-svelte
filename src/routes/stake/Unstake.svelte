@@ -30,7 +30,7 @@
 	} from '$lib/resultHandler';
 	import {
 		CANISTER_ID_ICP_LEDGER,
-		CANISTER_ID_ICPSWAP,
+		CANISTER_ID_ICPSWAP_POOL,
 		CANISTER_ID_NICP_LEDGER
 	} from '$lib/authentification';
 	import type { ApproveArgs, ApproveResult } from '../declarations/icrc_ledger/icrc_ledger.did';
@@ -49,7 +49,7 @@
 	let showFailedHelp = false;
 	let showImmediateHelp = false;
 	let showDelayedHelp = false;
-	const FEE = 10_000n;
+	const DEFAULT_LEDGER_FEE = 10_000n;
 
 	async function nicpToIcp(amount: BigNumber) {
 		if (
@@ -117,10 +117,10 @@
 	};
 
 	const depositInFastUnstake = async (amountE8s: bigint) => {
-		const depositResult = await $canisters.icpswap.depositFrom({
-			fee: FEE,
+		const depositResult = await $canisters.icpswapPool.depositFrom({
+			fee: DEFAULT_LEDGER_FEE,
 			token: CANISTER_ID_NICP_LEDGER,
-			amount: amountE8s - FEE
+			amount: amountE8s
 		} as DepositArgs);
 		const key = Object.keys(depositResult)[0] as keyof IcpSwapResult;
 		switch (key) {
@@ -137,7 +137,7 @@
 	};
 
 	const swapInFastUnstake = async (amountIn: string, amountOut: string) => {
-		const swapResult = await $canisters.icpswap.swap({
+		const swapResult = await $canisters.icpswapPool.swap({
 			amountIn: amountIn.toString(),
 			zeroForOne: true,
 			amountOutMinimum: amountOut.toString()
@@ -157,8 +157,8 @@
 	};
 
 	const withdrawInFastUnstake = async (amountToWithdrawE8s: bigint) => {
-		const withdrawResult = await $canisters.icpswap.withdraw({
-			fee: FEE,
+		const withdrawResult = await $canisters.icpswapPool.withdraw({
+			fee: DEFAULT_LEDGER_FEE,
 			token: CANISTER_ID_ICP_LEDGER,
 			amount: amountToWithdrawE8s
 		} as WithdrawArgs);
@@ -184,7 +184,7 @@
 			let amountE8s = numberToBigintE8s(amount);
 			// 1. Approve
 			const spender = {
-				owner: Principal.fromText(CANISTER_ID_ICPSWAP),
+				owner: Principal.fromText(CANISTER_ID_ICPSWAP_POOL),
 				subaccount: []
 			} as Account;
 
@@ -195,6 +195,7 @@
 			const allowance = allowanceResult['allowance'];
 			if (numberToBigintE8s(amount) > allowance) {
 				await approveInFastUnstake(spender, amountE8s);
+				amountE8s -= DEFAULT_LEDGER_FEE;
 			}
 
 			// 2. Deposit
@@ -219,7 +220,7 @@
 		if (!$canisters || !$user) return;
 		isConverting.set(true);
 		try {
-			const result = await $canisters.icpswap.getUserUnusedBalance($user.principal);
+			const result = await $canisters.icpswapPool.getUserUnusedBalance($user.principal);
 			const key = Object.keys(result)[0] as keyof IcpSwapUnusedBalanceResult;
 
 			switch (key) {
@@ -229,11 +230,11 @@
 					break;
 				case 'ok':
 					const nicpBalanceE8s = result[key]['balance0'];
-					if (nicpBalanceE8s > FEE) {
-						const withdrawNicpResult = await $canisters.icpswap.withdraw({
-							fee: FEE,
+					if (nicpBalanceE8s > DEFAULT_LEDGER_FEE) {
+						const withdrawNicpResult = await $canisters.icpswapPool.withdraw({
+							fee: DEFAULT_LEDGER_FEE,
 							token: CANISTER_ID_NICP_LEDGER,
-							amount: nicpBalanceE8s - FEE
+							amount: nicpBalanceE8s - DEFAULT_LEDGER_FEE
 						} as WithdrawArgs);
 
 						const key = Object.keys(withdrawNicpResult)[0] as keyof IcpSwapResult;
@@ -254,11 +255,11 @@
 					}
 
 					const icpBalanceE8s = result[key]['balance1'];
-					if (icpBalanceE8s > FEE) {
-						const withdrawIcpResult = await $canisters.icpswap.withdraw({
-							fee: FEE,
+					if (icpBalanceE8s > DEFAULT_LEDGER_FEE) {
+						const withdrawIcpResult = await $canisters.icpswapPool.withdraw({
+							fee: DEFAULT_LEDGER_FEE,
 							token: CANISTER_ID_ICP_LEDGER,
-							amount: icpBalanceE8s - FEE
+							amount: icpBalanceE8s - DEFAULT_LEDGER_FEE
 						} as WithdrawArgs);
 
 						const key = Object.keys(withdrawIcpResult)[0] as keyof IcpSwapResult;
@@ -294,7 +295,7 @@
 
 			const amountIn = numberToBigintE8s(amount);
 			const amountOut = amountIn - numberToBigintE8s(amount.multipliedBy(BigNumber(0.02)));
-			const result = await $canisters.icpswap.quote({
+			const result = await $canisters.icpswapPool.quote({
 				amountIn: amountIn.toString(),
 				zeroForOne: true,
 				amountOutMinimum: amountOut.toString()
@@ -580,7 +581,7 @@
 		display: flex;
 		align-items: center;
 		color: var(--title-color);
-		gap: 10px;
+		gap: 0.2em;
 		margin-left: 1em;
 		font-size: 16px;
 		font-family: var(--secondary-font);

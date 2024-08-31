@@ -137,10 +137,10 @@
 			"type": "custom",
 			"wasm": ""
 		},
-		"icpswap": {
-			"candid": "candid/icpswap.did",
+		"icpswap-pool": {
+			"candid": "candid/icpswap-pool.did",
 			"type": "custom",
-			"wasm": "wasm/icpswap.wasm"
+			"wasm": "wasm/icpswap-pool.wasm"
 		}
 	},
 	"output_env_file": ".env",

@@ -208,7 +208,7 @@
 		display: flex;
 		align-items: center;
 		color: var(--title-color);
-		gap: 10px;
+		gap: 0.2em;
 		margin-left: 1em;
 		font-size: 16px;
 		font-family: var(--secondary-font);
