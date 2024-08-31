@@ -211,7 +211,6 @@
 			await withdrawInFastUnstake(amountToWithdrawE8s);
 		} catch (error) {
 			console.log('[fastUnstake] error:', error);
-			toasts.add(Toast.error(DEFAULT_ERROR_MESSAGE));
 		}
 		isConverting.set(false);
 	}
