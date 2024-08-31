@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { user, selectedAsset } from '$lib/stores';
+	import { user } from '$lib/stores';
 
-	if (!$user || !$selectedAsset) goto('/');
+	if (!$user) goto('/');
 
 	import Withdrawals from './Withdrawals.svelte';
 	import { Asset, isMobile } from '$lib';

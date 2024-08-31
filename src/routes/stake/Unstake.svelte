@@ -166,7 +166,7 @@
 		switch (key) {
 			case 'ok':
 				const swapAmount = displayUsFormat(bigintE8sToNumber(withdrawResult[key]), 4);
-				toasts.add(Toast.success(`Successful swap. ${swapAmount} ICP retrieved.`));
+				toasts.add(Toast.success(`Successful swap, ${swapAmount} ICP received.`));
 				break;
 			case 'err':
 				const error = withdrawResult[key];
