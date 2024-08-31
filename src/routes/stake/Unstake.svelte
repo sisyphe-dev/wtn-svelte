@@ -234,7 +234,7 @@
 						const withdrawNicpResult = await $canisters.icpswapPool.withdraw({
 							fee: DEFAULT_LEDGER_FEE,
 							token: CANISTER_ID_NICP_LEDGER,
-							amount: nicpBalanceE8s - DEFAULT_LEDGER_FEE
+							amount: nicpBalanceE8s
 						} as WithdrawArgs);
 
 						const key = Object.keys(withdrawNicpResult)[0] as keyof IcpSwapResult;
@@ -259,7 +259,7 @@
 						const withdrawIcpResult = await $canisters.icpswapPool.withdraw({
 							fee: DEFAULT_LEDGER_FEE,
 							token: CANISTER_ID_ICP_LEDGER,
-							amount: icpBalanceE8s - DEFAULT_LEDGER_FEE
+							amount: icpBalanceE8s
 						} as WithdrawArgs);
 
 						const key = Object.keys(withdrawIcpResult)[0] as keyof IcpSwapResult;
