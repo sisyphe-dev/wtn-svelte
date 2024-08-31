@@ -280,7 +280,6 @@
 			}
 		} catch (error) {
 			console.log('[withdrawIcpswapTokens] error:', error);
-			toasts.add(Toast.success(DEFAULT_ERROR_MESSAGE));
 		}
 		isConverting.set(false);
 	};
