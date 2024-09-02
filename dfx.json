@@ -42,7 +42,7 @@
 		},
 		"nns-cycles-minting": {
 			"build": "",
-			"candid": "candid/nns-cycles-minting.did",
+			"candid": "candid/nns/nns-cycles-minting.did",
 			"remote": {
 				"id": {
 					"ic": "rkp4c-7iaaa-aaaaa-aaaca-cai",
@@ -54,7 +54,7 @@
 		},
 		"nns-genesis-token": {
 			"build": "",
-			"candid": "candid/nns-genesis-token.did",
+			"candid": "candid/nns/nns-genesis-token.did",
 			"remote": {
 				"id": {
 					"ic": "renrk-eyaaa-aaaaa-aaada-cai",
@@ -66,7 +66,7 @@
 		},
 		"nns-governance": {
 			"build": "",
-			"candid": "candid/nns-governance.did",
+			"candid": "candid/nns/nns-governance.did",
 			"remote": {
 				"id": {
 					"ic": "rrkah-fqaaa-aaaaa-aaaaq-cai",
@@ -78,7 +78,7 @@
 		},
 		"nns-ledger": {
 			"build": "",
-			"candid": "candid/nns-ledger.did",
+			"candid": "candid/nns/nns-ledger.did",
 			"remote": {
 				"id": {
 					"ic": "ryjl3-tyaaa-aaaaa-aaaba-cai",
@@ -90,7 +90,7 @@
 		},
 		"nns-lifeline": {
 			"build": "",
-			"candid": "candid/nns-lifeline.did",
+			"candid": "candid/nns/nns-lifeline.did",
 			"remote": {
 				"id": {
 					"ic": "rno2w-sqaaa-aaaaa-aaacq-cai",
@@ -103,7 +103,7 @@
 		},
 		"nns-registry": {
 			"build": "",
-			"candid": "candid/nns-registry.did",
+			"candid": "candid/nns/nns-registry.did",
 			"remote": {
 				"id": {
 					"ic": "rwlgt-iiaaa-aaaaa-aaaaa-cai",
@@ -115,7 +115,7 @@
 		},
 		"nns-root": {
 			"build": "",
-			"candid": "candid/nns-root.did",
+			"candid": "candid/nns/nns-root.did",
 			"remote": {
 				"id": {
 					"ic": "r7inp-6aaaa-aaaaa-aaabq-cai",
@@ -127,7 +127,7 @@
 		},
 		"nns-sns-wasm": {
 			"build": "",
-			"candid": "candid/nns-sns-wasm.did",
+			"candid": "candid/nns/nns-sns-wasm.did",
 			"remote": {
 				"id": {
 					"ic": "qaa6y-5yaaa-aaaaa-aaafa-cai",
@@ -136,6 +136,11 @@
 			},
 			"type": "custom",
 			"wasm": ""
+		},
+		"icpswap-pool": {
+			"candid": "candid/icpswap-pool.did",
+			"type": "custom",
+			"wasm": "wasm/icpswap-pool.wasm"
 		}
 	},
 	"output_env_file": ".env",

@@ -12,7 +12,7 @@
 		type="text"
 		maxlength="20"
 		bind:value={$inputAmount}
-		placeholder="Amount"
+		placeholder="0.00"
 		on:input={handleInputAmount}
 		title="swap-input"
 	/>
@@ -38,12 +38,12 @@
 <style>
 	/* === Base Styles === */
 	h2 {
-		color: white;
+		color: var(--stake-text-color);
 		margin: 0;
 	}
 
 	span {
-		color: white;
+		color: var(--stake-text-color);
 		text-decoration: underline;
 		font-size: 12px;
 	}
@@ -53,7 +53,7 @@
 		padding-left: 0.4em;
 		height: 3em;
 		font-size: 20px;
-		color: white;
+		color: var(--stake-text-color);
 		background: var(--input-color);
 		outline: none;
 		width: 80%;
@@ -71,8 +71,9 @@
 		justify-content: space-between;
 		align-items: center;
 		border-radius: 1em;
-		padding: 0.5em;
+		padding: 0 0.5em;
 		background: var(--input-color);
+		border: var(--input-border);
 	}
 
 	/* === Components === */
@@ -83,8 +84,7 @@
 		flex-direction: row-reverse;
 		align-items: center;
 		padding: 1em;
-		color: white;
-		background: var(--input-color);
+		background: none;
 		gap: 1em;
 		cursor: pointer;
 	}

@@ -2,16 +2,22 @@
 	import { isLogging, inMobileMenu, user } from '$lib/stores';
 	import { displayUsFormat, displayPrincipal } from '$lib';
 	import { internetIdentityLogout } from '$lib/authentification';
+	import { ThemeToggle } from '@dfinity/gix-components';
+	import PowerOffIcon from '$lib/icons/PowerOffIcon.svelte';
 </script>
 
 <nav class:filter={$isLogging}>
-	<a href="/stake" class="menu-selection-container" title="home-btn">
+	<a href="/" class="menu-selection-container" title="home-btn">
 		<img src="/tokens/WTN.webp" width="75em" height="75em" alt="WTN logo" />
 		<div class="wave-title">
 			<h1 id="static-header">WaterNeuron</h1>
 		</div>
 	</a>
+
 	<div class="right-container">
+		<div class="theme-toggle">
+			<ThemeToggle />
+		</div>
 		{#if !$user}
 			<button
 				title="connect-btn"
@@ -25,9 +31,9 @@
 		{:else}
 			<a href="/wallet" class="wallet-btn" id="wallet-info">
 				<h2 style:font-weight={'bold'}>{displayPrincipal($user.principal)}</h2>
-				<p title="icp-balance-nav">{displayUsFormat($user.icpBalance())} ICP</p>
-				<p title="nicp-balance-nav">{displayUsFormat($user.nicpBalance())} nICP</p>
-				<p title="wtn-balance-nav">{displayUsFormat($user.wtnBalance())} WTN</p>
+				<p title="icp-balance-nav">{displayUsFormat($user.icpBalance(), 2)} ICP</p>
+				<p title="nicp-balance-nav">{displayUsFormat($user.nicpBalance(), 2)} nICP</p>
+				<p title="wtn-balance-nav">{displayUsFormat($user.wtnBalance(), 2)} WTN</p>
 			</a>
 			<button
 				id="disconnect-btn"
@@ -37,7 +43,7 @@
 					user.set(undefined);
 				}}
 			>
-				<img src="/icon/power-off.svg" width="15em" height="15em" alt="Disconnect Icon" />
+				<PowerOffIcon />
 			</button>
 			<button
 				id="menu-btn"
@@ -51,7 +57,7 @@
 					height="24"
 					viewBox="0 -960 960 960"
 					width="24"
-					fill="white"
+					fill="var(--title-color)"
 				>
 					<path d="M120-240v-80h720v80H120Zm0-200v-80h720v80H120Zm0-200v-80h720v80H120Z"></path>
 				</svg>
@@ -61,6 +67,10 @@
 </nav>
 
 <style>
+	.theme-toggle {
+		color: var(--title-color);
+	}
+
 	/* === Base Styles === */
 	nav {
 		display: flex;
@@ -108,6 +118,10 @@
 		font-size: 13px;
 	}
 
+	h1 {
+		color: var(--title-color);
+	}
+
 	p {
 		text-align: end;
 		font-weight: normal;
@@ -137,6 +151,7 @@
 		display: flex;
 		align-items: center;
 		gap: 1em;
+		color: var(--title-color);
 	}
 
 	/* === Components === */
@@ -145,12 +160,15 @@
 		align-items: center;
 		height: fit-content;
 		font-size: 16px;
+		color: var(--stake-text-color);
 		padding: 0.5em;
 		margin: 0;
 	}
 
 	.smart:hover {
-		background-color: #1e3466;
+		background-color: var(--main-color);
+		color: var(--main-button-text-color);
+		cursor: pointer;
 	}
 
 	.wallet-action-btn {
@@ -172,6 +190,10 @@
 		margin: 0;
 	}
 
+	.wallet-btn:hover {
+		cursor: pointer;
+	}
+
 	#menu-btn {
 		display: none;
 	}
@@ -181,6 +203,7 @@
 	}
 	#wallet-info:hover {
 		background-color: var(--input-color);
+		cursor: pointer;
 	}
 
 	/* === Utillities === */
@@ -211,6 +234,10 @@
 		img {
 			height: 5em;
 			width: 5em;
+		}
+
+		.right-container {
+			gap: 0;
 		}
 	}
 </style>

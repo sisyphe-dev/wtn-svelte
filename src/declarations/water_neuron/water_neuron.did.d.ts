@@ -204,7 +204,7 @@ export interface _SERVICE {
 	get_events: ActorMethod<[GetEventsArg], GetEventsResult>;
 	get_info: ActorMethod<[], CanisterInfo>;
 	get_transfer_statuses: ActorMethod<[BigUint64Array | bigint[]], Array<TransferStatus>>;
-	get_withdrawal_requests: ActorMethod<[[] | [Principal]], Array<WithdrawalDetails>>;
+	get_withdrawal_requests: ActorMethod<[[] | [Account]], Array<WithdrawalDetails>>;
 	get_wtn_proposal_id: ActorMethod<[bigint], [] | [bigint]>;
 	icp_to_nicp: ActorMethod<[ConversionArg], Result_1>;
 	nicp_to_icp: ActorMethod<[ConversionArg], Result_2>;

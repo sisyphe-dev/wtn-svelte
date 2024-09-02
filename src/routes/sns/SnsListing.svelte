@@ -3,6 +3,7 @@
 	import { isMobile } from '$lib';
 	import snsMetadata from './sns_metadata.json';
 	import { Principal } from '@dfinity/principal';
+	import DownArrowIcon from '$lib/icons/DownArrowIcon.svelte';
 </script>
 
 <div class="sns-selection-container">
@@ -33,7 +34,9 @@
 		<div class="select-container">
 			<button on:click={() => inSnsMenu.set(true)}>
 				<span>{$sns.name}</span>
-				<img width="20em" height="20em" src="/icon/down-arrow.svg" alt="Down arrow." />
+				<div class="down-arrow">
+					<DownArrowIcon invert={false} />
+				</div>
 			</button>
 		</div>
 	{/if}
@@ -65,7 +68,7 @@
 	}
 
 	button {
-		color: white;
+		color: var(--stake-text-color);
 		cursor: pointer;
 		display: flex;
 		width: 90%;
@@ -77,11 +80,7 @@
 
 	button:hover {
 		border: 2px solid transparent;
-		background-color: rgba(107, 249, 201, 0.5);
-	}
-
-	img {
-		transform: rotate(180deg);
+		background-color: var(--sns-selected-button-color);
 	}
 
 	/* === Layout === */
@@ -93,8 +92,6 @@
 		align-items: center;
 		gap: 1em;
 		padding: 1em;
-		background-color: #183f66;
-		border-radius: 10px;
 	}
 
 	/* === Component === */
@@ -127,7 +124,7 @@
 	/* === Utilities === */
 	.selected-sns {
 		border: 2px solid var(--main-color);
-		background-color: rgba(107, 249, 201, 0.5);
+		background-color: var(--sns-selected-button-color);
 	}
 
 	.default-sns {
@@ -159,10 +156,10 @@
 			font-size: 16px;
 			border-radius: 8px;
 			border: 2px solid var(--main-color);
-			background-color: rgba(107, 249, 201, 0.5);
+			background-color: var(--sns-selected-button-color);
 		}
 
-		img {
+		.down-arrow {
 			position: absolute;
 			right: 1em;
 		}

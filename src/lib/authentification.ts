@@ -9,6 +9,8 @@ import { idlFactory as idlFactoryWaterNeuron } from '../declarations/water_neuro
 import type { _SERVICE as waterNeuronInterface } from '../declarations/water_neuron/water_neuron.did';
 import { idlFactory as idlFactoryBoomerang } from '../declarations/boomerang';
 import type { _SERVICE as boomerangInterface } from '../declarations/boomerang/boomerang.did';
+import type { _SERVICE as icpswapPoolInterface } from '../declarations/icpswap_pool/icpswap_pool.did';
+import { idlFactory as idlFactoryIcpswapPool } from '../declarations/icpswap_pool';
 
 import { user, canisters } from './stores';
 import { Canisters, User } from './state';
@@ -20,18 +22,17 @@ export const DEV = import.meta.env ? import.meta.env.DEV : true;
 
 export const HOST = DEV ? 'http://127.0.1:8080' : 'https://ic0.app';
 
-const INTERNET_IDENTITY_CANISTER_ID = DEV
-	? 'br5f7-7uaaa-aaaaa-qaaca-cai'
-	: 'rdmx6-jaaaa-aaaaa-aaadq-cai';
+const CANISTER_ID_II = DEV ? 'iidmm-fiaaa-aaaaq-aadmq-cai' : 'rdmx6-jaaaa-aaaaa-aaadq-cai';
 const CANISTER_ID_WTN_LEDGER = 'jcmow-hyaaa-aaaaq-aadlq-cai';
-const CANISTER_ID_ICP_LEDGER = 'ryjl3-tyaaa-aaaaa-aaaba-cai';
-const CANISTER_ID_NICP_LEDGER = DEV ? 'ny7ez-6aaaa-aaaam-acc5q-cai' : 'buwm7-7yaaa-aaaar-qagva-cai';
-export const CANISTER_ID_BOOMERANG = DEV
-	? 'bd3sg-teaaa-aaaaa-qaaba-cai'
-	: 'daijl-2yaaa-aaaar-qag3a-cai';
+export const CANISTER_ID_ICP_LEDGER = 'ryjl3-tyaaa-aaaaa-aaaba-cai';
+export const CANISTER_ID_NICP_LEDGER = DEV
+	? 'ny7ez-6aaaa-aaaam-acc5q-cai'
+	: 'buwm7-7yaaa-aaaar-qagva-cai';
+export const CANISTER_ID_BOOMERANG = 'daijl-2yaaa-aaaar-qag3a-cai';
 export const CANISTER_ID_WATER_NEURON = DEV
 	? 'n76cn-tyaaa-aaaam-acc5a-cai'
 	: 'tsbvt-pyaaa-aaaar-qafva-cai';
+export const CANISTER_ID_ICPSWAP_POOL = 'e5a7x-pqaaa-aaaag-qkcga-cai';
 
 export interface AuthResult {
 	actors: Actors;
@@ -44,6 +45,7 @@ export interface Actors {
 	wtnLedger: icrcLedgerInterface;
 	waterNeuron: waterNeuronInterface;
 	boomerang: boomerangInterface;
+	icpswapPool: icpswapPoolInterface;
 }
 
 export async function internetIdentitySignIn(): Promise<AuthResult> {
@@ -52,7 +54,7 @@ export async function internetIdentitySignIn(): Promise<AuthResult> {
 			const authClient = await AuthClient.create();
 			if (!(await authClient.isAuthenticated())) {
 				const identityProvider = import.meta.env.DEV
-					? `http://localhost:8080/?canisterId=${INTERNET_IDENTITY_CANISTER_ID}`
+					? `http://localhost:8080/?canisterId=${CANISTER_ID_II}`
 					: `https://identity.${'ic0.app'}`;
 
 				const authClient = await AuthClient.create();
@@ -205,8 +207,12 @@ export function fetchActors(agent?: HttpAgent, isInternetIdentity = false): Prom
 				agent,
 				canisterId: CANISTER_ID_BOOMERANG
 			});
+			const icpswapPool: icpswapPoolInterface = Actor.createActor(idlFactoryIcpswapPool, {
+				agent,
+				canisterId: CANISTER_ID_ICPSWAP_POOL
+			});
 
-			resolve({ icpLedger, wtnLedger, nicpLedger, waterNeuron, boomerang });
+			resolve({ icpLedger, wtnLedger, nicpLedger, waterNeuron, boomerang, icpswapPool });
 		} catch (error) {
 			reject(error);
 		}

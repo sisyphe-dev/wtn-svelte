@@ -35,7 +35,7 @@
 			$user.icpBalanceE8s = await fetchIcpBalance($user.principal, $canisters.icpLedger);
 			$user.nicpBalanceE8s = await fetchNicpBalance($user.principal, $canisters.nicpLedger);
 			$user.wtnBalanceE8s = await fetchWtnBalance($user.principal, $canisters.wtnLedger);
-			$user.wtnAllocationE8s = await fetchWtnAllocation($user.principal);
+			$user.wtnAllocationE8s = await fetchWtnAllocation($user.principal, $canisters.waterNeuron);
 		}
 	}
 
@@ -90,14 +90,76 @@
 <style>
 	/* === Variables === */
 	:root {
-		--main-color: oklab(0.88 -0.18 0.03);
-		--border-color: rgb(102, 173, 255);
-		--background-color: rgb(12, 44, 76);
-		--input-color: #1e3466;
-		--text-color: rgb(176, 163, 217);
-		--orange-color: #fa796e;
+		--unselected-header-color: #5d6b77;
+		--unselected-header-text-color: #c7c7c7;
+		--toast-text-color: var(--main-button-text-color);
+		--input-border: 1px solid var(--border-color);
+
+		--border-size: 1px;
+
 		--main-font: 'Akrobat-black';
 		--secondary-font: Arial;
+
+		--padding: 8px;
+		--padding-0_25x: calc(var(--padding) / 4);
+		--padding-0_5x: calc(var(--padding) / 2);
+		--padding-1_5x: calc(1.5 * var(--padding));
+		--padding-2x: calc(2 * var(--padding));
+		--padding-3x: calc(3 * var(--padding));
+		--padding-4x: calc(4 * var(--padding));
+		--padding-6x: calc(6 * var(--padding));
+		--padding-8x: calc(8 * var(--padding));
+		--card-background-contrast: var(--main-color);
+		--card-background: white;
+	}
+
+	:root[theme='light'] {
+		--main-color: #283e95;
+		--important-text-color: black;
+		--stake-text-color: black;
+
+		--title-color: black;
+		--border-color: #454545;
+		--page-background: #fcfffd;
+		--background-color: #fcfffd;
+		--qr-code-background: #283e95;
+
+		--input-color: #fcfffd;
+
+		--main-button-text-color: white;
+
+		--text-color: rgb(127 127 127);
+		--faq-color: black;
+
+		--unstake-selection-color: #283e9521;
+
+		--svg-fill-color: #000000;
+		--svg-opposite-color: #b3b3b3;
+		--sns-selected-button-color: rgb(107 180 249 / 50%);
+	}
+
+	:root[theme='dark'] {
+		--svg-fill-color: #ffffff;
+		--svg-opposite-color: #7f7f7f;
+		--stake-text-color: white;
+
+		--main-color: #4c66dc;
+		--qr-code-background: #4c66dc;
+
+		--main-button-text-color: #fcfffd;
+		--title-color: white;
+
+		--border-color: rgb(158 163 178);
+		--background-color: #0d1432;
+		--input-color: #0d1432;
+		--text-color: rgb(181 181 181);
+
+		--unstake-selection-color: #a9bbff54;
+
+		--faq-color: white;
+
+		--page-background: #0d1432;
+		--sns-selected-button-color: #404f9987;
 	}
 
 	@font-face {
@@ -114,7 +176,7 @@
 		height: fit-content;
 		min-height: 100%;
 		width: 100vw;
-		background: radial-gradient(farthest-corner circle at 0% 0%, rgb(18 69 89), #0f0f4d);
+		background: var(--page-background);
 	}
 
 	.page-container::-webkit-scrollbar {

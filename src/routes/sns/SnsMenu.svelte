@@ -21,7 +21,7 @@
 					height="32px"
 					viewBox="0 0 24 24"
 					fill="none"
-					stroke="white"
+					stroke="var(--svg-fill-color)"
 					stroke-width="2"
 					stroke-linecap="round"
 					stroke-linejoin="round"
@@ -62,13 +62,13 @@
 	/* === Base Styles === */
 	h1 {
 		font-family: var(--main-font);
-		color: white;
+		color: var(--title-color);
 	}
 	/* === Layout === */
 	.background-menu {
 		height: fit-content;
 		width: 100vw;
-		background: radial-gradient(farthest-corner circle at 0% 0%, rgb(18 69 89), #0f0f4d);
+		background: var(--page-background);
 		z-index: 1;
 	}
 
@@ -109,7 +109,7 @@
 	}
 
 	.sns-btn-selection {
-		color: white;
+		color: var(--title-color);
 		cursor: pointer;
 		display: flex;
 		width: 80%;
@@ -124,6 +124,6 @@
 	/* === Utilities === */
 	.selected-sns {
 		border: 2px solid var(--main-color);
-		background-color: rgba(107, 249, 201, 0.5);
+		background-color: var(--sns-selected-button-color);
 	}
 </style>

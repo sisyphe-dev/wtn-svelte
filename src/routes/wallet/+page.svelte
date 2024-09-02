@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { user, selectedAsset } from '$lib/stores';
+	import { user }` from '$lib/s`tores';
 
-	if (!$user || !$selectedAsset) goto('/stake');
+	if (!$user) goto('/');
 
 	import Withdrawals from './Withdrawals.svelte';
 	import { Asset, isMobile } from '$lib';
@@ -96,10 +96,10 @@
 
 	/* === Layout === */
 	.wallet-menu-container {
-		background-color: #0c2c4c;
-		border: 2px solid #66adff;
+		background-color: var(--page-background);
+		border: var(--input-border);
 		border-radius: 10px;
-		color: white;
+		color: var(--stake-text-color);
 		padding: 2em;
 		display: flex;
 		flex-direction: column;

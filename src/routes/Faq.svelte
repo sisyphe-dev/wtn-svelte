@@ -1,10 +1,18 @@
 <script lang="ts">
+	import en from './lang/en.json';
+	import es from './lang/es.json';
+	import ru from './lang/ru.json';
+	import ja from './lang/ja.json';
 	import { language } from '$lib/stores';
-	import StatsWidget from './StatsWidget.svelte';
-	import Swap from './Swap.svelte';
 	import { fade, slide } from 'svelte/transition';
+	import DownArrowIcon from '$lib/icons/DownArrowIcon.svelte';
 
-	export let data;
+	const data = {
+		en: en,
+		es: es,
+		ru: ru,
+		ja: ja
+	};
 
 	function getContent(language: string) {
 		switch (language) {
@@ -26,8 +34,6 @@
 	});
 </script>
 
-<StatsWidget />
-<Swap />
 {#key $language}
 	<div class="faq" in:fade={{ duration: 500 }}>
 		<h1>FAQ</h1>
@@ -39,14 +45,7 @@
 				}}
 			>
 				<h2>{section.title}</h2>
-				<img
-					width="20em"
-					height="20em"
-					src="/icon/down-arrow.svg"
-					alt="Down arrow."
-					class:arrow-down={!toggledMap[i]}
-					class:arrow-up={toggledMap[i]}
-				/>
+				<DownArrowIcon invert={toggledMap[i]} />
 			</button>
 
 			{#if toggledMap[i]}
@@ -98,13 +97,13 @@
 	}
 
 	h1 {
-		color: white;
+		color: var(--faq-color);
 		font-size: 42px;
 		font-family: var(--main-font);
 	}
 
 	h2 {
-		color: white;
+		color: var(--faq-color);
 		font-size: 1.5em;
 		text-align: start;
 	}
@@ -123,7 +122,7 @@
 		background: none;
 		border: none;
 		border-bottom: 2px solid;
-		border-color: white;
+		border-color: var(--faq-color);
 		margin-top: 2em;
 		padding-top: 2em;
 		width: 100%;
@@ -144,15 +143,7 @@
 		display: flex;
 	}
 
-	/* Utilities */
-	.arrow-up {
-		transform: rotate(0);
-	}
-
-	.arrow-down {
-		transform: rotate(180deg);
-	}
-
+	/* === Utilities === */
 	.language-active {
 		text-decoration: underline;
 	}

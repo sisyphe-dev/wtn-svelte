@@ -12,13 +12,21 @@ export function displayPrincipal(principal: Principal) {
 	return a[0] + '...' + a[a.length - 1];
 }
 
-export function displayUsFormat(value: BigNumber, decimals = 4): string {
-	const formatter = new Intl.NumberFormat('en-US', {
+export function displayUsFormat(value: BigNumber, decimals = 2): string {
+	const factor = new BigNumber(10).pow(decimals);
+	const truncatedValue = value
+		.multipliedBy(factor)
+		.integerValue(BigNumber.ROUND_DOWN)
+		.dividedBy(factor);
+
+	const converted = truncatedValue.toFixed(decimals);
+
+	return new Intl.NumberFormat('en-US', {
 		minimumFractionDigits: 0,
 		maximumFractionDigits: decimals
-	});
-
-	return formatter.format(value.toNumber()).replace(/,/g, "'");
+	})
+		.format(Number(converted))
+		.replace(/,/g, "'");
 }
 
 export function numberWithPrecision(x: BigNumber, decimals: BigNumber): BigNumber {
@@ -247,5 +255,23 @@ export function getMaybeAccount(accountString: string): Account | AccountIdentif
 	} catch (error) {
 		console.log('[getMaybeAccount]', error);
 		return;
+	}
+}
+
+export function computeReceiveAmount(
+	stake: boolean,
+	value: BigNumber,
+	exchangeRate: BigNumber
+): BigNumber {
+	if (value.isNaN()) return BigNumber(0);
+
+	if (exchangeRate) {
+		if (stake) {
+			return value.multipliedBy(exchangeRate);
+		} else {
+			return value.dividedBy(exchangeRate);
+		}
+	} else {
+		return BigNumber(0);
 	}
 }

@@ -35,12 +35,7 @@
 	let principal: string;
 	let isSending = false;
 	let isHigher = false;
-
-	onMount(() => {
-		let sendingDialog = document.getElementById('senderDialog');
-		sendingDialog.showModal();
-		isHigher = isContainerHigher('send');
-	});
+	let sendingDialog: HTMLDialogElement;
 
 	function isValidAmount(amount: BigNumber): boolean {
 		if (amount && $user) {
@@ -150,9 +145,28 @@
 		isSending = false;
 		inputAmount.reset();
 	}
+
+	function handleKeydown(event) {
+		if (event.key === 'Escape') {
+			event.preventDefault();
+			sendingDialog.close();
+			inSendingMenu.set(false);
+			inputAmount.reset();
+		}
+	}
+
+	onMount(() => {
+		sendingDialog = document.getElementById('senderDialog');
+		sendingDialog.showModal();
+		isHigher = isContainerHigher('send');
+	});
 </script>
 
-<dialog id="senderDialog" style:align-items={isHigher ? 'flex-start' : 'center'}>
+<dialog
+	id="senderDialog"
+	style:align-items={isHigher ? 'flex-start' : 'center'}
+	on:keydown={handleKeydown}
+>
 	<div class="send-container" transition:fade={{ duration: 100 }}>
 		<div class="header-container">
 			<h2>Send {$selectedAsset.intoStr()}</h2>
@@ -232,6 +246,7 @@
 				<button
 					class="toggle-btn"
 					on:click={() => {
+						sendingDialog.close();
 						inSendingMenu.set(false);
 						inputAmount.reset();
 					}}>Cancel</button
@@ -271,11 +286,11 @@
 	}
 
 	input {
-		border: none;
+		border: var(--input-border);
 		padding-left: 0.4em;
 		height: 3em;
 		font-size: 16px;
-		color: white;
+		color: var(--stake-text-color);
 		background: var(--input-color);
 		outline: none;
 		margin-left: 1em;
@@ -294,7 +309,7 @@
 	}
 
 	button {
-		color: black;
+		color: var(--main-button-text-color);
 	}
 
 	/* === Layout === */
@@ -305,10 +320,10 @@
 		max-width: 35em;
 		width: 80vw;
 		background: var(--background-color);
-		color: white;
+		color: var(--stake-text-color);
 		padding: 2em;
 		border-radius: 15px;
-		border: 2px solid var(--border-color);
+		border: var(--input-border);
 	}
 
 	.header-container {
@@ -334,7 +349,7 @@
 		position: absolute;
 		right: 8%;
 		background: none;
-		color: white;
+		color: var(--stake-text-color);
 		border: none;
 		cursor: pointer;
 	}
@@ -386,7 +401,7 @@
 	.spinner {
 		width: 2em;
 		height: 2em;
-		border: 3px solid black;
+		border: 3px solid var(--main-button-text-color);
 		border-top-color: transparent;
 		border-radius: 50%;
 		animation: spin 1s linear infinite;

@@ -24,9 +24,9 @@ const VALID_PRINCIPAL = 'l72el-pt5ry-lmj66-3opyw-tl5xx-3wzfl-n3mja-dqirc-oxmqs-u
 const WRONG_PRINCIPAL = 'aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaa-aaa';
 const ACCOUNT_ID = 'e73a99617af2a8dbfe9b75e463e83a905e30aa50250972ad19c21922c22b2a2a';
 const VALID_ACCOUNT =
-	'bd3sg-teaaa-aaaaa-qaaba-cai-dl7sbni.4de8758e1d99bd2d97a384af0ffed63403886967d21070e5241b602ebe39f243';
+	'daijl-2yaaa-aaaar-qag3a-cai-clltauq.5f0e93000f4cbd9db8c36d27cad8b8a97706c0710154172029e54541e18fd180';
 const WRONG_ACCOUNT =
-	'bd3sg-teaaa-aaaaa-qaaba-cai-aaaaaaa.4de8758e1d99bd2d97a384af0ffed63403886967d21070e5241b602ebe39f243';
+	'daijl-2yaaa-aaaar-qag3a-cai-aaaaaaa.4de8758e1d99bd2d97a384af0ffed63403886967d21070e5241b602ebe39f243';
 
 test('numberWithPrecision test', () => {
 	expect(numberWithPrecision(BigNumber(12.436), BigNumber(2)).eq(BigNumber(12.43))).toBeTruthy();
@@ -110,6 +110,7 @@ test('computeRewards', () => {
 	expect(computeRewards(BigNumber(20_000), BigNumber(100)).eq(BigNumber(800))).toBeTruthy();
 	expect(computeRewards(BigNumber(0), BigNumber(10)).eq(BigNumber(80))).toBeTruthy();
 	expect(computeRewards(BigNumber(totalThresholds), BigNumber(10)).isZero()).toBeTruthy();
+	expect(computeRewards(BigNumber(100_000), BigNumber(1)).eq(BigNumber(4))).toBeTruthy();
 	expect(totalThresholds).toBe(10_160_000);
 
 	const total = TIERS.reduce(
@@ -120,9 +121,10 @@ test('computeRewards', () => {
 });
 
 test('Display US-format', () => {
-	expect(displayUsFormat(BigNumber(1_000_000.0123942))).toBe("1'000'000.0124");
-	expect(displayUsFormat(BigNumber(1_000_000.018942))).toBe("1'000'000.0189");
+	expect(displayUsFormat(BigNumber(1_000_000.0123942), 4)).toBe("1'000'000.0123");
+	expect(displayUsFormat(BigNumber(1_000_000.018942), 4)).toBe("1'000'000.0189");
 	expect(displayUsFormat(BigNumber(1_000_000.0123942), 8)).toBe("1'000'000.0123942");
+	expect(displayUsFormat(BigNumber(9.9992))).toBe('9.99');
 });
 
 test('Test truncated format for principal', () => {

@@ -7,8 +7,10 @@
 	import QrCreator from 'qr-creator';
 
 	let isHigher = false;
+	let receivingDialog: HTMLDialogElement;
+
 	onMount(() => {
-		let receivingDialog = document.getElementById('receiverDialog');
+		receivingDialog = document.getElementById('receiverDialog');
 		receivingDialog.showModal();
 		isHigher = isContainerHigher('receive');
 
@@ -17,7 +19,7 @@
 				text: `${$selectedAsset.intoStr() === 'ICP' ? $user.accountId : $user.principal}`,
 				radius: 0.0, // 0.0 to 0.5
 				ecLevel: 'H', // L, M, Q, H
-				fill: 'rgb(12, 44, 76)',
+				fill: 'white',
 				background: null,
 				size: 1000 // in pixels
 			},
@@ -40,9 +42,21 @@
 			}, 500);
 		}
 	}
+
+	function handleKeydown(event) {
+		if (event.key === 'Escape') {
+			event.preventDefault();
+			receivingDialog.close();
+			inReceivingMenu.set(false);
+		}
+	}
 </script>
 
-<dialog id="receiverDialog" style:align-items={isHigher ? 'flex-start' : 'center'}>
+<dialog
+	id="receiverDialog"
+	style:align-items={isHigher ? 'flex-start' : 'center'}
+	on:keydown={handleKeydown}
+>
 	<div class="receive-container" transition:fade={{ duration: 100 }}>
 		<div class="header-container">
 			<h3>Receive {$selectedAsset.intoStr()}</h3>
@@ -87,6 +101,7 @@
 			<button
 				class="finish-btn"
 				on:click={() => {
+					receivingDialog.close();
 					inReceivingMenu.set(false);
 				}}
 			>
@@ -122,7 +137,7 @@
 	}
 
 	button {
-		color: black;
+		color: var(--main-button-text-color);
 	}
 
 	p {
@@ -134,10 +149,11 @@
 	h3 {
 		font-family: var(--secondary-font);
 		font-size: 16px;
+		color: var(--title-color);
 	}
 
 	canvas {
-		background: oklab(0.88 -0.18 0.03);
+		background: var(--qr-code-background);
 		padding: 1em;
 		border-radius: 8px;
 	}
@@ -150,11 +166,11 @@
 		max-width: 90dvw;
 		width: 35em;
 		background: var(--background-color);
-		color: white;
+		color: var(--title-color);
 		padding: 2em;
 		margin: 0.3em;
 		border-radius: 15px;
-		border: 2px solid var(--border-color);
+		border: var(--input-border);
 		gap: 1em;
 		height: fit-content;
 		overflow-x: hidden;

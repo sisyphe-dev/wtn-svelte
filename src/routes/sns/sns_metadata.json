@@ -46,6 +46,11 @@
 			"treasury": 307779
 		},
 		{
+			"name": "ICVC",
+			"governance_id": "ntzq5-dyaaa-aaaaq-aadtq-cai",
+			"treasury": 1245839
+		},
+		{
 			"name": "Kinic",
 			"governance_id": "74ncn-fqaaa-aaaaq-aaasa-cai",
 			"treasury": 362423

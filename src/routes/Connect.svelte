@@ -81,7 +81,7 @@
 		font-family: var(--secondary-font);
 		font-weight: 600;
 		font-size: 20px;
-		color: black;
+		color: var(--main-button-text-color);
 	}
 
 	/* === Layout === */
@@ -98,6 +98,7 @@
 	/* === Components === */
 	.login-btn {
 		background: var(--main-color);
+		color: var(--main-button-text-color);
 	}
 
 	#close-btn {
@@ -109,7 +110,7 @@
 	.spinner {
 		width: 2em;
 		height: 2em;
-		border: 3px solid black;
+		border: 3px solid var(--main-button-text-color);
 		border-top-color: transparent;
 		border-radius: 50%;
 		animation: spin 1s linear infinite;

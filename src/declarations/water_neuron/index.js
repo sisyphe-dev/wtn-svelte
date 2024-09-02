@@ -206,11 +206,7 @@ export const idlFactory = ({ IDL }) => {
 		get_events: IDL.Func([GetEventsArg], [GetEventsResult], ['query']),
 		get_info: IDL.Func([], [CanisterInfo], ['query']),
 		get_transfer_statuses: IDL.Func([IDL.Vec(IDL.Nat64)], [IDL.Vec(TransferStatus)], ['query']),
-		get_withdrawal_requests: IDL.Func(
-			[IDL.Opt(IDL.Principal)],
-			[IDL.Vec(WithdrawalDetails)],
-			['query']
-		),
+		get_withdrawal_requests: IDL.Func([IDL.Opt(Account)], [IDL.Vec(WithdrawalDetails)], ['query']),
 		get_wtn_proposal_id: IDL.Func([IDL.Nat64], [IDL.Opt(IDL.Nat64)], ['query']),
 		icp_to_nicp: IDL.Func([ConversionArg], [Result_1], []),
 		nicp_to_icp: IDL.Func([ConversionArg], [Result_2], [])
