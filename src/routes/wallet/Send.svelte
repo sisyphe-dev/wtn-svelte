@@ -35,13 +35,8 @@
 	let principal: string;
 	let isSending = false;
 	let isHigher = false;
-
-	onMount(() => {
-		let sendingDialog = document.getElementById('senderDialog');
-		sendingDialog.showModal();
-		isHigher = isContainerHigher('send');
-	});
-
+	let sendingDialog: HTMLDialogElement;
+	
 	function isValidAmount(amount: BigNumber): boolean {
 		if (amount && $user) {
 			return (
@@ -150,9 +145,28 @@
 		isSending = false;
 		inputAmount.reset();
 	}
+
+	function handleKeydown(event) {
+		if (event.key === 'Escape') {
+			event.preventDefault(); 
+			sendingDialog.close();
+			inSendingMenu.set(false);
+			inputAmount.reset();
+		}
+	}
+
+	onMount(() => {
+		sendingDialog = document.getElementById('senderDialog');
+		sendingDialog.showModal();
+		isHigher = isContainerHigher('send');
+	});
 </script>
 
-<dialog id="senderDialog" style:align-items={isHigher ? 'flex-start' : 'center'}>
+<dialog
+	id="senderDialog"
+	style:align-items={isHigher ? 'flex-start' : 'center'}
+	on:keydown={handleKeydown}
+>
 	<div class="send-container" transition:fade={{ duration: 100 }}>
 		<div class="header-container">
 			<h2>Send {$selectedAsset.intoStr()}</h2>
@@ -232,6 +246,7 @@
 				<button
 					class="toggle-btn"
 					on:click={() => {
+						sendingDialog.close();
 						inSendingMenu.set(false);
 						inputAmount.reset();
 					}}>Cancel</button
