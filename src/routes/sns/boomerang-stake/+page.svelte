@@ -1,4 +1,6 @@
 <script lang="ts">
+	import StatsWidget from '../stake/StatsWidget.svelte';
+	import SnsListing from './SnsListing.svelte';
 	import CopyIcon from '$lib/icons/CopyIcon.svelte';
 	import { fade, scale } from 'svelte/transition';
 	import {
@@ -11,7 +13,7 @@
 		handleInputAmount
 	} from '$lib/stores';
 	import { Toast } from '$lib/toast';
-	import { handleSnsIcpDepositResult, handleSnsRetrieveResult } from '$lib/resultHandler';
+	import { handleSnsIcpDepositResult, handleSnsRetrieveNicpResult } from '$lib/resultHandler';
 	import { Principal } from '@dfinity/principal';
 	import { type Account, AccountIdentifier, type IcrcAccount } from '@dfinity/ledger-icp';
 	import BigNumber from 'bignumber.js';
@@ -32,8 +34,11 @@
 
 	const handlePrincipalInputChange = async () => {
 		if (!$canisters || $sns.name !== 'Custom') return;
-		if (isPrincipalValid(principalInput)) {
-			await handleSnsChange('Custom', principalInput);
+
+		const filteredInput = principalInput.replace(/\s+/g, '');
+		const shouldChange = isPrincipalValid(filteredInput);
+		if (shouldChange) {
+			await handleSnsChange('Custom', filteredInput);
 		}
 	};
 
@@ -67,7 +72,7 @@
 			const retrieveResult = await $canisters.boomerang.retrieve_nicp(
 				Principal.fromText($sns.principal)
 			);
-			const result = await handleSnsRetrieveResult(retrieveResult);
+			const result = await handleSnsRetrieveNicpResult(retrieveResult);
 			if (result.success) {
 				toasts.add(Toast.success(result.message));
 			} else {
@@ -101,7 +106,10 @@
 	};
 </script>
 
-{#key $sns.name}
+<StatsWidget />
+<div class="sns-stake-container" in:fade>
+	<SnsListing />
+	{#key $sns.name}
 		<div class="boomerang-container" in:fade={{ duration: 500 }}>
 			<div class="top-container">
 				<h1>Stake <span style:color="var(--main-color)">{$sns.name}</span> Treasury</h1>
@@ -153,8 +161,8 @@
 				</div>
 				<div class="account-container">
 					<div class="principal-container">
-						{#if $sns.encodedStakingAccount}
-							<p>{$sns.encodedStakingAccount}</p>
+						{#if $sns.encodedBoomerangAccount}
+							<p>{$sns.encodedBoomerangAccount}</p>
 						{:else}
 							<p>-/-</p>
 						{/if}
@@ -162,7 +170,7 @@
 							class="copy-btn"
 							on:click={() => {
 								handleAnimation('subaccount');
-								navigator.clipboard.writeText($sns.encodedStakingAccount);
+								navigator.clipboard.writeText($sns.encodedBoomerangAccount);
 							}}
 						>
 							<CopyIcon />
@@ -186,7 +194,7 @@
 				{#if BigNumber($inputAmount).isNaN()}
 					<a
 						class="action-btn"
-						href="https://proposals.network/submit?g={$sns.principal}&action=TransferSnsTreasuryFunds&destination={$sns.encodedStakingAccount}"
+						href="https://proposals.network/submit?g={$sns.principal}&action=TransferSnsTreasuryFunds&destination={$sns.encodedBoomerangAccount}"
 						target="blank"
 					>
 						Make a proposal
@@ -194,7 +202,7 @@
 				{:else}
 					<a
 						class="action-btn"
-						href="https://proposals.network/submit?g={$sns.principal}&action=TransferSnsTreasuryFunds&destination={$sns.encodedStakingAccount}&amount={numberToBigintE8s(
+						href="https://proposals.network/submit?g={$sns.principal}&action=TransferSnsTreasuryFunds&destination={$sns.encodedBoomerangAccount}&amount={numberToBigintE8s(
 							BigNumber($inputAmount)
 						)}"
 						target="blank"
@@ -239,6 +247,7 @@
 			</div>
 		</div>
 	{/key}
+</div>
 
 <style>
 	/* === Base Styles === */
@@ -282,6 +291,16 @@
 	}
 
 	/* === Layout === */
+	.sns-stake-container {
+		background-color: #0c2c4c;
+		border: 2px solid #66adff;
+		border-radius: 10px;
+		display: flex;
+		height: 44em;
+		width: 60em;
+		max-width: 95dvw;
+	}
+
 	.boomerang-container {
 		display: flex;
 		flex-direction: column;
@@ -462,6 +481,13 @@
 	}
 
 	@media (max-width: 767px) {
+		.sns-stake-container {
+			flex-direction: column;
+			justify-content: start;
+			align-items: center;
+			height: fit-content;
+		}
+
 		.boomerang-container {
 			width: 95%;
 			padding: 1em 0 1em 0;
