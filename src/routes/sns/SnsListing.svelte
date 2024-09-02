@@ -92,9 +92,6 @@
 		align-items: center;
 		gap: 1em;
 		padding: 1em;
-		background-color: var(--background-color);
-		border-radius: 8px;
-		border-right: var(--input-border);
 	}
 
 	/* === Component === */
