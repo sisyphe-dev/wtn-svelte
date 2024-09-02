@@ -36,7 +36,7 @@
 	let isSending = false;
 	let isHigher = false;
 	let sendingDialog: HTMLDialogElement;
-	
+
 	function isValidAmount(amount: BigNumber): boolean {
 		if (amount && $user) {
 			return (
@@ -148,7 +148,7 @@
 
 	function handleKeydown(event) {
 		if (event.key === 'Escape') {
-			event.preventDefault(); 
+			event.preventDefault();
 			sendingDialog.close();
 			inSendingMenu.set(false);
 			inputAmount.reset();
