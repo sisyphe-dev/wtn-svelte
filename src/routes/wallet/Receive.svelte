@@ -7,8 +7,10 @@
 	import QrCreator from 'qr-creator';
 
 	let isHigher = false;
+	let receivingDialog: HTMLDialogElement;
+
 	onMount(() => {
-		let receivingDialog = document.getElementById('receiverDialog');
+		receivingDialog = document.getElementById('receiverDialog');
 		receivingDialog.showModal();
 		isHigher = isContainerHigher('receive');
 
@@ -40,9 +42,21 @@
 			}, 500);
 		}
 	}
+
+	function handleKeydown(event) {
+		if (event.key === 'Escape') {
+			event.preventDefault();
+			receivingDialog.close();
+			inReceivingMenu.set(false);
+		}
+	}
 </script>
 
-<dialog id="receiverDialog" style:align-items={isHigher ? 'flex-start' : 'center'}>
+<dialog
+	id="receiverDialog"
+	style:align-items={isHigher ? 'flex-start' : 'center'}
+	on:keydown={handleKeydown}
+>
 	<div class="receive-container" transition:fade={{ duration: 100 }}>
 		<div class="header-container">
 			<h3>Receive {$selectedAsset.intoStr()}</h3>
@@ -87,6 +101,7 @@
 			<button
 				class="finish-btn"
 				on:click={() => {
+					receivingDialog.close();
 					inReceivingMenu.set(false);
 				}}
 			>
