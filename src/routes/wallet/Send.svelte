@@ -163,7 +163,6 @@
 <dialog
 	id="senderDialog"
 	style:align-items={isHigher ? 'flex-start' : 'center'}
-	on:keydown={handleKeydown}
 >
 	<div class="send-container" transition:fade={{ duration: 100 }}>
 		<div class="header-container">
