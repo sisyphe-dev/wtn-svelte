@@ -26,7 +26,11 @@
 		handleTransferResult,
 		type ToastResult
 	} from '$lib/resultHandler';
-	import type { Tokens, TransferArgs, TransferArg } from '$lib/../declarations/icp_ledger/icp_ledger.did';
+	import type {
+		Tokens,
+		TransferArgs,
+		TransferArg
+	} from '$lib/../declarations/icp_ledger/icp_ledger.did';
 	import { fade } from 'svelte/transition';
 	import Toast from '../Toast.svelte';
 
@@ -165,10 +169,7 @@
 	});
 </script>
 
-<dialog
-	id="senderDialog"
-	style:align-items={isHigher ? 'flex-start' : 'center'}
->
+<dialog id="senderDialog" style:align-items={isHigher ? 'flex-start' : 'center'}>
 	<div class="send-container" transition:fade={{ duration: 100 }}>
 		<div class="header-container">
 			<h2>Send {$selectedAsset.intoStr()}</h2>

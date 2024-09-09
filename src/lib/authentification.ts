@@ -178,7 +178,7 @@ export function fetchActors(agent?: HttpAgent, isInternetIdentity = false): Prom
 					host: HOST
 				});
 			}
-			
+
 			if (DEV) {
 				agent.fetchRootKey().catch((err) => {
 					console.warn(

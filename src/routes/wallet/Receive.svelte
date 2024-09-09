@@ -52,15 +52,12 @@
 		);
 
 		return () => {
-		receivingDialog.removeEventListener('keydown', handleKeydown);
+			receivingDialog.removeEventListener('keydown', handleKeydown);
 		};
 	});
 </script>
 
-<dialog
-	id="receiverDialog"
-	style:align-items={isHigher ? 'flex-start' : 'center'}
->
+<dialog id="receiverDialog" style:align-items={isHigher ? 'flex-start' : 'center'}>
 	<div class="receive-container" transition:fade={{ duration: 100 }}>
 		<div class="header-container">
 			<h3>Receive {$selectedAsset.intoStr()}</h3>
