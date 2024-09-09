@@ -4,7 +4,6 @@
 	import Unstake from './stake/Unstake.svelte';
 	import Faq from './Faq.svelte';
 	import { inputAmount } from '$lib/stores';
-	import type { Account } from '@dfinity/ledger-icp';
 	import { fade } from 'svelte/transition';
 
 	let stake = true;
@@ -49,13 +48,6 @@
 <Faq />
 
 <style>
-	/* === Basic Styles === /*
-	h2 {
-		font-family: var(--secondary-font);
-		font-size: 17px;
-		font-weight: bold;
-	}
-
 	/* === Layout === */
 	.main-container {
 		display: flex;

@@ -1,8 +1,6 @@
 <script lang="ts">
-	import { inSnsMenu, user, sns, canisters, handleSnsChange } from '$lib/stores';
-	import { internetIdentityLogout } from '$lib/authentification';
+	import { inSnsMenu, sns, handleSnsChange } from '$lib/stores';
 	import snsMetadata from './sns_metadata.json';
-	import { Principal } from '@dfinity/principal';
 </script>
 
 <div class="background-menu">

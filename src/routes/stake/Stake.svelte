@@ -25,8 +25,7 @@
 		handleStakeResult,
 		DEFAULT_ERROR_MESSAGE
 	} from '$lib/resultHandler';
-	import type { ApproveArgs } from '../declarations/icrc_ledger/icrc_ledger.did';
-	import type { ConversionArg } from '$declarations/water_neuron/water_neuron.did';
+	import type { ConversionArg } from '$lib/../declarations/water_neuron/water_neuron.did';
 	import type { Account } from '@dfinity/ledger-icp';
 	import { onMount, afterUpdate } from 'svelte';
 	import { fade } from 'svelte/transition';

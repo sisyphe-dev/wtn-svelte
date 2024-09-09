@@ -1,8 +1,7 @@
 <script lang="ts">
-	import { sns, inSnsMenu, canisters, handleSnsChange } from '$lib/stores';
+	import { sns, inSnsMenu, handleSnsChange } from '$lib/stores';
 	import { isMobile } from '$lib';
 	import snsMetadata from './sns_metadata.json';
-	import { Principal } from '@dfinity/principal';
 	import DownArrowIcon from '$lib/icons/DownArrowIcon.svelte';
 </script>
 

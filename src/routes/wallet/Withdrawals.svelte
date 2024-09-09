@@ -8,11 +8,11 @@
 	} from '$lib';
 	import { user, canisters } from '$lib/stores';
 	import { onMount } from 'svelte';
-	import type { WithdrawalDetails, NeuronId } from '$declarations/water_neuron/water_neuron.did';
-	import { idlFactory as idlFactoryWaterNeuron } from '$declarations/water_neuron';
+	import type {
+		WithdrawalDetails,
+		NeuronId
+	} from '$lib/../declarations/water_neuron/water_neuron.did';
 	import { fade } from 'svelte/transition';
-	import { HttpAgent, Actor } from '@dfinity/agent';
-	import { CANISTER_ID_WATER_NEURON, HOST } from '$lib/authentification';
 
 	let withdrawalRequests: WithdrawalDetails[];
 	let withdrawalStatuses: {
