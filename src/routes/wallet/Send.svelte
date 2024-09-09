@@ -157,6 +157,11 @@
 		sendingDialog = document.getElementById('senderDialog') as HTMLDialogElement;
 		sendingDialog.showModal();
 		isHigher = isContainerHigher('send');
+		sendingDialog.addEventListener('keydown', handleKeydown);
+
+		return () => {
+			sendingDialog.removeEventListener('keydown', handleKeydown);
+		};
 	});
 </script>
 

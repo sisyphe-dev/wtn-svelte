@@ -9,24 +9,6 @@
 	let isHigher = false;
 	let receivingDialog: HTMLDialogElement;
 
-	onMount(() => {
-		receivingDialog = document.getElementById('receiverDialog') as HTMLDialogElement;
-		receivingDialog.showModal();
-		isHigher = isContainerHigher('receive');
-
-		QrCreator.render(
-			{
-				text: `${$selectedAsset.intoStr() === 'ICP' ? $user?.accountId : $user?.principal}`,
-				radius: 0.0, // 0.0 to 0.5
-				ecLevel: 'H', // L, M, Q, H
-				fill: 'white',
-				background: null,
-				size: 1000 // in pixels
-			},
-			document.querySelector('#qr-code') as HTMLElement
-		);
-	});
-
 	let isAnimating = false;
 	let circleVisible = false;
 
@@ -50,12 +32,34 @@
 			inReceivingMenu.set(false);
 		}
 	}
+
+	onMount(() => {
+		receivingDialog = document.getElementById('receiverDialog') as HTMLDialogElement;
+		receivingDialog.showModal();
+		isHigher = isContainerHigher('receive');
+		receivingDialog.addEventListener('keydown', handleKeydown);
+
+		QrCreator.render(
+			{
+				text: `${$selectedAsset.intoStr() === 'ICP' ? $user?.accountId : $user?.principal}`,
+				radius: 0.0, // 0.0 to 0.5
+				ecLevel: 'H', // L, M, Q, H
+				fill: 'white',
+				background: null,
+				size: 1000 // in pixels
+			},
+			document.querySelector('#qr-code') as HTMLElement
+		);
+
+		return () => {
+		receivingDialog.removeEventListener('keydown', handleKeydown);
+		};
+	});
 </script>
 
 <dialog
 	id="receiverDialog"
 	style:align-items={isHigher ? 'flex-start' : 'center'}
-	on:keydown={handleKeydown}
 >
 	<div class="receive-container" transition:fade={{ duration: 100 }}>
 		<div class="header-container">
