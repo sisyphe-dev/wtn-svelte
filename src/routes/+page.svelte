@@ -4,7 +4,6 @@
 	import Unstake from './stake/Unstake.svelte';
 	import Faq from './Faq.svelte';
 	import { inputAmount } from '$lib/stores';
-	import type { Account } from '@dfinity/ledger-icp';
 	import { fade } from 'svelte/transition';
 
 	let stake = true;
