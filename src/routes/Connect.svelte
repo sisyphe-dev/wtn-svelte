@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { isLogging, isBusy } from '$lib/stores';
-	import { signIn } from '$lib/authentification';
+	import { signIn, DEV, STAGING, localSignIn } from '$lib/authentification';
 	import { fade } from 'svelte/transition';
 	import { isMobile } from '$lib';
 
@@ -32,7 +32,7 @@
 			<div class="spinner"></div>
 		</button>
 	{:else}
-		<button class="login-btn" on:click={internetIdentityConnection} title="ii-connect-btn">
+		<button class="login-btn" on:click={internetIdentityConnection}>
 			<img src="/icon/astronaut.webp" width="50em" height="50em" alt="Dfinity Astronaut." />
 			<h2>Internet Identity</h2>
 		</button>
@@ -40,6 +40,23 @@
 			<button class="login-btn" id="plug-btn" on:click={plugConnection}>
 				<img src="/icon/plug.png" width="50em" height="50em" alt="Plug Icon." />
 				<h2>Plug Wallet</h2>
+			</button>
+		{/if}
+		{#if DEV || STAGING}
+			<button
+				class="login-btn"
+				id="plug-btn"
+				on:click={async () => {
+					if ($isBusy) return;
+
+					isBusy.set(true);
+					await localSignIn();
+					isBusy.set(false);
+					isLogging.set(false);
+				}}
+				title="ii-connect-btn"
+			>
+				<h2>Local Development</h2>
 			</button>
 		{/if}
 	{/if}

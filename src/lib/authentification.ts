@@ -19,8 +19,11 @@ import { Canisters, User } from './state';
 const AUTH_MAX_TIME_TO_LIVE = BigInt(60 * 60 * 1000 * 1000 * 1000);
 
 export const DEV = import.meta.env ? import.meta.env.DEV : true;
+export const STAGING = process.env.CANISTER_ID === '47pxu-byaaa-aaaap-ahpsa-cai';
 
 export const HOST = DEV ? 'http://127.0.1:8080' : 'https://ic0.app';
+const DAPP_DERIVATION_ORIGIN = 'https://n3i53-gyaaa-aaaam-acfaq-cai.icp0.io';
+const IDENTITY_PROVIDER = 'https://identity.ic0.app';
 
 const CANISTER_ID_II = DEV ? 'iidmm-fiaaa-aaaaq-aadmq-cai' : 'rdmx6-jaaaa-aaaaa-aaadq-cai';
 const CANISTER_ID_WTN_LEDGER = 'jcmow-hyaaa-aaaaq-aadlq-cai';
@@ -66,17 +69,11 @@ export async function internetIdentitySignIn(): Promise<AuthResult> {
 					principal: identity.getPrincipal()
 				});
 			} else {
-				const identityProvider = DEV
-					? `http://localhost:8080/?canisterId=${CANISTER_ID_II}`
-					: `https://identity.${'ic0.app'}`;
-				const derivation =
-					process.env.CANISTER_ID !== 'n3i53-gyaaa-aaaam-acfaq-cai'
-						? undefined
-						: 'https://n3i53-gyaaa-aaaam-acfaq-cai.icp0.io/';
 				await authClient.login({
 					maxTimeToLive: AUTH_MAX_TIME_TO_LIVE,
 					allowPinAuthentication: true,
-					derivationOrigin: derivation,
+					derivationOrigin: DAPP_DERIVATION_ORIGIN,
+					identityProvider: IDENTITY_PROVIDER,
 					onSuccess: async () => {
 						const identity: Identity = authClient.getIdentity();
 						const agent = new HttpAgent({
@@ -92,8 +89,7 @@ export async function internetIdentitySignIn(): Promise<AuthResult> {
 					},
 					onError: (error) => {
 						reject(error);
-					},
-					identityProvider
+					}
 				});
 			}
 		} catch (error) {
@@ -128,7 +124,7 @@ export async function plugSignIn(): Promise<AuthResult> {
 			const principal: Principal = await window.ic.plug.getPrincipal();
 			const agent = window.ic.plug.agent;
 
-			const actors = await fetchActors(agent);
+			const actors = await fetchActors(agent, true);
 
 			resolve({ actors, principal });
 		} catch (error) {
@@ -151,7 +147,7 @@ export async function signIn(walletOrigin: 'internetIdentity' | 'plug' | 'reload
 			case 'reload':
 				const authClient = await AuthClient.create();
 				if (!(await authClient.isAuthenticated())) {
-					const actors = await fetchActors(undefined, true);
+					const actors = await fetchActors(undefined);
 					canisters.set(new Canisters(actors));
 					return;
 				}
@@ -165,12 +161,58 @@ export async function signIn(walletOrigin: 'internetIdentity' | 'plug' | 'reload
 	}
 }
 
+export async function localSignIn() {
+	try {
+		const authClient = await AuthClient.create();
+
+		if (await authClient.isAuthenticated()) {
+			const identity: Identity = authClient.getIdentity();
+			const agent = new HttpAgent({
+				identity,
+				host: HOST
+			});
+
+			const actors = await fetchActors(agent);
+
+			canisters.set(new Canisters(actors));
+			user.set(new User(identity.getPrincipal()));
+		} else {
+			const identityProvider = DEV
+				? `http://localhost:8080/?canisterId=${CANISTER_ID_II}`
+				: IDENTITY_PROVIDER;
+			await authClient.login({
+				maxTimeToLive: AUTH_MAX_TIME_TO_LIVE,
+				allowPinAuthentication: true,
+				derivationOrigin: undefined,
+				identityProvider,
+				onSuccess: async () => {
+					const identity: Identity = authClient.getIdentity();
+					const agent = new HttpAgent({
+						identity,
+						host: HOST
+					});
+
+					const actors = await fetchActors(agent);
+
+					canisters.set(new Canisters(actors));
+					user.set(new User(identity.getPrincipal()));
+				},
+				onError: (error) => {
+					console.log(error);
+				}
+			});
+		}
+	} catch (error) {
+		console.log(error);
+	}
+}
+
 export async function internetIdentityLogout() {
 	const autClient = await AuthClient.create();
 	await autClient.logout();
 }
 
-export function fetchActors(agent?: HttpAgent, isInternetIdentity = false): Promise<Actors> {
+export function fetchActors(agent?: HttpAgent, isPlug = false): Promise<Actors> {
 	return new Promise<Actors>(async (resolve, reject) => {
 		try {
 			if (!agent) {
@@ -179,7 +221,7 @@ export function fetchActors(agent?: HttpAgent, isInternetIdentity = false): Prom
 				});
 			}
 
-			if (DEV) {
+			if (DEV && !isPlug) {
 				agent.fetchRootKey().catch((err) => {
 					console.warn(
 						'Unable to fetch root key. Check to ensure that your local replica is running'
