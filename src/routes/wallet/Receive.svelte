@@ -2,30 +2,12 @@
 	import { selectedAsset, inReceivingMenu, user } from '$lib/stores';
 	import CopyIcon from '$lib/icons/CopyIcon.svelte';
 	import { fade, scale } from 'svelte/transition';
-	import { AssetType, isContainerHigher } from '$lib';
+	import { isContainerHigher } from '$lib';
 	import { onMount } from 'svelte';
 	import QrCreator from 'qr-creator';
 
 	let isHigher = false;
 	let receivingDialog: HTMLDialogElement;
-
-	onMount(() => {
-		receivingDialog = document.getElementById('receiverDialog');
-		receivingDialog.showModal();
-		isHigher = isContainerHigher('receive');
-
-		QrCreator.render(
-			{
-				text: `${$selectedAsset.intoStr() === 'ICP' ? $user.accountId : $user.principal}`,
-				radius: 0.0, // 0.0 to 0.5
-				ecLevel: 'H', // L, M, Q, H
-				fill: 'white',
-				background: null,
-				size: 1000 // in pixels
-			},
-			document.querySelector('#qr-code')
-		);
-	});
 
 	let isAnimating = false;
 	let circleVisible = false;
@@ -43,20 +25,39 @@
 		}
 	}
 
-	function handleKeydown(event) {
+	function handleKeydown(event: KeyboardEvent) {
 		if (event.key === 'Escape') {
 			event.preventDefault();
 			receivingDialog.close();
 			inReceivingMenu.set(false);
 		}
 	}
+
+	onMount(() => {
+		receivingDialog = document.getElementById('receiverDialog') as HTMLDialogElement;
+		receivingDialog.showModal();
+		isHigher = isContainerHigher('receive');
+		receivingDialog.addEventListener('keydown', handleKeydown);
+
+		QrCreator.render(
+			{
+				text: `${$selectedAsset.intoStr() === 'ICP' ? $user?.accountId : $user?.principal}`,
+				radius: 0.0, // 0.0 to 0.5
+				ecLevel: 'H', // L, M, Q, H
+				fill: 'white',
+				background: null,
+				size: 1000 // in pixels
+			},
+			document.querySelector('#qr-code') as HTMLElement
+		);
+
+		return () => {
+			receivingDialog.removeEventListener('keydown', handleKeydown);
+		};
+	});
 </script>
 
-<dialog
-	id="receiverDialog"
-	style:align-items={isHigher ? 'flex-start' : 'center'}
-	on:keydown={handleKeydown}
->
+<dialog id="receiverDialog" style:align-items={isHigher ? 'flex-start' : 'center'}>
 	<div class="receive-container" transition:fade={{ duration: 100 }}>
 		<div class="header-container">
 			<h3>Receive {$selectedAsset.intoStr()}</h3>
@@ -87,7 +88,7 @@
 					class="copy-btn"
 					on:click={() => {
 						handleAnimation();
-						navigator.clipboard.writeText($user ? $user.principal : '');
+						navigator.clipboard.writeText($user ? $user.principal.toString() : '');
 					}}
 				>
 					<CopyIcon />

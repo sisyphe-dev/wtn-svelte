@@ -48,13 +48,6 @@
 <Faq />
 
 <style>
-	/* === Basic Styles === /*
-	h2 {
-		font-family: var(--secondary-font);
-		font-size: 17px;
-		font-weight: bold;
-	}
-
 	/* === Layout === */
 	.main-container {
 		display: flex;

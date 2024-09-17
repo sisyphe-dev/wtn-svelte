@@ -1,7 +1,6 @@
 <script lang="ts">
 	import {
 		Asset,
-		computeRewards,
 		displayUsFormat,
 		numberToBigintE8s,
 		bigintE8sToNumber,
@@ -33,9 +32,21 @@
 		CANISTER_ID_ICPSWAP_POOL,
 		CANISTER_ID_NICP_LEDGER
 	} from '$lib/authentification';
-	import type { ApproveArgs, ApproveResult } from '../declarations/icrc_ledger/icrc_ledger.did';
-	import type { DepositArgs, SwapArgs, WithdrawArgs } from '$declarations/icpswap/icpswap.did';
-	import type { ConversionArg } from '$declarations/water_neuron/water_neuron.did';
+	import type {
+		ApproveArgs,
+		ApproveResult,
+		Allowance,
+		AllowanceArgs
+	} from '$lib/../declarations/icrc_ledger/icrc_ledger.did';
+	import type {
+		DepositArgs,
+		SwapArgs,
+		WithdrawArgs,
+		Result as IcpSwapResult,
+		Error as IcpSwapError,
+		Result_7 as IcpSwapUnusedBalanceResult
+	} from '$lib/../declarations/icpswap_pool/icpswap_pool.did';
+	import type { ConversionArg } from '$lib/../declarations/water_neuron/water_neuron.did';
 	import type { Account } from '@dfinity/ledger-icp';
 	import { onMount, afterUpdate } from 'svelte';
 	import { fade } from 'svelte/transition';
@@ -56,6 +67,7 @@
 			!$user ||
 			$isConverting ||
 			!$canisters ||
+			!$waterNeuronInfo ||
 			amount.isNaN() ||
 			amount.isLessThan(BigNumber(10).dividedBy($waterNeuronInfo.exchangeRate()))
 		)
@@ -97,7 +109,9 @@
 		isConverting.set(false);
 	}
 
-	const approveInFastUnstake = async (spender: Approve, amountE8s: bigint) => {
+	const approveInFastUnstake = async (spender: Account, amountE8s: bigint) => {
+		if (!$canisters) return;
+
 		const approveResult: ApproveResult = await $canisters.nicpLedger.icrc2_approve({
 			spender,
 			fee: [],
@@ -117,6 +131,8 @@
 	};
 
 	const depositInFastUnstake = async (amountE8s: bigint) => {
+		if (!$canisters) return;
+
 		const depositResult = await $canisters.icpswapPool.depositFrom({
 			fee: DEFAULT_LEDGER_FEE,
 			token: CANISTER_ID_NICP_LEDGER,
@@ -137,6 +153,8 @@
 	};
 
 	const swapInFastUnstake = async (amountIn: string, amountOut: string) => {
+		if (!$canisters) return;
+
 		const swapResult = await $canisters.icpswapPool.swap({
 			amountIn: amountIn.toString(),
 			zeroForOne: true,
@@ -157,6 +175,8 @@
 	};
 
 	const withdrawInFastUnstake = async (amountToWithdrawE8s: bigint) => {
+		if (!$canisters) return;
+
 		const withdrawResult = await $canisters.icpswapPool.withdraw({
 			fee: DEFAULT_LEDGER_FEE,
 			token: CANISTER_ID_ICP_LEDGER,
@@ -199,15 +219,20 @@
 			}
 
 			// 2. Deposit
-			const depositResult = await depositInFastUnstake(amountE8s);
+			const depositResult = (await depositInFastUnstake(amountE8s)) as
+				| { ok: bigint }
+				| { err: Error }
+				| undefined;
+			if (depositResult === undefined) return;
 
 			// 3. Swap
-			const amountIn = depositResult['ok'];
+			const amountIn: bigint = (depositResult as { ok: bigint }).ok;
 			const amountOut = numberToBigintE8s(fastUnstakeAmount.multipliedBy(BigNumber(0.98)));
-			const swapResult = await swapInFastUnstake(amountIn, amountOut);
+			const swapResult = await swapInFastUnstake(amountIn.toString(), amountOut.toString());
+			if (swapResult === undefined) return;
 
 			// 4. Withdraw
-			const amountToWithdrawE8s = swapResult['ok'];
+			const amountToWithdrawE8s = (swapResult as { ok: bigint }).ok;
 			await withdrawInFastUnstake(amountToWithdrawE8s);
 		} catch (error) {
 			console.log('[fastUnstake] error:', error);
@@ -224,7 +249,7 @@
 
 			switch (key) {
 				case 'err':
-					console.log(result(key));
+					console.log(result[key]);
 					toasts.add(Toast.error('Failed to fetch balances on ICPswap. Please retry.'));
 					break;
 				case 'ok':
@@ -303,7 +328,7 @@
 			const key = Object.keys(result)[0] as keyof IcpSwapResult;
 			switch (key) {
 				case 'ok':
-					fastUnstakeAmount = bigintE8sToNumber(result['ok']);
+					fastUnstakeAmount = bigintE8sToNumber((result as { ok: bigint }).ok);
 					break;
 				case 'err':
 					fastUnstakeAmount = BigNumber(0);
@@ -311,7 +336,7 @@
 			}
 		} catch (error) {
 			console.log(error);
-			fastUnstakeAmount = undefined;
+			fastUnstakeAmount = BigNumber(0);
 		}
 	};
 
@@ -345,7 +370,7 @@
 		<span class="error">
 			{#if $inputAmount && isNaN(parseFloat($inputAmount))}
 				<ErrorIcon /> Cannot read amount
-			{:else if !isFastUnstake && $inputAmount && minimumWithdraw && parseFloat($inputAmount) < minimumWithdraw}
+			{:else if !isFastUnstake && $inputAmount && minimumWithdraw && parseFloat($inputAmount) < minimumWithdraw.toNumber()}
 				<ErrorIcon /> Minimum: {displayUsFormat(minimumWithdraw, 4)} nICP
 			{/if}
 		</span>

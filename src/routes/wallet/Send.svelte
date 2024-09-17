@@ -20,15 +20,17 @@
 	import { onMount } from 'svelte';
 	import { Toast as ToastMessage } from '$lib/toast';
 	import BigNumber from 'bignumber.js';
-	import { type Account, AccountIdentifier } from '@dfinity/ledger-icp';
-	import { decodeIcrcAccount } from '@dfinity/ledger-icrc';
-	import { Principal } from '@dfinity/principal';
+	import { AccountIdentifier } from '@dfinity/ledger-icp';
 	import {
 		handleIcrcTransferResult,
 		handleTransferResult,
 		type ToastResult
 	} from '$lib/resultHandler';
-	import type { Tokens, TransferArgs, TransferArg } from '$declarations/icp_ledger.did';
+	import type {
+		Tokens,
+		TransferArgs,
+		TransferArg
+	} from '$lib/../declarations/icp_ledger/icp_ledger.did';
 	import { fade } from 'svelte/transition';
 	import Toast from '../Toast.svelte';
 
@@ -140,13 +142,13 @@
 			}
 		} catch (error) {
 			console.log(error);
-			toasts.add('Transfer failed. Try again.');
+			toasts.add(ToastMessage.error('Transfer failed. Try again.'));
 		}
 		isSending = false;
 		inputAmount.reset();
 	}
 
-	function handleKeydown(event) {
+	function handleKeydown(event: KeyboardEvent) {
 		if (event.key === 'Escape') {
 			event.preventDefault();
 			sendingDialog.close();
@@ -156,17 +158,18 @@
 	}
 
 	onMount(() => {
-		sendingDialog = document.getElementById('senderDialog');
+		sendingDialog = document.getElementById('senderDialog') as HTMLDialogElement;
 		sendingDialog.showModal();
 		isHigher = isContainerHigher('send');
+		sendingDialog.addEventListener('keydown', handleKeydown);
+
+		return () => {
+			sendingDialog.removeEventListener('keydown', handleKeydown);
+		};
 	});
 </script>
 
-<dialog
-	id="senderDialog"
-	style:align-items={isHigher ? 'flex-start' : 'center'}
-	on:keydown={handleKeydown}
->
+<dialog id="senderDialog" style:align-items={isHigher ? 'flex-start' : 'center'}>
 	<div class="send-container" transition:fade={{ duration: 100 }}>
 		<div class="header-container">
 			<h2>Send {$selectedAsset.intoStr()}</h2>

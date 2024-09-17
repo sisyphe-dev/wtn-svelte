@@ -15,18 +15,8 @@
 	import { Toast } from '$lib/toast';
 	import { handleSnsIcpDepositResult, handleSnsRetrieveNicpResult } from '$lib/resultHandler';
 	import { Principal } from '@dfinity/principal';
-	import { type Account, AccountIdentifier, type IcrcAccount } from '@dfinity/ledger-icp';
 	import BigNumber from 'bignumber.js';
-	import {
-		displayUsFormat,
-		bigintE8sToNumber,
-		isPrincipalValid,
-		numberToBigintE8s,
-		principalToHex
-	} from '$lib';
-	import { signIn } from '$lib/authentification';
-	import { fetchIcpBalance, fetchNicpBalance } from '$lib/state';
-	import { encodeIcrcAccount } from '@dfinity/ledger-icrc';
+	import { displayUsFormat, isPrincipalValid, numberToBigintE8s, principalToHex } from '$lib';
 
 	let isConfirmBusy: boolean;
 	let isRetrieveBusy: boolean;
@@ -170,7 +160,7 @@
 							class="copy-btn"
 							on:click={() => {
 								handleAnimation('subaccount');
-								navigator.clipboard.writeText($sns.encodedBoomerangAccount);
+								navigator.clipboard.writeText($sns.encodedBoomerangAccount ?? '');
 							}}
 						>
 							<CopyIcon />

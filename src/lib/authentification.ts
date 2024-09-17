@@ -52,25 +52,39 @@ export async function internetIdentitySignIn(): Promise<AuthResult> {
 	return new Promise<AuthResult>(async (resolve, reject) => {
 		try {
 			const authClient = await AuthClient.create();
-			if (!(await authClient.isAuthenticated())) {
-				const identityProvider = import.meta.env.DEV
+
+			if (await authClient.isAuthenticated()) {
+				const identity: Identity = authClient.getIdentity();
+				const agent = new HttpAgent({
+					identity,
+					host: HOST
+				});
+
+				const actors = await fetchActors(agent);
+				resolve({
+					actors,
+					principal: identity.getPrincipal()
+				});
+			} else {
+				const identityProvider = DEV
 					? `http://localhost:8080/?canisterId=${CANISTER_ID_II}`
 					: `https://identity.${'ic0.app'}`;
-
-				const authClient = await AuthClient.create();
-
-				const derivation = DEV ? undefined : 'https://n3i53-gyaaa-aaaam-acfaq-cai.icp0.io';
+				const derivation =
+					process.env.CANISTER_ID !== 'n3i53-gyaaa-aaaam-acfaq-cai'
+						? undefined
+						: 'https://n3i53-gyaaa-aaaam-acfaq-cai.icp0.io/';
 				await authClient.login({
 					maxTimeToLive: AUTH_MAX_TIME_TO_LIVE,
 					allowPinAuthentication: true,
 					derivationOrigin: derivation,
 					onSuccess: async () => {
-						const identity: Identity = authClient?.getIdentity();
+						const identity: Identity = authClient.getIdentity();
 						const agent = new HttpAgent({
 							identity,
 							host: HOST
 						});
-						const actors = await fetchActors(agent, true);
+
+						const actors = await fetchActors(agent);
 						resolve({
 							actors,
 							principal: identity.getPrincipal()
@@ -80,19 +94,6 @@ export async function internetIdentitySignIn(): Promise<AuthResult> {
 						reject(error);
 					},
 					identityProvider
-				});
-			} else {
-				const identity: Identity = authClient?.getIdentity();
-				const agent = new HttpAgent({
-					identity,
-					host: HOST
-				});
-
-				const actors = await fetchActors(agent, true);
-
-				resolve({
-					actors,
-					principal: identity.getPrincipal()
 				});
 			}
 		} catch (error) {
@@ -177,7 +178,8 @@ export function fetchActors(agent?: HttpAgent, isInternetIdentity = false): Prom
 					host: HOST
 				});
 			}
-			if (process.env.DFX_NETWORK !== 'ic' && isInternetIdentity) {
+
+			if (DEV) {
 				agent.fetchRootKey().catch((err) => {
 					console.warn(
 						'Unable to fetch root key. Check to ensure that your local replica is running'

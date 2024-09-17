@@ -4,7 +4,7 @@
 		"water_neuron": {
 			"candid": "candid/water_neuron.did",
 			"type": "custom",
-			"wasm": "wasm/waterneuron.wasm.gz"
+			"wasm": "wasm/water_neuron.wasm"
 		},
 		"boomerang": {
 			"candid": "candid/boomerang.did",
