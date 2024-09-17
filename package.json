@@ -11,7 +11,8 @@
 		"test": "npx playwright test",
 		"report": "npx playwright show-report",
 		"lint": "prettier --check .",
-		"format": "prettier --write ."
+		"format": "prettier --write .",
+		"execute": "ic-hardware-wallet" 
 	},
 	"devDependencies": {
 		"@dfinity/identity-secp256k1": "^2.0.0",
