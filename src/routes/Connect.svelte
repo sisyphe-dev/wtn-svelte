@@ -37,7 +37,7 @@
 			<h2>Internet Identity</h2>
 		</button>
 		{#if !isMobile}
-			<button class="login-btn" id="plug-btn" on:click={plugConnection}>
+			<button class="login-btn" on:click={plugConnection}>
 				<img src="/icon/plug.png" width="50em" height="50em" alt="Plug Icon." />
 				<h2>Plug Wallet</h2>
 			</button>
@@ -45,7 +45,7 @@
 		{#if DEV || STAGING}
 			<button
 				class="login-btn"
-				id="plug-btn"
+				style:background-color="red"
 				on:click={async () => {
 					if ($isBusy) return;
 
