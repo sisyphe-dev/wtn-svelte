@@ -4,14 +4,17 @@ import {
 	PublicKey,
 	SignIdentity,
 	concat,
-	type Signature
+	type Signature,
+	HttpAgentReadStateRequest,
+	RequestId,
+	ReadStateRequest
 } from '@dfinity/agent';
 import type {
 	ResponseAddress,
 	ResponseSign,
 	ResponseSignUpdateCall,
 	ResponseVersion,
-    LedgerError,
+	LedgerError
 } from '@zondax/ledger-icp';
 import type LedgerApp from '@zondax/ledger-icp';
 import type Transport from '@ledgerhq/hw-transport';
@@ -24,7 +27,7 @@ import { isNullish, smallerVersion } from '@dfinity/utils';
 const LEDGER_DEFAULT_DERIVE_PATH = `m/44'/223'/0'/0/0`;
 
 // Version published in October 2023. Includes all transactions supported in Candid
-export const ALL_CANDID_TXS_VERSION = "2.4.9";
+export const ALL_CANDID_TXS_VERSION = '2.4.9';
 export const LEDGER_SIGNATURE_LENGTH = 64;
 
 class Secp256k1PublicKey implements PublicKey {
@@ -119,12 +122,24 @@ export class LedgerErrorMessage extends Error {}
 
 // Errors throw by hardware wallet but not defined in LedgerError (https://github.com/zondax/ledger-icp)
 export enum ExtendedLedgerError {
-    AppNotOpen = 28161,
-    CannotFetchPublicKey = 65535,
-  }
-  export type AllLedgerError = LedgerError | ExtendedLedgerError;
+	AppNotOpen = 28161,
+	CannotFetchPublicKey = 65535
+}
+export type AllLedgerError = LedgerError | ExtendedLedgerError;
+
+type ReadStateData = {
+	signature: Signature;
+	body: ReadStateRequest;
+}
 
 export class LedgerIdentity extends SignIdentity {
+	// Cache used to avoid signing the read state transaction twice.
+	// The key is the request id of the first request, not the read state request.
+	// Entries from the map are never removed. Because each one required manual action from the user with a hardware wallet, it shouldn't get very large.
+	// Map<requestIdHex, ReadStateData>
+  	private readStateMap: Map<string, ReadStateData> = new Map();
+
+
 	private constructor(
 		private readonly derivePath: string,
 		private readonly publicKey: Secp256k1PublicKey
@@ -173,52 +188,62 @@ export class LedgerIdentity extends SignIdentity {
 		}
 	}
 
-    public static async fetchPublicKeyFromDevice({
-        app, derivePath
-    }:  { app: LedgerApp; derivePath: string }): Promise<Secp256k1PublicKey> {
-        const response = await app.getAddressAndPubKey(derivePath);
-        
-        const code = response.returnCode as AllLedgerError;
+	public static async fetchPublicKeyFromDevice({
+		app,
+		derivePath
+	}: {
+		app: LedgerApp;
+		derivePath: string;
+	}): Promise<Secp256k1PublicKey> {
+		const response = await app.getAddressAndPubKey(derivePath);
 
-        if (code == ExtendedLedgerError.AppNotOpen) {
-            throw new LedgerErrorMessage("error__ledger.please_open");
-        }
+		const code = response.returnCode as AllLedgerError;
 
-        const { LedgerError } = await import("@zondax/ledger-icp");
+		if (code == ExtendedLedgerError.AppNotOpen) {
+			throw new LedgerErrorMessage('error__ledger.please_open');
+		}
 
-        if (code == LedgerError.TransactionRejected) {
-            throw new LedgerErrorMessage("error__ledger.locked");
-        }
+		const { LedgerError } = await import('@zondax/ledger-icp');
 
-        if (code == ExtendedLedgerError.CannotFetchPublicKey) {
-            throw new LedgerErrorMessage("error__ledger.fetch_public_key");
-        }
+		if (code == LedgerError.TransactionRejected) {
+			throw new LedgerErrorMessage('error__ledger.locked');
+		}
 
-        const publicKey = Secp256k1PublicKey.fromRaw(new Uint8Array(response.publicKey));
+		if (code == ExtendedLedgerError.CannotFetchPublicKey) {
+			throw new LedgerErrorMessage('error__ledger.fetch_public_key');
+		}
 
-        if (response.principalText !== Principal.selfAuthenticating(new Uint8Array(publicKey.toDer())).toText()) {
-            throw new LedgerErrorMessage("error__ledger.principal_not_match");
-        }
+		const publicKey = Secp256k1PublicKey.fromRaw(new Uint8Array(response.publicKey));
 
-        return publicKey;
-    }
+		if (
+			response.principalText !==
+			Principal.selfAuthenticating(new Uint8Array(publicKey.toDer())).toText()
+		) {
+			throw new LedgerErrorMessage('error__ledger.principal_not_match');
+		}
 
-    private async executeWithApp<T>(callback: (app:LedgerApp) => Promise<T>): Promise<T> {
-        const { app, transport } = await LedgerIdentity.connect();
+		return publicKey;
+	}
 
-        try {
-            // Verify that the public key of the device matches the public key of this identity.
-            const devicePublicKey = await LedgerIdentity.fetchPublicKeyFromDevice({app, derivePath: this.derivePath});
+	private async executeWithApp<T>(callback: (app: LedgerApp) => Promise<T>): Promise<T> {
+		const { app, transport } = await LedgerIdentity.connect();
 
-            if (JSON.stringify(devicePublicKey) !== JSON.stringify(this.publicKey)) {
-                throw new LedgerErrorMessage("error__ledger.unexpected_wallet");
-            }
+		try {
+			// Verify that the public key of the device matches the public key of this identity.
+			const devicePublicKey = await LedgerIdentity.fetchPublicKeyFromDevice({
+				app,
+				derivePath: this.derivePath
+			});
 
-            return await callback(app);
-        } finally {
-            await transport.close();
-        }
-    }
+			if (JSON.stringify(devicePublicKey) !== JSON.stringify(this.publicKey)) {
+				throw new LedgerErrorMessage('error__ledger.unexpected_wallet');
+			}
+
+			return await callback(app);
+		} finally {
+			await transport.close();
+		}
+	}
 
 	/**
 	 * @returns The version of the `Internet Computer' app installed on the Ledger device and the device model used under the `targeId` key:
@@ -240,55 +265,96 @@ export class LedgerIdentity extends SignIdentity {
 		return this.executeWithApp<ResponseVersion>(callback);
 	}
 
-    private raiseVersionIfDeprecated = async () => {
-        const { major, minor, patch } = await this.getVersion();  
-        const currentVersion = `${major}.${minor}.${patch}`;
-        
-        if (smallerVersion({ minVersion: ALL_CANDID_TXS_VERSION, currentVersion})) {
-            throw new LedgerErrorMessage("error__ledger.app_version_not_supported");
-        }
-    }
+	private raiseVersionIfDeprecated = async () => {
+		const { major, minor, patch } = await this.getVersion();
+		const currentVersion = `${major}.${minor}.${patch}`;
 
-    /**
-     * Required by Ledger.com that the user should be able to press a Button in UI
-     * and verify the address/pubkey are the same as on the device screen.
-    */
-    public async showAddressAndPublicKeyOnDevice(): Promise<ResponseAddress> {
-        const callback = (app: LedgerApp): Promise<ResponseAddress> => app.showAddressAndPubKey(this.derivePath);
-        return this.executeWithApp(callback);
-    }
+		if (smallerVersion({ minVersion: ALL_CANDID_TXS_VERSION, currentVersion })) {
+			throw new LedgerErrorMessage('error__ledger.app_version_not_supported');
+		}
+	};
 
-    public override async sign(blob: ArrayBuffer): Promise<Signature> {
-        await this.raiseVersionIfDeprecated();
+	/**
+	 * Required by Ledger.com that the user should be able to press a Button in UI
+	 * and verify the address/pubkey are the same as on the device screen.
+	 */
+	public async showAddressAndPublicKeyOnDevice(): Promise<ResponseAddress> {
+		const callback = (app: LedgerApp): Promise<ResponseAddress> =>
+			app.showAddressAndPubKey(this.derivePath);
+		return this.executeWithApp(callback);
+	}
 
-        const callback = async (app: LedgerApp): Promise<Signature> => {
-            const responseSign: ResponseSign = await app.sign(this.derivePath, Buffer.from(blob), 0);
+	public override async sign(blob: ArrayBuffer): Promise<Signature> {
+		await this.raiseVersionIfDeprecated();
 
-            if (isNullish(responseSign.signatureRS)) {
-                throw new LedgerErrorMessage(`error__ledger.signature_unexpected, (code ${responseSign.returnCode}):` + JSON.stringify(responseSign.errorMessage));
-            }
+		const callback = async (app: LedgerApp): Promise<Signature> => {
+			const responseSign: ResponseSign = await app.sign(this.derivePath, Buffer.from(blob), 0);
 
-            const { byteLength, length } = responseSign.signatureRS;
+			await checkResponseCode(responseSign.returnCode);
 
-            if (byteLength !== LEDGER_SIGNATURE_LENGTH) {
-                throw new LedgerErrorMessage(`error__ledger.signature_length: should be 64 but got ${length}`);
-            }
+			if (isNullish(responseSign.signatureRS)) {
+				throw new LedgerErrorMessage(
+					`error__ledger.signature_unexpected, (code ${responseSign.returnCode}):` +
+						JSON.stringify(responseSign.errorMessage)
+				);
+			}
 
-            return bufferToArrayBuffer(responseSign.signatureRS) as Signature;
-        } 
+			const { byteLength, length } = responseSign.signatureRS;
 
-        return this.executeWithApp(callback);
-    }
+			if (byteLength !== LEDGER_SIGNATURE_LENGTH) {
+				throw new LedgerErrorMessage(
+					`error__ledger.signature_length: should be 64 but got ${length}`
+				);
+			}
+
+			return bufferToArrayBuffer(responseSign.signatureRS) as Signature;
+		};
+
+		return this.executeWithApp(callback);
+	}
+
+	private storeRequestInCache({requestId, signature, body}: {requestId: RequestId; signature: Signature; body: ReadStateRequest;}) {
+		const requestIdHex = Buffer.from(requestId).toString("hex");
+
+		this.readStateMap.set(
+			requestIdHex, { signature, body }
+		);
+	}
+
+	private async getRequestFromCache(request: HttpAgentReadStateRequest): Promise<Record<string, unknown> | undefined> {
+		const { body, ...fields } = request;
+		const requestIdHex = Buffer.from(getRequestId(body)).toString("hex");
+		const cachedData = this.readStateMap.get(requestIdHex);
+
+		if (isNullish(cachedData)) {
+			console.warn(`No chached data for read state request with id ${requestIdHex}`);
+			return;
+		}
+		const { signature, body: cachedBody } = cachedData;
+
+		// If cached data doesn't match, ignore and move on to sign the request.
+   		// The `ingress_expiry` is different in the cached in the new request because the new one is created after the first call.
+   		// But the signature was done with the cached body. That's why we use the cached body.
+
+		const newBody = {
+			...body, 
+			ingress_expiry: cachedBody.ingress_expiry
+		};
+	}
 }
 
 const checkResponseCode = async (returnCode: LedgerError) => {
-    const { LedgerError } = await import("@zondax/ledger-icp");
+	const { LedgerError } = await import('@zondax/ledger-icp');
 
-    if (returnCode === LedgerError.TransactionRejected) {
-        throw new LedgerErrorMessage("error__ledger.user_rejected_transaction");
-    }
-}
+	if (returnCode === LedgerError.TransactionRejected) {
+		throw new LedgerErrorMessage('error__ledger.user_rejected_transaction');
+	}
+};
 
 const bufferToArrayBuffer = (buffer: Buffer): ArrayBuffer => {
-    return buffer.buffer.slice(buffer.byteOffset, buffer.byteLength+buffer.byteOffset);
-}
+	return buffer.buffer.slice(buffer.byteOffset, buffer.byteLength + buffer.byteOffset);
+};
+
+// Check docs for more detais: https://internetcomputer.org/docs/current/references/ic-interface-spec/#http-read-state
+// Quote: "Moreover, all paths with prefix /request_status/<request_id> must refer to the same request ID <request_id>."
+const getRequestId = (body: ReadRequest): RequestId => body.paths[0][1];
