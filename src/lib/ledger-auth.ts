@@ -7,7 +7,8 @@ import {
 	type Signature,
 	HttpAgentReadStateRequest,
 	RequestId,
-	ReadStateRequest
+	ReadStateRequest,
+	ReadRequest
 } from '@dfinity/agent';
 import type {
 	ResponseAddress,
@@ -335,11 +336,11 @@ export class LedgerIdentity extends SignIdentity {
 		// If cached data doesn't match, ignore and move on to sign the request.
    		// The `ingress_expiry` is different in the cached in the new request because the new one is created after the first call.
    		// But the signature was done with the cached body. That's why we use the cached body.
-
 		const newBody = {
 			...body, 
 			ingress_expiry: cachedBody.ingress_expiry
 		};
+
 	}
 }
 
