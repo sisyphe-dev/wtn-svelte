@@ -121,7 +121,6 @@ export const handleSnsChange = async (name?: string, principal?: string) => {
 	} catch (error) {
 		console.log(error);
 	}
-
 };
 
 /* === Toasts === */
