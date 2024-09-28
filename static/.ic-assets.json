@@ -1,6 +1,9 @@
 [
 	{
-		"match": ".well-known",
+		"match": "**/*",
+		"headers": {
+			"X-Security-Policy": "hardened"
+		},
 		"ignore": false
 	},
 	{
@@ -8,7 +11,7 @@
 		"headers": {
 			"Access-Control-Allow-Origin": "*",
 			"Content-Type": "application/json",
-			"security_policy": "hardened"
+			"X-Security-Policy": "hardened"
 		},
 		"ignore": false
 	}
