@@ -57,7 +57,7 @@
 	let exchangeRate: BigNumber;
 	let minimumWithdraw: BigNumber;
 	let fastUnstakeAmount = BigNumber(0);
-	let refreshQuoteCounter = 0;
+	let timeoutId: NodeJS.Timeout | null = null;
 	let showFailedHelp = false;
 	let showImmediateHelp = false;
 	let showDelayedHelp = false;
@@ -311,8 +311,7 @@
 	};
 
 	const computeReceiveAmountFastUnstake = async () => {
-		if (!$canisters || refreshQuoteCounter < 10) return;
-		refreshQuoteCounter = 0;
+		if (!$canisters) return;
 
 		try {
 			const amount = BigNumber($inputAmount);
@@ -360,18 +359,25 @@
 
 	onMount(() => {
 		const intervalIdFetchData = setInterval(fetchData, 5000);
-		const intervalIdQuote = setInterval(async () => {
-			refreshQuoteCounter += 1;
 
-			if (refreshQuoteCounter >= 10) {
-				await computeReceiveAmountFastUnstake();
-			}
-		}, 100);
 		return () => {
 			clearInterval(intervalIdFetchData);
-			clearInterval(intervalIdQuote);
+			if (timeoutId) {
+				clearTimeout(timeoutId);
+			}
 		};
 	});
+
+	const triggerTimeout = async () => {
+		if (timeoutId) {
+			clearTimeout(timeoutId);
+		}
+		timeoutId = setTimeout(async () => {
+			await computeReceiveAmountFastUnstake();
+		}, 400);
+	};
+
+	$: $inputAmount, triggerTimeout();
 </script>
 
 <div class="swap-container">
