@@ -121,13 +121,15 @@ export async function nicpTransferApproved(
 	const allowance = allowanceResult['allowance'];
 	if (amount > allowance) {
 		try {
+			// Two weeks later, in nanoseconds
+			const expiryDate = BigInt(Date.now() * 1_000_000 + 1_209_600_000_000_000);
 			const approveResult: ApproveResult = await nicpLedger.icrc2_approve({
 				spender,
 				fee: [],
 				memo: [],
 				from_subaccount: [],
 				created_at_time: [],
-				expires_at: [],
+				expires_at: [expiryDate],
 				expected_allowance: [],
 				amount: amount * BigInt(3)
 			} as ApproveArgs);
@@ -155,13 +157,15 @@ export async function icpTransferApproved(
 	const allowance = allowanceResult['allowance'];
 	if (amount > allowance) {
 		try {
+			// Two weeks later, in nanoseconds
+			const expiryDate = BigInt(Date.now() * 1_000_000 + 1_209_600_000_000_000);
 			const approveResult: ApproveResult = await icpLedger.icrc2_approve({
 				spender,
 				fee: [],
 				memo: [],
 				from_subaccount: [],
 				created_at_time: [],
-				expires_at: [],
+				expires_at: [expiryDate],
 				expected_allowance: [],
 				amount: amount * BigInt(3)
 			} as ApproveArgs);

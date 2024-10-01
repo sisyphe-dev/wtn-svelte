@@ -1,5 +1,5 @@
 {
-	"dfx": "0.16.1",
+	"dfx": "0.23.0",
 	"canisters": {
 		"water_neuron": {
 			"candid": "candid/water_neuron.did",

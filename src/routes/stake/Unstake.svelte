@@ -57,6 +57,7 @@
 	let exchangeRate: BigNumber;
 	let minimumWithdraw: BigNumber;
 	let fastUnstakeAmount = BigNumber(0);
+	let timeoutId: NodeJS.Timeout | null = null;
 	let showFailedHelp = false;
 	let showImmediateHelp = false;
 	let showDelayedHelp = false;
@@ -76,9 +77,8 @@
 		if ($user.nicpBalance().isGreaterThanOrEqualTo(amount) && amount.isGreaterThan(0)) {
 			try {
 				let amountE8s = numberToBigintE8s(amount);
-				const approveAmount = amountE8s * 3n;
 				const approval = await nicpTransferApproved(
-					approveAmount,
+					amountE8s,
 					{
 						owner: $user.principal,
 						subaccount: []
@@ -319,6 +319,7 @@
 
 			const amountIn = numberToBigintE8s(amount);
 			const amountOut = amountIn - numberToBigintE8s(amount.multipliedBy(BigNumber(0.02)));
+
 			const result = await $canisters.icpswapPool.quote({
 				amountIn: amountIn.toString(),
 				zeroForOne: true,
@@ -357,11 +358,26 @@
 	});
 
 	onMount(() => {
-		const intervalId = setInterval(fetchData, 5000);
-		return () => clearInterval(intervalId);
+		const intervalIdFetchData = setInterval(fetchData, 5000);
+
+		return () => {
+			clearInterval(intervalIdFetchData);
+			if (timeoutId) {
+				clearTimeout(timeoutId);
+			}
+		};
 	});
 
-	$: $inputAmount, computeReceiveAmountFastUnstake();
+	const triggerTimeout = async () => {
+		if (timeoutId) {
+			clearTimeout(timeoutId);
+		}
+		timeoutId = setTimeout(async () => {
+			await computeReceiveAmountFastUnstake();
+		}, 400);
+	};
+
+	$: $inputAmount, triggerTimeout();
 </script>
 
 <div class="swap-container">
@@ -415,7 +431,7 @@
 				{#if fastUnstakeAmount.isGreaterThanOrEqualTo(0.0002)}
 					Receive {displayUsFormat(fastUnstakeAmount.minus(BigNumber(0.0002)), 8)} ICP
 				{:else}
-					Receive 0 ICP
+					Receive -/- ICP
 				{/if}
 			</p>
 			<button

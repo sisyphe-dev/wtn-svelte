@@ -42,9 +42,8 @@
 		if ($user.icpBalance().isGreaterThanOrEqualTo(amount) && amount.isGreaterThan(0)) {
 			try {
 				let amountE8s = numberToBigintE8s(amount);
-				const approveAmount = amountE8s * 3n;
 				const approval = await icpTransferApproved(
-					approveAmount,
+					amountE8s,
 					{
 						owner: $user.principal,
 						subaccount: []
