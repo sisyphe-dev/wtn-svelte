@@ -1,6 +1,6 @@
 dfx identity use default
 
-dfx nns install
+dfx extension run nns install
 
 dfx canister create water_neuron --specified-id n76cn-tyaaa-aaaam-acc5a-cai
 dfx canister create nicp_ledger --specified-id ny7ez-6aaaa-aaaam-acc5q-cai
