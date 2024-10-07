@@ -166,3 +166,75 @@ export class WaterNeuronInfo {
 		return Number(this.info.stakers_count);
 	}
 }
+
+
+// export const fetchGovernanceData = async () => {
+//     try {
+//       const urls = [
+//         "https://ic-api.internetcomputer.org/api/v3/governance-metrics",
+//         "https://ic-api.internetcomputer.org/api/v3/neurons/13680855657433416220",
+//         "https://ic-api.internetcomputer.org/api/v3/neurons/433047053926084807",
+//       ];
+
+//       const [metricsResponse, neuronResponse6m, neuronResponse8y] =
+//         await Promise.all(
+//           urls.map((url) =>
+//             fetch(url, {
+//               method: "GET",
+//               headers: {
+//                 accept: "application/json",
+//               },
+//             }).then((response) => {
+//               if (!response.ok) {
+//                 throw new Error(`Error! status: ${response.status}`);
+//               }
+//               return response.json();
+//             }),
+//           ),
+//         );
+
+//       const metrics = metricsResponse.metrics;
+//       let lastRewardsRoundTotalAvailableIcp = null;
+//       let totalVotingPower = null;
+
+//       metrics.forEach((metric: any) => {
+//         if (
+//           metric.name === "governance_latest_reward_round_total_available_e8s"
+//         ) {
+//           lastRewardsRoundTotalAvailableIcp = metric.subsets[0].value[1];
+//         }
+//         if (metric.name === "governance_voting_power_total") {
+//           totalVotingPower = metric.subsets[0].value[1];
+//         }
+//       });
+
+//       const voting_power_6m = neuronResponse6m["voting_power"] / 100_000_000;
+//       const voting_power_8y = neuronResponse8y["voting_power"] / 100_000_000;
+//       const stake_e8s =
+//         (neuronResponse6m["stake_e8s"] + neuronResponse8y["stake_e8s"]) /
+//         100_000_000;
+
+//       if (
+//         lastRewardsRoundTotalAvailableIcp !== null &&
+//         totalVotingPower !== null &&
+//         stake_e8s !== 0 &&
+//         totalVotingPower !== 0
+//       ) {
+//         const dissolveDelayBonus6m = 1 + 0.5 / 8;
+//         const dissolveDelayBonus8y = 1 + 8 / 8;
+//         const dailyRewardsIcpPerVotingPowerUnit =
+//           lastRewardsRoundTotalAvailableIcp / totalVotingPower;
+//         const estimatedNeuronDailyRewards =
+//           (voting_power_6m * dissolveDelayBonus6m +
+//             voting_power_8y * dissolveDelayBonus8y) *
+//           dailyRewardsIcpPerVotingPowerUnit;
+
+//         const neuronAnnualRewards =
+//           ((estimatedNeuronDailyRewards * 365.25) / stake_e8s) * 100;
+
+//         console.log(neuronAnnualRewards);
+//       }
+//     } catch (error) {
+//       console.error("An error occurred:", error);
+//     }
+//   };
