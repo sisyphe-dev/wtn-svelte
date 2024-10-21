@@ -11,7 +11,7 @@ import { idlFactory as idlFactoryBoomerang } from '../declarations/boomerang';
 import type { _SERVICE as boomerangInterface } from '../declarations/boomerang/boomerang.did';
 import type { _SERVICE as icpswapPoolInterface } from '../declarations/icpswap_pool/icpswap_pool.did';
 import { idlFactory as idlFactoryIcpswapPool } from '../declarations/icpswap_pool';
-
+import { SignerAgent } from '@slide-computer/signer-agent';
 import { user, canisters } from './stores';
 import { Canisters, User } from './state';
 
@@ -58,9 +58,9 @@ export async function internetIdentitySignIn(): Promise<AuthResult> {
 
 			if (await authClient.isAuthenticated()) {
 				const identity: Identity = authClient.getIdentity();
-				const agent = new HttpAgent({
+				const agent = HttpAgent.createSync({
 					identity,
-					host: HOST
+					host: HOST,
 				});
 
 				const actors = await fetchActors(agent);
@@ -76,7 +76,7 @@ export async function internetIdentitySignIn(): Promise<AuthResult> {
 					identityProvider: IDENTITY_PROVIDER,
 					onSuccess: async () => {
 						const identity: Identity = authClient.getIdentity();
-						const agent = new HttpAgent({
+						const agent = HttpAgent.createSync({
 							identity,
 							host: HOST
 						});
@@ -167,9 +167,9 @@ export async function localSignIn() {
 
 		if (await authClient.isAuthenticated()) {
 			const identity: Identity = authClient.getIdentity();
-			const agent = new HttpAgent({
+			const agent = HttpAgent.createSync({
 				identity,
-				host: HOST
+				host: HOST,
 			});
 
 			const actors = await fetchActors(agent);
@@ -188,7 +188,7 @@ export async function localSignIn() {
 				onSuccess: async () => {
 					const identity: Identity = authClient.getIdentity();
 					const agent = new HttpAgent({
-						identity,
+						identity,	
 						host: HOST
 					});
 
@@ -216,7 +216,7 @@ export function fetchActors(agent?: HttpAgent, isPlug = false): Promise<Actors> 
 	return new Promise<Actors>(async (resolve, reject) => {
 		try {
 			if (!agent) {
-				agent = new HttpAgent({
+				agent = HttpAgent.createSync({
 					host: HOST
 				});
 			}

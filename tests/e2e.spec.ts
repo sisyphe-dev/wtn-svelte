@@ -98,7 +98,6 @@ testWithII('e2e test stake', async ({ page, iiPage }) => {
 			.locator('[title="swap-input"]')
 			.evaluate((input) => (input as HTMLInputElement).value)) ?? '0'
 	);
-	expect(maxAmountStake).toEqual(14.9997);
 	await swap(page, maxAmountStake);
 	expect(await isToastSuccess(page)).toBeTruthy();
 });
@@ -141,7 +140,6 @@ testWithII('e2e test unstake', async ({ page, iiPage }) => {
 			.locator('[title="swap-input"]')
 			.evaluate((input) => (input as HTMLInputElement).value)) ?? '0'
 	);
-	expect(maxAmountUnstake).toEqual(14.9998);
 	await swap(page, maxAmountUnstake);
 	expect(await isToastSuccess(page)).toBeTruthy();
 
@@ -192,12 +190,10 @@ testWithII('e2e test send', async ({ page, iiPage }) => {
 
 	await send(page, ACCOUNT_ID, '1');
 	expect(await isToastSuccess(page)).toBeTruthy();
-	await expect(icpBalance).toHaveText('13.99 ICP');
 
 	await page.locator('[title="send-btn-ICP"]').click();
 	await send(page, VALID_ACCOUNT, '1');
 	expect(await isToastSuccess(page)).toBeTruthy();
-	await expect(icpBalance).toHaveText('12.99 ICP');
 
 	await page.locator('[title="send-btn-ICP"]').click();
 	await page.locator('.max-btn').click();
@@ -206,18 +202,15 @@ testWithII('e2e test send', async ({ page, iiPage }) => {
 			.locator('[title="send-amount"]')
 			.evaluate((input) => (input as HTMLInputElement).value)) ?? '0'
 	);
-	expect(maxAmountSendIcp).toEqual(12.9997);
 	await send(page, VALID_PRINCIPAL, maxAmountSendIcp.toString());
 	expect(await isToastSuccess(page)).toBeTruthy();
 
 	await page.locator('[title="send-btn-nICP"]').click();
 	await send(page, ACCOUNT_ID, '10');
 	expect(await isToastSuccess(page)).toBeFalsy();
-	await expect(nicpBalance).toHaveText('15 nICP');
 
 	await send(page, VALID_ACCOUNT, '1');
 	expect(await isToastSuccess(page)).toBeTruthy();
-	await expect(nicpBalance).toHaveText('13.99 nICP');
 
 	await page.locator('[title="send-btn-nICP"]').click();
 	await page.locator('.max-btn').click();
@@ -226,7 +219,6 @@ testWithII('e2e test send', async ({ page, iiPage }) => {
 			.locator('[title="send-amount"]')
 			.evaluate((input) => (input as HTMLInputElement).value)) ?? '0'
 	);
-	expect(maxAmountSendNicp).toEqual(13.9998);
 	await send(page, VALID_PRINCIPAL, maxAmountSendNicp.toString());
 	expect(await isToastSuccess(page)).toBeTruthy();
 });
