@@ -167,7 +167,6 @@ export class WaterNeuronInfo {
 	}
 }
 
-
 // export const fetchGovernanceData = async () => {
 //     try {
 //       const urls = [

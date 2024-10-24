@@ -26,7 +26,7 @@
 		DEFAULT_ERROR_MESSAGE
 	} from '$lib/resultHandler';
 	import type { ConversionArg } from '$lib/../declarations/water_neuron/water_neuron.did';
-	import type { Account } from '@dfinity/ledger-icp';
+	import type { Account } from '../../declarations/icrc_ledger/icrc_ledger.did';
 	import { onMount, afterUpdate } from 'svelte';
 	import { fade } from 'svelte/transition';
 

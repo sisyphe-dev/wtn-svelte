@@ -1,25 +1,31 @@
 <script lang="ts">
 	import { isLogging, isBusy } from '$lib/stores';
-	import { signIn, DEV, STAGING, localSignIn } from '$lib/authentification';
+	import {
+		DEV,
+		STAGING,
+		connectWithInternetIdentity,
+		connectWithTransport,
+		connectWithPlug,
+		localSignIn
+	} from '$lib/authentification';
 	import { fade } from 'svelte/transition';
 	import { isMobile } from '$lib';
 
-	async function internetIdentityConnection() {
+	async function handleConnection(identityProvider: 'internetIdentity' | 'plug' | 'transport') {
 		if ($isBusy) return;
 		isBusy.set(true);
 
-		await signIn('internetIdentity');
-
-		isBusy.set(false);
-		isLogging.set(false);
-	}
-
-	async function plugConnection() {
-		if ($isBusy) return;
-
-		isBusy.set(true);
-
-		await signIn('plug');
+		switch (identityProvider) {
+			case 'internetIdentity':
+				await connectWithInternetIdentity();
+				break;
+			case 'plug':
+				await connectWithPlug();
+				break;
+			case 'transport':
+				await connectWithTransport();
+				break;
+		}
 
 		isBusy.set(false);
 		isLogging.set(false);
@@ -32,12 +38,15 @@
 			<div class="spinner"></div>
 		</button>
 	{:else}
-		<button class="login-btn" on:click={internetIdentityConnection}>
+		<button class="login-btn" on:click={() => handleConnection('internetIdentity')}>
 			<img src="/icon/astronaut.webp" width="50em" height="50em" alt="Dfinity Astronaut." />
 			<h2>Internet Identity</h2>
 		</button>
+		<button class="login-btn" on:click={() => handleConnection('transport')}>
+			<img src="/icon/nfid.webp" width="80em" height="50em" alt="Nfid Logo." />
+		</button>
 		{#if !isMobile}
-			<button class="login-btn" on:click={plugConnection}>
+			<button class="login-btn" on:click={() => handleConnection('plug')}>
 				<img src="/icon/plug.png" width="50em" height="50em" alt="Plug Icon." />
 				<h2>Plug Wallet</h2>
 			</button>

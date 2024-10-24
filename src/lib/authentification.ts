@@ -11,8 +11,9 @@ import { idlFactory as idlFactoryBoomerang } from '../declarations/boomerang';
 import type { _SERVICE as boomerangInterface } from '../declarations/boomerang/boomerang.did';
 import type { _SERVICE as icpswapPoolInterface } from '../declarations/icpswap_pool/icpswap_pool.did';
 import { idlFactory as idlFactoryIcpswapPool } from '../declarations/icpswap_pool';
-import { SignerAgent } from '@slide-computer/signer-agent';
-import { user, canisters } from './stores';
+import { Signer } from '@slide-computer/signer';
+import { PostMessageTransport } from '@slide-computer/signer-web';
+import { user, canisters, signer } from './stores';
 import { Canisters, User } from './state';
 
 // 1 hour in nanoseconds
@@ -50,6 +51,124 @@ export interface Actors {
 	boomerang: boomerangInterface;
 	icpswapPool: icpswapPoolInterface;
 }
+export async function connectWithInternetIdentity() {
+	try {
+		const authClient = await AuthClient.create();
+
+		if (await authClient.isAuthenticated()) {
+			const identity = authClient.getIdentity();
+			const agent = HttpAgent.createSync({
+				identity,
+				host: HOST
+			});
+			canisters.set(await fetchActors(agent));
+			user.set(new User(identity.getPrincipal()));
+		} else {
+			await authClient.login({
+				maxTimeToLive: AUTH_MAX_TIME_TO_LIVE,
+				allowPinAuthentication: true,
+				derivationOrigin: DAPP_DERIVATION_ORIGIN,
+				identityProvider: IDENTITY_PROVIDER,
+				onSuccess: async () => {
+					const identity = authClient.getIdentity();
+					const agent = HttpAgent.createSync({
+						identity,
+						host: HOST
+					});
+					canisters.set(await fetchActors(agent));
+					user.set(new User(identity.getPrincipal()));
+				},
+				onError: (error) => {
+					throw Error(error);
+				}
+			});
+		}
+	} catch (error) {
+		console.error(error);
+	}
+}
+
+export async function tryConnectOnReload() {
+	const authClient = await AuthClient.create();
+
+	if (await authClient.isAuthenticated()) {
+		const identity = authClient.getIdentity();
+		const agent = HttpAgent.createSync({
+			identity,
+			host: HOST
+		});
+		canisters.set(await fetchActors(agent));
+		user.set(new User(identity.getPrincipal()));
+	} else {
+		const agent = HttpAgent.createSync({
+			host: HOST
+		});
+		canisters.set(await fetchActors(agent));
+	}
+}
+
+interface LoginWindow {
+	ic: any;
+}
+
+declare global {
+	interface Window extends LoginWindow {}
+}
+
+export async function connectWithPlug() {
+	try {
+		let whitelist: string[] = [
+			CANISTER_ID_ICP_LEDGER,
+			CANISTER_ID_NICP_LEDGER,
+			CANISTER_ID_WTN_LEDGER,
+			CANISTER_ID_WATER_NEURON
+		];
+
+		await window.ic.plug.requestConnect({
+			whitelist,
+			host: HOST
+		});
+
+		canisters.set(await fetchActors(window.ic.plug.agent, true));
+		user.set(new User(await window.ic.plug.getPrincipal()));
+	} catch (error) {
+		console.error(error);
+	}
+}
+
+export async function connectWithTransport() {
+	const transport = new PostMessageTransport({
+		url: 'https://nfid.one/rpc'
+	});
+
+	const newSigner = new Signer({ transport });
+
+	console.log('The wallet set the following permission scope:', await newSigner.permissions());
+
+	canisters.set(await fetchActors());
+	user.set(new User((await newSigner.accounts())[0].owner));
+	signer.set(newSigner);
+}
+
+// Un call qui marche:
+// const response = await signer.callCanister({
+// 	canisterId: Principal.fromText(CANISTER_ID_ICP_LEDGER),
+// 	sender: Principal.fromText('6gw4e-65bmy-nvl7o-m3mwf-2enxh-fmt6h-dknya-3vvrg-lvkz3-su3nh-xae'),
+// 	method: 'icrc1_balance_of',
+// 	arg: Buffer.from(
+// 		IDL.encode(
+// 			[IDL.Record({ owner: IDL.Principal, subaccount: IDL.Opt(IDL.Vec(IDL.Nat64)) })],
+// 			[
+// 				{
+// 					owner: Principal.fromText(
+// 						'6gw4e-65bmy-nvl7o-m3mwf-2enxh-fmt6h-dknya-3vvrg-lvkz3-su3nh-xae'
+// 					),
+// 					subaccount: []
+// 				}
+// 			]
+// 		)
+// 	)
+// });
 
 export async function internetIdentitySignIn(): Promise<AuthResult> {
 	return new Promise<AuthResult>(async (resolve, reject) => {
@@ -58,12 +177,12 @@ export async function internetIdentitySignIn(): Promise<AuthResult> {
 
 			if (await authClient.isAuthenticated()) {
 				const identity: Identity = authClient.getIdentity();
-				const agent = HttpAgent.createSync({
+				const httpAgent = HttpAgent.createSync({
 					identity,
-					host: HOST,
+					host: HOST
 				});
 
-				const actors = await fetchActors(agent);
+				const actors = await fetchActors(httpAgent);
 				resolve({
 					actors,
 					principal: identity.getPrincipal()
@@ -98,112 +217,36 @@ export async function internetIdentitySignIn(): Promise<AuthResult> {
 	});
 }
 
-interface LoginWindow {
-	ic: any;
-}
-
-declare global {
-	interface Window extends LoginWindow {}
-}
-
-export async function plugSignIn(): Promise<AuthResult> {
-	return new Promise<AuthResult>(async (resolve, reject) => {
-		try {
-			let whitelist: string[] = [
-				CANISTER_ID_ICP_LEDGER,
-				CANISTER_ID_NICP_LEDGER,
-				CANISTER_ID_WTN_LEDGER,
-				CANISTER_ID_WATER_NEURON
-			];
-
-			await window.ic.plug.requestConnect({
-				whitelist,
-				host: HOST
-			});
-
-			const principal: Principal = await window.ic.plug.getPrincipal();
-			const agent = window.ic.plug.agent;
-
-			const actors = await fetchActors(agent, true);
-
-			resolve({ actors, principal });
-		} catch (error) {
-			reject(error);
-		}
-	});
-}
-
-export async function signIn(walletOrigin: 'internetIdentity' | 'plug' | 'reload') {
-	try {
-		let authResult: AuthResult;
-
-		switch (walletOrigin) {
-			case 'internetIdentity':
-				authResult = await internetIdentitySignIn();
-				break;
-			case 'plug':
-				authResult = await plugSignIn();
-				break;
-			case 'reload':
-				const authClient = await AuthClient.create();
-				if (!(await authClient.isAuthenticated())) {
-					const actors = await fetchActors(undefined);
-					canisters.set(new Canisters(actors));
-					return;
-				}
-				authResult = await internetIdentitySignIn();
-				break;
-		}
-		canisters.set(new Canisters(authResult.actors));
-		user.set(new User(authResult.principal));
-	} catch (error) {
-		console.error('Login failed:', error);
-	}
-}
-
 export async function localSignIn() {
 	try {
 		const authClient = await AuthClient.create();
 
-		if (await authClient.isAuthenticated()) {
-			const identity: Identity = authClient.getIdentity();
-			const agent = HttpAgent.createSync({
-				identity,
-				host: HOST,
-			});
+		const identityProvider = DEV
+			? `http://localhost:8080/?canisterId=${CANISTER_ID_II}`
+			: IDENTITY_PROVIDER;
+		await authClient.login({
+			maxTimeToLive: AUTH_MAX_TIME_TO_LIVE,
+			allowPinAuthentication: true,
+			derivationOrigin: undefined,
+			identityProvider,
+			onSuccess: async () => {
+				const identity: Identity = authClient.getIdentity();
+				const agent = HttpAgent.createSync({
+					identity,
+					host: HOST
+				});
 
-			const actors = await fetchActors(agent);
+				const actors = await fetchActors(agent);
 
-			canisters.set(new Canisters(actors));
-			user.set(new User(identity.getPrincipal()));
-		} else {
-			const identityProvider = DEV
-				? `http://localhost:8080/?canisterId=${CANISTER_ID_II}`
-				: IDENTITY_PROVIDER;
-			await authClient.login({
-				maxTimeToLive: AUTH_MAX_TIME_TO_LIVE,
-				allowPinAuthentication: true,
-				derivationOrigin: undefined,
-				identityProvider,
-				onSuccess: async () => {
-					const identity: Identity = authClient.getIdentity();
-					const agent = new HttpAgent({
-						identity,	
-						host: HOST
-					});
-
-					const actors = await fetchActors(agent);
-
-					canisters.set(new Canisters(actors));
-					user.set(new User(identity.getPrincipal()));
-				},
-				onError: (error) => {
-					console.log(error);
-				}
-			});
-		}
+				canisters.set(new Canisters(actors));
+				user.set(new User(identity.getPrincipal()));
+			},
+			onError: (error) => {
+				throw new Error(error);
+			}
+		});
 	} catch (error) {
-		console.log(error);
+		console.error(error);
 	}
 }
 

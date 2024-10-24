@@ -25,7 +25,7 @@
 		fetchWtnBalance,
 		fetchWtnAllocation
 	} from '$lib/state';
-	import { signIn } from '$lib/authentification';
+	import { tryConnectOnReload } from '$lib/authentification';
 	import Toast from './Toast.svelte';
 
 	async function updateBalances() {
@@ -45,7 +45,7 @@
 	}
 
 	onMount(() => {
-		signIn('reload').then(() => {
+		tryConnectOnReload().then(() => {
 			updateBalances();
 			updateWaterNeuronInfo();
 			handleSnsChange('BOOM DAO', 'xomae-vyaaa-aaaaq-aabhq-cai');
