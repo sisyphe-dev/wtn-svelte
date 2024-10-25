@@ -70,7 +70,7 @@
 			!$canisters ||
 			!$waterNeuronInfo ||
 			amount.isNaN() ||
-			amount.isLessThan(BigNumber(10).dividedBy($waterNeuronInfo.exchangeRate()))
+			amount.isLessThan(minimumWithdraw)
 		)
 			return;
 		isConverting.set(true);
@@ -83,7 +83,7 @@
 						owner: $user.principal,
 						subaccount: []
 					} as Account,
-					$canisters.nicpLedger.authenticatedActor
+					$canisters.nicpLedger
 				);
 				if (!approval.success) {
 					toasts.add(Toast.error(approval.message ?? 'Unknown Error.'));

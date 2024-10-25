@@ -89,10 +89,7 @@ export async function tryConnectOnReload() {
 		canisters.set(await fetchActors(agent));
 		user.set(new User(identity.getPrincipal()));
 	} else {
-		const agent = HttpAgent.createSync({
-			host: HOST
-		});
-		canisters.set(await fetchActors(agent));
+		canisters.set(await fetchActors());
 	}
 }
 
@@ -118,7 +115,7 @@ export async function connectWithPlug() {
 			host: HOST
 		});
 
-		canisters.set(await fetchActors(window.ic.plug.agent, undefined, true));
+		canisters.set(await fetchActors(window.ic.plug.agent, true));
 		user.set(new User(await window.ic.plug.getPrincipal()));
 	} catch (error) {
 		console.error(error);
@@ -141,9 +138,7 @@ export async function connectWithTransport() {
 		account: (await newSigner.accounts())[0].owner
 	});
 
-	const httpAgent = HttpAgent.createSync({ host: HOST });
-
-	canisters.set(await fetchActors(httpAgent, signerAgent));
+	canisters.set(await fetchActors(signerAgent));
 	user.set(new User((await newSigner.accounts())[0].owner));
 }
 
@@ -204,12 +199,15 @@ export async function internetIdentityLogout() {
 }
 
 export function fetchActors<T extends Pick<Signer, 'callCanister'>>(
-	agent: HttpAgent,
-	signerAgent?: SignerAgent<T>,
+	authenticatedAgent?: HttpAgent | SignerAgent<T>,
 	isPlug = false
 ): Promise<Canisters> {
 	return new Promise<Canisters>(async (resolve, reject) => {
 		try {
+			const agent = HttpAgent.createSync({
+				host: HOST
+			})
+
 			if (DEV && !isPlug) {
 				agent.fetchRootKey().catch((err) => {
 					console.warn(
@@ -250,16 +248,25 @@ export function fetchActors<T extends Pick<Signer, 'callCanister'>>(
 				CANISTER_ID_ICPSWAP_POOL
 			);
 
-			if (signerAgent) {
-				icpLedger.setAuthenticatedActor(signerAgent);
-				nicpLedger.setAuthenticatedActor(signerAgent);
-				wtnLedger.setAuthenticatedActor(signerAgent);
-				waterNeuron.setAuthenticatedActor(signerAgent);
-				boomerang.setAuthenticatedActor(signerAgent);
-				icpswapPool.setAuthenticatedActor(signerAgent);
+			if (authenticatedAgent) {
+				if (DEV && !isPlug) {
+					authenticatedAgent.fetchRootKey().catch((err) => {
+						console.warn(
+							'Unable to fetch root key. Check to ensure that your local replica is running'
+						);
+						console.error(err);
+					});
+				}
+
+				icpLedger.setAuthenticatedActor(authenticatedAgent);
+				nicpLedger.setAuthenticatedActor(authenticatedAgent);
+				wtnLedger.setAuthenticatedActor(authenticatedAgent);
+				waterNeuron.setAuthenticatedActor(authenticatedAgent);
+				boomerang.setAuthenticatedActor(authenticatedAgent);
+				icpswapPool.setAuthenticatedActor(authenticatedAgent);
 			}
 
-			resolve(new Canisters(icpLedger, wtnLedger, nicpLedger, waterNeuron, boomerang, icpswapPool));
+			resolve(new Canisters(icpLedger, nicpLedger, wtnLedger, waterNeuron, boomerang, icpswapPool));
 		} catch (error) {
 			reject(error);
 		}

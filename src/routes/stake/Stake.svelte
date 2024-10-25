@@ -48,7 +48,7 @@
 						owner: $user.principal,
 						subaccount: []
 					} as Account,
-					$canisters.icpLedger.authenticatedActor
+					$canisters.icpLedger
 				);
 				if (!approval.success) {
 					toasts.add(Toast.error(approval.message ?? DEFAULT_ERROR_MESSAGE));
@@ -58,6 +58,7 @@
 						amount_e8s: amountE8s
 					} as ConversionArg);
 					const status = handleStakeResult(conversionResult);
+					console.log(status);
 					if (status.success) {
 						toasts.add(Toast.success(status.message));
 					} else {

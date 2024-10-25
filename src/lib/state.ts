@@ -87,9 +87,9 @@ export class CanisterActor<canisterInterface> {
 		this._canisterId = canisterId;
 	}
 
-	setAuthenticatedActor<T extends Pick<Signer, 'callCanister'>>(signerAgent: SignerAgent<T>) {
+	setAuthenticatedActor<T extends Pick<Signer, 'callCanister'>>(authenticatedAgent: SignerAgent<T> | HttpAgent) {
 		this.authenticatedActor = Actor.createActor(this._idl, {
-			agent: signerAgent,
+			agent: authenticatedAgent,
 			canisterId: this._canisterId
 		});
 	}
