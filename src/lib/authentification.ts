@@ -17,6 +17,7 @@ import { user, canisters, signer } from './stores';
 import { CanisterActor, Canisters, User } from './state';
 import { SignerAgent } from '@slide-computer/signer-agent';
 import { AuthClientTransport } from '@slide-computer/signer-transport-auth-client';
+import { PlugTransport } from '@slide-computer/signer-transport-plug';
 
 // 1 hour in nanoseconds
 const AUTH_MAX_TIME_TO_LIVE = BigInt(60 * 60 * 1000 * 1000 * 1000);
@@ -107,15 +108,29 @@ export async function connectWithPlug() {
 			CANISTER_ID_ICP_LEDGER,
 			CANISTER_ID_NICP_LEDGER,
 			CANISTER_ID_WTN_LEDGER,
-			CANISTER_ID_WATER_NEURON
+			CANISTER_ID_WATER_NEURON, 
+			CANISTER_ID_ICPSWAP_POOL
 		];
 
-		await window.ic.plug.requestConnect({
+		const key: { rawKey: ArrayBuffer, derKey: ArrayBuffer } = await window.ic.plug.requestConnect({
 			whitelist,
 			host: HOST
 		});
 
-		canisters.set(await fetchActors(window.ic.plug.agent, true));
+		const transport = new PlugTransport();
+		const signer = new Signer({
+			transport
+		});
+		console.log(key);
+
+		signer.delegation({publicKey: key.derKey});
+
+		const signerAgent = SignerAgent.createSync({
+			signer, 
+			account: window.ic.plug.getPrincipal()
+		});
+
+		canisters.set(await fetchActors(signerAgent));
 		user.set(new User(await window.ic.plug.getPrincipal()));
 	} catch (error) {
 		console.error(error);
