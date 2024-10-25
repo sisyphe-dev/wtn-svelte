@@ -17,12 +17,12 @@ test('Intermediary account should have balance', async () => {
 
 	if (!(mockCanisters && mockMintingAccount))
 		throw new Error('Mock user or mock canisters are undefined.');
-	const icpBalance = await mockCanisters.icpLedger.icrc1_balance_of({
+	const icpBalance = await mockCanisters.icpLedger.authenticatedActor?.icrc1_balance_of({
 		owner: mockMintingAccount.principal,
 		subaccount: []
 	});
 
-	const nicpBalance = await mockCanisters.nicpLedger.icrc1_balance_of({
+	const nicpBalance = await mockCanisters.nicpLedger.authenticatedActor?.icrc1_balance_of({
 		owner: mockMintingAccount.principal,
 		subaccount: []
 	});
@@ -34,7 +34,7 @@ test('Intermediary account should have balance', async () => {
 		':',
 		nicpBalance
 	);
-	expect(icpBalance > 0n && nicpBalance > 0n).toBeTruthy();
+	expect(icpBalance && nicpBalance && icpBalance > 0n && nicpBalance > 0n).toBeTruthy();
 });
 
 test('has title', async ({ page }) => {
@@ -190,10 +190,12 @@ testWithII('e2e test send', async ({ page, iiPage }) => {
 
 	await send(page, ACCOUNT_ID, '1');
 	expect(await isToastSuccess(page)).toBeTruthy();
+	await expect(icpBalance).toHaveText('13.99 ICP');
 
 	await page.locator('[title="send-btn-ICP"]').click();
 	await send(page, VALID_ACCOUNT, '1');
 	expect(await isToastSuccess(page)).toBeTruthy();
+	await expect(icpBalance).toHaveText('12.99 ICP');
 
 	await page.locator('[title="send-btn-ICP"]').click();
 	await page.locator('.max-btn').click();
@@ -204,6 +206,7 @@ testWithII('e2e test send', async ({ page, iiPage }) => {
 	);
 	await send(page, VALID_PRINCIPAL, maxAmountSendIcp.toString());
 	expect(await isToastSuccess(page)).toBeTruthy();
+	await expect(icpBalance).toHaveText('0 ICP');
 
 	await page.locator('[title="send-btn-nICP"]').click();
 	await send(page, ACCOUNT_ID, '10');
@@ -211,6 +214,7 @@ testWithII('e2e test send', async ({ page, iiPage }) => {
 
 	await send(page, VALID_ACCOUNT, '1');
 	expect(await isToastSuccess(page)).toBeTruthy();
+	await expect(nicpBalance).toHaveText('13.99 nICP');
 
 	await page.locator('[title="send-btn-nICP"]').click();
 	await page.locator('.max-btn').click();
