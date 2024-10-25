@@ -104,34 +104,20 @@ declare global {
 
 export async function connectWithPlug() {
 	try {
-		let whitelist: string[] = [
-			CANISTER_ID_ICP_LEDGER,
-			CANISTER_ID_NICP_LEDGER,
-			CANISTER_ID_WTN_LEDGER,
-			CANISTER_ID_WATER_NEURON, 
-			CANISTER_ID_ICPSWAP_POOL
-		];
-
-		const key: { rawKey: ArrayBuffer, derKey: ArrayBuffer } = await window.ic.plug.requestConnect({
-			whitelist,
-			host: HOST
-		});
-
 		const transport = new PlugTransport();
-		const signer = new Signer({
-			transport
-		});
-		console.log(key);
+		const newSigner = new Signer({ transport });
 
-		signer.delegation({publicKey: key.derKey});
+		console.log('The wallet set the following permission scope:', await newSigner.permissions());
+
+		const userPrincipal = (await newSigner.accounts())[0].owner;
 
 		const signerAgent = SignerAgent.createSync({
-			signer, 
-			account: window.ic.plug.getPrincipal()
+			signer: newSigner,
+			account: userPrincipal
 		});
 
-		canisters.set(await fetchActors(signerAgent));
-		user.set(new User(await window.ic.plug.getPrincipal()));
+		canisters.set(await fetchActors(signerAgent, true));
+		user.set(new User(userPrincipal));
 	} catch (error) {
 		console.error(error);
 	}
@@ -146,36 +132,16 @@ export async function connectWithTransport() {
 
 	console.log('The wallet set the following permission scope:', await newSigner.permissions());
 
-	signer.set(newSigner);
+	const userPrincipal = (await newSigner.accounts())[0].owner;
 
 	const signerAgent = SignerAgent.createSync({
 		signer: newSigner,
-		account: (await newSigner.accounts())[0].owner
+		account: userPrincipal
 	});
 
 	canisters.set(await fetchActors(signerAgent));
-	user.set(new User((await newSigner.accounts())[0].owner));
+	user.set(new User(userPrincipal));
 }
-
-// Un call qui marche:
-// const response = await newSigner.callCanister({
-// 	canisterId: Principal.fromText(CANISTER_ID_ICP_LEDGER),
-// 	sender: Principal.fromText('6gw4e-65bmy-nvl7o-m3mwf-2enxh-fmt6h-dknya-3vvrg-lvkz3-su3nh-xae'),
-// 	method: 'icrc1_balance_of',
-// 	arg: Buffer.from(
-// 		IDL.encode(
-// 			[IDL.Record({ owner: IDL.Principal, subaccount: IDL.Opt(IDL.Vec(IDL.Nat64)) })],
-// 			[
-// 				{
-// 					owner: Principal.fromText(
-// 						'6gw4e-65bmy-nvl7o-m3mwf-2enxh-fmt6h-dknya-3vvrg-lvkz3-su3nh-xae'
-// 					),
-// 					subaccount: []
-// 				}
-// 			]
-// 		)
-// 	)
-// });
 
 export async function localSignIn() {
 	try {
@@ -221,9 +187,9 @@ export function fetchActors<T extends Pick<Signer, 'callCanister'>>(
 		try {
 			const agent = HttpAgent.createSync({
 				host: HOST
-			})
+			});
 
-			if (DEV && !isPlug) {
+			if (DEV) {
 				agent.fetchRootKey().catch((err) => {
 					console.warn(
 						'Unable to fetch root key. Check to ensure that your local replica is running'

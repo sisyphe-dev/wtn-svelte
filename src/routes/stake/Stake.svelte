@@ -58,7 +58,6 @@
 						amount_e8s: amountE8s
 					} as ConversionArg);
 					const status = handleStakeResult(conversionResult);
-					console.log(status);
 					if (status.success) {
 						toasts.add(Toast.success(status.message));
 					} else {
