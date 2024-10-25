@@ -108,8 +108,10 @@ export function handleApproveResult(result: ApproveResult): ToastResult {
 export async function nicpTransferApproved(
 	amount: bigint,
 	account: Account,
-	nicpLedger: nicpLedgerInterface
+	nicpLedger: nicpLedgerInterface | undefined
 ): Promise<ToastResult> {
+	if (!nicpLedger) return { success: false, message: 'User not authenticated.' };
+
 	const spender = {
 		owner: Principal.fromText(CANISTER_ID_WATER_NEURON),
 		subaccount: []
@@ -144,8 +146,9 @@ export async function nicpTransferApproved(
 export async function icpTransferApproved(
 	amount: bigint,
 	account: Account,
-	icpLedger: icpLedgerInterface
+	icpLedger: icpLedgerInterface | undefined
 ): Promise<ToastResult> {
+	if (!icpLedger) return { success: false, message: 'User not authenticated.' };
 	const spender = {
 		owner: Principal.fromText(CANISTER_ID_WATER_NEURON),
 		subaccount: []

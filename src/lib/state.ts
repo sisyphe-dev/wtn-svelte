@@ -10,7 +10,10 @@ import type {
 	CanisterInfo,
 	_SERVICE as waterNeuronInterface
 } from '../declarations/water_neuron/water_neuron.did';
-import type { Actors } from './authentification';
+import { SignerAgent } from '@slide-computer/signer-agent';
+import { Signer } from '@slide-computer/signer';
+import { Actor, HttpAgent } from '@dfinity/agent';
+import { IDL } from '@dfinity/candid';
 
 export class User {
 	public principal: Principal;
@@ -72,21 +75,49 @@ export async function fetchWtnAllocation(
 	}
 }
 
-export class Canisters {
-	public icpLedger: icpLedgerInterface;
-	public wtnLedger: icrcLedgerInterface;
-	public nicpLedger: icrcLedgerInterface;
-	public waterNeuron: waterNeuronInterface;
-	public boomerang: boomerangInterface;
-	public icpswapPool: icpswapPoolInterface;
+export class CanisterActor<canisterInterface> {
+	public authenticatedActor?: canisterInterface;
+	public actor: canisterInterface;
+	private _idl: IDL.InterfaceFactory;
+	private _canisterId: string;
 
-	constructor(actors: Actors) {
-		this.nicpLedger = actors.nicpLedger;
-		this.wtnLedger = actors.wtnLedger;
-		this.icpLedger = actors.icpLedger;
-		this.waterNeuron = actors.waterNeuron;
-		this.boomerang = actors.boomerang;
-		this.icpswapPool = actors.icpswapPool;
+	constructor(httpAgent: HttpAgent, idl: IDL.InterfaceFactory, canisterId: string) {
+		this.actor = Actor.createActor(idl, { agent: httpAgent, canisterId });
+		this._idl = idl;
+		this._canisterId = canisterId;
+	}
+
+	setAuthenticatedActor<T extends Pick<Signer, 'callCanister'>>(signerAgent: SignerAgent<T>) {
+		this.authenticatedActor = Actor.createActor(this._idl, {
+			agent: signerAgent,
+			canisterId: this._canisterId
+		});
+	}
+}
+
+export class Canisters {
+	public icpLedger: CanisterActor<icpLedgerInterface>;
+	public nicpLedger: CanisterActor<icrcLedgerInterface>;
+	public wtnLedger: CanisterActor<icrcLedgerInterface>;
+	public waterNeuron: CanisterActor<waterNeuronInterface>;
+	public boomerang: CanisterActor<boomerangInterface>;
+	public icpswapPool: CanisterActor<icpswapPoolInterface>;
+
+	constructor(
+		icpLedger: CanisterActor<icpLedgerInterface>,
+		nicpLedger: CanisterActor<icrcLedgerInterface>,
+		wtnLedger: CanisterActor<icrcLedgerInterface>,
+		waterNeuron: CanisterActor<waterNeuronInterface>,
+		boomerang: CanisterActor<boomerangInterface>,
+		icpswapPool: CanisterActor<icpswapPoolInterface>
+	) {
+		this.icpLedger = icpLedger;
+		this.nicpLedger = nicpLedger;
+		this.wtnLedger = wtnLedger;
+		this.icpLedger = icpLedger;
+		this.waterNeuron = waterNeuron;
+		this.boomerang = boomerang;
+		this.icpswapPool = icpswapPool;
 	}
 }
 

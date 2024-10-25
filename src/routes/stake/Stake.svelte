@@ -48,12 +48,12 @@
 						owner: $user.principal,
 						subaccount: []
 					} as Account,
-					$canisters.icpLedger
+					$canisters.icpLedger.authenticatedActor
 				);
 				if (!approval.success) {
 					toasts.add(Toast.error(approval.message ?? DEFAULT_ERROR_MESSAGE));
 				} else {
-					const conversionResult = await $canisters.waterNeuron.icp_to_nicp({
+					const conversionResult = await $canisters.waterNeuron.authenticatedActor?.icp_to_nicp({
 						maybe_subaccount: [],
 						amount_e8s: amountE8s
 					} as ConversionArg);

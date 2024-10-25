@@ -37,7 +37,7 @@
 		try {
 			isBusy.set(true);
 			isConfirmBusy = true;
-			const boomerangResult = await $canisters.boomerang.notify_icp_deposit(
+			const boomerangResult = await $canisters.boomerang.actor.notify_icp_deposit(
 				Principal.fromText($sns.principal)
 			);
 			const result = handleSnsIcpDepositResult(boomerangResult);
@@ -59,7 +59,7 @@
 		try {
 			isBusy.set(true);
 			isRetrieveBusy = true;
-			const retrieveResult = await $canisters.boomerang.retrieve_nicp(
+			const retrieveResult = await $canisters.boomerang.actor.retrieve_nicp(
 				Principal.fromText($sns.principal)
 			);
 			const result = handleSnsRetrieveNicpResult(retrieveResult);

@@ -6,7 +6,7 @@ import BigNumber from 'bignumber.js';
 import { get } from 'svelte/store';
 import { Principal } from '@dfinity/principal';
 import { encodeIcrcAccount } from '@dfinity/ledger-icrc';
-import { Channel, Signer } from '@slide-computer/signer';
+import { Signer } from '@slide-computer/signer';
 
 /* === Flags === */
 export const isLogging = writable<boolean>(false);
@@ -105,9 +105,9 @@ export const handleSnsChange = async (name?: string, principal?: string) => {
 			const p = Principal.fromText(principal);
 			sns.setPrincipal(principal);
 			const [account, icpBalanceE8s, nicpBalanceE8s] = await Promise.all([
-				fetchedCanisters.boomerang.get_staking_account(p),
-				fetchIcpBalance(p, fetchedCanisters.icpLedger),
-				fetchNicpBalance(p, fetchedCanisters.nicpLedger)
+				fetchedCanisters.boomerang.actor.get_staking_account(p),
+				fetchIcpBalance(p, fetchedCanisters.icpLedger.actor),
+				fetchNicpBalance(p, fetchedCanisters.nicpLedger.actor)
 			]);
 			const encodedBoomerangAccount = encodeIcrcAccount({
 				owner: account.owner,

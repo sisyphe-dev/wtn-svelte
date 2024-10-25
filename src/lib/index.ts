@@ -3,7 +3,8 @@ import BigNumber from 'bignumber.js';
 import type { WithdrawalStatus } from '../declarations/water_neuron/water_neuron.did';
 import { AccountIdentifier } from '@dfinity/ledger-icp';
 import { decodeIcrcAccount } from '@dfinity/ledger-icrc';
-import type { Account } from '../declarations/icp_ledger/icp_ledger.did';
+import type { Account, TransferArg, TransferArgs } from '../declarations/icp_ledger/icp_ledger.did';
+import { IDL } from '@dfinity/candid';
 
 export const E8S = BigNumber(10).pow(BigNumber(8));
 
@@ -253,9 +254,24 @@ export function getMaybeAccount(accountString: string): Account | AccountIdentif
 			return { owner: icrcAccount.owner, subaccount: [] } as Account;
 		}
 	} catch (error) {
-		console.log('[getMaybeAccount]', error);
 		return;
 	}
+}
+
+export function encodeTransferArgs(args: TransferArgs): ArrayBuffer {
+	return IDL.encode(
+		[
+			IDL.Record({
+				to: IDL.Vec(IDL.Nat8),
+				fee: IDL.Record({ e8s: IDL.Nat64 }),
+				memo: IDL.Nat64,
+				from_subaccount: IDL.Opt(IDL.Vec(IDL.Nat8)),
+				created_at_time: IDL.Opt(IDL.Nat64),
+				amount: IDL.Record({ e8s: IDL.Nat64 })
+			})
+		],
+		[args]
+	);
 }
 
 export function computeReceiveAmount(
