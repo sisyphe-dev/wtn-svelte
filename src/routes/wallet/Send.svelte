@@ -6,7 +6,7 @@
 		Asset,
 		E8S,
 		isContainerHigher,
-		getMaybeAccount,
+		getMaybeAccount
 	} from '$lib';
 	import {
 		inSendingMenu,

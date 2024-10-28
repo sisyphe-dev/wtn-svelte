@@ -35,7 +35,7 @@
 	let totalIcpDeposited: BigNumber;
 
 	async function icpToNicp(amount: BigNumber) {
-		if (!$user || $isConverting || !$canisters || amount.isNaN() || amount.isLessThan(BigNumber(1)))
+		if (!$user || $isConverting || !$canisters || !$canisters.waterNeuron.authenticatedActor || amount.isNaN() || amount.isLessThan(BigNumber(1)))
 			return;
 		isConverting.set(true);
 
@@ -53,7 +53,7 @@
 				if (!approval.success) {
 					toasts.add(Toast.error(approval.message ?? DEFAULT_ERROR_MESSAGE));
 				} else {
-					const conversionResult = await $canisters.waterNeuron.authenticatedActor?.icp_to_nicp({
+					const conversionResult = await $canisters.waterNeuron.authenticatedActor.icp_to_nicp({
 						maybe_subaccount: [],
 						amount_e8s: amountE8s
 					} as ConversionArg);
