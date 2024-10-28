@@ -17,7 +17,6 @@
 		canisters,
 		inputAmount,
 		handleInputAmount,
-		signer
 	} from '$lib/stores';
 	import { onMount } from 'svelte';
 	import { Toast as ToastMessage } from '$lib/toast';
@@ -37,7 +36,6 @@
 	import type { _SERVICE as icpLedgerInterface } from '$lib/../declarations/icp_ledger/icp_ledger.did';
 	import { fade } from 'svelte/transition';
 	import Toast from '../Toast.svelte';
-	import { CANISTER_ID_ICP_LEDGER } from '$lib/authentification';
 
 	let principal: string;
 	let isSending = false;

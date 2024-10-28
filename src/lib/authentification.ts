@@ -13,10 +13,9 @@ import type { _SERVICE as icpswapPoolInterface } from '../declarations/icpswap_p
 import { idlFactory as idlFactoryIcpswapPool } from '../declarations/icpswap_pool';
 import { Signer } from '@slide-computer/signer';
 import { PostMessageTransport } from '@slide-computer/signer-web';
-import { user, canisters, signer } from './stores';
+import { user, canisters } from './stores';
 import { CanisterActor, Canisters, User } from './state';
 import { SignerAgent } from '@slide-computer/signer-agent';
-import { AuthClientTransport } from '@slide-computer/signer-transport-auth-client';
 import { PlugTransport } from '@slide-computer/signer-transport-plug';
 
 // 1 hour in nanoseconds

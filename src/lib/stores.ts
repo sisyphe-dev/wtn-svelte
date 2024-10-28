@@ -21,7 +21,6 @@ export const inSnsMenu = writable<boolean>(false);
 export const language = writable<'en' | 'es' | 'ja' | 'ru'>('en');
 export const selectedAsset = writable<Asset>(new Asset(AssetType.ICP));
 export const user = writable<User | undefined>(undefined);
-export const signer = writable<Signer | undefined>(undefined);
 export const canisters = writable<Canisters | undefined>(undefined);
 export const waterNeuronInfo = writable<WaterNeuronInfo | undefined>(undefined);
 
