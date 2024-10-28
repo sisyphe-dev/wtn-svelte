@@ -6,7 +6,6 @@ import BigNumber from 'bignumber.js';
 import { get } from 'svelte/store';
 import { Principal } from '@dfinity/principal';
 import { encodeIcrcAccount } from '@dfinity/ledger-icrc';
-import { Signer } from '@slide-computer/signer';
 
 /* === Flags === */
 export const isLogging = writable<boolean>(false);

@@ -137,6 +137,11 @@
 								{@html renderStatus(details.status)}
 							</td>
 							<td>{details.request.withdrawal_id}</td>
+							<td>
+								<button on:click={showCancelWarning}>
+									Cancel
+								</button>
+							</td>
 						</tr>
 					{/if}
 				{/each}
@@ -186,6 +191,32 @@
 	a {
 		text-decoration: underline;
 		color: var(--stake-text-color);
+	}
+
+	button {
+		background: var(--main-color);
+		color: var(--main-button-text-color);
+		min-width: 80px;
+		border-radius: 8px;
+		position: relative;
+		border: 2px solid black;
+		font-size: 14px;
+		box-shadow: 3px 3px 0 0 black;
+		padding: 0 1em 0 1em;
+		max-width: none;
+		height: 3em;
+		font-weight: bold;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		cursor: pointer;
+		margin-right: 1em;
+	}
+
+	button:hover {
+		transform: scale(0.95);
+		transition: all 0.3s;
+		box-shadow: 6px 6px 0 0 black;
 	}
 
 	/* === Responsive === */
