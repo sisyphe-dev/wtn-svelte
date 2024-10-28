@@ -3,8 +3,8 @@ import BigNumber from 'bignumber.js';
 import type { WithdrawalStatus } from '../declarations/water_neuron/water_neuron.did';
 import { AccountIdentifier } from '@dfinity/ledger-icp';
 import { decodeIcrcAccount } from '@dfinity/ledger-icrc';
-import type { Account, TransferArg, TransferArgs } from '../declarations/icp_ledger/icp_ledger.did';
-import { IDL } from '@dfinity/candid';
+import type { Account } from '../declarations/icp_ledger/icp_ledger.did';
+import type {NeuronId} from '$lib/../declarations/water_neuron/water_neuron.did';
 
 export const E8S = BigNumber(10).pow(BigNumber(8));
 
@@ -200,6 +200,25 @@ export function displayTimeLeft(created_at: number, isMobile = false) {
 		return `${hoursLeft} hours left`;
 	}
 	return `Less than an hour left`;
+}
+
+export async function fetchTimeLeft(neuron_id: NeuronId): Promise<number> {
+	// October 28th, 2024. 3:12 PM
+	const defaultTimestamp = 1730124683;
+	if (process.env.DFX_NETWORK !== 'ic') return defaultTimestamp;
+	try {
+		const response = await fetch(
+			`https://ic-api.internetcomputer.org/api/v3/neurons/${neuron_id.id}`
+		);
+		if (!response.ok) {
+			throw new Error('Network response was not ok');
+		}
+		const data = await response.json();
+		const neuron_created_at = data['created_timestamp_seconds'];
+		return Number(neuron_created_at);
+	} catch (error) {
+		throw new Error('[fetchTimeLeft] Failed to fetch with error: ' + error);
+	}
 }
 
 export const isMobile = typeof window !== 'undefined' && window.innerWidth <= 767;

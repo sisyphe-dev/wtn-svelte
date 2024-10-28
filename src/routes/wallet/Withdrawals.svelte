@@ -1,9 +1,11 @@
 <script lang="ts">
+	import CancelWarning from './CancelWarning.svelte';
 	import {
 		bigintE8sToNumber,
 		displayUsFormat,
 		renderStatus,
 		displayTimeLeft,
+		fetchTimeLeft,
 		isMobile
 	} from '$lib';
 	import { user, canisters, inCancelWarningMenu } from '$lib/stores';
@@ -18,6 +20,7 @@
 	let withdrawalStatuses: {
 		[key: string]: string;
 	} = {};
+	let selectedWithdrawal: number;
 
 	function displayNeuronId(neuronId: [] | [NeuronId], truncate = true): string {
 		if (neuronId.length == 0) {
@@ -39,14 +42,19 @@
 		}
 	};
 
+	const handleCancelClick = (id: number) => {
+		selectedWithdrawal = id;
+		inCancelWarningMenu.set(true);
+	};
+
 	const fetchStatuses = async () => {
 		if ($user) {
 			for (const detail of withdrawalRequests) {
 				const neuronId = detail.request.neuron_id;
 				if (neuronId.length !== 0) {
 					try {
-						const status = await fetchTimeLeft(neuronId[0]);
-						withdrawalStatuses[neuronId[0].id.toString()] = status;
+						const neuronTimeLeft = await fetchTimeLeft(neuronId[0]);
+						withdrawalStatuses[neuronId[0].id.toString()] = displayTimeLeft(neuronTimeLeft, isMobile);
 					} catch (e) {
 						console.error(e);
 					}
@@ -55,28 +63,16 @@
 		}
 	};
 
-	async function fetchTimeLeft(neuron_id: NeuronId): Promise<string> {
-		if (process.env.DFX_NETWORK !== 'ic') return 'Waiting dissolvement';
-		try {
-			const response = await fetch(
-				`https://ic-api.internetcomputer.org/api/v3/neurons/${neuron_id.id}`
-			);
-			if (!response.ok) {
-				throw new Error('Network response was not ok');
-			}
-			const data = await response.json();
-			const neuron_created_at = data['created_timestamp_seconds'];
-			return displayTimeLeft(Number(neuron_created_at), isMobile);
-		} catch (error) {
-			throw new Error('Failed to fetch with error: ' + error);
-		}
-	}
+	
 
 	onMount(() => {
 		fetchWithdrawals();
 	});
 </script>
 
+{#if $inCancelWarningMenu}
+	<CancelWarning id={selectedWithdrawal} />
+{/if}
 {#if withdrawalRequests && withdrawalRequests.length >= 1}
 	<div class="withdrawals-container" in:fade={{ duration: 500 }}>
 		<h1>Withdrawal Requests</h1>
@@ -138,7 +134,13 @@
 							</td>
 							<td>{details.request.withdrawal_id}</td>
 							<td>
-								<button on:click={() => inCancelWarningMenu.set(true)}> Cancel </button>
+								<button
+									on:click={() => {
+										handleCancelClick(details.request.withdrawal_id);
+									}}
+								>
+									Cancel
+								</button>
 							</td>
 						</tr>
 					{/if}

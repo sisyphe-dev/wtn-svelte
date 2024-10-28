@@ -6,13 +6,11 @@
 	import Menu from './Menu.svelte';
 	import SnsMenu from './sns/SnsMenu.svelte';
 	import Receive from './wallet/Receive.svelte';
-	import CancelWarning from './wallet/CancelWarning.svelte';
 	import {
 		isLogging,
 		inMobileMenu,
 		inSendingMenu,
 		inReceivingMenu,
-		inCancelWarningMenu,
 		inSnsMenu,
 		user,
 		canisters,
@@ -70,8 +68,6 @@
 	<Send />
 {:else if $inReceivingMenu}
 	<Receive />
-{:else if $inCancelWarningMenu}
-	<CancelWarning />
 {/if}
 {#if $inMobileMenu}
 	<Menu />
