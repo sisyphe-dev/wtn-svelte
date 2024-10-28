@@ -3,8 +3,7 @@ import BigNumber from 'bignumber.js';
 import type { WithdrawalStatus } from '../declarations/water_neuron/water_neuron.did';
 import { AccountIdentifier } from '@dfinity/ledger-icp';
 import { decodeIcrcAccount } from '@dfinity/ledger-icrc';
-import type { Account, TransferArg, TransferArgs } from '../declarations/icp_ledger/icp_ledger.did';
-import { IDL } from '@dfinity/candid';
+import type { Account } from '../declarations/icp_ledger/icp_ledger.did';
 
 export const E8S = BigNumber(10).pow(BigNumber(8));
 
