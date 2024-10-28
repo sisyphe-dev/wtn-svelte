@@ -1,4 +1,5 @@
-export const idlFactory = ({ IDL }) => {
+import { IDL } from "@dfinity/candid";
+export const idlFactory = () => {
 	const SubAccount = IDL.Vec(IDL.Nat8);
 	const Account = IDL.Record({
 		owner: IDL.Principal,
@@ -298,7 +299,7 @@ export const idlFactory = ({ IDL }) => {
 		transfer_fee: IDL.Func([TransferFeeArg], [TransferFee], ['query'])
 	});
 };
-export const init = ({ IDL }) => {
+export const init = () => {
 	const SubAccount = IDL.Vec(IDL.Nat8);
 	const Account = IDL.Record({
 		owner: IDL.Principal,

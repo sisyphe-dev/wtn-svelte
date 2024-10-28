@@ -1,4 +1,6 @@
-export const idlFactory = ({ IDL }) => {
+import { IDL } from "@dfinity/candid";
+
+export const idlFactory = () => {
 	const TransferError = IDL.Variant({
 		GenericError: IDL.Record({
 			message: IDL.Text,
@@ -212,6 +214,6 @@ export const idlFactory = ({ IDL }) => {
 		nicp_to_icp: IDL.Func([ConversionArg], [Result_2], [])
 	});
 };
-export const init = ({ IDL }) => {
+export const init = () => {
 	return [];
 };

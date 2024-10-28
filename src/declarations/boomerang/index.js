@@ -1,4 +1,5 @@
-export const idlFactory = ({ IDL }) => {
+import { IDL } from "@dfinity/candid";
+export const idlFactory = () => {
 	const CanisterIds = IDL.Record({
 		icp_ledger_id: IDL.Principal,
 		water_neuron_id: IDL.Principal,
@@ -87,7 +88,7 @@ export const idlFactory = ({ IDL }) => {
 		try_retrieve_icp: IDL.Func([IDL.Principal], [Result_2], [])
 	});
 };
-export const init = ({ IDL }) => {
+export const init = () => {
 	const CanisterIds = IDL.Record({
 		icp_ledger_id: IDL.Principal,
 		water_neuron_id: IDL.Principal,

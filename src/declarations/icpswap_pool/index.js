@@ -1,4 +1,5 @@
-export const idlFactory = ({ IDL }) => {
+import { IDL } from "@dfinity/candid";
+export const idlFactory = () => {
 	const Token = IDL.Record({ address: IDL.Text, standard: IDL.Text });
 	const AccountBalance = IDL.Record({
 		balance0: IDL.Nat,
@@ -378,7 +379,7 @@ export const idlFactory = ({ IDL }) => {
 	});
 	return SwapPool;
 };
-export const init = ({ IDL }) => {
+export const init = () => {
 	const Token = IDL.Record({ address: IDL.Text, standard: IDL.Text });
 	return [Token, Token, IDL.Principal, IDL.Principal, IDL.Principal];
 };
