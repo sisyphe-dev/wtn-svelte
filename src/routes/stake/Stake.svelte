@@ -35,7 +35,14 @@
 	let totalIcpDeposited: BigNumber;
 
 	async function icpToNicp(amount: BigNumber) {
-		if (!$user || $isConverting || !$canisters || !$canisters.waterNeuron.authenticatedActor || amount.isNaN() || amount.isLessThan(BigNumber(1)))
+		if (
+			!$user ||
+			$isConverting ||
+			!$canisters ||
+			!$canisters.waterNeuron.authenticatedActor ||
+			amount.isNaN() ||
+			amount.isLessThan(BigNumber(1))
+		)
 			return;
 		isConverting.set(true);
 

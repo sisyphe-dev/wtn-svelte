@@ -6,7 +6,7 @@
 		displayTimeLeft,
 		isMobile
 	} from '$lib';
-	import { user, canisters } from '$lib/stores';
+	import { user, canisters, inCancelWarningMenu } from '$lib/stores';
 	import { onMount } from 'svelte';
 	import type {
 		WithdrawalDetails,
@@ -138,9 +138,7 @@
 							</td>
 							<td>{details.request.withdrawal_id}</td>
 							<td>
-								<button on:click={showCancelWarning}>
-									Cancel
-								</button>
+								<button on:click={() => inCancelWarningMenu.set(true)}> Cancel </button>
 							</td>
 						</tr>
 					{/if}
