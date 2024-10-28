@@ -7,7 +7,6 @@
 		E8S,
 		isContainerHigher,
 		getMaybeAccount,
-		encodeTransferArgs
 	} from '$lib';
 	import {
 		inSendingMenu,

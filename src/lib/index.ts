@@ -258,22 +258,6 @@ export function getMaybeAccount(accountString: string): Account | AccountIdentif
 	}
 }
 
-export function encodeTransferArgs(args: TransferArgs): ArrayBuffer {
-	return IDL.encode(
-		[
-			IDL.Record({
-				to: IDL.Vec(IDL.Nat8),
-				fee: IDL.Record({ e8s: IDL.Nat64 }),
-				memo: IDL.Nat64,
-				from_subaccount: IDL.Opt(IDL.Vec(IDL.Nat8)),
-				created_at_time: IDL.Opt(IDL.Nat64),
-				amount: IDL.Record({ e8s: IDL.Nat64 })
-			})
-		],
-		[args]
-	);
-}
-
 export function computeReceiveAmount(
 	stake: boolean,
 	value: BigNumber,
