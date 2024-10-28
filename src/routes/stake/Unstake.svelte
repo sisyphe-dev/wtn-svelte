@@ -70,7 +70,7 @@
 			!$canisters ||
 			!$waterNeuronInfo ||
 			amount.isNaN() ||
-			amount.isLessThan(BigNumber(10).dividedBy($waterNeuronInfo.exchangeRate()))
+			amount.isLessThan(minimumWithdraw)
 		)
 			return;
 		isConverting.set(true);
