@@ -105,14 +105,21 @@ export class Canisters {
 	public boomerang: CanisterActor<boomerangInterface>;
 	public icpswapPool: CanisterActor<icpswapPoolInterface>;
 
-	constructor(
-		icpLedger: CanisterActor<icpLedgerInterface>,
-		nicpLedger: CanisterActor<icrcLedgerInterface>,
-		wtnLedger: CanisterActor<icrcLedgerInterface>,
-		waterNeuron: CanisterActor<waterNeuronInterface>,
-		boomerang: CanisterActor<boomerangInterface>,
-		icpswapPool: CanisterActor<icpswapPoolInterface>
-	) {
+	constructor({
+		icpLedger,
+		nicpLedger,
+		wtnLedger,
+		waterNeuron,
+		boomerang,
+		icpswapPool
+	}: {
+		icpLedger: CanisterActor<icpLedgerInterface>;
+		nicpLedger: CanisterActor<icrcLedgerInterface>;
+		wtnLedger: CanisterActor<icrcLedgerInterface>;
+		waterNeuron: CanisterActor<waterNeuronInterface>;
+		boomerang: CanisterActor<boomerangInterface>;
+		icpswapPool: CanisterActor<icpswapPoolInterface>;
+	}) {
 		this.icpLedger = icpLedger;
 		this.nicpLedger = nicpLedger;
 		this.wtnLedger = wtnLedger;

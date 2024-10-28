@@ -1,4 +1,4 @@
-import { IDL } from "@dfinity/candid";
+import { IDL } from '@dfinity/candid';
 export const idlFactory = () => {
 	const Token = IDL.Record({ address: IDL.Text, standard: IDL.Text });
 	const AccountBalance = IDL.Record({

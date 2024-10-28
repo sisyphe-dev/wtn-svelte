@@ -1,4 +1,4 @@
-import { IDL } from "@dfinity/candid";
+import { IDL } from '@dfinity/candid';
 export const idlFactory = () => {
 	const SubAccount = IDL.Vec(IDL.Nat8);
 	const Account = IDL.Record({

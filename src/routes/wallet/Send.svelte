@@ -16,7 +16,7 @@
 		toasts,
 		canisters,
 		inputAmount,
-		handleInputAmount,
+		handleInputAmount
 	} from '$lib/stores';
 	import { onMount } from 'svelte';
 	import { Toast as ToastMessage } from '$lib/toast';

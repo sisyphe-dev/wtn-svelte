@@ -246,7 +246,7 @@ export function fetchActors<T extends Pick<Signer, 'callCanister'>>(
 				icpswapPool.setAuthenticatedActor(authenticatedAgent);
 			}
 
-			resolve(new Canisters(icpLedger, nicpLedger, wtnLedger, waterNeuron, boomerang, icpswapPool));
+			resolve(new Canisters({icpLedger, nicpLedger, wtnLedger, waterNeuron, boomerang, icpswapPool}));
 		} catch (error) {
 			reject(error);
 		}
