@@ -4,7 +4,7 @@ import type { WithdrawalStatus } from '../declarations/water_neuron/water_neuron
 import { AccountIdentifier } from '@dfinity/ledger-icp';
 import { decodeIcrcAccount } from '@dfinity/ledger-icrc';
 import type { Account } from '../declarations/icp_ledger/icp_ledger.did';
-import type {NeuronId} from '$lib/../declarations/water_neuron/water_neuron.did';
+import type { NeuronId } from '$lib/../declarations/water_neuron/water_neuron.did';
 
 export const E8S = BigNumber(10).pow(BigNumber(8));
 
@@ -202,7 +202,7 @@ export function displayTimeLeft(created_at: number, isMobile = false) {
 	return `Less than an hour left`;
 }
 
-export async function fetchTimeLeft(neuron_id: NeuronId): Promise<number> {
+export async function fetchCreationTimestampSecs(neuron_id: NeuronId): Promise<number> {
 	// October 28th, 2024. 3:12 PM
 	const defaultTimestamp = 1730124683;
 	if (process.env.DFX_NETWORK !== 'ic') return defaultTimestamp;
@@ -217,7 +217,7 @@ export async function fetchTimeLeft(neuron_id: NeuronId): Promise<number> {
 		const neuron_created_at = data['created_timestamp_seconds'];
 		return Number(neuron_created_at);
 	} catch (error) {
-		throw new Error('[fetchTimeLeft] Failed to fetch with error: ' + error);
+		throw new Error('[fetchCreationTimestampSecs] Failed to fetch with error: ' + error);
 	}
 }
 

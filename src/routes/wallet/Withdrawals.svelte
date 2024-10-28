@@ -5,7 +5,7 @@
 		displayUsFormat,
 		renderStatus,
 		displayTimeLeft,
-		fetchTimeLeft,
+		fetchCreationTimestampSecs,
 		isMobile
 	} from '$lib';
 	import { user, canisters, inCancelWarningMenu } from '$lib/stores';
@@ -20,7 +20,7 @@
 	let withdrawalStatuses: {
 		[key: string]: string;
 	} = {};
-	let selectedWithdrawal: number;
+	let selectedWithdrawal: WithdrawalDetails;
 
 	function displayNeuronId(neuronId: [] | [NeuronId], truncate = true): string {
 		if (neuronId.length == 0) {
@@ -42,8 +42,8 @@
 		}
 	};
 
-	const handleCancelClick = (id: number) => {
-		selectedWithdrawal = id;
+	const handleCancelClick = (details: WithdrawalDetails) => {
+		selectedWithdrawal = details;
 		inCancelWarningMenu.set(true);
 	};
 
@@ -53,8 +53,8 @@
 				const neuronId = detail.request.neuron_id;
 				if (neuronId.length !== 0) {
 					try {
-						const neuronTimeLeft = await fetchTimeLeft(neuronId[0]);
-						withdrawalStatuses[neuronId[0].id.toString()] = displayTimeLeft(neuronTimeLeft, isMobile);
+						const createdAt = await fetchCreationTimestampSecs(neuronId[0]);
+						withdrawalStatuses[neuronId[0].id.toString()] = displayTimeLeft(createdAt, isMobile);
 					} catch (e) {
 						console.error(e);
 					}
@@ -63,15 +63,13 @@
 		}
 	};
 
-	
-
 	onMount(() => {
 		fetchWithdrawals();
 	});
 </script>
 
 {#if $inCancelWarningMenu}
-	<CancelWarning id={selectedWithdrawal} />
+	<CancelWarning details={selectedWithdrawal} />
 {/if}
 {#if withdrawalRequests && withdrawalRequests.length >= 1}
 	<div class="withdrawals-container" in:fade={{ duration: 500 }}>
@@ -136,7 +134,7 @@
 							<td>
 								<button
 									on:click={() => {
-										handleCancelClick(details.request.withdrawal_id);
+										handleCancelClick(details);
 									}}
 								>
 									Cancel

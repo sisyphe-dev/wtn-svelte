@@ -2,15 +2,23 @@
 	import { BigNumber } from 'bignumber.js';
 	import { onMount } from 'svelte';
 	import { inCancelWarningMenu, waterNeuronInfo } from '$lib/stores';
-	import { isContainerHigher, displayUsFormat } from '$lib';
-    import type { WithdrawalDetails, WithdrawalStatus} from '$lib/../declarations/water_neuron/water_neuron.did';
+	import {
+		isContainerHigher,
+		displayUsFormat,
+		fetchCreationTimestampSecs,
+		bigintE8sToNumber
+	} from '$lib';
+	import type {
+		WithdrawalDetails,
+		WithdrawalStatus
+	} from '$lib/../declarations/water_neuron/water_neuron.did';
 
 	export let details: WithdrawalDetails;
 
 	let cancelWarningDialog: HTMLDialogElement;
 	let isHigher = false;
-    let exchangeRate: number;
-
+	let exchangeRate: BigNumber;
+	let warningError: string | undefined;
 
 	function handleKeydown(event: KeyboardEvent) {
 		if (event.key === 'Escape') {
@@ -19,34 +27,50 @@
 			inCancelWarningMenu.set(false);
 		}
 	}
-    export type WithdrawalStatus =
-	| {
-			ConversionDone: { transfer_block_height: bigint };
-	  }
-	| { NotFound: null }
-	| { Cancelled: null }
-	| { WaitingToSplitNeuron: null }
-	| { WaitingDissolvement: { neuron_id: NeuronId } }
-	| { WaitingToStartDissolving: { neuron_id: NeuronId } };
-    
-    const isWithdrawalCancellable = () => {
-        const key = Object.keys(details.status)[0] as keyof WithdrawalStatus;
-        switch (key) {
-            case 'WaitingDissolvement': 
-            break; 
-            case 'WaitingToStartDissolving':
-                break;
-            default: 
-            return false;
-        }
-    }
+
+	const nicpAfterCancel = (icpDue: BigNumber) => {
+		const transactionFee = BigNumber(0.0001);
+		const mergedIcp = icpDue.minus(2 * transactionFee);
+		const nicpWithoutFee = mergedIcp.multipliedBy(exchangeRate);
+		return nicpWithoutFee.minus(nicpWithoutFee.dividedBy(200));
+	};
+
+	const setWarningError = async () => {
+		// const triggerErrorStatus = { status: {WaitingToSplitNeuron: null} };
+		const key = Object.keys(details.status)[0] as keyof WithdrawalStatus;
+		switch (key) {
+			case 'WaitingDissolvement':
+				const createdAt = await fetchCreationTimestampSecs(details.status[key].neuron_id);
+				const currentTime = Date.now() / 1000;
+				const twoWeeksSeconds = 14 * 24 * 60 * 60;
+				if (currentTime - createdAt > twoWeeksSeconds) {
+					warningError = 'Withdrawal is too close to disbursing.';
+				} else {
+					warningError = undefined;
+				}
+				break;
+			case 'WaitingToStartDissolving':
+				warningError = undefined;
+				break;
+			case 'NotFound':
+				warningError = 'Withdrawal not found.';
+				break;
+			case 'Cancelled':
+				warningError = 'Withdrawal already cancelled.';
+				break;
+			case 'WaitingToSplitNeuron':
+				warningError = 'Waiting for the withdrawal to split.';
+				break;
+		}
+	};
 
 	onMount(() => {
 		cancelWarningDialog = document.getElementById('cancelWarningDialog') as HTMLDialogElement;
 		cancelWarningDialog.showModal();
 		isHigher = isContainerHigher('send');
 		cancelWarningDialog.addEventListener('keydown', handleKeydown);
-        exchangeRate = $waterNeuronInfo.exchangeRate();
+		exchangeRate = $waterNeuronInfo.exchangeRate();
+		setWarningError();
 
 		return () => {
 			cancelWarningDialog.removeEventListener('keydown', handleKeydown);
@@ -55,34 +79,66 @@
 </script>
 
 <dialog id="cancelWarningDialog" style:align-items={isHigher ? 'flex-start' : 'center'}>
-	<div class="warning-container">
-		<h2>Confirm Action</h2>
-		<p>Please, confirm that you want to cancel <i>withdrawal {id}.</i></p>
-        <div class="review-container">
-            <p>
-                Convert: <i>234 ICP</i>
-            </p>
-            <p>
-                To: <i>236 nICP</i>
-            </p>
-            <p>
-                Current Exchange Rate: <i>{displayUsFormat(BigNumber(exchangeRate), 8)}</i>
-            </p>
-            <p>
-                Fee: <i>0.5%</i>
-            </p>
-        </div>
-		<div class="toggle-container">
-			<button
-				id="abort-btn"
-				on:click={() => {
-					inCancelWarningMenu.set(false);
-					cancelWarningDialog.close();
-				}}>Abort</button
-			>
-			<button id="confirm-btn">Confirm</button>
+	{#if warningError}
+		<div class="warning-container">
+			<h2>Oups...</h2>
+			<p>Withdrawal {details.request.withdrawal_id} is not cancellable.</p>
+			<div class="review-container">
+				<p>{warningError}</p>
+			</div>
+			<div class="toggle-container">
+				<button
+					id="abort-btn"
+					on:click={() => {
+						inCancelWarningMenu.set(false);
+						cancelWarningDialog.close();
+					}}>Abort</button
+				>
+			</div>
 		</div>
-	</div>
+	{:else}
+		<div class="warning-container">
+			<h2>Confirm Action</h2>
+			<p>
+				Please, confirm that you want to cancel <i>withdrawal {details.request.withdrawal_id}.</i>
+			</p>
+			<div class="review-container">
+				<p>
+					Convert: <i>{displayUsFormat(bigintE8sToNumber(details.request.icp_due))} ICP</i>
+				</p>
+				{#if exchangeRate}
+					<p>
+						To: <i
+							>{displayUsFormat(nicpAfterCancel(bigintE8sToNumber(details.request.icp_due)))} nICP</i
+						>
+					</p>
+					<p>
+						Current Exchange Rate: <i>{displayUsFormat(BigNumber(exchangeRate), 8)}</i>
+					</p>
+				{:else}
+					<p>
+						To: <i>-/- nICP</i>
+					</p>
+					<p>
+						Current Exchange Rate: <i>-/-</i>
+					</p>
+				{/if}
+				<p>
+					Fee: <i>0.5%</i>
+				</p>
+			</div>
+			<div class="toggle-container">
+				<button
+					id="abort-btn"
+					on:click={() => {
+						inCancelWarningMenu.set(false);
+						cancelWarningDialog.close();
+					}}>Abort</button
+				>
+				<button id="confirm-btn">Confirm</button>
+			</div>
+		</div>
+	{/if}
 </dialog>
 
 <style>
@@ -105,12 +161,12 @@
 
 	h2 {
 		font-family: var(--main-font);
-        align-self: center;
+		align-self: center;
 	}
 
 	p {
 		font-family: var(--secondary-font);
-        margin: 0.4em;
+		margin: 0.4em;
 	}
 
 	button {
@@ -149,7 +205,7 @@
 		padding: 2em;
 		border-radius: 15px;
 		border: var(--input-border);
-        gap: 1em;
+		gap: 1em;
 	}
 
 	.toggle-container {
@@ -159,13 +215,13 @@
 		gap: 1em;
 	}
 
-    .review-container {
-        display: flex;
-        flex-direction: column;
-        border-radius: 8px;
-        background-color: var(--unstake-selection-color);
-        padding: 1em;
-    }
+	.review-container {
+		display: flex;
+		flex-direction: column;
+		border-radius: 8px;
+		background-color: var(--unstake-selection-color);
+		padding: 1em;
+	}
 
 	/* === Components === */
 	#abort-btn {
