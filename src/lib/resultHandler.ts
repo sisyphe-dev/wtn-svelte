@@ -6,14 +6,17 @@ import type {
 	ApproveArgs,
 	ApproveResult,
 	ApproveError,
-	_SERVICE as nicpLedgerInterface
 } from '../declarations/icrc_ledger/icrc_ledger.did';
 import type {
 	ConversionError,
-	Result_1 as IcpToNicpResult,
-	Result_2 as NicpToIcpResult,
+	Result as CancelResult, 
+	Result_3 as IcpToNicpResult,
+	Result_4 as NicpToIcpResult,
 	TransferError,
-	TransferFromError
+	TransferFromError, 
+	MergeResponse, 
+	NeuronInfo,
+	CancelWithdrawalError
 } from '../declarations/water_neuron/water_neuron.did';
 import type {
 	BoomerangError,
@@ -453,6 +456,61 @@ export function handleIcrcTransferResult(result: Icrc1TransferResult, asset: Ass
 		case 'Err':
 			return handleTransferFromError(result[key]);
 
+		default:
+			return {
+				success: false,
+				message: DEFAULT_ERROR_MESSAGE
+			};
+	}
+}
+
+export type CancelWithdrawalError =
+	| {
+			GenericError: { code: number; message: string };
+	  }
+	| { TooLate: null }
+	| { BadCommand: { message: string } }
+	| { UnknownTimeLeft: null }
+	| { BadCaller: { message: string } }
+	| { MergeNeuronError: { message: string } }
+	| { StopDissolvementError: { message: string } }
+	| { RequestNotFound: null }
+	| { GovernanceError: GovernanceError }
+	| { GuardError: { guard_error: GuardError } }
+	| { GetFullNeuronError: { message: string } };
+
+function handleCancelError(error: CancelWithdrawalError): ToastResult {
+	const key = Object.keys(error)[0] as keyof CancelWithdrawalError;
+
+	switch (key) {
+		case 'GenericError':
+			return {
+				success: false,
+				message: `Generic Error: ${error[key]['message']}`
+			};
+		case 'TooLate':
+			return {
+				success: false, 
+				message: ""
+			};
+
+	}
+}
+
+export function handleCancelWithdrawalResult(result: CancelResult): ToastResult {
+	const key = Object.keys(result)[0] as keyof CancelResult;
+
+	switch (key) {
+		case 'Ok':
+			const response: MergeResponse = result[key]; 
+			const info: [] | [NeuronInfo] =  response.source_neuron_info;
+			if (info.length === 1) {
+				return { success: true, message: `Successfully converted ${info[0].stake_e8s}`}
+			} else {
+				return { success: false, message: DEFAULT_ERROR_MESSAGE};
+			}
+		case 'Err': 
+			return handleCancelError(result[key]);
 		default:
 			return {
 				success: false,

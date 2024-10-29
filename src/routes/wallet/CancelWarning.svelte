@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { BigNumber } from 'bignumber.js';
 	import { onMount } from 'svelte';
-	import { inCancelWarningMenu, waterNeuronInfo } from '$lib/stores';
+	import { inCancelWarningMenu, waterNeuronInfo, canisters } from '$lib/stores';
 	import {
 		isContainerHigher,
 		displayUsFormat,
@@ -64,6 +64,16 @@
 		}
 	};
 
+	async function handleCancellation() {
+		if (!$canisters?.authenticatedActor || details.request.neuron_id === []) return;
+
+		try {
+			const result = $canisters.authenticatedActor.cancel_withdrawal(details.request.neuron_id[0]);
+		} catch (error) {
+			console.error(error);
+		}
+	}
+
 	onMount(() => {
 		cancelWarningDialog = document.getElementById('cancelWarningDialog') as HTMLDialogElement;
 		cancelWarningDialog.showModal();
@@ -99,32 +109,32 @@
 	{:else}
 		<div class="warning-container">
 			<h2>Confirm Action</h2>
-			<p>
-				Please, confirm that you want to cancel <i>withdrawal {details.request.withdrawal_id}.</i>
+			<p style:color="var(--title-color)">
+				Please, confirm that you want to cancel withdrawal {details.request.withdrawal_id}.
 			</p>
 			<div class="review-container">
 				<p>
-					Convert: <i>{displayUsFormat(bigintE8sToNumber(details.request.icp_due))} ICP</i>
+					Convert: {displayUsFormat(bigintE8sToNumber(details.request.icp_due))} ICP
 				</p>
 				{#if exchangeRate}
 					<p>
-						To: <i
-							>{displayUsFormat(nicpAfterCancel(bigintE8sToNumber(details.request.icp_due)))} nICP</i
-						>
+						To: 
+							{displayUsFormat(nicpAfterCancel(bigintE8sToNumber(details.request.icp_due)))} nICP
+						
 					</p>
 					<p>
-						Current Exchange Rate: <i>{displayUsFormat(BigNumber(exchangeRate), 8)}</i>
+						Current Exchange Rate: {displayUsFormat(BigNumber(exchangeRate), 8)}
 					</p>
 				{:else}
 					<p>
-						To: <i>-/- nICP</i>
+						To: -/- nICP
 					</p>
 					<p>
-						Current Exchange Rate: <i>-/-</i>
+						Current Exchange Rate: -/-
 					</p>
 				{/if}
 				<p>
-					Fee: <i>0.5%</i>
+					Fee: 0.5%
 				</p>
 			</div>
 			<div class="toggle-container">
@@ -135,7 +145,7 @@
 						cancelWarningDialog.close();
 					}}>Abort</button
 				>
-				<button id="confirm-btn">Confirm</button>
+				<button id="confirm-btn" on:click={handleCancellation}>Confirm</button>
 			</div>
 		</div>
 	{/if}
@@ -167,6 +177,7 @@
 	p {
 		font-family: var(--secondary-font);
 		margin: 0.4em;
+		color: var(--text-color);
 	}
 
 	button {
