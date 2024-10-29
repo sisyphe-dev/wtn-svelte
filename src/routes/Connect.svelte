@@ -43,7 +43,7 @@
 			<h2>Internet Identity</h2>
 		</button>
 		<button class="login-btn" on:click={() => handleConnection('transport')}>
-			<img src="/icon/nfid.webp" width="80em" height="50em" alt="Nfid Logo." />
+			<img src="/icon/nfid.webp" width="auto" height="50em" alt="NFID Logo." />
 		</button>
 		{#if !isMobile}
 			<button class="login-btn" on:click={() => handleConnection('plug')}>

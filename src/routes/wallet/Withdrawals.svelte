@@ -35,7 +35,7 @@
 
 	const fetchWithdrawals = async () => {
 		if ($user && $canisters) {
-			withdrawalRequests = await $canisters.waterNeuron.actor.get_withdrawal_requests([
+			withdrawalRequests = await $canisters.waterNeuron.genericActor.get_withdrawal_requests([
 				{ owner: $user.principal, subaccount: [] }
 			]);
 			await fetchStatuses();
