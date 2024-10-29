@@ -40,7 +40,7 @@
 
 	async function updateWaterNeuronInfo() {
 		if ($canisters) {
-			waterNeuronInfo.set(new WaterNeuronInfo(await $canisters.waterNeuron.actor.get_info()));
+			waterNeuronInfo.set(new WaterNeuronInfo(await $canisters.waterNeuron.genericActor.get_info()));
 		}
 	}
 
