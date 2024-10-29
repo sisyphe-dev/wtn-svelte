@@ -6,7 +6,6 @@ import type {
 	ApproveArgs,
 	ApproveResult,
 	ApproveError,
-	_SERVICE as nicpLedgerInterface
 } from '../declarations/icrc_ledger/icrc_ledger.did';
 import type {
 	ConversionError,
