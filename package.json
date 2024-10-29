@@ -54,7 +54,6 @@
 		"@slide-computer/signer-transport-auth-client": "^3.6.4",
 		"@slide-computer/signer-transport-plug": "^3.6.4",
 		"@slide-computer/signer-web": "^3.6.4",
-		"@types/bignumber.js": "^4.0.3",
 		"playwright": "^1.46.0",
 		"process": "^0.11.10",
 		"qr-creator": "^1.0.0",
