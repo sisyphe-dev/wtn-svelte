@@ -5,7 +5,7 @@ import type {
 	Account,
 	ApproveArgs,
 	ApproveResult,
-	ApproveError,
+	ApproveError
 } from '../declarations/icrc_ledger/icrc_ledger.did';
 import type {
 	ConversionError,

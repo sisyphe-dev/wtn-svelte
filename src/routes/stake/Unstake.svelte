@@ -246,7 +246,9 @@
 		if (!$canisters || !$canisters.icpswapPool.authenticatedActor || !$user) return;
 		isConverting.set(true);
 		try {
-			const result = await $canisters.icpswapPool.genericActor.getUserUnusedBalance($user.principal);
+			const result = await $canisters.icpswapPool.genericActor.getUserUnusedBalance(
+				$user.principal
+			);
 			const key = Object.keys(result)[0] as keyof IcpSwapUnusedBalanceResult;
 
 			switch (key) {

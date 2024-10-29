@@ -28,7 +28,7 @@ const parsedKey = JSON.stringify(key);
 export const mockSetup = async () => {
 	try {
 		const dummyIdentity = Ed25519KeyIdentity.fromJSON(parsedKey);
-		const agent = new HttpAgent({ host: 'http://127.0.1:8080', identity: dummyIdentity });
+		const agent = HttpAgent.createSync({ host: 'http://127.0.1:8080', identity: dummyIdentity });
 		agent.fetchRootKey().catch((err) => {
 			console.warn('Unable to fetch root key. Check to ensure that your local replica is running');
 			console.error(err);
