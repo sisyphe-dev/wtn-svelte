@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { BigNumber } from 'bignumber.js';
 	import { onMount } from 'svelte';
-	import { inCancelWarningMenu, waterNeuronInfo, canisters } from '$lib/stores';
+	import { inCancelWarningMenu, waterNeuronInfo, canisters, toasts } from '$lib/stores';
+	import { Toast } from '$lib/toast';
 	import {
 		isContainerHigher,
 		displayUsFormat,
@@ -12,6 +13,7 @@
 		WithdrawalDetails,
 		WithdrawalStatus
 	} from '$lib/../declarations/water_neuron/water_neuron.did';
+	import { handleCancelError } from '$lib/resultHandler';
 
 	export let details: WithdrawalDetails;
 
@@ -65,12 +67,23 @@
 	};
 
 	async function handleCancellation() {
-		if (!$canisters?.authenticatedActor || details.request.neuron_id === []) return;
+		if (!$canisters?.waterNeuron.authenticatedActor || details.request.neuron_id === []) return;
 
 		try {
-			const result = $canisters.authenticatedActor.cancel_withdrawal(details.request.neuron_id[0]);
+			const result = await $canisters.waterNeuron.authenticatedActor.cancel_withdrawal(
+				details.request.neuron_id[0]
+			);
+			console.log(result);
+			const status = handleCancelError(result);
+
+			if (status.success) {
+				toasts.add(Toast.success(status.message));
+			} else {
+				toasts.add(Toast.error(status.message));
+			}
 		} catch (error) {
 			console.error(error);
+			toasts.add(Toast.error('Call was rejected.'));
 		}
 	}
 
@@ -118,24 +131,17 @@
 				</p>
 				{#if exchangeRate}
 					<p>
-						To: 
-							{displayUsFormat(nicpAfterCancel(bigintE8sToNumber(details.request.icp_due)))} nICP
-						
+						To:
+						{displayUsFormat(nicpAfterCancel(bigintE8sToNumber(details.request.icp_due)))} nICP
 					</p>
 					<p>
 						Current Exchange Rate: {displayUsFormat(BigNumber(exchangeRate), 8)}
 					</p>
 				{:else}
-					<p>
-						To: -/- nICP
-					</p>
-					<p>
-						Current Exchange Rate: -/-
-					</p>
+					<p>To: -/- nICP</p>
+					<p>Current Exchange Rate: -/-</p>
 				{/if}
-				<p>
-					Fee: 0.5%
-				</p>
+				<p>Fee: 0.5%</p>
 			</div>
 			<div class="toggle-container">
 				<button
