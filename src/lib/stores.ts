@@ -13,6 +13,7 @@ export const isBusy = writable<boolean>(false);
 export const isConverting = writable<boolean>(false);
 export const inSendingMenu = writable<boolean>(false);
 export const inReceivingMenu = writable<boolean>(false);
+export const inCancelWarningMenu = writable<boolean>(false);
 export const inMobileMenu = writable<boolean>(false);
 export const inSnsMenu = writable<boolean>(false);
 
@@ -103,9 +104,9 @@ export const handleSnsChange = async (name?: string, principal?: string) => {
 			const p = Principal.fromText(principal);
 			sns.setPrincipal(principal);
 			const [account, icpBalanceE8s, nicpBalanceE8s] = await Promise.all([
-				fetchedCanisters.boomerang.get_staking_account(p),
-				fetchIcpBalance(p, fetchedCanisters.icpLedger),
-				fetchNicpBalance(p, fetchedCanisters.nicpLedger)
+				fetchedCanisters.boomerang.genericActor.get_staking_account(p),
+				fetchIcpBalance(p, fetchedCanisters.icpLedger.genericActor),
+				fetchNicpBalance(p, fetchedCanisters.nicpLedger.genericActor)
 			]);
 			const encodedBoomerangAccount = encodeIcrcAccount({
 				owner: account.owner,

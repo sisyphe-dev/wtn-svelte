@@ -1,12 +1,14 @@
 <script lang="ts">
+	import CancelWarning from './CancelWarning.svelte';
 	import {
 		bigintE8sToNumber,
 		displayUsFormat,
 		renderStatus,
 		displayTimeLeft,
+		fetchCreationTimestampSecs,
 		isMobile
 	} from '$lib';
-	import { user, canisters } from '$lib/stores';
+	import { user, canisters, inCancelWarningMenu } from '$lib/stores';
 	import { onMount } from 'svelte';
 	import type {
 		WithdrawalDetails,
@@ -14,10 +16,12 @@
 	} from '$lib/../declarations/water_neuron/water_neuron.did';
 	import { fade } from 'svelte/transition';
 
-	let withdrawalRequests: WithdrawalDetails[];
-	let withdrawalStatuses: {
-		[key: string]: string;
+	let activeWithdrawalRequests: { [key: number]: WithdrawalDetails } = {};
+	let cancelledWithdrawalRequests: { [key: number]: WithdrawalDetails } = {};
+	let timesLeft: {
+		[key: number]: string;
 	} = {};
+	let selectedWithdrawal: WithdrawalDetails;
 
 	function displayNeuronId(neuronId: [] | [NeuronId], truncate = true): string {
 		if (neuronId.length == 0) {
@@ -32,52 +36,63 @@
 
 	const fetchWithdrawals = async () => {
 		if ($user && $canisters) {
-			withdrawalRequests = await $canisters.waterNeuron.get_withdrawal_requests([
+			const withdrawals = await $canisters.waterNeuron.genericActor.get_withdrawal_requests([
 				{ owner: $user.principal, subaccount: [] }
 			]);
-			await fetchStatuses();
+
+			const [newCancelled, newActive] = [{}, {}];
+			for (const withdrawal of withdrawals) {
+				if ('Cancelled' in withdrawal.status) {
+					newCancelled[withdrawal.request.withdrawal_id] = withdrawal;
+				} else {
+					newActive[withdrawal.request.withdrawal_id] = withdrawal;
+				}
+			}
+
+			cancelledWithdrawalRequests = newCancelled;
+			activeWithdrawalRequests = newActive;
+			await fetchTimesLeft();
 		}
 	};
 
-	const fetchStatuses = async () => {
+	const handleCancelClick = (details: WithdrawalDetails) => {
+		selectedWithdrawal = details;
+		inCancelWarningMenu.set(true);
+	};
+
+	const fetchTimesLeft = async () => {
 		if ($user) {
-			for (const detail of withdrawalRequests) {
+			const newTimesLeft = {};
+			for (const detail of Object.values(activeWithdrawalRequests)) {
 				const neuronId = detail.request.neuron_id;
 				if (neuronId.length !== 0) {
 					try {
-						const status = await fetchTimeLeft(neuronId[0]);
-						withdrawalStatuses[neuronId[0].id.toString()] = status;
+						const createdAt = await fetchCreationTimestampSecs(neuronId[0]);
+						newTimesLeft[neuronId[0].id] = displayTimeLeft(createdAt, isMobile);
 					} catch (e) {
-						console.error(e);
+						console.log(e);
 					}
 				}
 			}
+			timesLeft = newTimesLeft;
 		}
 	};
 
-	async function fetchTimeLeft(neuron_id: NeuronId): Promise<string> {
-		if (process.env.DFX_NETWORK !== 'ic') return 'Waiting dissolvement';
-		try {
-			const response = await fetch(
-				`https://ic-api.internetcomputer.org/api/v3/neurons/${neuron_id.id}`
-			);
-			if (!response.ok) {
-				throw new Error('Network response was not ok');
-			}
-			const data = await response.json();
-			const neuron_created_at = data['created_timestamp_seconds'];
-			return displayTimeLeft(Number(neuron_created_at), isMobile);
-		} catch (error) {
-			throw new Error('Failed to fetch with error: ' + error);
-		}
-	}
-
 	onMount(() => {
 		fetchWithdrawals();
+
+		const intervalId = setInterval(async () => {
+			await fetchWithdrawals();
+		}, 5000);
+
+		return () => clearInterval(intervalId);
 	});
 </script>
 
-{#if withdrawalRequests && withdrawalRequests.length >= 1}
+{#if $inCancelWarningMenu}
+	<CancelWarning details={selectedWithdrawal} />
+{/if}
+{#if Object.keys(activeWithdrawalRequests).length + Object.keys(cancelledWithdrawalRequests).length >= 1}
 	<div class="withdrawals-container" in:fade={{ duration: 500 }}>
 		<h1>Withdrawal Requests</h1>
 		<table>
@@ -99,7 +114,7 @@
 				{/if}
 			</thead>
 			<tbody>
-				{#each withdrawalRequests as details}
+				{#each Object.values(activeWithdrawalRequests).concat(Object.values(cancelledWithdrawalRequests)) as details}
 					{#if isMobile}
 						<tr>
 							<td>{displayUsFormat(bigintE8sToNumber(details.request.icp_due))}</td>
@@ -114,9 +129,8 @@
 								</a>
 							</td>
 							<td>
-								{details.request.neuron_id[0]
-									? withdrawalStatuses[details.request.neuron_id[0].id.toString()]
-									: 'Waiting Dissolvement'}
+								{timesLeft[details.request.neuron_id[0].id]
+									?? 'Cancelled'}
 							</td>
 						</tr>
 					{:else}
@@ -137,6 +151,15 @@
 								{@html renderStatus(details.status)}
 							</td>
 							<td>{details.request.withdrawal_id}</td>
+							<td>
+								<button
+									on:click={() => {
+										handleCancelClick(details);
+									}}
+								>
+									Cancel
+								</button>
+							</td>
 						</tr>
 					{/if}
 				{/each}
@@ -186,6 +209,32 @@
 	a {
 		text-decoration: underline;
 		color: var(--stake-text-color);
+	}
+
+	button {
+		background: var(--main-color);
+		color: var(--main-button-text-color);
+		min-width: 80px;
+		border-radius: 8px;
+		position: relative;
+		border: 2px solid black;
+		font-size: 14px;
+		box-shadow: 3px 3px 0 0 black;
+		padding: 0 1em 0 1em;
+		max-width: none;
+		height: 3em;
+		font-weight: bold;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		cursor: pointer;
+		margin-right: 1em;
+	}
+
+	button:hover {
+		transform: scale(0.95);
+		transition: all 0.3s;
+		box-shadow: 6px 6px 0 0 black;
 	}
 
 	/* === Responsive === */

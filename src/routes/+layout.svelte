@@ -25,27 +25,38 @@
 		fetchWtnBalance,
 		fetchWtnAllocation
 	} from '$lib/state';
-	import { signIn } from '$lib/authentification';
+	import { tryConnectOnReload } from '$lib/authentification';
 	import Toast from './Toast.svelte';
 
 	async function updateBalances() {
 		if ($canisters && $user) {
-			$user.icpBalanceE8s = await fetchIcpBalance($user.principal, $canisters.icpLedger);
-			$user.nicpBalanceE8s = await fetchNicpBalance($user.principal, $canisters.nicpLedger);
-			$user.wtnBalanceE8s = await fetchWtnBalance($user.principal, $canisters.wtnLedger);
+			$user.icpBalanceE8s = await fetchIcpBalance(
+				$user.principal,
+				$canisters.icpLedger.genericActor
+			);
+			$user.nicpBalanceE8s = await fetchNicpBalance(
+				$user.principal,
+				$canisters.nicpLedger.genericActor
+			);
+			$user.wtnBalanceE8s = await fetchWtnBalance(
+				$user.principal,
+				$canisters.wtnLedger.genericActor
+			);
 			$user.wtnAllocationE8s =
-				(await fetchWtnAllocation($user.principal, $canisters.waterNeuron)) ?? 0n;
+				(await fetchWtnAllocation($user.principal, $canisters.waterNeuron.genericActor)) ?? 0n;
 		}
 	}
 
 	async function updateWaterNeuronInfo() {
 		if ($canisters) {
-			waterNeuronInfo.set(new WaterNeuronInfo(await $canisters.waterNeuron.get_info()));
+			waterNeuronInfo.set(
+				new WaterNeuronInfo(await $canisters.waterNeuron.genericActor.get_info())
+			);
 		}
 	}
 
 	onMount(() => {
-		signIn('reload').then(() => {
+		tryConnectOnReload().then(() => {
 			updateBalances();
 			updateWaterNeuronInfo();
 			handleSnsChange('BOOM DAO', 'xomae-vyaaa-aaaaq-aabhq-cai');
