@@ -23,7 +23,7 @@
 	let principalInput: string;
 
 	const handlePrincipalInputChange = async () => {
-		if (!$canisters || $sns.name !== 'Custom') return;
+		if ($sns.name !== 'Custom') return;
 
 		const filteredInput = principalInput.replace(/\s+/g, '');
 		const shouldChange = isPrincipalValid(filteredInput);

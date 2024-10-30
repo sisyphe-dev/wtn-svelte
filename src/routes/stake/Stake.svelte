@@ -38,8 +38,8 @@
 		if (
 			!$user ||
 			$isConverting ||
-			!$canisters ||
-			!$canisters.waterNeuron.authenticatedActor ||
+			!$canisters?.waterNeuron.authenticatedActor ||
+			!$canisters?.icpLedger.authenticatedActor ||
 			amount.isNaN() ||
 			amount.isLessThan(BigNumber(1))
 		)
