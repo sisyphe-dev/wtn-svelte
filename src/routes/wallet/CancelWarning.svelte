@@ -13,7 +13,7 @@
 		WithdrawalDetails,
 		WithdrawalStatus
 	} from '$lib/../declarations/water_neuron/water_neuron.did';
-	import { handleCancelError } from '$lib/resultHandler';
+	import { handleCancelWithdrawalResult } from '$lib/resultHandler';
 
 	export let details: WithdrawalDetails;
 
@@ -74,7 +74,7 @@
 				details.request.neuron_id[0]
 			);
 			console.log(result);
-			const status = handleCancelError(result);
+			const status = handleCancelWithdrawalResult(result);
 
 			if (status.success) {
 				toasts.add(Toast.success(status.message));
@@ -85,6 +85,8 @@
 			console.error(error);
 			toasts.add(Toast.error('Call was rejected.'));
 		}
+		inCancelWarningMenu.set(false);
+		cancelWarningDialog.close();
 	}
 
 	onMount(() => {
@@ -121,7 +123,7 @@
 		</div>
 	{:else}
 		<div class="warning-container">
-			<h2>Confirm Action</h2>
+			<h2>Confirm</h2>
 			<p style:color="var(--title-color)">
 				Please, confirm that you want to cancel withdrawal {details.request.withdrawal_id}.
 			</p>

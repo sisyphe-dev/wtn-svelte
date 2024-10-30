@@ -180,6 +180,8 @@ export function renderStatus(status: WithdrawalStatus): string {
 			return 'Waiting Dissolvement';
 		case 'WaitingToStartDissolving':
 			return `Waiting to Start Dissolving`;
+		case 'Cancelled':
+			return 'Cancelled';
 		default:
 			return 'Unknown Status';
 	}

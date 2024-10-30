@@ -464,7 +464,7 @@ export function handleIcrcTransferResult(result: Icrc1TransferResult, asset: Ass
 	}
 }
 
-export function handleCancelError(error: CancelWithdrawalError): ToastResult {
+function handleCancelError(error: CancelWithdrawalError): ToastResult {
 	const key = Object.keys(error)[0] as keyof CancelWithdrawalError;
 
 	switch (key) {
@@ -539,8 +539,9 @@ export function handleCancelWithdrawalResult(result: CancelResult): ToastResult 
 		case 'Ok':
 			const response: MergeResponse = result[key];
 			const info: [] | [NeuronInfo] = response.source_neuron_info;
+			console.log(info, info.length);
 			if (info.length === 1) {
-				return { success: true, message: `Successfully converted ${info[0].stake_e8s}` };
+				return { success: true, message: `Successfully cancelled withdrawal.` };
 			} else {
 				return { success: false, message: DEFAULT_ERROR_MESSAGE };
 			}

@@ -16,9 +16,10 @@
 	} from '$lib/../declarations/water_neuron/water_neuron.did';
 	import { fade } from 'svelte/transition';
 
-	let withdrawalRequests: WithdrawalDetails[];
-	let withdrawalStatuses: {
-		[key: string]: string;
+	let activeWithdrawalRequests: { [key: number]: WithdrawalDetails } = {};
+	let cancelledWithdrawalRequests: { [key: number]: WithdrawalDetails } = {};
+	let timesLeft: {
+		[key: number]: string;
 	} = {};
 	let selectedWithdrawal: WithdrawalDetails;
 
@@ -35,10 +36,22 @@
 
 	const fetchWithdrawals = async () => {
 		if ($user && $canisters) {
-			withdrawalRequests = await $canisters.waterNeuron.genericActor.get_withdrawal_requests([
+			const withdrawals = await $canisters.waterNeuron.genericActor.get_withdrawal_requests([
 				{ owner: $user.principal, subaccount: [] }
 			]);
-			await fetchStatuses();
+
+			const [newCancelled, newActive] = [{}, {}];
+			for (const withdrawal of withdrawals) {
+				if ('Cancelled' in withdrawal.status) {
+					newCancelled[withdrawal.request.withdrawal_id] = withdrawal;
+				} else {
+					newActive[withdrawal.request.withdrawal_id] = withdrawal;
+				}
+			}
+
+			cancelledWithdrawalRequests = newCancelled;
+			activeWithdrawalRequests = newActive;
+			await fetchTimesLeft();
 		}
 	};
 
@@ -47,31 +60,39 @@
 		inCancelWarningMenu.set(true);
 	};
 
-	const fetchStatuses = async () => {
+	const fetchTimesLeft = async () => {
 		if ($user) {
-			for (const detail of withdrawalRequests) {
+			const newTimesLeft = {};
+			for (const detail of Object.values(activeWithdrawalRequests)) {
 				const neuronId = detail.request.neuron_id;
 				if (neuronId.length !== 0) {
 					try {
 						const createdAt = await fetchCreationTimestampSecs(neuronId[0]);
-						withdrawalStatuses[neuronId[0].id.toString()] = displayTimeLeft(createdAt, isMobile);
+						newTimesLeft[neuronId[0].id] = displayTimeLeft(createdAt, isMobile);
 					} catch (e) {
-						console.error(e);
+						console.log(e);
 					}
 				}
 			}
+			timesLeft = newTimesLeft;
 		}
 	};
 
 	onMount(() => {
 		fetchWithdrawals();
+
+		const intervalId = setInterval(async () => {
+			await fetchWithdrawals();
+		}, 5000);
+
+		return () => clearInterval(intervalId);
 	});
 </script>
 
 {#if $inCancelWarningMenu}
 	<CancelWarning details={selectedWithdrawal} />
 {/if}
-{#if withdrawalRequests && withdrawalRequests.length >= 1}
+{#if Object.keys(activeWithdrawalRequests).length + Object.keys(cancelledWithdrawalRequests).length >= 1}
 	<div class="withdrawals-container" in:fade={{ duration: 500 }}>
 		<h1>Withdrawal Requests</h1>
 		<table>
@@ -93,7 +114,7 @@
 				{/if}
 			</thead>
 			<tbody>
-				{#each withdrawalRequests as details}
+				{#each Object.values(activeWithdrawalRequests).concat(Object.values(cancelledWithdrawalRequests)) as details}
 					{#if isMobile}
 						<tr>
 							<td>{displayUsFormat(bigintE8sToNumber(details.request.icp_due))}</td>
@@ -108,9 +129,8 @@
 								</a>
 							</td>
 							<td>
-								{details.request.neuron_id[0]
-									? withdrawalStatuses[details.request.neuron_id[0].id.toString()]
-									: 'Waiting Dissolvement'}
+								{timesLeft[details.request.neuron_id[0].id]
+									?? 'Cancelled'}
 							</td>
 						</tr>
 					{:else}
