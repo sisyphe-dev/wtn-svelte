@@ -210,7 +210,7 @@
 				subaccount: []
 			} as Account;
 
-			const allowanceResult: Allowance = await $canisters.nicpLedger.genericActor.icrc2_allowance({
+			const allowanceResult: Allowance = await $canisters.nicpLedger.anonymousActor.icrc2_allowance({
 				account: { owner: $user.principal, subaccount: [] } as Account,
 				spender
 			} as AllowanceArgs);
@@ -246,7 +246,7 @@
 		if (!$canisters?.icpswapPool.authenticatedActor || !$user) return;
 		isConverting.set(true);
 		try {
-			const result = await $canisters.icpswapPool.genericActor.getUserUnusedBalance(
+			const result = await $canisters.icpswapPool.anonymousActor.getUserUnusedBalance(
 				$user.principal
 			);
 			const key = Object.keys(result)[0] as keyof IcpSwapUnusedBalanceResult;
@@ -324,7 +324,7 @@
 			const amountIn = numberToBigintE8s(amount);
 			const amountOut = amountIn - numberToBigintE8s(amount.multipliedBy(BigNumber(0.02)));
 
-			const result = await $canisters.icpswapPool.genericActor.quote({
+			const result = await $canisters.icpswapPool.anonymousActor.quote({
 				amountIn: amountIn.toString(),
 				zeroForOne: true,
 				amountOutMinimum: amountOut.toString()

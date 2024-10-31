@@ -32,25 +32,25 @@
 		if ($canisters && $user) {
 			$user.icpBalanceE8s = await fetchIcpBalance(
 				$user.principal,
-				$canisters.icpLedger.genericActor
+				$canisters.icpLedger.anonymousActor
 			);
 			$user.nicpBalanceE8s = await fetchNicpBalance(
 				$user.principal,
-				$canisters.nicpLedger.genericActor
+				$canisters.nicpLedger.anonymousActor
 			);
 			$user.wtnBalanceE8s = await fetchWtnBalance(
 				$user.principal,
-				$canisters.wtnLedger.genericActor
+				$canisters.wtnLedger.anonymousActor
 			);
 			$user.wtnAllocationE8s =
-				(await fetchWtnAllocation($user.principal, $canisters.waterNeuron.genericActor)) ?? 0n;
+				(await fetchWtnAllocation($user.principal, $canisters.waterNeuron.anonymousActor)) ?? 0n;
 		}
 	}
 
 	async function updateWaterNeuronInfo() {
 		if ($canisters) {
 			waterNeuronInfo.set(
-				new WaterNeuronInfo(await $canisters.waterNeuron.genericActor.get_info())
+				new WaterNeuronInfo(await $canisters.waterNeuron.anonymousActor.get_info())
 			);
 		}
 	}

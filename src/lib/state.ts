@@ -77,12 +77,12 @@ export async function fetchWtnAllocation(
 
 export class CanisterActor<canisterInterface> {
 	public authenticatedActor?: canisterInterface;
-	public genericActor: canisterInterface;
+	public anonymousActor: canisterInterface;
 	private _idl: IDL.InterfaceFactory;
 	private _canisterId: string;
 
 	constructor(httpAgent: HttpAgent, idl: IDL.InterfaceFactory, canisterId: string) {
-		this.genericActor = Actor.createActor(idl, { agent: httpAgent, canisterId });
+		this.anonymousActor = Actor.createActor(idl, { agent: httpAgent, canisterId });
 		this._idl = idl;
 		this._canisterId = canisterId;
 	}
