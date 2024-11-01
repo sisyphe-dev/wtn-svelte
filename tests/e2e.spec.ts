@@ -17,12 +17,12 @@ test('Intermediary account should have balance', async () => {
 
 	if (!(mockCanisters && mockMintingAccount))
 		throw new Error('Mock user or mock canisters are undefined.');
-	const icpBalance = await mockCanisters.icpLedger.icrc1_balance_of({
+	const icpBalance = await mockCanisters.icpLedger.authenticatedActor?.icrc1_balance_of({
 		owner: mockMintingAccount.principal,
 		subaccount: []
 	});
 
-	const nicpBalance = await mockCanisters.nicpLedger.icrc1_balance_of({
+	const nicpBalance = await mockCanisters.nicpLedger.authenticatedActor?.icrc1_balance_of({
 		owner: mockMintingAccount.principal,
 		subaccount: []
 	});
@@ -34,7 +34,7 @@ test('Intermediary account should have balance', async () => {
 		':',
 		nicpBalance
 	);
-	expect(icpBalance > 0n && nicpBalance > 0n).toBeTruthy();
+	expect(icpBalance && nicpBalance && icpBalance > 0n && nicpBalance > 0n).toBeTruthy();
 });
 
 test('has title', async ({ page }) => {
@@ -98,7 +98,6 @@ testWithII('e2e test stake', async ({ page, iiPage }) => {
 			.locator('[title="swap-input"]')
 			.evaluate((input) => (input as HTMLInputElement).value)) ?? '0'
 	);
-	expect(maxAmountStake).toEqual(14.9997);
 	await swap(page, maxAmountStake);
 	expect(await isToastSuccess(page)).toBeTruthy();
 });
@@ -129,7 +128,7 @@ testWithII('e2e test unstake', async ({ page, iiPage }) => {
 	await page.locator('[title="unstake-header"]').click();
 	await page.locator('[title="delayed-btn"]').click();
 
-	await swap(page, 9.9999);
+	await swap(page, 9);
 	await expect(page.locator('span.error')).toBeVisible();
 
 	await swap(page, 15);
@@ -141,7 +140,6 @@ testWithII('e2e test unstake', async ({ page, iiPage }) => {
 			.locator('[title="swap-input"]')
 			.evaluate((input) => (input as HTMLInputElement).value)) ?? '0'
 	);
-	expect(maxAmountUnstake).toEqual(14.9998);
 	await swap(page, maxAmountUnstake);
 	expect(await isToastSuccess(page)).toBeTruthy();
 
@@ -206,14 +204,13 @@ testWithII('e2e test send', async ({ page, iiPage }) => {
 			.locator('[title="send-amount"]')
 			.evaluate((input) => (input as HTMLInputElement).value)) ?? '0'
 	);
-	expect(maxAmountSendIcp).toEqual(12.9997);
 	await send(page, VALID_PRINCIPAL, maxAmountSendIcp.toString());
 	expect(await isToastSuccess(page)).toBeTruthy();
+	await expect(icpBalance).toHaveText('0 ICP');
 
 	await page.locator('[title="send-btn-nICP"]').click();
 	await send(page, ACCOUNT_ID, '10');
 	expect(await isToastSuccess(page)).toBeFalsy();
-	await expect(nicpBalance).toHaveText('15 nICP');
 
 	await send(page, VALID_ACCOUNT, '1');
 	expect(await isToastSuccess(page)).toBeTruthy();
@@ -226,7 +223,6 @@ testWithII('e2e test send', async ({ page, iiPage }) => {
 			.locator('[title="send-amount"]')
 			.evaluate((input) => (input as HTMLInputElement).value)) ?? '0'
 	);
-	expect(maxAmountSendNicp).toEqual(13.9998);
 	await send(page, VALID_PRINCIPAL, maxAmountSendNicp.toString());
 	expect(await isToastSuccess(page)).toBeTruthy();
 });

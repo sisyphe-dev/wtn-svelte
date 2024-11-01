@@ -1,4 +1,5 @@
-export const idlFactory = ({ IDL }) => {
+import { IDL } from '@dfinity/candid';
+export const idlFactory = () => {
 	const Value = IDL.Rec();
 	const MetadataValue = IDL.Variant({
 		Int: IDL.Int,
@@ -269,7 +270,7 @@ export const idlFactory = ({ IDL }) => {
 		icrc2_transfer_from: IDL.Func([TransferFromArgs], [TransferFromResult], [])
 	});
 };
-export const init = ({ IDL }) => {
+export const init = () => {
 	const MetadataValue = IDL.Variant({
 		Int: IDL.Int,
 		Nat: IDL.Nat,

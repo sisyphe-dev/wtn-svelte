@@ -103,9 +103,9 @@ export const handleSnsChange = async (name?: string, principal?: string) => {
 			const p = Principal.fromText(principal);
 			sns.setPrincipal(principal);
 			const [account, icpBalanceE8s, nicpBalanceE8s] = await Promise.all([
-				fetchedCanisters.boomerang.get_staking_account(p),
-				fetchIcpBalance(p, fetchedCanisters.icpLedger),
-				fetchNicpBalance(p, fetchedCanisters.nicpLedger)
+				fetchedCanisters.boomerang.anonymousActor.get_staking_account(p),
+				fetchIcpBalance(p, fetchedCanisters.icpLedger.anonymousActor),
+				fetchNicpBalance(p, fetchedCanisters.nicpLedger.anonymousActor)
 			]);
 			const encodedBoomerangAccount = encodeIcrcAccount({
 				owner: account.owner,
