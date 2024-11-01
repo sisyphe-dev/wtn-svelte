@@ -31,13 +31,9 @@ const IDENTITY_PROVIDER = 'https://identity.ic0.app';
 const CANISTER_ID_II = DEV ? 'iidmm-fiaaa-aaaaq-aadmq-cai' : 'rdmx6-jaaaa-aaaaa-aaadq-cai';
 const CANISTER_ID_WTN_LEDGER = 'jcmow-hyaaa-aaaaq-aadlq-cai';
 export const CANISTER_ID_ICP_LEDGER = 'ryjl3-tyaaa-aaaaa-aaaba-cai';
-export const CANISTER_ID_NICP_LEDGER = DEV
-	? 'ny7ez-6aaaa-aaaam-acc5q-cai'
-	: 'buwm7-7yaaa-aaaar-qagva-cai';
+export const CANISTER_ID_NICP_LEDGER = 'buwm7-7yaaa-aaaar-qagva-cai';
 export const CANISTER_ID_BOOMERANG = 'daijl-2yaaa-aaaar-qag3a-cai';
-export const CANISTER_ID_WATER_NEURON = DEV
-	? 'n76cn-tyaaa-aaaam-acc5a-cai'
-	: 'tsbvt-pyaaa-aaaar-qafva-cai';
+export const CANISTER_ID_WATER_NEURON = 'tsbvt-pyaaa-aaaar-qafva-cai';
 export const CANISTER_ID_ICPSWAP_POOL = 'e5a7x-pqaaa-aaaag-qkcga-cai';
 
 export async function connectWithInternetIdentity() {
