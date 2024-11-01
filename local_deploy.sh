@@ -14,10 +14,6 @@ dfx deploy wtn_ledger --argument '(variant { Init = record { minting_account = r
 dfx deploy boomerang --argument '(record { water_neuron_id= principal "n76cn-tyaaa-aaaam-acc5a-cai"; nicp_ledger_id= principal "ny7ez-6aaaa-aaaam-acc5q-cai"; wtn_ledger_id= principal "jcmow-hyaaa-aaaaq-aadlq-cai"; icp_ledger_id= principal "ryjl3-tyaaa-aaaaa-aaaba-cai"})'
 dfx deploy internet_identity
 
-dfx identity use icp-ident-RqOPnjj5ERjAEnwlvfKw
-
-# water neuron account id: 0be44491707d4b564caa515730dca79f70837811dd6202b2f498b26f4e59a01c
+# WaterNeuron canister requires 3 ICP to set up.
+# WaterNeuron account id: 0be44491707d4b564caa515730dca79f70837811dd6202b2f498b26f4e59a01c
 dfx ledger transfer --memo 0 --icp 3 0be44491707d4b564caa515730dca79f70837811dd6202b2f498b26f4e59a01c
-
-
-
