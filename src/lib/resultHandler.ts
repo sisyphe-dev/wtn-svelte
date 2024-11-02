@@ -5,8 +5,7 @@ import type {
 	Account,
 	ApproveArgs,
 	ApproveResult,
-	ApproveError,
-	_SERVICE as nicpLedgerInterface
+	ApproveError
 } from '../declarations/icrc_ledger/icrc_ledger.did';
 import type {
 	ConversionError,
@@ -26,7 +25,9 @@ import type {
 	Icrc1TransferResult,
 	_SERVICE as icpLedgerInterface
 } from '../declarations/icp_ledger/icp_ledger.did';
+import type { _SERVICE as icrcLedgerInterface } from '../declarations/icrc_ledger/icrc_ledger.did';
 import { CANISTER_ID_WATER_NEURON } from './authentification';
+import { CanisterActor } from './state';
 
 export const DEFAULT_ERROR_MESSAGE: string = 'Unknown result, please refresh the page.';
 
@@ -108,13 +109,15 @@ export function handleApproveResult(result: ApproveResult): ToastResult {
 export async function nicpTransferApproved(
 	amount: bigint,
 	account: Account,
-	nicpLedger: nicpLedgerInterface
+	nicpLedger: CanisterActor<icrcLedgerInterface>
 ): Promise<ToastResult> {
+	if (!nicpLedger.authenticatedActor) return { success: false, message: 'User not authenticated.' };
+
 	const spender = {
 		owner: Principal.fromText(CANISTER_ID_WATER_NEURON),
 		subaccount: []
 	} as Account;
-	const allowanceResult: Allowance = await nicpLedger.icrc2_allowance({
+	const allowanceResult: Allowance = await nicpLedger.anonymousActor.icrc2_allowance({
 		account,
 		spender
 	} as AllowanceArgs);
@@ -123,7 +126,7 @@ export async function nicpTransferApproved(
 		try {
 			// Two weeks later, in nanoseconds
 			const expiryDate = BigInt(Date.now() * 1_000_000 + 1_209_600_000_000_000);
-			const approveResult: ApproveResult = await nicpLedger.icrc2_approve({
+			const approveResult: ApproveResult = await nicpLedger.authenticatedActor.icrc2_approve({
 				spender,
 				fee: [],
 				memo: [],
@@ -144,13 +147,14 @@ export async function nicpTransferApproved(
 export async function icpTransferApproved(
 	amount: bigint,
 	account: Account,
-	icpLedger: icpLedgerInterface
+	icpLedger: CanisterActor<icpLedgerInterface>
 ): Promise<ToastResult> {
+	if (!icpLedger.authenticatedActor) return { success: false, message: 'User not authenticated.' };
 	const spender = {
 		owner: Principal.fromText(CANISTER_ID_WATER_NEURON),
 		subaccount: []
 	} as Account;
-	const allowanceResult: Allowance = await icpLedger.icrc2_allowance({
+	const allowanceResult: Allowance = await icpLedger.anonymousActor.icrc2_allowance({
 		account,
 		spender
 	} as AllowanceArgs);
@@ -159,7 +163,7 @@ export async function icpTransferApproved(
 		try {
 			// Two weeks later, in nanoseconds
 			const expiryDate = BigInt(Date.now() * 1_000_000 + 1_209_600_000_000_000);
-			const approveResult: ApproveResult = await icpLedger.icrc2_approve({
+			const approveResult: ApproveResult = await icpLedger.authenticatedActor.icrc2_approve({
 				spender,
 				fee: [],
 				memo: [],

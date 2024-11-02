@@ -253,7 +253,6 @@ export function getMaybeAccount(accountString: string): Account | AccountIdentif
 			return { owner: icrcAccount.owner, subaccount: [] } as Account;
 		}
 	} catch (error) {
-		console.log('[getMaybeAccount]', error);
 		return;
 	}
 }

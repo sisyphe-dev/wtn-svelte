@@ -26,7 +26,7 @@
 		DEFAULT_ERROR_MESSAGE
 	} from '$lib/resultHandler';
 	import type { ConversionArg } from '$lib/../declarations/water_neuron/water_neuron.did';
-	import type { Account } from '@dfinity/ledger-icp';
+	import type { Account } from '../../declarations/icrc_ledger/icrc_ledger.did';
 	import { onMount, afterUpdate } from 'svelte';
 	import { fade } from 'svelte/transition';
 
@@ -35,7 +35,14 @@
 	let totalIcpDeposited: BigNumber;
 
 	async function icpToNicp(amount: BigNumber) {
-		if (!$user || $isConverting || !$canisters || amount.isNaN() || amount.isLessThan(BigNumber(1)))
+		if (
+			!$user ||
+			$isConverting ||
+			!$canisters?.waterNeuron.authenticatedActor ||
+			!$canisters?.icpLedger.authenticatedActor ||
+			amount.isNaN() ||
+			amount.isLessThan(BigNumber(1))
+		)
 			return;
 		isConverting.set(true);
 
@@ -53,7 +60,7 @@
 				if (!approval.success) {
 					toasts.add(Toast.error(approval.message ?? DEFAULT_ERROR_MESSAGE));
 				} else {
-					const conversionResult = await $canisters.waterNeuron.icp_to_nicp({
+					const conversionResult = await $canisters.waterNeuron.authenticatedActor.icp_to_nicp({
 						maybe_subaccount: [],
 						amount_e8s: amountE8s
 					} as ConversionArg);

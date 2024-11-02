@@ -1,6 +1,6 @@
 import { AuthClient } from '@dfinity/auth-client';
 import { Principal } from '@dfinity/principal';
-import { HttpAgent, Actor, type Identity } from '@dfinity/agent';
+import { HttpAgent, Actor, type Identity, Cbor } from '@dfinity/agent';
 import { idlFactory as idlFactoryIcrc } from '../declarations/icrc_ledger';
 import type { _SERVICE as icrcLedgerInterface } from '../declarations/icrc_ledger/icrc_ledger.did';
 import { idlFactory as idlFactoryIcp } from '../declarations/icp_ledger';
@@ -11,9 +11,12 @@ import { idlFactory as idlFactoryBoomerang } from '../declarations/boomerang';
 import type { _SERVICE as boomerangInterface } from '../declarations/boomerang/boomerang.did';
 import type { _SERVICE as icpswapPoolInterface } from '../declarations/icpswap_pool/icpswap_pool.did';
 import { idlFactory as idlFactoryIcpswapPool } from '../declarations/icpswap_pool';
-
+import { Signer } from '@slide-computer/signer';
+import { PostMessageTransport } from '@slide-computer/signer-web';
 import { user, canisters } from './stores';
-import { Canisters, User } from './state';
+import { CanisterActor, Canisters, User } from './state';
+import { SignerAgent } from '@slide-computer/signer-agent';
+import { PlugTransport } from '@slide-computer/signer-transport-plug';
 
 // 1 hour in nanoseconds
 const AUTH_MAX_TIME_TO_LIVE = BigInt(60 * 60 * 1000 * 1000 * 1000);
@@ -37,65 +40,57 @@ export const CANISTER_ID_WATER_NEURON = DEV
 	: 'tsbvt-pyaaa-aaaar-qafva-cai';
 export const CANISTER_ID_ICPSWAP_POOL = 'e5a7x-pqaaa-aaaag-qkcga-cai';
 
-export interface AuthResult {
-	actors: Actors;
-	principal: Principal;
-}
+export async function connectWithInternetIdentity() {
+	try {
+		const authClient = await AuthClient.create();
 
-export interface Actors {
-	icpLedger: icpLedgerInterface;
-	nicpLedger: icrcLedgerInterface;
-	wtnLedger: icrcLedgerInterface;
-	waterNeuron: waterNeuronInterface;
-	boomerang: boomerangInterface;
-	icpswapPool: icpswapPoolInterface;
-}
-
-export async function internetIdentitySignIn(): Promise<AuthResult> {
-	return new Promise<AuthResult>(async (resolve, reject) => {
-		try {
-			const authClient = await AuthClient.create();
-
-			if (await authClient.isAuthenticated()) {
-				const identity: Identity = authClient.getIdentity();
-				const agent = new HttpAgent({
-					identity,
-					host: HOST
-				});
-
-				const actors = await fetchActors(agent);
-				resolve({
-					actors,
-					principal: identity.getPrincipal()
-				});
-			} else {
-				await authClient.login({
-					maxTimeToLive: AUTH_MAX_TIME_TO_LIVE,
-					allowPinAuthentication: true,
-					derivationOrigin: DAPP_DERIVATION_ORIGIN,
-					identityProvider: IDENTITY_PROVIDER,
-					onSuccess: async () => {
-						const identity: Identity = authClient.getIdentity();
-						const agent = new HttpAgent({
-							identity,
-							host: HOST
-						});
-
-						const actors = await fetchActors(agent);
-						resolve({
-							actors,
-							principal: identity.getPrincipal()
-						});
-					},
-					onError: (error) => {
-						reject(error);
-					}
-				});
-			}
-		} catch (error) {
-			reject(error);
+		if (await authClient.isAuthenticated()) {
+			const identity = authClient.getIdentity();
+			const agent = HttpAgent.createSync({
+				identity,
+				host: HOST
+			});
+			canisters.set(await fetchActors(agent));
+			user.set(new User(identity.getPrincipal()));
+		} else {
+			await authClient.login({
+				maxTimeToLive: AUTH_MAX_TIME_TO_LIVE,
+				allowPinAuthentication: true,
+				derivationOrigin: DAPP_DERIVATION_ORIGIN,
+				identityProvider: IDENTITY_PROVIDER,
+				onSuccess: async () => {
+					const identity = authClient.getIdentity();
+					const agent = HttpAgent.createSync({
+						identity,
+						host: HOST
+					});
+					canisters.set(await fetchActors(agent));
+					user.set(new User(identity.getPrincipal()));
+				},
+				onError: (error) => {
+					throw Error(error);
+				}
+			});
 		}
-	});
+	} catch (error) {
+		console.error(error);
+	}
+}
+
+export async function tryConnectOnReload() {
+	const authClient = await AuthClient.create();
+
+	if (await authClient.isAuthenticated()) {
+		const identity = authClient.getIdentity();
+		const agent = HttpAgent.createSync({
+			identity,
+			host: HOST
+		});
+		canisters.set(await fetchActors(agent));
+		user.set(new User(identity.getPrincipal()));
+	} else {
+		canisters.set(await fetchActors());
+	}
 }
 
 interface LoginWindow {
@@ -106,104 +101,75 @@ declare global {
 	interface Window extends LoginWindow {}
 }
 
-export async function plugSignIn(): Promise<AuthResult> {
-	return new Promise<AuthResult>(async (resolve, reject) => {
-		try {
-			let whitelist: string[] = [
-				CANISTER_ID_ICP_LEDGER,
-				CANISTER_ID_NICP_LEDGER,
-				CANISTER_ID_WTN_LEDGER,
-				CANISTER_ID_WATER_NEURON
-			];
+export async function connectWithPlug() {
+	try {
+		const transport = new PlugTransport();
+		const newSigner = new Signer({ transport });
 
-			await window.ic.plug.requestConnect({
-				whitelist,
-				host: HOST
-			});
+		console.log('The wallet set the following permission scope:', await newSigner.permissions());
 
-			const principal: Principal = await window.ic.plug.getPrincipal();
-			const agent = window.ic.plug.agent;
+		const userPrincipal = (await newSigner.accounts())[0].owner;
 
-			const actors = await fetchActors(agent, true);
+		const signerAgent = SignerAgent.createSync({
+			signer: newSigner,
+			account: userPrincipal
+		});
 
-			resolve({ actors, principal });
-		} catch (error) {
-			reject(error);
-		}
-	});
+		canisters.set(await fetchActors(signerAgent, true));
+		user.set(new User(userPrincipal));
+	} catch (error) {
+		console.error(error);
+	}
 }
 
-export async function signIn(walletOrigin: 'internetIdentity' | 'plug' | 'reload') {
-	try {
-		let authResult: AuthResult;
+export async function connectWithTransport() {
+	const transport = new PostMessageTransport({
+		url: 'https://nfid.one/rpc'
+	});
 
-		switch (walletOrigin) {
-			case 'internetIdentity':
-				authResult = await internetIdentitySignIn();
-				break;
-			case 'plug':
-				authResult = await plugSignIn();
-				break;
-			case 'reload':
-				const authClient = await AuthClient.create();
-				if (!(await authClient.isAuthenticated())) {
-					const actors = await fetchActors(undefined);
-					canisters.set(new Canisters(actors));
-					return;
-				}
-				authResult = await internetIdentitySignIn();
-				break;
-		}
-		canisters.set(new Canisters(authResult.actors));
-		user.set(new User(authResult.principal));
-	} catch (error) {
-		console.error('Login failed:', error);
-	}
+	const newSigner = new Signer({ transport });
+
+	console.log('The wallet set the following permission scope:', await newSigner.permissions());
+
+	const userPrincipal = (await newSigner.accounts())[0].owner;
+
+	const signerAgent = SignerAgent.createSync({
+		signer: newSigner,
+		account: userPrincipal
+	});
+
+	canisters.set(await fetchActors(signerAgent));
+	user.set(new User(userPrincipal));
 }
 
 export async function localSignIn() {
 	try {
 		const authClient = await AuthClient.create();
 
-		if (await authClient.isAuthenticated()) {
-			const identity: Identity = authClient.getIdentity();
-			const agent = new HttpAgent({
-				identity,
-				host: HOST
-			});
+		const identityProvider = DEV
+			? `http://localhost:8080/?canisterId=${CANISTER_ID_II}`
+			: IDENTITY_PROVIDER;
+		await authClient.login({
+			maxTimeToLive: AUTH_MAX_TIME_TO_LIVE,
+			allowPinAuthentication: true,
+			derivationOrigin: undefined,
+			identityProvider,
+			onSuccess: async () => {
+				const identity: Identity = authClient.getIdentity();
+				const agent = HttpAgent.createSync({
+					identity,
+					host: HOST
+				});
 
-			const actors = await fetchActors(agent);
-
-			canisters.set(new Canisters(actors));
-			user.set(new User(identity.getPrincipal()));
-		} else {
-			const identityProvider = DEV
-				? `http://localhost:8080/?canisterId=${CANISTER_ID_II}`
-				: IDENTITY_PROVIDER;
-			await authClient.login({
-				maxTimeToLive: AUTH_MAX_TIME_TO_LIVE,
-				allowPinAuthentication: true,
-				derivationOrigin: undefined,
-				identityProvider,
-				onSuccess: async () => {
-					const identity: Identity = authClient.getIdentity();
-					const agent = new HttpAgent({
-						identity,
-						host: HOST
-					});
-
-					const actors = await fetchActors(agent);
-
-					canisters.set(new Canisters(actors));
-					user.set(new User(identity.getPrincipal()));
-				},
-				onError: (error) => {
-					console.log(error);
-				}
-			});
-		}
+				canisters.set(await fetchActors(agent));
+				user.set(new User(identity.getPrincipal()));
+			},
+			onError: (error) => {
+				throw new Error(error);
+			}
+		});
 	} catch (error) {
-		console.log(error);
+		console.error(error);
 	}
 }
 
@@ -212,16 +178,17 @@ export async function internetIdentityLogout() {
 	await autClient.logout();
 }
 
-export function fetchActors(agent?: HttpAgent, isPlug = false): Promise<Actors> {
-	return new Promise<Actors>(async (resolve, reject) => {
+export function fetchActors<T extends Pick<Signer, 'callCanister'>>(
+	authenticatedAgent?: HttpAgent | SignerAgent<T>,
+	isPlug = false
+): Promise<Canisters> {
+	return new Promise<Canisters>(async (resolve, reject) => {
 		try {
-			if (!agent) {
-				agent = new HttpAgent({
-					host: HOST
-				});
-			}
+			const agent = HttpAgent.createSync({
+				host: HOST
+			});
 
-			if (DEV && !isPlug) {
+			if (DEV) {
 				agent.fetchRootKey().catch((err) => {
 					console.warn(
 						'Unable to fetch root key. Check to ensure that your local replica is running'
@@ -230,33 +197,58 @@ export function fetchActors(agent?: HttpAgent, isPlug = false): Promise<Actors> 
 				});
 			}
 
-			const icpLedger: icpLedgerInterface = Actor.createActor(idlFactoryIcp, {
+			const icpLedger = new CanisterActor<icpLedgerInterface>(
 				agent,
-				canisterId: CANISTER_ID_ICP_LEDGER
-			});
+				idlFactoryIcp,
+				CANISTER_ID_ICP_LEDGER
+			);
+			const nicpLedger = new CanisterActor<icrcLedgerInterface>(
+				agent,
+				idlFactoryIcrc,
+				CANISTER_ID_NICP_LEDGER
+			);
+			const wtnLedger = new CanisterActor<icrcLedgerInterface>(
+				agent,
+				idlFactoryIcrc,
+				CANISTER_ID_WTN_LEDGER
+			);
+			const waterNeuron = new CanisterActor<waterNeuronInterface>(
+				agent,
+				idlFactoryWaterNeuron,
+				CANISTER_ID_WATER_NEURON
+			);
+			const boomerang = new CanisterActor<boomerangInterface>(
+				agent,
+				idlFactoryBoomerang,
+				CANISTER_ID_BOOMERANG
+			);
+			const icpswapPool = new CanisterActor<icpswapPoolInterface>(
+				agent,
+				idlFactoryIcpswapPool,
+				CANISTER_ID_ICPSWAP_POOL
+			);
 
-			const nicpLedger: icrcLedgerInterface = Actor.createActor(idlFactoryIcrc, {
-				agent,
-				canisterId: CANISTER_ID_NICP_LEDGER
-			});
-			const wtnLedger: icrcLedgerInterface = Actor.createActor(idlFactoryIcrc, {
-				agent,
-				canisterId: CANISTER_ID_WTN_LEDGER
-			});
-			const waterNeuron: waterNeuronInterface = Actor.createActor(idlFactoryWaterNeuron, {
-				agent,
-				canisterId: CANISTER_ID_WATER_NEURON
-			});
-			const boomerang: boomerangInterface = Actor.createActor(idlFactoryBoomerang, {
-				agent,
-				canisterId: CANISTER_ID_BOOMERANG
-			});
-			const icpswapPool: icpswapPoolInterface = Actor.createActor(idlFactoryIcpswapPool, {
-				agent,
-				canisterId: CANISTER_ID_ICPSWAP_POOL
-			});
+			if (authenticatedAgent) {
+				if (DEV && !isPlug) {
+					authenticatedAgent.fetchRootKey().catch((err) => {
+						console.warn(
+							'Unable to fetch root key. Check to ensure that your local replica is running'
+						);
+						console.error(err);
+					});
+				}
 
-			resolve({ icpLedger, wtnLedger, nicpLedger, waterNeuron, boomerang, icpswapPool });
+				icpLedger.setAuthenticatedActor(authenticatedAgent);
+				nicpLedger.setAuthenticatedActor(authenticatedAgent);
+				wtnLedger.setAuthenticatedActor(authenticatedAgent);
+				waterNeuron.setAuthenticatedActor(authenticatedAgent);
+				boomerang.setAuthenticatedActor(authenticatedAgent);
+				icpswapPool.setAuthenticatedActor(authenticatedAgent);
+			}
+
+			resolve(
+				new Canisters({ icpLedger, nicpLedger, wtnLedger, waterNeuron, boomerang, icpswapPool })
+			);
 		} catch (error) {
 			reject(error);
 		}
