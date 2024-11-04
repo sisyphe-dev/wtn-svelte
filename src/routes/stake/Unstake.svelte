@@ -210,10 +210,12 @@
 				subaccount: []
 			} as Account;
 
-			const allowanceResult: Allowance = await $canisters.nicpLedger.anonymousActor.icrc2_allowance({
-				account: { owner: $user.principal, subaccount: [] } as Account,
-				spender
-			} as AllowanceArgs);
+			const allowanceResult: Allowance = await $canisters.nicpLedger.anonymousActor.icrc2_allowance(
+				{
+					account: { owner: $user.principal, subaccount: [] } as Account,
+					spender
+				} as AllowanceArgs
+			);
 			const allowance = allowanceResult['allowance'];
 			if (numberToBigintE8s(amount) > allowance) {
 				await approveInFastUnstake(spender, amountE8s);
