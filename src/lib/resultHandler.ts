@@ -121,7 +121,7 @@ export async function nicpTransferApproved(
 		owner: Principal.fromText(CANISTER_ID_WATER_NEURON),
 		subaccount: []
 	} as Account;
-	const allowanceResult: Allowance = await nicpLedger.genericActor.icrc2_allowance({
+	const allowanceResult: Allowance = await nicpLedger.anonymousActor.icrc2_allowance({
 		account,
 		spender
 	} as AllowanceArgs);
@@ -158,7 +158,7 @@ export async function icpTransferApproved(
 		owner: Principal.fromText(CANISTER_ID_WATER_NEURON),
 		subaccount: []
 	} as Account;
-	const allowanceResult: Allowance = await icpLedger.genericActor.icrc2_allowance({
+	const allowanceResult: Allowance = await icpLedger.anonymousActor.icrc2_allowance({
 		account,
 		spender
 	} as AllowanceArgs);

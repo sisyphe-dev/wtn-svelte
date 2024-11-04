@@ -128,7 +128,7 @@ testWithII('e2e test unstake', async ({ page, iiPage }) => {
 	await page.locator('[title="unstake-header"]').click();
 	await page.locator('[title="delayed-btn"]').click();
 
-	await swap(page, 9.9999);
+	await swap(page, 9);
 	await expect(page.locator('span.error')).toBeVisible();
 
 	await swap(page, 15);

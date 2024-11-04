@@ -67,8 +67,8 @@
 		if (
 			!$user ||
 			$isConverting ||
-			!$canisters ||
-			!$canisters.waterNeuron.authenticatedActor ||
+			!$canisters?.nicpLedger.authenticatedActor ||
+			!$canisters?.waterNeuron.authenticatedActor ||
 			!$waterNeuronInfo ||
 			amount.isNaN() ||
 			amount.isLessThan(minimumWithdraw)
@@ -111,7 +111,7 @@
 	}
 
 	const approveInFastUnstake = async (spender: Account, amountE8s: bigint) => {
-		if (!$canisters || !$canisters.nicpLedger.authenticatedActor) return;
+		if (!$canisters?.nicpLedger.authenticatedActor) return;
 
 		const approveResult: ApproveResult =
 			await $canisters.nicpLedger.authenticatedActor.icrc2_approve({
@@ -133,7 +133,7 @@
 	};
 
 	const depositInFastUnstake = async (amountE8s: bigint) => {
-		if (!$canisters || !$canisters.icpswapPool.authenticatedActor) return;
+		if (!$canisters?.icpswapPool.authenticatedActor) return;
 
 		const depositResult = await $canisters.icpswapPool.authenticatedActor.depositFrom({
 			fee: DEFAULT_LEDGER_FEE,
@@ -155,7 +155,7 @@
 	};
 
 	const swapInFastUnstake = async (amountIn: string, amountOut: string) => {
-		if (!$canisters || !$canisters.icpswapPool.authenticatedActor) return;
+		if (!$canisters?.icpswapPool.authenticatedActor) return;
 
 		const swapResult = await $canisters.icpswapPool.authenticatedActor.swap({
 			amountIn: amountIn.toString(),
@@ -177,7 +177,7 @@
 	};
 
 	const withdrawInFastUnstake = async (amountToWithdrawE8s: bigint) => {
-		if (!$canisters || !$canisters.icpswapPool.authenticatedActor) return;
+		if (!$canisters?.icpswapPool.authenticatedActor) return;
 
 		const withdrawResult = await $canisters.icpswapPool.authenticatedActor.withdraw({
 			fee: DEFAULT_LEDGER_FEE,
@@ -210,10 +210,12 @@
 				subaccount: []
 			} as Account;
 
-			const allowanceResult: Allowance = await $canisters.nicpLedger.genericActor.icrc2_allowance({
-				account: { owner: $user.principal, subaccount: [] } as Account,
-				spender
-			} as AllowanceArgs);
+			const allowanceResult: Allowance = await $canisters.nicpLedger.anonymousActor.icrc2_allowance(
+				{
+					account: { owner: $user.principal, subaccount: [] } as Account,
+					spender
+				} as AllowanceArgs
+			);
 			const allowance = allowanceResult['allowance'];
 			if (numberToBigintE8s(amount) > allowance) {
 				await approveInFastUnstake(spender, amountE8s);
@@ -243,10 +245,10 @@
 	}
 
 	const withdrawIcpswapTokens = async () => {
-		if (!$canisters || !$canisters.icpswapPool.authenticatedActor || !$user) return;
+		if (!$canisters?.icpswapPool.authenticatedActor || !$user) return;
 		isConverting.set(true);
 		try {
-			const result = await $canisters.icpswapPool.genericActor.getUserUnusedBalance(
+			const result = await $canisters.icpswapPool.anonymousActor.getUserUnusedBalance(
 				$user.principal
 			);
 			const key = Object.keys(result)[0] as keyof IcpSwapUnusedBalanceResult;
@@ -324,7 +326,7 @@
 			const amountIn = numberToBigintE8s(amount);
 			const amountOut = amountIn - numberToBigintE8s(amount.multipliedBy(BigNumber(0.02)));
 
-			const result = await $canisters.icpswapPool.genericActor.quote({
+			const result = await $canisters.icpswapPool.anonymousActor.quote({
 				amountIn: amountIn.toString(),
 				zeroForOne: true,
 				amountOutMinimum: amountOut.toString()

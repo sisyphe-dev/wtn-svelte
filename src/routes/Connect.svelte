@@ -43,7 +43,10 @@
 			<h2>Internet Identity</h2>
 		</button>
 		<button class="login-btn" on:click={() => handleConnection('transport')}>
-			<img src="/icon/nfid.webp" width="auto" height="50em" alt="NFID Logo." />
+			<img src="/icon/google.svg" width="auto" height="40em" alt="Google Logo." />
+			<h2>Google</h2>
+			<span>|</span>
+			<img src="/icon/nfid.webp" width="auto" height="30em" alt="NFID Logo." />
 		</button>
 		{#if !isMobile}
 			<button class="login-btn" on:click={() => handleConnection('plug')}>
