@@ -7,7 +7,8 @@
 		isContainerHigher,
 		displayUsFormat,
 		fetchCreationTimestampSecs,
-		bigintE8sToNumber
+		bigintE8sToNumber,
+		displayNeuronId
 	} from '$lib';
 	import type {
 		NeuronId,
@@ -35,12 +36,14 @@
 	const nicpAfterCancel = (icpDue: BigNumber) => {
 		const transactionFee = BigNumber(0.0001);
 		const mergedIcp = icpDue.minus(transactionFee.multipliedBy(2));
+		console.log(mergedIcp);
+
 		const nicpWithoutFee = mergedIcp.multipliedBy(exchangeRate);
+		console.log(nicpWithoutFee);
 		return nicpWithoutFee.minus(nicpWithoutFee.dividedBy(200));
 	};
 
 	const setWarningError = async () => {
-		// const triggerErrorStatus = { status: {WaitingToSplitNeuron: null} };
 		const key = Object.keys(details.status)[0] as keyof WithdrawalStatus;
 		switch (key) {
 			case 'WaitingDissolvement':
@@ -129,24 +132,36 @@
 	{:else}
 		<div class="warning-container">
 			<h2>Cancel Withdrawal {details.request.withdrawal_id}</h2>
+			<p class="main-information">Your neuron:</p>
 			<div class="review-container">
 				<p>
-					Convert: {displayUsFormat(bigintE8sToNumber(details.request.icp_due))} ICP
+					Neuron Id: <a
+						target="_blank"
+						rel="noreferrer"
+						href={'https://dashboard.internetcomputer.org/neuron/' +
+							displayNeuronId(details.request.neuron_id, false)}
+						>{details.request.neuron_id[0]?.id ?? '-/-'}</a
+					>
 				</p>
-				{#if exchangeRate}
-					<p>
-						To:
-						{displayUsFormat(nicpAfterCancel(bigintE8sToNumber(details.request.icp_due)))} nICP
-					</p>
-					<p>
-						Current Exchange Rate: {displayUsFormat(BigNumber(exchangeRate), 8)}
-					</p>
-				{:else}
-					<p>To: -/- nICP</p>
-					<p>Current Exchange Rate: -/-</p>
-				{/if}
-				<p>Fee: 0.5%</p>
+				<p>
+					Stake: {displayUsFormat(bigintE8sToNumber(details.request.icp_due), 8)} ICP
+				</p>
 			</div>
+			<p class="main-information" style:margin-bottom="1em">
+				You will receive {exchangeRate
+					? displayUsFormat(nicpAfterCancel(bigintE8sToNumber(details.request.icp_due)), 8)
+					: '-/-'} nICP
+			</p>
+			{#if exchangeRate}
+				<p class="secondary-information">
+					Current Exchange Rate: {displayUsFormat(BigNumber(exchangeRate), 8)}
+				</p>
+				<p class="secondary-information">Fee: 0.5%</p>
+			{:else}
+				<p class="secondary-information">Current Exchange Rate: -/-</p>
+				<p class="secondary-information">Fee: 0.5%</p>
+			{/if}
+
 			<div class="toggle-container">
 				<button
 					id="abort-btn"
@@ -193,7 +208,12 @@
 
 	p {
 		font-family: var(--secondary-font);
-		margin: 0.4em;
+		margin: 0.2em 0;
+		color: var(--title-color);
+	}
+
+	a {
+		text-decoration: underline;
 		color: var(--title-color);
 	}
 
@@ -230,10 +250,9 @@
 		width: 50vw;
 		background-color: var(--background-color);
 		color: var(--stake-text-color);
-		padding: 1em;
+		padding: 1.5em;
 		border-radius: 15px;
 		border: var(--input-border);
-		gap: 1em;
 	}
 
 	.toggle-container {
@@ -241,6 +260,7 @@
 		width: 100%;
 		justify-content: end;
 		gap: 1em;
+		margin-top: 1em;
 	}
 
 	.review-container {
@@ -248,7 +268,9 @@
 		flex-direction: column;
 		border-radius: 8px;
 		background: var(--background-color);
-		padding: 1em;
+		border: var(--input-border);
+		padding: 0.5em 1em;
+		margin: 0.5em 0;
 	}
 
 	/* === Components === */
@@ -260,6 +282,14 @@
 	#confirm-btn {
 		background: var(--main-color);
 		color: var(--main-button-text-color);
+	}
+
+	.main-information {
+		color: var(--title-color);
+	}
+
+	.secondary-information {
+		color: var(--text-color);
 	}
 
 	/* === Animation === */

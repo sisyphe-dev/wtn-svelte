@@ -262,6 +262,17 @@ export function principalToHex(principalString: string): string {
 	}
 }
 
+export function displayNeuronId(neuronId: [] | [NeuronId], truncate = true): string {
+	if (neuronId.length == 0) {
+		return 'Not Set';
+	} else if (truncate) {
+		const id = neuronId[0].id.toString();
+		return id.substring(0, 4) + '...' + id.substring(id.length - 5, id.length - 1);
+	} else {
+		return neuronId[0].id.toString();
+	}
+}
+
 export function getMaybeAccount(accountString: string): Account | AccountIdentifier | undefined {
 	try {
 		if (accountString.length === 64) {

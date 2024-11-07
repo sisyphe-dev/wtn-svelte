@@ -6,7 +6,8 @@
 		renderStatus,
 		displayTimeLeft,
 		fetchCreationTimestampSecs,
-		isMobile
+		isMobile,
+		displayNeuronId
 	} from '$lib';
 	import { user, canisters, inCancelWarningMenu } from '$lib/stores';
 	import { onMount } from 'svelte';
@@ -22,17 +23,6 @@
 		[key: number]: string;
 	} = {};
 	let selectedWithdrawal: WithdrawalDetails;
-
-	function displayNeuronId(neuronId: [] | [NeuronId], truncate = true): string {
-		if (neuronId.length == 0) {
-			return 'Not Set';
-		} else if (truncate) {
-			const id = neuronId[0].id.toString();
-			return id.substring(0, 4) + '...' + id.substring(id.length - 5, id.length - 1);
-		} else {
-			return neuronId[0].id.toString();
-		}
-	}
 
 	const fetchWithdrawals = async () => {
 		if ($user && $canisters) {
