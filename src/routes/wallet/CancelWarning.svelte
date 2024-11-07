@@ -113,7 +113,6 @@
 	{#if warningError}
 		<div class="warning-container">
 			<h2>Oups...</h2>
-			<p>Withdrawal {details.request.withdrawal_id} is not cancellable.</p>
 			<div class="review-container">
 				<p>{warningError}</p>
 			</div>
@@ -123,16 +122,13 @@
 					on:click={() => {
 						inCancelWarningMenu.set(false);
 						cancelWarningDialog.close();
-					}}>Abort</button
+					}}>Back</button
 				>
 			</div>
 		</div>
 	{:else}
 		<div class="warning-container">
-			<h2>Confirm</h2>
-			<p style:color="var(--title-color)">
-				Please, confirm that you want to cancel withdrawal {details.request.withdrawal_id}.
-			</p>
+			<h2>Cancel Withdrawal {details.request.withdrawal_id} </h2>
 			<div class="review-container">
 				<p>
 					Convert: {displayUsFormat(bigintE8sToNumber(details.request.icp_due))} ICP
@@ -157,7 +153,7 @@
 					on:click={() => {
 						inCancelWarningMenu.set(false);
 						cancelWarningDialog.close();
-					}}>Abort</button
+					}}>Back</button
 				>
 				{#if isConfirmBusy}
 					<button id="confirm-btn">
@@ -197,7 +193,7 @@
 	p {
 		font-family: var(--secondary-font);
 		margin: 0.4em;
-		color: var(--text-color);
+		color: var(--title-color);
 	}
 
 	button {
@@ -230,7 +226,7 @@
 		flex-direction: column;
 		height: fit-content;
 		max-width: 35em;
-		width: 80vw;
+		width: 50vw;
 		background: var(--background-color);
 		color: var(--stake-text-color);
 		padding: 2em;
