@@ -10,7 +10,8 @@
 		displayUsFormat,
 		fetchCreationTimestampSecs,
 		bigintE8sToNumber,
-		displayNeuronId
+		displayNeuronId,
+		isMobile
 	} from '$lib';
 	import type {
 		NeuronId,
@@ -141,7 +142,7 @@
 						rel="noreferrer"
 						href={'https://dashboard.internetcomputer.org/neuron/' +
 							displayNeuronId(details.request.neuron_id, false)}
-						>{details.request.neuron_id[0]?.id ?? '-/-'}</a
+						>{displayNeuronId(details.request.neuron_id, isMobile)}</a
 					>
 				</p>
 				<p>
@@ -340,6 +341,12 @@
 		}
 		to {
 			transform: rotate(360deg);
+		}
+	}
+
+	@media (max-width: 767px) {
+		.warning-container {
+			width: 80%;
 		}
 	}
 </style>

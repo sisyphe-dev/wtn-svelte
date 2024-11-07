@@ -13,6 +13,7 @@
 	import { onMount } from 'svelte';
 	import type { WithdrawalDetails } from '$lib/../declarations/water_neuron/water_neuron.did';
 	import { fade } from 'svelte/transition';
+	import RevertIcon from '$lib/icons/RevertIcon.svelte';
 
 	let activeWithdrawalRequests: { [key: number]: WithdrawalDetails } = {};
 	let cancelledWithdrawalRequests: { [key: number]: WithdrawalDetails } = {};
@@ -93,6 +94,7 @@
 						<th>ICP Due</th>
 						<th>Neuron Id</th>
 						<th>Status</th>
+						<th>Cancel</th>
 					</tr>
 				{:else}
 					<tr>
@@ -120,7 +122,18 @@
 								</a>
 							</td>
 							<td>
-								{timesLeft[Number(details.request.neuron_id[0]?.id)] ?? 'Cancelled'}
+								{timesLeft[Number(details.request.neuron_id[0]?.id)] ?? 'Unknown'}
+							</td>
+							<td>
+								<button
+									id="cancel-btn-mobile"
+									title="test-withdrawal-{index}"
+									on:click={() => {
+										handleCancelClick(details);
+									}}
+								>
+									<RevertIcon />
+								</button>
 							</td>
 						</tr>
 					{:else}
@@ -143,6 +156,7 @@
 							<td>{details.request.withdrawal_id}</td>
 							<td>
 								<button
+									id="cancel-btn"
 									title="test-withdrawal-{index}"
 									on:click={() => {
 										handleCancelClick(details);
@@ -202,7 +216,8 @@
 		color: var(--stake-text-color);
 	}
 
-	button {
+	/* === Components === */
+	#cancel-btn {
 		background: var(--main-color);
 		color: var(--main-button-text-color);
 		min-width: 80px;
@@ -222,10 +237,15 @@
 		margin-right: 1em;
 	}
 
-	button:hover {
+	#cancel-btn:hover {
 		transform: scale(0.95);
 		transition: all 0.3s;
 		box-shadow: 6px 6px 0 0 black;
+	}
+
+	#cancel-btn-mobile {
+		border: none;
+		background: none;
 	}
 
 	/* === Responsive === */
