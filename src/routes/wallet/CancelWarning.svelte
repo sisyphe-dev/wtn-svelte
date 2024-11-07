@@ -130,10 +130,10 @@
 	{:else}
 		<div class="warning-container">
 			<h2>Cancel Withdrawal {details.request.withdrawal_id}</h2>
-			<p class="main-information">Your neuron:</p>
+			<p class="main-information">Neuron info:</p>
 			<div class="review-container">
 				<p>
-					Neuron Id: <a
+					Neuron id: <a
 						target="_blank"
 						rel="noreferrer"
 						href={'https://dashboard.internetcomputer.org/neuron/' +
