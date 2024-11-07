@@ -128,7 +128,7 @@
 		</div>
 	{:else}
 		<div class="warning-container">
-			<h2>Cancel Withdrawal {details.request.withdrawal_id} </h2>
+			<h2>Cancel Withdrawal {details.request.withdrawal_id}</h2>
 			<div class="review-container">
 				<p>
 					Convert: {displayUsFormat(bigintE8sToNumber(details.request.icp_due))} ICP
