@@ -10,6 +10,7 @@
 		bigintE8sToNumber
 	} from '$lib';
 	import type {
+		NeuronId,
 		WithdrawalDetails,
 		WithdrawalStatus
 	} from '$lib/../declarations/water_neuron/water_neuron.did';
@@ -21,6 +22,7 @@
 	let isHigher = false;
 	let exchangeRate: BigNumber;
 	let warningError: string | undefined;
+	let isConfirmBusy = false;
 
 	function handleKeydown(event: KeyboardEvent) {
 		if (event.key === 'Escape') {
@@ -32,7 +34,7 @@
 
 	const nicpAfterCancel = (icpDue: BigNumber) => {
 		const transactionFee = BigNumber(0.0001);
-		const mergedIcp = icpDue.minus(2 * transactionFee);
+		const mergedIcp = icpDue.minus(transactionFee.multipliedBy(2));
 		const nicpWithoutFee = mergedIcp.multipliedBy(exchangeRate);
 		return nicpWithoutFee.minus(nicpWithoutFee.dividedBy(200));
 	};
@@ -42,7 +44,8 @@
 		const key = Object.keys(details.status)[0] as keyof WithdrawalStatus;
 		switch (key) {
 			case 'WaitingDissolvement':
-				const createdAt = await fetchCreationTimestampSecs(details.status[key].neuron_id);
+				const value: { neuron_id: NeuronId } = details.status[key];
+				const createdAt = await fetchCreationTimestampSecs(value.neuron_id);
 				const currentTime = Date.now() / 1000;
 				const twoWeeksSeconds = 14 * 24 * 60 * 60;
 				if (currentTime - createdAt > twoWeeksSeconds) {
@@ -66,14 +69,14 @@
 		}
 	};
 
-	async function handleCancellation() {
-		if (!$canisters?.waterNeuron.authenticatedActor || details.request.neuron_id === []) return;
+	const handleCancellation = async () => {
+		if (!$canisters?.waterNeuron.authenticatedActor || !details.request.neuron_id[0]) return;
 
+		isConfirmBusy = true;
 		try {
 			const result = await $canisters.waterNeuron.authenticatedActor.cancel_withdrawal(
 				details.request.neuron_id[0]
 			);
-			console.log(result);
 			const status = handleCancelWithdrawalResult(result);
 
 			if (status.success) {
@@ -85,16 +88,19 @@
 			console.error(error);
 			toasts.add(Toast.error('Call was rejected.'));
 		}
+		isConfirmBusy = false;
 		inCancelWarningMenu.set(false);
 		cancelWarningDialog.close();
-	}
+	};
 
 	onMount(() => {
 		cancelWarningDialog = document.getElementById('cancelWarningDialog') as HTMLDialogElement;
 		cancelWarningDialog.showModal();
 		isHigher = isContainerHigher('send');
 		cancelWarningDialog.addEventListener('keydown', handleKeydown);
-		exchangeRate = $waterNeuronInfo.exchangeRate();
+		if ($waterNeuronInfo) {
+			exchangeRate = $waterNeuronInfo.exchangeRate();
+		}
 		setWarningError();
 
 		return () => {
@@ -153,7 +159,13 @@
 						cancelWarningDialog.close();
 					}}>Abort</button
 				>
-				<button id="confirm-btn" on:click={handleCancellation}>Confirm</button>
+				{#if isConfirmBusy}
+					<button id="confirm-btn">
+						<div class="spinner"></div>
+					</button>
+				{:else}
+					<button id="confirm-btn" on:click={handleCancellation}>Confirm</button>
+				{/if}
 			</div>
 		</div>
 	{/if}
@@ -251,5 +263,25 @@
 	#confirm-btn {
 		background: var(--main-color);
 		color: var(--main-button-text-color);
+	}
+
+	/* === Animation === */
+
+	.spinner {
+		width: 1em;
+		height: 1em;
+		border: 3px solid var(--main-button-text-color);
+		border-top-color: transparent;
+		border-radius: 50%;
+		animation: spin 1s linear infinite;
+	}
+
+	@keyframes spin {
+		from {
+			transform: rotate(0deg);
+		}
+		to {
+			transform: rotate(360deg);
+		}
 	}
 </style>

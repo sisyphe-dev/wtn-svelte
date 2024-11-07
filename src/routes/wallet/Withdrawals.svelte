@@ -36,16 +36,20 @@
 
 	const fetchWithdrawals = async () => {
 		if ($user && $canisters) {
-			withdrawalRequests = await $canisters.waterNeuron.anonymousActor.get_withdrawal_requests([
-				{ owner: $user.principal, subaccount: [] }
-			]);
+			const withdrawalRequests =
+				await $canisters.waterNeuron.anonymousActor.get_withdrawal_requests([
+					{ owner: $user.principal, subaccount: [] }
+				]);
 
-			const [newCancelled, newActive] = [{}, {}];
-			for (const withdrawal of withdrawals) {
+			const [newCancelled, newActive]: [
+				{ [key: number]: WithdrawalDetails },
+				{ [key: number]: WithdrawalDetails }
+			] = [{}, {}];
+			for (const withdrawal of withdrawalRequests) {
 				if ('Cancelled' in withdrawal.status) {
-					newCancelled[withdrawal.request.withdrawal_id] = withdrawal;
+					newCancelled[Number(withdrawal.request.withdrawal_id)] = withdrawal;
 				} else {
-					newActive[withdrawal.request.withdrawal_id] = withdrawal;
+					newActive[Number(withdrawal.request.withdrawal_id)] = withdrawal;
 				}
 			}
 
@@ -62,13 +66,13 @@
 
 	const fetchTimesLeft = async () => {
 		if ($user) {
-			const newTimesLeft = {};
+			const newTimesLeft: { [key: number]: string } = {};
 			for (const detail of Object.values(activeWithdrawalRequests)) {
 				const neuronId = detail.request.neuron_id;
 				if (neuronId.length !== 0) {
 					try {
 						const createdAt = await fetchCreationTimestampSecs(neuronId[0]);
-						newTimesLeft[neuronId[0].id] = displayTimeLeft(createdAt, isMobile);
+						newTimesLeft[Number(neuronId[0].id)] = displayTimeLeft(createdAt, isMobile);
 					} catch (e) {
 						console.log(e);
 					}
@@ -129,8 +133,7 @@
 								</a>
 							</td>
 							<td>
-								{timesLeft[details.request.neuron_id[0].id]
-									?? 'Cancelled'}
+								{timesLeft[Number(details.request.neuron_id[0]?.id)] ?? 'Cancelled'}
 							</td>
 						</tr>
 					{:else}
