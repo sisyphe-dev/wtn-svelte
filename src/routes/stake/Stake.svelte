@@ -72,7 +72,7 @@
 					}
 				}
 			} catch (error) {
-				console.log('icpToNicp error:', error);
+				console.log('[icpToNicp] error:', error);
 				toasts.add(Toast.error('Call was rejected.'));
 			}
 		} else {

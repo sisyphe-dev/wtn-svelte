@@ -539,7 +539,6 @@ export function handleCancelWithdrawalResult(result: CancelResult): ToastResult 
 		case 'Ok':
 			const response: MergeResponse = result[key];
 			const info: [] | [NeuronInfo] = response.source_neuron_info;
-			console.log(info, info.length);
 			if (info.length === 1) {
 				return { success: true, message: `Successfully cancelled withdrawal.` };
 			} else {
