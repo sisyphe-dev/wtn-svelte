@@ -176,7 +176,9 @@
 						<div class="spinner"></div>
 					</button>
 				{:else}
-					<button id="confirm-btn" title="test-cancel-confirmation" on:click={handleCancellation}>Confirm</button>
+					<button id="confirm-btn" title="test-cancel-confirmation" on:click={handleCancellation}
+						>Confirm</button
+					>
 				{/if}
 			</div>
 		</div>

@@ -318,9 +318,8 @@ testWithII('e2e test cancel withdrawal', async ({ page, iiPage }) => {
 	await page.locator('[title="test-withdrawal-1"]').click();
 	await expect(page.locator('[title="test-cancel-confirmation"]')).not.toBeVisible();
 	await page.locator('[title="test-cancel-abort"]').click();
-	
+
 	await page.locator('[title="test-withdrawal-0"]').click();
 	await page.locator('[title="test-cancel-confirmation"]').click();
 	expect(await isToastSuccess(page)).toBeTruthy();
-
 });

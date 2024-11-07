@@ -142,7 +142,8 @@
 							</td>
 							<td>{details.request.withdrawal_id}</td>
 							<td>
-								<button title="test-withdrawal-{index}"
+								<button
+									title="test-withdrawal-{index}"
 									on:click={() => {
 										handleCancelClick(details);
 									}}
