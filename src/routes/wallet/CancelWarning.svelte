@@ -188,6 +188,7 @@
 	h2 {
 		font-family: var(--main-font);
 		align-self: center;
+		margin: 0.2em;
 	}
 
 	p {
@@ -227,9 +228,9 @@
 		height: fit-content;
 		max-width: 35em;
 		width: 50vw;
-		background: var(--background-color);
+		background-color: var(--background-color);
 		color: var(--stake-text-color);
-		padding: 2em;
+		padding: 1em;
 		border-radius: 15px;
 		border: var(--input-border);
 		gap: 1em;
@@ -246,7 +247,7 @@
 		display: flex;
 		flex-direction: column;
 		border-radius: 8px;
-		background-color: var(--unstake-selection-color);
+		background: var(--background-color);
 		padding: 1em;
 	}
 
