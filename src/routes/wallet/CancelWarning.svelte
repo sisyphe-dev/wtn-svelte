@@ -2,6 +2,8 @@
 	import { BigNumber } from 'bignumber.js';
 	import { onMount } from 'svelte';
 	import { inCancelWarningMenu, waterNeuronInfo, canisters, toasts } from '$lib/stores';
+	import ChangeIcon from '$lib/icons/ChangeIcon.svelte';
+
 	import { Toast } from '$lib/toast';
 	import {
 		isContainerHigher,
@@ -24,6 +26,7 @@
 	let exchangeRate: BigNumber;
 	let warningError: string | undefined;
 	let isConfirmBusy = false;
+	let invertExchangeRate = false;
 
 	function handleKeydown(event: KeyboardEvent) {
 		if (event.key === 'Escape') {
@@ -150,15 +153,19 @@
 					? displayUsFormat(nicpAfterCancel(bigintE8sToNumber(details.request.icp_due)), 8)
 					: '-/-'} nICP
 			</p>
-			{#if exchangeRate}
-				<p class="secondary-information">
-					Current Exchange Rate: {displayUsFormat(BigNumber(exchangeRate), 8)}
-				</p>
-				<p class="secondary-information">Fee: 0.5%</p>
-			{:else}
-				<p class="secondary-information">Current Exchange Rate: -/-</p>
-				<p class="secondary-information">Fee: 0.5%</p>
-			{/if}
+			<p class="secondary-information" id="exchange-rate">
+				<button class="change-btn" on:click={() => (invertExchangeRate = !invertExchangeRate)}>
+					<ChangeIcon />
+				</button>
+				{#if exchangeRate}
+					{#if invertExchangeRate}
+						1 nICP = {displayUsFormat(BigNumber(1).dividedBy(exchangeRate), 8)} ICP
+					{:else}
+						1 ICP = {displayUsFormat(exchangeRate, 8)} nICP
+					{/if}
+				{/if}
+			</p>
+			<p class="secondary-information">Fee: 0.5%</p>
 
 			<div class="toggle-container">
 				<button
@@ -217,30 +224,6 @@
 		color: var(--title-color);
 	}
 
-	button {
-		min-width: 80px;
-		border-radius: 8px;
-		position: relative;
-		border: 2px solid black;
-		font-size: 14px;
-		box-shadow: 3px 3px 0 0 black;
-		padding: 0 1em 0 1em;
-		max-width: none;
-		height: 3em;
-		font-weight: bold;
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		cursor: pointer;
-		margin-right: 1em;
-	}
-
-	button:hover {
-		transform: scale(0.95);
-		transition: all 0.3s;
-		box-shadow: 6px 6px 0 0 black;
-	}
-
 	/* === Layout === */
 	.warning-container {
 		display: flex;
@@ -274,6 +257,32 @@
 	}
 
 	/* === Components === */
+	#confirm-btn,
+	#abort-btn {
+		min-width: 80px;
+		border-radius: 8px;
+		position: relative;
+		border: 2px solid black;
+		font-size: 14px;
+		box-shadow: 3px 3px 0 0 black;
+		padding: 0 1em 0 1em;
+		max-width: none;
+		height: 3em;
+		font-weight: bold;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		cursor: pointer;
+		margin-right: 1em;
+	}
+
+	#confirm-btn:hover,
+	#abort-btn:hover {
+		transform: scale(0.95);
+		transition: all 0.3s;
+		box-shadow: 6px 6px 0 0 black;
+	}
+
 	#abort-btn {
 		background: var(--main-button-text-color);
 		color: var(--main-color);
@@ -290,6 +299,28 @@
 
 	.secondary-information {
 		color: var(--text-color);
+	}
+
+	.change-btn {
+		border: none;
+		display: flex;
+		width: fit-content;
+		height: fit-content;
+		background: transparent;
+		padding: 0;
+		margin: 0;
+		cursor: pointer;
+	}
+
+	.change-btn:hover {
+		transform: scale(1.2);
+		animation: invert 0.5s ease;
+	}
+
+	#exchange-rate {
+		display: flex;
+		align-items: center;
+		gap: 0.5em;
 	}
 
 	/* === Animation === */
