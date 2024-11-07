@@ -122,6 +122,7 @@
 			<div class="toggle-container">
 				<button
 					id="abort-btn"
+					title="test-cancel-abort"
 					on:click={() => {
 						inCancelWarningMenu.set(false);
 						cancelWarningDialog.close();
@@ -175,7 +176,7 @@
 						<div class="spinner"></div>
 					</button>
 				{:else}
-					<button id="confirm-btn" on:click={handleCancellation}>Confirm</button>
+					<button id="confirm-btn" title="test-cancel-confirmation" on:click={handleCancellation}>Confirm</button>
 				{/if}
 			</div>
 		</div>

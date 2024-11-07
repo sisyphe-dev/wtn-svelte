@@ -256,3 +256,71 @@ test('e2e test sns', async ({ page }) => {
 	await page.locator('[title="retrieveNicp-btn"]').click();
 	expect(await isToastSuccess(page)).toBeTruthy();
 });
+
+testWithII('e2e test cancel withdrawal', async ({ page, iiPage }) => {
+	await page.goto('/');
+
+	await page.locator('[title="connect-btn"]').click();
+
+	await iiPage.signInWithNewIdentity({ selector: '[title="ii-connect-btn"]' });
+
+	const walletInfo = page.locator('#wallet-info');
+	await expect(walletInfo).toBeVisible();
+
+	await walletInfo.click();
+	await expect(page.locator('.withdrawals-container')).not.toBeVisible();
+
+	const principal = await page
+		.locator('p[title="principal-user"]')
+		.evaluate((accountId) => accountId.textContent);
+
+	if (!principal) throw new Error('No account id found.');
+
+	await transferICP(principal);
+	await transferICP(principal);
+	await expect(walletInfo.locator('[title="icp-balance-nav"]')).toHaveText('30 ICP');
+
+	await page.locator('[title="home-btn"]').click();
+
+	await page.locator('.max-btn').click();
+	const maxAmountStake = parseFloat(
+		(await page
+			.locator('[title="swap-input"]')
+			.evaluate((input) => (input as HTMLInputElement).value)) ?? '0'
+	);
+	await swap(page, maxAmountStake);
+	expect(await isToastSuccess(page)).toBeTruthy();
+
+	await page.locator('[title="unstake-header"]').click();
+	await page.locator('[title="delayed-btn"]').click();
+
+	await expect(walletInfo.locator('[title="nicp-balance-nav"]')).toHaveText('29.99 nICP');
+	await swap(page, 10);
+	expect(await isToastSuccess(page)).toBeTruthy();
+
+	await walletInfo.click();
+	await expect(page.locator('.withdrawals-container')).toBeVisible();
+	await page.waitForTimeout(5000);
+	await page.locator('[title="test-withdrawal-0"]').click();
+
+	await page.locator('[title="test-cancel-confirmation"]').click();
+	expect(await isToastSuccess(page)).toBeTruthy();
+
+	await page.locator('[title="home-btn"]').click();
+	await page.locator('[title="unstake-header"]').click();
+	await page.locator('[title="delayed-btn"]').click();
+	await swap(page, 10);
+	expect(await isToastSuccess(page)).toBeTruthy();
+
+	await walletInfo.click();
+	await expect(page.locator('.withdrawals-container')).toBeVisible();
+
+	await page.locator('[title="test-withdrawal-1"]').click();
+	await expect(page.locator('[title="test-cancel-confirmation"]')).not.toBeVisible();
+	await page.locator('[title="test-cancel-abort"]').click();
+	
+	await page.locator('[title="test-withdrawal-0"]').click();
+	await page.locator('[title="test-cancel-confirmation"]').click();
+	expect(await isToastSuccess(page)).toBeTruthy();
+
+});

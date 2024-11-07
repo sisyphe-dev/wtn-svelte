@@ -11,10 +11,7 @@
 	} from '$lib';
 	import { user, canisters, inCancelWarningMenu } from '$lib/stores';
 	import { onMount } from 'svelte';
-	import type {
-		WithdrawalDetails,
-		NeuronId
-	} from '$lib/../declarations/water_neuron/water_neuron.did';
+	import type { WithdrawalDetails } from '$lib/../declarations/water_neuron/water_neuron.did';
 	import { fade } from 'svelte/transition';
 
 	let activeWithdrawalRequests: { [key: number]: WithdrawalDetails } = {};
@@ -108,7 +105,7 @@
 				{/if}
 			</thead>
 			<tbody>
-				{#each Object.values(activeWithdrawalRequests).concat(Object.values(cancelledWithdrawalRequests)) as details}
+				{#each Object.values(activeWithdrawalRequests).concat(Object.values(cancelledWithdrawalRequests)) as details, index}
 					{#if isMobile}
 						<tr>
 							<td>{displayUsFormat(bigintE8sToNumber(details.request.icp_due))}</td>
@@ -145,7 +142,7 @@
 							</td>
 							<td>{details.request.withdrawal_id}</td>
 							<td>
-								<button
+								<button title="test-withdrawal-{index}"
 									on:click={() => {
 										handleCancelClick(details);
 									}}
