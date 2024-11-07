@@ -36,10 +36,7 @@
 	const nicpAfterCancel = (icpDue: BigNumber) => {
 		const transactionFee = BigNumber(0.0001);
 		const mergedIcp = icpDue.minus(transactionFee.multipliedBy(2));
-		console.log(mergedIcp);
-
 		const nicpWithoutFee = mergedIcp.multipliedBy(exchangeRate);
-		console.log(nicpWithoutFee);
 		return nicpWithoutFee.minus(nicpWithoutFee.dividedBy(200));
 	};
 
