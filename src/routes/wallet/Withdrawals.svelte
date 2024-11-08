@@ -229,21 +229,17 @@
 	#cancel-btn {
 		background: var(--main-color);
 		color: var(--main-button-text-color);
-		min-width: 80px;
 		border-radius: 8px;
-		position: relative;
 		border: 2px solid black;
 		font-size: 14px;
 		box-shadow: 3px 3px 0 0 black;
-		padding: 0;
-		max-width: none;
+		padding: 0 0.6em;
 		height: 3em;
 		font-weight: bold;
 		display: flex;
 		justify-content: center;
 		align-items: center;
 		cursor: pointer;
-		margin-right: 1em;
 	}
 
 	#cancel-btn:hover {
