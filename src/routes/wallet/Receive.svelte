@@ -187,12 +187,9 @@
 	}
 
 	.principal-container {
-		margin-left: 1em;
 		display: flex;
-		justify-content: center;
 		width: 100%;
 		align-items: center;
-		gap: 1em;
 	}
 
 	.qr-code-container {
@@ -217,11 +214,11 @@
 		position: relative;
 		border: 2px solid black;
 		border-radius: 8px;
-		font-size: 16px;
+		font-size: 14px;
 		box-shadow: 3px 3px 0 0 black;
 		padding: 0 1em 0 1em;
 		width: 10em;
-		height: 60px;
+		height: 3em;
 		font-weight: bold;
 		display: flex;
 		justify-content: center;
@@ -249,12 +246,11 @@
 		background-color: transparent;
 		border: none;
 		cursor: pointer;
-		border-radius: 0.3em;
 		transition: all 0.3s ease;
-		color: white;
-		font-weight: bold;
 		display: flex;
 		position: relative;
+		width: 40px;
+		height: fit-content;
 	}
 
 	/* === Animation === */

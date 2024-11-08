@@ -274,7 +274,6 @@
 		justify-content: center;
 		align-items: center;
 		cursor: pointer;
-		margin-right: 1em;
 	}
 
 	#confirm-btn:hover,

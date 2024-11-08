@@ -268,14 +268,16 @@
 				</button>
 			{:else}
 				<button
+					id="abort-btn"
 					class="toggle-btn"
 					on:click={() => {
 						sendingDialog.close();
 						inSendingMenu.set(false);
 						inputAmount.reset();
-					}}>Cancel</button
+					}}>Back</button
 				>
 				<button
+					id="continue-btn"
 					class="toggle-btn"
 					title="continue-btn"
 					on:click={() => {
@@ -396,11 +398,11 @@
 		border-radius: 8px;
 		position: relative;
 		border: 2px solid black;
-		font-size: 16px;
+		font-size: 14px;
 		box-shadow: 3px 3px 0 0 black;
 		padding: 0 1em 0 1em;
 		max-width: none;
-		height: 60px;
+		height: 3em;
 		font-weight: bold;
 		display: flex;
 		justify-content: center;
@@ -412,6 +414,16 @@
 		transform: scale(0.95);
 		transition: all 0.3s;
 		box-shadow: 6px 6px 0 0 black;
+	}
+
+	#abort-btn {
+		background: var(--main-button-text-color);
+		color: var(--main-color);
+	}
+
+	#continue-btn {
+		background: var(--main-color);
+		color: var(--main-button-text-color);
 	}
 
 	input::-webkit-outer-spin-button,
