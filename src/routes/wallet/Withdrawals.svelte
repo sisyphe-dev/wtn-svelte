@@ -94,7 +94,6 @@
 						<th>ICP Due</th>
 						<th>Neuron Id</th>
 						<th>Status</th>
-						<th>Cancel</th>
 					</tr>
 				{:else}
 					<tr>
@@ -122,19 +121,25 @@
 								</a>
 							</td>
 							<td>
-								{timesLeft[Number(details.request.neuron_id[0]?.id)] ?? 'Unknown'}
+								{renderStatus(details.status) === 'Waiting Dissolvement'
+									? timesLeft[Number(details.request.neuron_id[0]?.id)]
+									: renderStatus(details.status)}
 							</td>
 							<td>
-								<button
-									id="cancel-btn-mobile"
-									title="test-withdrawal-{index}"
-									on:click={() => {
-										handleCancelClick(details);
-									}}
-								>
-									<RevertIcon />
-								</button>
-							</td>
+
+							{#if renderStatus(details.status) === 'Waiting Dissolvement' || renderStatus(details.status) === 'Waiting to Start Dissolving'}
+									<button
+										id="cancel-btn-mobile"
+										title="test-withdrawal-{index}"
+										on:click={() => {
+											handleCancelClick(details);
+										}}
+									>
+										<RevertIcon />
+									</button>
+							{/if}
+						</td>
+
 						</tr>
 					{:else}
 						<tr>
@@ -155,16 +160,20 @@
 							</td>
 							<td>{details.request.withdrawal_id}</td>
 							<td>
-								<button
-									id="cancel-btn"
-									title="test-withdrawal-{index}"
-									on:click={() => {
-										handleCancelClick(details);
-									}}
-								>
-									Cancel
-								</button>
-							</td>
+
+							{#if renderStatus(details.status) === 'Waiting Dissolvement' || renderStatus(details.status) === 'Waiting to Start Dissolving'}
+									<button
+										id="cancel-btn"
+										title="test-withdrawal-{index}"
+										on:click={() => {
+											handleCancelClick(details);
+										}}
+									>
+										Cancel
+									</button>
+							{/if}
+						</td>
+
 						</tr>
 					{/if}
 				{/each}
@@ -208,7 +217,7 @@
 	td {
 		border-top: 2px solid;
 		text-align: center;
-		padding: 1em;
+		padding: 1em 0;
 	}
 
 	a {
@@ -226,7 +235,7 @@
 		border: 2px solid black;
 		font-size: 14px;
 		box-shadow: 3px 3px 0 0 black;
-		padding: 0 1em 0 1em;
+		padding: 0;
 		max-width: none;
 		height: 3em;
 		font-weight: bold;
@@ -246,6 +255,9 @@
 	#cancel-btn-mobile {
 		border: none;
 		background: none;
+		display: flex;
+		justify-content: center;
+		align-items: center;
 	}
 
 	/* === Responsive === */

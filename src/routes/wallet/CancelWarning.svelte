@@ -300,6 +300,7 @@
 
 	.secondary-information {
 		color: var(--text-color);
+		margin-left: 1em;
 	}
 
 	.change-btn {
