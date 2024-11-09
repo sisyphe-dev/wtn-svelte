@@ -6,12 +6,18 @@
 		connectWithInternetIdentity,
 		connectWithTransport,
 		connectWithPlug,
-		localSignIn
+		localSignIn,
+		NFID_RPC,
+		OISY_RPC
 	} from '$lib/authentification';
 	import { fade } from 'svelte/transition';
-	import { isMobile } from '$lib';
+	import { isMobile, isContainerHigher } from '$lib';
+	import { onMount } from 'svelte';
 
-	async function handleConnection(identityProvider: 'internetIdentity' | 'plug' | 'transport') {
+	let connectDialog: HTMLDialogElement;
+	let isHigher = false;
+
+	async function handleConnection(identityProvider: 'internetIdentity' | 'plug' | 'oisy' | 'nfid') {
 		if ($isBusy) return;
 		isBusy.set(true);
 
@@ -22,17 +28,44 @@
 			case 'plug':
 				await connectWithPlug();
 				break;
-			case 'transport':
-				await connectWithTransport();
+			case 'oisy':
+				await connectWithTransport(OISY_RPC);
+				break;
+			case 'nfid':
+				await connectWithTransport(NFID_RPC);
 				break;
 		}
 
 		isBusy.set(false);
 		isLogging.set(false);
 	}
+
+	function handleKeydown(event: KeyboardEvent) {
+		if (event.key === 'Escape') {
+			event.preventDefault();
+			connectDialog.close();
+			isLogging.set(false);
+		}
+	}
+
+	onMount(() => {
+		connectDialog = document.getElementById('connectDialog') as HTMLDialogElement;
+		connectDialog.showModal();
+		isHigher = isContainerHigher('send');
+		connectDialog.addEventListener('keydown', handleKeydown);
+
+		return () => {
+			connectDialog.removeEventListener('keydown', handleKeydown);
+		};
+	});
 </script>
 
-<div class="cards-container" in:fade={{ duration: 500 }} class:mobile-size={isMobile}>
+<dialog
+	id="connectDialog"
+	in:fade={{ duration: 500 }}
+	class:mobile-size={isMobile}
+	style:align-items={isHigher ? 'flex-start' : 'center'}
+>
 	{#if $isBusy}
 		<button class="login-btn">
 			<div class="spinner"></div>
@@ -42,11 +75,15 @@
 			<img src="/icon/astronaut.webp" width="50em" height="50em" alt="Dfinity Astronaut." />
 			<h2>Internet Identity</h2>
 		</button>
-		<button class="login-btn" on:click={() => handleConnection('transport')}>
+		<button class="login-btn" on:click={() => handleConnection('nfid')}>
 			<img src="/icon/google.svg" width="auto" height="40em" alt="Google Logo." />
 			<h2>Google</h2>
 			<span>|</span>
 			<img src="/icon/nfid.webp" width="auto" height="30em" alt="NFID Logo." />
+		</button>
+		<button class="login-btn" on:click={() => handleConnection('oisy')}>
+			<img src="/icon/oisy.webp" width="auto" height="40em" alt="Oisy Logo." />
+			<h2>Oisy</h2>
 		</button>
 		{#if !isMobile}
 			<button class="login-btn" on:click={() => handleConnection('plug')}>
@@ -81,7 +118,7 @@
 	>
 		<h2>Close</h2>
 	</button>
-</div>
+</dialog>
 
 <style>
 	/* === Base Styles === */
@@ -111,15 +148,18 @@
 		color: var(--main-button-text-color);
 	}
 
-	/* === Layout === */
-	.cards-container {
-		max-width: 450px;
-		max-height: 180px;
-		width: 60%;
+	::backdrop {
+		backdrop-filter: blur(5px);
+	}
+
+	dialog {
+		width: 40%;
 		height: fit-content;
 		display: flex;
 		flex-wrap: wrap;
 		gap: 1em;
+		border: none;
+		background: none;
 	}
 
 	/* === Components === */

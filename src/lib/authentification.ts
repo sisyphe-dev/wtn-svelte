@@ -28,6 +28,9 @@ export const HOST = DEV ? 'http://127.0.1:8080' : 'https://ic0.app';
 const DAPP_DERIVATION_ORIGIN = 'https://n3i53-gyaaa-aaaam-acfaq-cai.icp0.io';
 const IDENTITY_PROVIDER = 'https://identity.ic0.app';
 
+export const OISY_RPC = 'https://oisy.com/sign';
+export const NFID_RPC = 'https://nfid.one/rpc';
+
 const CANISTER_ID_II = DEV ? 'iidmm-fiaaa-aaaaq-aadmq-cai' : 'rdmx6-jaaaa-aaaaa-aaadq-cai';
 const CANISTER_ID_WTN_LEDGER = 'jcmow-hyaaa-aaaaq-aadlq-cai';
 export const CANISTER_ID_ICP_LEDGER = 'ryjl3-tyaaa-aaaaa-aaaba-cai';
@@ -118,9 +121,9 @@ export async function connectWithPlug() {
 	}
 }
 
-export async function connectWithTransport() {
+export async function connectWithTransport(rpc: string) {
 	const transport = new PostMessageTransport({
-		url: 'https://nfid.one/rpc'
+		url: rpc
 	});
 
 	const newSigner = new Signer({ transport });
