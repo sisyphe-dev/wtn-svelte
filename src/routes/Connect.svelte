@@ -21,7 +21,8 @@
 		if ($isBusy) return;
 		isBusy.set(true);
 
-		switch (identityProvider) {
+		try {
+			switch (identityProvider) {
 			case 'internetIdentity':
 				await connectWithInternetIdentity();
 				break;
@@ -34,6 +35,9 @@
 			case 'nfid':
 				await connectWithTransport(NFID_RPC);
 				break;
+			}
+		} catch (e) {
+			console.error(e);
 		}
 
 		isBusy.set(false);
