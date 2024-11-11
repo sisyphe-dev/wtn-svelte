@@ -72,9 +72,7 @@
 </script>
 
 {#if $isLogging}
-	<div class="background-filter">
-		<Connect />
-	</div>
+	<Connect />
 {:else if $inSendingMenu}
 	<Send />
 {:else if $inReceivingMenu}
@@ -233,17 +231,6 @@
 		padding-top: 2em;
 		margin-bottom: 4em;
 		color: white;
-	}
-
-	/* === Components === */
-	.background-filter {
-		position: fixed;
-		width: 100vw;
-		height: 100vh;
-		z-index: 1;
-		display: flex;
-		align-items: center;
-		justify-content: center;
 	}
 
 	/* === Utilities ===*/
