@@ -23,18 +23,18 @@
 
 		try {
 			switch (identityProvider) {
-			case 'internetIdentity':
-				await connectWithInternetIdentity();
-				break;
-			case 'plug':
-				await connectWithPlug();
-				break;
-			case 'oisy':
-				await connectWithTransport(OISY_RPC);
-				break;
-			case 'nfid':
-				await connectWithTransport(NFID_RPC);
-				break;
+				case 'internetIdentity':
+					await connectWithInternetIdentity();
+					break;
+				case 'plug':
+					await connectWithPlug();
+					break;
+				case 'oisy':
+					await connectWithTransport(OISY_RPC);
+					break;
+				case 'nfid':
+					await connectWithTransport(NFID_RPC);
+					break;
 			}
 		} catch (e) {
 			console.error(e);

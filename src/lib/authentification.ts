@@ -126,24 +126,23 @@ export async function connectWithTransport(rpc: typeof OISY_RPC | typeof NFID_RP
 		const transport = new PostMessageTransport({
 			url: rpc
 		});
-	
+
 		const newSigner = new Signer({ transport });
-	
+
 		console.log('The wallet set the following permission scope:', await newSigner.permissions());
-	
+
 		const userPrincipal = (await newSigner.accounts())[0].owner;
-	
+
 		const signerAgent = SignerAgent.createSync({
 			signer: newSigner,
 			account: userPrincipal
 		});
-	
+
 		canisters.set(await fetchActors(signerAgent));
 		user.set(new User(userPrincipal));
 	} catch (error) {
 		console.log(error);
 	}
-	
 }
 
 export async function localSignIn() {
