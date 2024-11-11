@@ -28,8 +28,8 @@ export const HOST = DEV ? 'http://127.0.1:8080' : 'https://ic0.app';
 const DAPP_DERIVATION_ORIGIN = 'https://n3i53-gyaaa-aaaam-acfaq-cai.icp0.io';
 const IDENTITY_PROVIDER = 'https://identity.ic0.app';
 
-export const OISY_RPC = 'https://oisy.com/sign';
-export const NFID_RPC = 'https://nfid.one/rpc';
+export const OISY_RPC = 'https://oisy.com/sign' as const;
+export const NFID_RPC = 'https://nfid.one/rpc' as const;
 
 const CANISTER_ID_II = DEV ? 'iidmm-fiaaa-aaaaq-aadmq-cai' : 'rdmx6-jaaaa-aaaaa-aaadq-cai';
 const CANISTER_ID_WTN_LEDGER = 'jcmow-hyaaa-aaaaq-aadlq-cai';
@@ -121,24 +121,29 @@ export async function connectWithPlug() {
 	}
 }
 
-export async function connectWithTransport(rpc: string) {
-	const transport = new PostMessageTransport({
-		url: rpc
-	});
-
-	const newSigner = new Signer({ transport });
-
-	console.log('The wallet set the following permission scope:', await newSigner.permissions());
-
-	const userPrincipal = (await newSigner.accounts())[0].owner;
-
-	const signerAgent = SignerAgent.createSync({
-		signer: newSigner,
-		account: userPrincipal
-	});
-
-	canisters.set(await fetchActors(signerAgent));
-	user.set(new User(userPrincipal));
+export async function connectWithTransport(rpc: typeof OISY_RPC | typeof NFID_RPC) {
+	try {
+		const transport = new PostMessageTransport({
+			url: rpc
+		});
+	
+		const newSigner = new Signer({ transport });
+	
+		console.log('The wallet set the following permission scope:', await newSigner.permissions());
+	
+		const userPrincipal = (await newSigner.accounts())[0].owner;
+	
+		const signerAgent = SignerAgent.createSync({
+			signer: newSigner,
+			account: userPrincipal
+		});
+	
+		canisters.set(await fetchActors(signerAgent));
+		user.set(new User(userPrincipal));
+	} catch (error) {
+		console.log(error);
+	}
+	
 }
 
 export async function localSignIn() {
