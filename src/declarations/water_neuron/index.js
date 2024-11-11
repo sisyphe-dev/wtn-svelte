@@ -1,6 +1,108 @@
 import { IDL } from '@dfinity/candid';
 
 export const idlFactory = () => {
+	const UpgradeArg = IDL.Record({
+		governance_fee_share_percent: IDL.Opt(IDL.Nat64)
+	});
+	const InitArg = IDL.Record({
+		wtn_ledger_id: IDL.Principal,
+		wtn_governance_id: IDL.Principal,
+		nicp_ledger_id: IDL.Principal
+	});
+	const LiquidArg = IDL.Variant({
+		Upgrade: IDL.Opt(UpgradeArg),
+		Init: InitArg
+	});
+	const NeuronId = IDL.Record({ id: IDL.Nat64 });
+	const BallotInfo = IDL.Record({
+		vote: IDL.Int32,
+		proposal_id: IDL.Opt(NeuronId)
+	});
+	const DissolveState = IDL.Variant({
+		DissolveDelaySeconds: IDL.Nat64,
+		WhenDissolvedTimestampSeconds: IDL.Nat64
+	});
+	const Followees = IDL.Record({ followees: IDL.Vec(NeuronId) });
+	const NeuronStakeTransfer = IDL.Record({
+		to_subaccount: IDL.Vec(IDL.Nat8),
+		neuron_stake_e8s: IDL.Nat64,
+		from: IDL.Opt(IDL.Principal),
+		memo: IDL.Nat64,
+		from_subaccount: IDL.Vec(IDL.Nat8),
+		transfer_timestamp: IDL.Nat64,
+		block_height: IDL.Nat64
+	});
+	const KnownNeuronData = IDL.Record({
+		name: IDL.Text,
+		description: IDL.Opt(IDL.Text)
+	});
+	const Neuron = IDL.Record({
+		id: IDL.Opt(NeuronId),
+		staked_maturity_e8s_equivalent: IDL.Opt(IDL.Nat64),
+		controller: IDL.Opt(IDL.Principal),
+		recent_ballots: IDL.Vec(BallotInfo),
+		kyc_verified: IDL.Bool,
+		neuron_type: IDL.Opt(IDL.Int32),
+		not_for_profit: IDL.Bool,
+		maturity_e8s_equivalent: IDL.Nat64,
+		cached_neuron_stake_e8s: IDL.Nat64,
+		created_timestamp_seconds: IDL.Nat64,
+		auto_stake_maturity: IDL.Opt(IDL.Bool),
+		aging_since_timestamp_seconds: IDL.Nat64,
+		hot_keys: IDL.Vec(IDL.Principal),
+		account: IDL.Vec(IDL.Nat8),
+		joined_community_fund_timestamp_seconds: IDL.Opt(IDL.Nat64),
+		dissolve_state: IDL.Opt(DissolveState),
+		followees: IDL.Vec(IDL.Tuple(IDL.Int32, Followees)),
+		neuron_fees_e8s: IDL.Nat64,
+		transfer: IDL.Opt(NeuronStakeTransfer),
+		known_neuron_data: IDL.Opt(KnownNeuronData),
+		spawn_at_timestamp_seconds: IDL.Opt(IDL.Nat64)
+	});
+	const NeuronInfo = IDL.Record({
+		dissolve_delay_seconds: IDL.Nat64,
+		recent_ballots: IDL.Vec(BallotInfo),
+		neuron_type: IDL.Opt(IDL.Int32),
+		created_timestamp_seconds: IDL.Nat64,
+		state: IDL.Int32,
+		stake_e8s: IDL.Nat64,
+		joined_community_fund_timestamp_seconds: IDL.Opt(IDL.Nat64),
+		retrieved_at_timestamp_seconds: IDL.Nat64,
+		known_neuron_data: IDL.Opt(KnownNeuronData),
+		voting_power: IDL.Nat64,
+		age_seconds: IDL.Nat64
+	});
+	const MergeResponse = IDL.Record({
+		target_neuron: IDL.Opt(Neuron),
+		source_neuron: IDL.Opt(Neuron),
+		target_neuron_info: IDL.Opt(NeuronInfo),
+		source_neuron_info: IDL.Opt(NeuronInfo)
+	});
+	const GovernanceError = IDL.Record({
+		error_message: IDL.Text,
+		error_type: IDL.Int32
+	});
+	const GuardError = IDL.Variant({
+		AlreadyProcessing: IDL.Null,
+		TooManyConcurrentRequests: IDL.Null
+	});
+	const CancelWithdrawalError = IDL.Variant({
+		GenericError: IDL.Record({ code: IDL.Int32, message: IDL.Text }),
+		TooLate: IDL.Null,
+		BadCommand: IDL.Record({ message: IDL.Text }),
+		UnknownTimeLeft: IDL.Null,
+		BadCaller: IDL.Record({ message: IDL.Text }),
+		MergeNeuronError: IDL.Record({ message: IDL.Text }),
+		StopDissolvementError: IDL.Record({ message: IDL.Text }),
+		RequestNotFound: IDL.Null,
+		GovernanceError: GovernanceError,
+		GuardError: IDL.Record({ guard_error: GuardError }),
+		GetFullNeuronError: IDL.Record({ message: IDL.Text })
+	});
+	const Result = IDL.Variant({
+		Ok: MergeResponse,
+		Err: CancelWithdrawalError
+	});
 	const TransferError = IDL.Variant({
 		GenericError: IDL.Record({
 			message: IDL.Text,
@@ -28,10 +130,6 @@ export const idlFactory = () => {
 		TooOld: IDL.Null,
 		InsufficientFunds: IDL.Record({ balance: IDL.Nat })
 	});
-	const GuardError = IDL.Variant({
-		AlreadyProcessing: IDL.Null,
-		TooManyConcurrentRequests: IDL.Null
-	});
 	const ConversionError = IDL.Variant({
 		GenericError: IDL.Record({ code: IDL.Int32, message: IDL.Text }),
 		TransferError: TransferError,
@@ -39,7 +137,7 @@ export const idlFactory = () => {
 		TransferFromError: TransferFromError,
 		GuardError: IDL.Record({ guard_error: GuardError })
 	});
-	const Result = IDL.Variant({ Ok: IDL.Nat64, Err: ConversionError });
+	const Result_1 = IDL.Variant({ Ok: IDL.Nat64, Err: ConversionError });
 	const GetEventsArg = IDL.Record({
 		start: IDL.Nat64,
 		length: IDL.Nat64
@@ -47,15 +145,6 @@ export const idlFactory = () => {
 	const NeuronOrigin = IDL.Variant({
 		NICPSixMonths: IDL.Null,
 		SnsGovernanceEightYears: IDL.Null
-	});
-	const NeuronId = IDL.Record({ id: IDL.Nat64 });
-	const UpgradeArg = IDL.Record({
-		governance_fee_share_percent: IDL.Opt(IDL.Nat64)
-	});
-	const InitArg = IDL.Record({
-		wtn_ledger_id: IDL.Principal,
-		wtn_governance_id: IDL.Principal,
-		nicp_ledger_id: IDL.Principal
 	});
 	const Account = IDL.Record({
 		owner: IDL.Principal,
@@ -88,6 +177,7 @@ export const idlFactory = () => {
 			nicp_burn_index: IDL.Nat64,
 			receiver: Account
 		}),
+		MergeNeuron: IDL.Record({ neuron_id: NeuronId }),
 		IcpDeposit: IDL.Record({
 			block_index: IDL.Nat64,
 			amount: IDL.Nat64,
@@ -163,6 +253,7 @@ export const idlFactory = () => {
 	const WithdrawalStatus = IDL.Variant({
 		ConversionDone: IDL.Record({ transfer_block_height: IDL.Nat64 }),
 		NotFound: IDL.Null,
+		Cancelled: IDL.Null,
 		WaitingToSplitNeuron: IDL.Null,
 		WaitingDissolvement: IDL.Record({ neuron_id: NeuronId }),
 		WaitingToStartDissolving: IDL.Record({ neuron_id: NeuronId })
@@ -180,6 +271,7 @@ export const idlFactory = () => {
 		status: WithdrawalStatus,
 		request: WithdrawalRequest
 	});
+	const Result_2 = IDL.Variant({ Ok: NeuronId, Err: NeuronId });
 	const ConversionArg = IDL.Record({
 		maybe_subaccount: IDL.Opt(IDL.Vec(IDL.Nat8)),
 		amount_e8s: IDL.Nat64
@@ -189,7 +281,7 @@ export const idlFactory = () => {
 		block_index: IDL.Nat,
 		transfer_id: IDL.Nat64
 	});
-	const Result_1 = IDL.Variant({
+	const Result_3 = IDL.Variant({
 		Ok: DepositSuccess,
 		Err: ConversionError
 	});
@@ -198,22 +290,35 @@ export const idlFactory = () => {
 		withdrawal_id: IDL.Nat64,
 		icp_amount: IDL.Opt(IDL.Nat64)
 	});
-	const Result_2 = IDL.Variant({
+	const Result_4 = IDL.Variant({
 		Ok: WithdrawalSuccess,
 		Err: ConversionError
 	});
 	return IDL.Service({
-		claim_airdrop: IDL.Func([], [Result], []),
+		cancel_withdrawal: IDL.Func([NeuronId], [Result], []),
+		claim_airdrop: IDL.Func([], [Result_1], []),
 		get_airdrop_allocation: IDL.Func([IDL.Opt(IDL.Principal)], [IDL.Nat64], ['query']),
 		get_events: IDL.Func([GetEventsArg], [GetEventsResult], ['query']),
 		get_info: IDL.Func([], [CanisterInfo], ['query']),
 		get_transfer_statuses: IDL.Func([IDL.Vec(IDL.Nat64)], [IDL.Vec(TransferStatus)], ['query']),
 		get_withdrawal_requests: IDL.Func([IDL.Opt(Account)], [IDL.Vec(WithdrawalDetails)], ['query']),
-		get_wtn_proposal_id: IDL.Func([IDL.Nat64], [IDL.Opt(IDL.Nat64)], ['query']),
-		icp_to_nicp: IDL.Func([ConversionArg], [Result_1], []),
-		nicp_to_icp: IDL.Func([ConversionArg], [Result_2], [])
+		get_wtn_proposal_id: IDL.Func([IDL.Nat64], [Result_2], ['query']),
+		icp_to_nicp: IDL.Func([ConversionArg], [Result_3], []),
+		nicp_to_icp: IDL.Func([ConversionArg], [Result_4], [])
 	});
 };
 export const init = () => {
-	return [];
+	const UpgradeArg = IDL.Record({
+		governance_fee_share_percent: IDL.Opt(IDL.Nat64)
+	});
+	const InitArg = IDL.Record({
+		wtn_ledger_id: IDL.Principal,
+		wtn_governance_id: IDL.Principal,
+		nicp_ledger_id: IDL.Principal
+	});
+	const LiquidArg = IDL.Variant({
+		Upgrade: IDL.Opt(UpgradeArg),
+		Init: InitArg
+	});
+	return [LiquidArg];
 };
