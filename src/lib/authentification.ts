@@ -1,6 +1,5 @@
 import { AuthClient } from '@dfinity/auth-client';
-import { Principal } from '@dfinity/principal';
-import { HttpAgent, Actor, type Identity, Cbor } from '@dfinity/agent';
+import { HttpAgent, type Identity } from '@dfinity/agent';
 import { idlFactory as idlFactoryIcrc } from '../declarations/icrc_ledger';
 import type { _SERVICE as icrcLedgerInterface } from '../declarations/icrc_ledger/icrc_ledger.did';
 import { idlFactory as idlFactoryIcp } from '../declarations/icp_ledger';
@@ -28,7 +27,7 @@ export const HOST = DEV ? 'http://127.0.1:8080' : 'https://ic0.app';
 const DAPP_DERIVATION_ORIGIN = 'https://n3i53-gyaaa-aaaam-acfaq-cai.icp0.io';
 const IDENTITY_PROVIDER = 'https://identity.ic0.app';
 
-export const OISY_RPC = 'https://oisy.com/sign' as const;
+// export const OISY_RPC = 'https://oisy.com/sign' as const;
 export const NFID_RPC = 'https://nfid.one/rpc' as const;
 
 const CANISTER_ID_II = DEV ? 'iidmm-fiaaa-aaaaq-aadmq-cai' : 'rdmx6-jaaaa-aaaaa-aaadq-cai';
@@ -121,7 +120,7 @@ export async function connectWithPlug() {
 	}
 }
 
-export async function connectWithTransport(rpc: typeof OISY_RPC | typeof NFID_RPC) {
+export async function connectWithTransport(rpc: typeof NFID_RPC) {
 	try {
 		const transport = new PostMessageTransport({
 			url: rpc
