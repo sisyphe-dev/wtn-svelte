@@ -72,9 +72,7 @@
 </script>
 
 {#if $isLogging}
-	<div class="background-filter">
-		<Connect />
-	</div>
+	<Connect />
 {:else if $inSendingMenu}
 	<Send />
 {:else if $inReceivingMenu}
@@ -154,21 +152,21 @@
 		--stake-text-color: white;
 
 		--main-color: #4c66dc;
-		--qr-code-background: #4c66dc;
+		--qr-code-background: none;
 
 		--main-button-text-color: #fcfffd;
 		--title-color: white;
 
 		--border-color: rgb(158 163 178);
-		--background-color: #0d1432;
-		--input-color: #0d1432;
+		--background-color: rgb(43, 51, 67);
+		--input-color: rgb(39, 46, 60);
 		--text-color: rgb(181 181 181);
 
 		--unstake-selection-color: #a9bbff54;
 
 		--faq-color: white;
 
-		--page-background: #0d1432;
+		--page-background: radial-gradient(farthest-corner circle at 0% 100%, #090a0d, #272f3d);
 		--sns-selected-button-color: #404f9987;
 	}
 
@@ -233,17 +231,6 @@
 		padding-top: 2em;
 		margin-bottom: 4em;
 		color: white;
-	}
-
-	/* === Components === */
-	.background-filter {
-		position: fixed;
-		width: 100vw;
-		height: 100vh;
-		z-index: 1;
-		display: flex;
-		align-items: center;
-		justify-content: center;
 	}
 
 	/* === Utilities ===*/
