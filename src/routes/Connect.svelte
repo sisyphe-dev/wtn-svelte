@@ -85,10 +85,10 @@
 			<span>|</span>
 			<img src="/icon/nfid.webp" width="auto" height="30em" alt="NFID Logo." />
 		</button>
-		<button class="login-btn" on:click={() => handleConnection('oisy')}>
+		<!-- <button class="login-btn" on:click={() => handleConnection('oisy')}>
 			<img src="/icon/oisy.webp" width="auto" height="40em" alt="Oisy Logo." />
 			<h2>Oisy</h2>
-		</button>
+		</button> -->
 		{#if !isMobile}
 			<button class="login-btn" on:click={() => handleConnection('plug')}>
 				<img src="/icon/plug.png" width="50em" height="50em" alt="Plug Icon." />
@@ -157,7 +157,7 @@
 	}
 
 	dialog {
-		width: 40%;
+		max-width: 450px;
 		height: fit-content;
 		display: flex;
 		flex-wrap: wrap;
