@@ -126,8 +126,7 @@
 									: renderStatus(details.status)}
 							</td>
 							<td>
-
-							{#if renderStatus(details.status) === 'Waiting Dissolvement' || renderStatus(details.status) === 'Waiting to Start Dissolving'}
+								{#if renderStatus(details.status) === 'Waiting Dissolvement' || renderStatus(details.status) === 'Waiting to Start Dissolving'}
 									<button
 										id="cancel-btn-mobile"
 										title="test-withdrawal-{index}"
@@ -137,9 +136,8 @@
 									>
 										<RevertIcon />
 									</button>
-							{/if}
-						</td>
-
+								{/if}
+							</td>
 						</tr>
 					{:else}
 						<tr>
@@ -160,8 +158,7 @@
 							</td>
 							<td>{details.request.withdrawal_id}</td>
 							<td>
-
-							{#if renderStatus(details.status) === 'Waiting Dissolvement' || renderStatus(details.status) === 'Waiting to Start Dissolving'}
+								{#if renderStatus(details.status) === 'Waiting Dissolvement' || renderStatus(details.status) === 'Waiting to Start Dissolving'}
 									<button
 										id="cancel-btn"
 										title="test-withdrawal-{index}"
@@ -171,9 +168,8 @@
 									>
 										Cancel
 									</button>
-							{/if}
-						</td>
-
+								{/if}
+							</td>
 						</tr>
 					{/if}
 				{/each}

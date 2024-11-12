@@ -1,4 +1,10 @@
-<svg fill="var(--main-color)" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg" height=24 width=24
+<svg
+	fill="var(--main-color)"
+	viewBox="0 0 32 32"
+	version="1.1"
+	xmlns="http://www.w3.org/2000/svg"
+	height="24"
+	width="24"
 	><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g
 		id="SVGRepo_tracerCarrier"
 		stroke-linecap="round"
