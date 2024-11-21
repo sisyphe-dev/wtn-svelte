@@ -121,7 +121,7 @@
 			}
 			if (status.success) {
 				toasts.add(ToastMessage.success(status.message));
-				inSendingMenu.set(false);
+				dialog.close();
 			} else {
 				toasts.add(ToastMessage.error(status.message));
 			}

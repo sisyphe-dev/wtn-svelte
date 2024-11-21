@@ -5,7 +5,7 @@
 	import { onMount } from 'svelte';
 	import QrCreator from 'qr-creator';
 
-	let receivingDialog: HTMLDialogElement;
+	let dialog: HTMLDialogElement;
 
 	let isAnimating = false;
 	let circleVisible = false;
@@ -24,8 +24,8 @@
 	}
 
 	onMount(() => {
-		receivingDialog = document.getElementById('receiverDialog') as HTMLDialogElement;
-		receivingDialog.showModal();
+		dialog = document.getElementById('receiverDialog') as HTMLDialogElement;
+		dialog.showModal();
 
 		QrCreator.render(
 			{
@@ -91,7 +91,7 @@
 			<button
 				class="finish-btn"
 				on:click={() => {
-					receivingDialog.close();
+					dialog.close();
 				}}
 			>
 				<span>Finish</span>

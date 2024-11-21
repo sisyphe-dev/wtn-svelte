@@ -14,7 +14,7 @@
 	import { isMobile } from '$lib';
 	import { onMount } from 'svelte';
 
-	let connectDialog: HTMLDialogElement;
+	let dialog: HTMLDialogElement;
 
 	async function handleConnection(identityProvider: 'internetIdentity' | 'plug' | 'oisy' | 'nfid') {
 		if ($isBusy) return;
@@ -38,31 +38,23 @@
 		} catch (e) {
 			console.error(e);
 		}
-
+		dialog.close();
 		isBusy.set(false);
-		isLogging.set(false);
 	}
-
-	const handleKeyDown = (event: KeyboardEvent) => {
-		event.preventDefault();
-		if (event.key === 'Escape') {
-			connectDialog.close();
-			isLogging.set(false);
-		}
-	};
-
 	onMount(() => {
-		connectDialog = document.getElementById('connectDialog') as HTMLDialogElement;
-		connectDialog.showModal();
-		connectDialog.addEventListener('keydown', handleKeyDown);
-
-		return () => {
-			connectDialog.removeEventListener('keydown', handleKeyDown);
-		};
+		dialog = document.getElementById('connectDialog') as HTMLDialogElement;
+		dialog.showModal();
 	});
 </script>
 
-<dialog id="connectDialog" in:fade={{ duration: 500 }} class:mobile-size={isMobile}>
+<dialog
+	id="connectDialog"
+	in:fade={{ duration: 500 }}
+	class:mobile-size={isMobile}
+	on:close={() => {
+		isLogging.set(false);
+	}}
+>
 	{#if $isBusy}
 		<button class="login-btn">
 			<div class="spinner"></div>
@@ -98,7 +90,7 @@
 					isBusy.set(true);
 					await localSignIn();
 					isBusy.set(false);
-					isLogging.set(false);
+					dialog.close();
 				}}
 				title="ii-connect-btn"
 			>
@@ -110,7 +102,7 @@
 	<button
 		id="close-btn"
 		on:click={() => {
-			isLogging.set(false);
+			dialog.close();
 		}}
 	>
 		<h2>Close</h2>
