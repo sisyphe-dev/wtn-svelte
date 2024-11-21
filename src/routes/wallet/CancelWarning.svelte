@@ -1,41 +1,31 @@
 <script lang="ts">
 	import { BigNumber } from 'bignumber.js';
 	import { onMount } from 'svelte';
-	import { inCancelWarningMenu, waterNeuronInfo, canisters, toasts } from '$lib/stores';
+	import {
+		inCancelWarningMenu,
+		waterNeuronInfo,
+		canisters,
+		toasts,
+		selectedWithdrawal
+	} from '$lib/stores';
 	import ChangeIcon from '$lib/icons/ChangeIcon.svelte';
 
 	import { Toast } from '$lib/toast';
 	import {
-		isContainerHigher,
 		displayUsFormat,
-		fetchCreationTimestampSecs,
 		bigintE8sToNumber,
 		displayNeuronId,
-		isMobile
+		isMobile,
+		getWarningError
 	} from '$lib';
-	import type {
-		NeuronId,
-		WithdrawalDetails,
-		WithdrawalStatus
-	} from '$lib/../declarations/water_neuron/water_neuron.did';
 	import { handleCancelWithdrawalResult } from '$lib/resultHandler';
 
-	export let details: WithdrawalDetails;
+	let dialog: HTMLDialogElement;
 
-	let cancelWarningDialog: HTMLDialogElement;
-	let isHigher = false;
 	let exchangeRate: BigNumber;
 	let warningError: string | undefined;
 	let isConfirmBusy = false;
 	let invertExchangeRate = false;
-
-	function handleKeydown(event: KeyboardEvent) {
-		if (event.key === 'Escape') {
-			event.preventDefault();
-			cancelWarningDialog.close();
-			inCancelWarningMenu.set(false);
-		}
-	}
 
 	const nicpAfterCancel = (icpDue: BigNumber) => {
 		const transactionFee = BigNumber(0.0001);
@@ -44,42 +34,18 @@
 		return nicpWithoutFee.minus(nicpWithoutFee.dividedBy(200));
 	};
 
-	const setWarningError = async () => {
-		const key = Object.keys(details.status)[0] as keyof WithdrawalStatus;
-		switch (key) {
-			case 'WaitingDissolvement':
-				const value: { neuron_id: NeuronId } = details.status[key];
-				const createdAt = await fetchCreationTimestampSecs(value.neuron_id);
-				const currentTime = Date.now() / 1000;
-				const twoWeeksSeconds = 14 * 24 * 60 * 60;
-				if (currentTime - createdAt > twoWeeksSeconds) {
-					warningError = 'Withdrawal is too close to disbursing.';
-				} else {
-					warningError = undefined;
-				}
-				break;
-			case 'WaitingToStartDissolving':
-				warningError = undefined;
-				break;
-			case 'NotFound':
-				warningError = 'Withdrawal not found.';
-				break;
-			case 'Cancelled':
-				warningError = 'Withdrawal already cancelled.';
-				break;
-			case 'WaitingToSplitNeuron':
-				warningError = 'Waiting for the withdrawal to split.';
-				break;
-		}
+	const setWarning = async () => {
+		warningError = $selectedWithdrawal ? await getWarningError($selectedWithdrawal) : undefined;
 	};
 
 	const handleCancellation = async () => {
-		if (!$canisters?.waterNeuron.authenticatedActor || !details.request.neuron_id[0]) return;
+		if (!$canisters?.waterNeuron.authenticatedActor || !$selectedWithdrawal?.request.neuron_id[0])
+			return;
 
 		isConfirmBusy = true;
 		try {
 			const result = await $canisters.waterNeuron.authenticatedActor.cancel_withdrawal(
-				details.request.neuron_id[0]
+				$selectedWithdrawal.request.neuron_id[0]
 			);
 			const status = handleCancelWithdrawalResult(result);
 
@@ -93,27 +59,27 @@
 			toasts.add(Toast.error('Call was rejected.'));
 		}
 		isConfirmBusy = false;
-		inCancelWarningMenu.set(false);
-		cancelWarningDialog.close();
 	};
 
 	onMount(() => {
-		cancelWarningDialog = document.getElementById('cancelWarningDialog') as HTMLDialogElement;
-		cancelWarningDialog.showModal();
-		isHigher = isContainerHigher('send');
-		cancelWarningDialog.addEventListener('keydown', handleKeydown);
 		if ($waterNeuronInfo) {
 			exchangeRate = $waterNeuronInfo.exchangeRate();
 		}
-		setWarningError();
+		setWarning();
 
-		return () => {
-			cancelWarningDialog.removeEventListener('keydown', handleKeydown);
-		};
-	});
+		dialog = document.getElementById('cancelWarningDialog') as HTMLDialogElement;
+		dialog.showModal();
+	});	
+
 </script>
 
-<dialog id="cancelWarningDialog" style:align-items={isHigher ? 'flex-start' : 'center'}>
+<dialog
+	id="cancelWarningDialog"
+	on:close={() => {
+		selectedWithdrawal.set(undefined);
+		inCancelWarningMenu.set(false);
+	}}
+>
 	{#if warningError}
 		<div class="warning-container">
 			<h2>Oups...</h2>
@@ -126,14 +92,13 @@
 					title="test-cancel-abort"
 					on:click={() => {
 						inCancelWarningMenu.set(false);
-						cancelWarningDialog.close();
 					}}>Back</button
 				>
 			</div>
 		</div>
-	{:else}
+	{:else if $selectedWithdrawal}
 		<div class="warning-container">
-			<h2>Cancel Withdrawal {details.request.withdrawal_id}</h2>
+			<h2>Cancel Withdrawal {$selectedWithdrawal.request.withdrawal_id}</h2>
 			<p class="main-information">Neuron info:</p>
 			<div class="review-container">
 				<p>
@@ -141,17 +106,20 @@
 						target="_blank"
 						rel="noreferrer"
 						href={'https://dashboard.internetcomputer.org/neuron/' +
-							displayNeuronId(details.request.neuron_id, false)}
-						>{displayNeuronId(details.request.neuron_id, isMobile)}</a
+							displayNeuronId($selectedWithdrawal.request.neuron_id, false)}
+						>{displayNeuronId($selectedWithdrawal.request.neuron_id, isMobile)}</a
 					>
 				</p>
 				<p>
-					Stake: {displayUsFormat(bigintE8sToNumber(details.request.icp_due), 8)} ICP
+					Stake: {displayUsFormat(bigintE8sToNumber($selectedWithdrawal.request.icp_due), 8)} ICP
 				</p>
 			</div>
 			<p class="main-information" style:margin-bottom="1em">
 				You will receive {exchangeRate
-					? displayUsFormat(nicpAfterCancel(bigintE8sToNumber(details.request.icp_due)), 8)
+					? displayUsFormat(
+							nicpAfterCancel(bigintE8sToNumber($selectedWithdrawal.request.icp_due)),
+							8
+						)
 					: '-/-'} nICP
 			</p>
 			<p class="secondary-information" id="exchange-rate">
@@ -172,8 +140,7 @@
 				<button
 					id="abort-btn"
 					on:click={() => {
-						inCancelWarningMenu.set(false);
-						cancelWarningDialog.close();
+						dialog.close();
 					}}>Back</button
 				>
 				{#if isConfirmBusy}

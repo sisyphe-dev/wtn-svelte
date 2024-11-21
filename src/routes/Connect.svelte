@@ -11,11 +11,10 @@
 		OISY_RPC
 	} from '$lib/authentification';
 	import { fade } from 'svelte/transition';
-	import { isMobile, isContainerHigher } from '$lib';
+	import { isMobile } from '$lib';
 	import { onMount } from 'svelte';
 
 	let connectDialog: HTMLDialogElement;
-	let isHigher = false;
 
 	async function handleConnection(identityProvider: 'internetIdentity' | 'plug' | 'oisy' | 'nfid') {
 		if ($isBusy) return;
@@ -44,32 +43,26 @@
 		isLogging.set(false);
 	}
 
-	function handleKeydown(event: KeyboardEvent) {
+	const handleKeyDown = (event: KeyboardEvent) => {
+		event.preventDefault();
 		if (event.key === 'Escape') {
-			event.preventDefault();
 			connectDialog.close();
 			isLogging.set(false);
 		}
-	}
+	};
 
 	onMount(() => {
 		connectDialog = document.getElementById('connectDialog') as HTMLDialogElement;
 		connectDialog.showModal();
-		isHigher = isContainerHigher('send');
-		connectDialog.addEventListener('keydown', handleKeydown);
+		connectDialog.addEventListener('keydown', handleKeyDown);
 
 		return () => {
-			connectDialog.removeEventListener('keydown', handleKeydown);
+			connectDialog.removeEventListener('keydown', handleKeyDown);
 		};
 	});
 </script>
 
-<dialog
-	id="connectDialog"
-	in:fade={{ duration: 500 }}
-	class:mobile-size={isMobile}
-	style:align-items={isHigher ? 'flex-start' : 'center'}
->
+<dialog id="connectDialog" in:fade={{ duration: 500 }} class:mobile-size={isMobile}>
 	{#if $isBusy}
 		<button class="login-btn">
 			<div class="spinner"></div>

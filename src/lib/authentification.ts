@@ -1,6 +1,5 @@
 import { AuthClient } from '@dfinity/auth-client';
-import { Principal } from '@dfinity/principal';
-import { HttpAgent, Actor, type Identity, Cbor } from '@dfinity/agent';
+import { HttpAgent, type Identity } from '@dfinity/agent';
 import { idlFactory as idlFactoryIcrc } from '../declarations/icrc_ledger';
 import type { _SERVICE as icrcLedgerInterface } from '../declarations/icrc_ledger/icrc_ledger.did';
 import { idlFactory as idlFactoryIcp } from '../declarations/icp_ledger';

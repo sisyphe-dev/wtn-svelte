@@ -5,7 +5,6 @@
 		numberToBigintE8s,
 		Asset,
 		E8S,
-		isContainerHigher,
 		getMaybeAccount
 	} from '$lib';
 	import {
@@ -38,7 +37,6 @@
 
 	let principal: string;
 	let isSending = false;
-	let isHigher = false;
 	let sendingDialog: HTMLDialogElement;
 
 	function isValidAmount(amount: BigNumber): boolean {
@@ -169,19 +167,18 @@
 		}
 	}
 
-	function handleKeydown(event: KeyboardEvent) {
+	const handleKeydown = (event: KeyboardEvent) => {
+		event.preventDefault();
 		if (event.key === 'Escape') {
-			event.preventDefault();
 			sendingDialog.close();
 			inSendingMenu.set(false);
 			inputAmount.reset();
 		}
-	}
+	};
 
 	onMount(() => {
 		sendingDialog = document.getElementById('senderDialog') as HTMLDialogElement;
 		sendingDialog.showModal();
-		isHigher = isContainerHigher('send');
 		sendingDialog.addEventListener('keydown', handleKeydown);
 
 		return () => {
@@ -190,7 +187,7 @@
 	});
 </script>
 
-<dialog id="senderDialog" style:align-items={isHigher ? 'flex-start' : 'center'}>
+<dialog id="senderDialog">
 	<div class="send-container" transition:fade={{ duration: 100 }}>
 		<div class="header-container">
 			<h2>Send {$selectedAsset.intoStr()}</h2>

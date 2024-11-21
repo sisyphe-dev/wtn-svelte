@@ -4,7 +4,7 @@ import type { WithdrawalStatus } from '../declarations/water_neuron/water_neuron
 import { AccountIdentifier } from '@dfinity/ledger-icp';
 import { decodeIcrcAccount } from '@dfinity/ledger-icrc';
 import type { Account } from '../declarations/icp_ledger/icp_ledger.did';
-import type { NeuronId } from '$lib/../declarations/water_neuron/water_neuron.did';
+import type { NeuronId, WithdrawalDetails } from '$lib/../declarations/water_neuron/water_neuron.did';
 
 export const E8S = BigNumber(10).pow(BigNumber(8));
 
@@ -204,7 +204,7 @@ export function displayTimeLeft(created_at: number, isMobile = false) {
 	return `Less than an hour left`;
 }
 
-export async function fetchCreationTimestampSecs(neuron_id: NeuronId): Promise<number> {
+export async function fetchWithdrawalCreationTimestampSecs(neuron_id: NeuronId): Promise<number> {
 	// October 28th, 2024. 3:12 PM
 	const defaultTimestamp = 1730124683;
 	if (process.env.DFX_NETWORK !== 'ic') return defaultTimestamp;
@@ -219,29 +219,11 @@ export async function fetchCreationTimestampSecs(neuron_id: NeuronId): Promise<n
 		const neuron_created_at = data['created_timestamp_seconds'];
 		return Number(neuron_created_at);
 	} catch (error) {
-		throw new Error('[fetchCreationTimestampSecs] Failed to fetch with error: ' + error);
+		throw new Error('[fetchWithdrawalCreationTimestampSecs] Failed to fetch with error: ' + error);
 	}
 }
 
 export const isMobile = typeof window !== 'undefined' && window.innerWidth <= 767;
-
-export function isContainerHigher(type: 'receive' | 'send'): boolean {
-	let name: string;
-	switch (type) {
-		case 'receive':
-			name = '.receive-container';
-			break;
-		case 'send':
-			name = '.send-container';
-			break;
-	}
-	const container: HTMLDivElement | null = document.querySelector(name);
-	if (container === null) return false;
-	const containerHeight = container.offsetHeight;
-	const viewportHeight = window.innerHeight;
-
-	return containerHeight >= viewportHeight;
-}
 
 export function isPrincipalValid(input: string): boolean {
 	try {
@@ -305,5 +287,29 @@ export function computeReceiveAmount(
 		}
 	} else {
 		return BigNumber(0);
+	}
+}
+
+export async function getWarningError(withdrawal: WithdrawalDetails): Promise<string | undefined> {
+	const key = Object.keys(withdrawal.status)[0] as keyof WithdrawalStatus;
+	switch (key) {
+		case 'WaitingDissolvement':
+			const value: { neuron_id: NeuronId } = withdrawal.status[key];
+			const createdAt = await fetchWithdrawalCreationTimestampSecs(value.neuron_id);
+			const currentTime = Date.now() / 1000;
+			const twoWeeksSeconds = 14 * 24 * 60 * 60;
+			if (currentTime - createdAt > twoWeeksSeconds) {
+				return 'Withdrawal is too close to disbursing.';
+			} else {
+				return undefined;
+			}
+		case 'WaitingToStartDissolving':
+			return undefined;
+		case 'NotFound':
+			return 'Withdrawal not found.';
+		case 'Cancelled':
+			return 'Withdrawal already cancelled.';
+		case 'WaitingToSplitNeuron':
+			return 'Waiting for the withdrawal to split.';
 	}
 }

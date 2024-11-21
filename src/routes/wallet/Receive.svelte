@@ -2,11 +2,9 @@
 	import { selectedAsset, inReceivingMenu, user } from '$lib/stores';
 	import CopyIcon from '$lib/icons/CopyIcon.svelte';
 	import { fade, scale } from 'svelte/transition';
-	import { isContainerHigher } from '$lib';
 	import { onMount } from 'svelte';
 	import QrCreator from 'qr-creator';
 
-	let isHigher = false;
 	let receivingDialog: HTMLDialogElement;
 
 	let isAnimating = false;
@@ -25,18 +23,17 @@
 		}
 	}
 
-	function handleKeydown(event: KeyboardEvent) {
+	const handleKeydown = (event: KeyboardEvent) => {
+		event.preventDefault();
 		if (event.key === 'Escape') {
-			event.preventDefault();
 			receivingDialog.close();
 			inReceivingMenu.set(false);
 		}
-	}
+	};
 
 	onMount(() => {
 		receivingDialog = document.getElementById('receiverDialog') as HTMLDialogElement;
 		receivingDialog.showModal();
-		isHigher = isContainerHigher('receive');
 		receivingDialog.addEventListener('keydown', handleKeydown);
 
 		QrCreator.render(
@@ -57,7 +54,7 @@
 	});
 </script>
 
-<dialog id="receiverDialog" style:align-items={isHigher ? 'flex-start' : 'center'}>
+<dialog id="receiverDialog">
 	<div class="receive-container" transition:fade={{ duration: 100 }}>
 		<div class="header-container">
 			<h3>Receive {$selectedAsset.intoStr()}</h3>

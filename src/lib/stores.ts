@@ -6,6 +6,7 @@ import BigNumber from 'bignumber.js';
 import { get } from 'svelte/store';
 import { Principal } from '@dfinity/principal';
 import { encodeIcrcAccount } from '@dfinity/ledger-icrc';
+import type { WithdrawalDetails } from '../declarations/water_neuron/water_neuron.did';
 
 /* === Flags === */
 export const isLogging = writable<boolean>(false);
@@ -20,6 +21,7 @@ export const inSnsMenu = writable<boolean>(false);
 /* === Components === */
 export const language = writable<'en' | 'es' | 'ja' | 'ru'>('en');
 export const selectedAsset = writable<Asset>(new Asset(AssetType.ICP));
+export const selectedWithdrawal = writable<WithdrawalDetails | undefined>(undefined);
 export const user = writable<User | undefined>(undefined);
 export const canisters = writable<Canisters | undefined>(undefined);
 export const waterNeuronInfo = writable<WaterNeuronInfo | undefined>(undefined);

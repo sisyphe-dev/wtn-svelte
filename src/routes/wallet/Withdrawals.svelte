@@ -1,15 +1,14 @@
 <script lang="ts">
-	import CancelWarning from './CancelWarning.svelte';
 	import {
 		bigintE8sToNumber,
 		displayUsFormat,
 		renderStatus,
 		displayTimeLeft,
-		fetchCreationTimestampSecs,
+		fetchWithdrawalCreationTimestampSecs,
 		isMobile,
 		displayNeuronId
 	} from '$lib';
-	import { user, canisters, inCancelWarningMenu } from '$lib/stores';
+	import { user, canisters, selectedWithdrawal, inCancelWarningMenu } from '$lib/stores';
 	import { onMount } from 'svelte';
 	import type { WithdrawalDetails } from '$lib/../declarations/water_neuron/water_neuron.did';
 	import { fade } from 'svelte/transition';
@@ -20,7 +19,6 @@
 	let timesLeft: {
 		[key: number]: string;
 	} = {};
-	let selectedWithdrawal: WithdrawalDetails;
 
 	const fetchWithdrawals = async () => {
 		if ($user && $canisters) {
@@ -47,11 +45,6 @@
 		}
 	};
 
-	const handleCancelClick = (details: WithdrawalDetails) => {
-		selectedWithdrawal = details;
-		inCancelWarningMenu.set(true);
-	};
-
 	const fetchTimesLeft = async () => {
 		if ($user) {
 			const newTimesLeft: { [key: number]: string } = {};
@@ -59,7 +52,7 @@
 				const neuronId = detail.request.neuron_id;
 				if (neuronId.length !== 0) {
 					try {
-						const createdAt = await fetchCreationTimestampSecs(neuronId[0]);
+						const createdAt = await fetchWithdrawalCreationTimestampSecs(neuronId[0]);
 						newTimesLeft[Number(neuronId[0].id)] = displayTimeLeft(createdAt, isMobile);
 					} catch (e) {
 						console.log(e);
@@ -72,7 +65,6 @@
 
 	onMount(() => {
 		fetchWithdrawals();
-
 		const intervalId = setInterval(async () => {
 			await fetchWithdrawals();
 		}, 5000);
@@ -81,9 +73,6 @@
 	});
 </script>
 
-{#if $inCancelWarningMenu}
-	<CancelWarning details={selectedWithdrawal} />
-{/if}
 {#if Object.keys(activeWithdrawalRequests).length + Object.keys(cancelledWithdrawalRequests).length >= 1}
 	<div class="withdrawals-container" in:fade={{ duration: 500 }}>
 		<h1>Withdrawal Requests</h1>
@@ -131,7 +120,8 @@
 										id="cancel-btn-mobile"
 										title="test-withdrawal-{index}"
 										on:click={() => {
-											handleCancelClick(details);
+											selectedWithdrawal.set(details);
+											inCancelWarningMenu.set(true);
 										}}
 									>
 										<RevertIcon />
@@ -163,7 +153,8 @@
 										id="cancel-btn"
 										title="test-withdrawal-{index}"
 										on:click={() => {
-											handleCancelClick(details);
+											selectedWithdrawal.set(details);
+											inCancelWarningMenu.set(true);
 										}}
 									>
 										Cancel
@@ -213,7 +204,7 @@
 	td {
 		border-top: 2px solid;
 		text-align: center;
-		padding: 1em 0;
+		padding: 1em 0.5em;
 	}
 
 	a {
