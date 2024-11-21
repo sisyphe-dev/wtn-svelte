@@ -1,12 +1,5 @@
 <script lang="ts">
-	import {
-		AssetType,
-		displayUsFormat,
-		numberToBigintE8s,
-		Asset,
-		E8S,
-		getMaybeAccount
-	} from '$lib';
+	import { AssetType, displayUsFormat, numberToBigintE8s, Asset, E8S, getMaybeAccount } from '$lib';
 	import {
 		inSendingMenu,
 		selectedAsset,
@@ -37,7 +30,7 @@
 
 	let principal: string;
 	let isSending = false;
-	let sendingDialog: HTMLDialogElement;
+	let dialog: HTMLDialogElement;
 
 	function isValidAmount(amount: BigNumber): boolean {
 		if (amount && $user) {
@@ -167,27 +160,19 @@
 		}
 	}
 
-	const handleKeydown = (event: KeyboardEvent) => {
-		event.preventDefault();
-		if (event.key === 'Escape') {
-			sendingDialog.close();
-			inSendingMenu.set(false);
-			inputAmount.reset();
-		}
-	};
-
 	onMount(() => {
-		sendingDialog = document.getElementById('senderDialog') as HTMLDialogElement;
-		sendingDialog.showModal();
-		sendingDialog.addEventListener('keydown', handleKeydown);
-
-		return () => {
-			sendingDialog.removeEventListener('keydown', handleKeydown);
-		};
+		dialog = document.getElementById('senderDialog') as HTMLDialogElement;
+		dialog.showModal();
 	});
 </script>
 
-<dialog id="senderDialog">
+<dialog
+	id="senderDialog"
+	on:close={() => {
+		inSendingMenu.set(false);
+		inputAmount.reset();
+	}}
+>
 	<div class="send-container" transition:fade={{ duration: 100 }}>
 		<div class="header-container">
 			<h2>Send {$selectedAsset.intoStr()}</h2>
@@ -268,9 +253,7 @@
 					id="abort-btn"
 					class="toggle-btn"
 					on:click={() => {
-						sendingDialog.close();
-						inSendingMenu.set(false);
-						inputAmount.reset();
+						dialog.close();
 					}}>Back</button
 				>
 				<button

@@ -23,18 +23,9 @@
 		}
 	}
 
-	const handleKeydown = (event: KeyboardEvent) => {
-		event.preventDefault();
-		if (event.key === 'Escape') {
-			receivingDialog.close();
-			inReceivingMenu.set(false);
-		}
-	};
-
 	onMount(() => {
 		receivingDialog = document.getElementById('receiverDialog') as HTMLDialogElement;
 		receivingDialog.showModal();
-		receivingDialog.addEventListener('keydown', handleKeydown);
 
 		QrCreator.render(
 			{
@@ -47,14 +38,15 @@
 			},
 			document.querySelector('#qr-code') as HTMLElement
 		);
-
-		return () => {
-			receivingDialog.removeEventListener('keydown', handleKeydown);
-		};
 	});
 </script>
 
-<dialog id="receiverDialog">
+<dialog
+	id="receiverDialog"
+	on:close={() => {
+		inReceivingMenu.set(false);
+	}}
+>
 	<div class="receive-container" transition:fade={{ duration: 100 }}>
 		<div class="header-container">
 			<h3>Receive {$selectedAsset.intoStr()}</h3>
@@ -100,7 +92,6 @@
 				class="finish-btn"
 				on:click={() => {
 					receivingDialog.close();
-					inReceivingMenu.set(false);
 				}}
 			>
 				<span>Finish</span>

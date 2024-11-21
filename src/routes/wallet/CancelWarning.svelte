@@ -71,8 +71,7 @@
 
 		dialog = document.getElementById('cancelWarningDialog') as HTMLDialogElement;
 		dialog.showModal();
-	});	
-
+	});
 </script>
 
 <dialog

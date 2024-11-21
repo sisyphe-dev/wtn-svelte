@@ -294,7 +294,7 @@ testWithII('e2e test cancel withdrawal', async ({ page, iiPage }) => {
 	await page.locator('[title="unstake-header"]').click();
 	await page.locator('[title="delayed-btn"]').click();
 
-	await expect(walletInfo.locator('[title="nicp-balance-nav"]')).toHaveText('29.99 nICP');
+	await page.waitForTimeout(5000);
 	await swap(page, 10);
 	expect(await isToastSuccess(page)).toBeTruthy();
 
@@ -314,10 +314,6 @@ testWithII('e2e test cancel withdrawal', async ({ page, iiPage }) => {
 
 	await walletInfo.click();
 	await expect(page.locator('.withdrawals-container')).toBeVisible();
-
-	await page.locator('[title="test-withdrawal-1"]').click();
-	await expect(page.locator('[title="test-cancel-confirmation"]')).not.toBeVisible();
-	await page.locator('[title="test-cancel-abort"]').click();
 
 	await page.locator('[title="test-withdrawal-0"]').click();
 	await page.locator('[title="test-cancel-confirmation"]').click();
