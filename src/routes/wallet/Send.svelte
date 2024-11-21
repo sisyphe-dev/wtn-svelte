@@ -300,6 +300,7 @@
 		display: flex;
 		background: transparent;
 		justify-content: center;
+		align-items: center;
 		height: fit-content;
 		min-height: 100%;
 		min-width: 100dvw;

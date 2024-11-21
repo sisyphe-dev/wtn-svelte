@@ -59,6 +59,8 @@
 			toasts.add(Toast.error('Call was rejected.'));
 		}
 		isConfirmBusy = false;
+		dialog.close();
+		inCancelWarningMenu.set(false);
 	};
 
 	onMount(() => {
@@ -167,6 +169,7 @@
 		display: flex;
 		background: transparent;
 		justify-content: center;
+		align-items: center;
 		height: fit-content;
 		min-height: 100%;
 		min-width: 100dvw;

@@ -204,10 +204,11 @@ export function displayTimeLeft(created_at: number, isMobile = false) {
 	return `Less than an hour left`;
 }
 
-export async function fetchWithdrawalCreationTimestampSecs(neuron_id: NeuronId): Promise<number> {
+// Timestamp in seconds.
+export async function fetchNeuronCreationTimestamp(neuron_id: NeuronId): Promise<number> {
 	// October 28th, 2024. 3:12 PM
-	const defaultTimestamp = 1730124683;
-	if (process.env.DFX_NETWORK !== 'ic') return defaultTimestamp;
+	const localTestingTimestamp = 1730124683;
+	if (process.env.DFX_NETWORK !== 'ic') return localTestingTimestamp;
 	try {
 		const response = await fetch(
 			`https://ic-api.internetcomputer.org/api/v3/neurons/${neuron_id.id}`
@@ -219,7 +220,7 @@ export async function fetchWithdrawalCreationTimestampSecs(neuron_id: NeuronId):
 		const neuron_created_at = data['created_timestamp_seconds'];
 		return Number(neuron_created_at);
 	} catch (error) {
-		throw new Error('[fetchWithdrawalCreationTimestampSecs] Failed to fetch with error: ' + error);
+		throw new Error('[fetchNeuronCreationTimestamp] Failed to fetch with error: ' + error);
 	}
 }
 
@@ -295,10 +296,10 @@ export async function getWarningError(withdrawal: WithdrawalDetails): Promise<st
 	switch (key) {
 		case 'WaitingDissolvement':
 			const value: { neuron_id: NeuronId } = withdrawal.status[key];
-			const createdAt = await fetchWithdrawalCreationTimestampSecs(value.neuron_id);
+			const createdAt = await fetchNeuronCreationTimestamp(value.neuron_id);
 			const currentTime = Date.now() / 1000;
 			const twoWeeksSeconds = 14 * 24 * 60 * 60;
-			if (currentTime - createdAt > twoWeeksSeconds) {
+			if (currentTime - createdAt <= twoWeeksSeconds) {
 				return 'Withdrawal is too close to disbursing.';
 			} else {
 				return undefined;

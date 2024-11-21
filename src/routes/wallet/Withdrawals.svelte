@@ -4,7 +4,7 @@
 		displayUsFormat,
 		renderStatus,
 		displayTimeLeft,
-		fetchWithdrawalCreationTimestampSecs,
+		fetchNeuronCreationTimestamp,
 		isMobile,
 		displayNeuronId
 	} from '$lib';
@@ -52,7 +52,7 @@
 				const neuronId = detail.request.neuron_id;
 				if (neuronId.length !== 0) {
 					try {
-						const createdAt = await fetchWithdrawalCreationTimestampSecs(neuronId[0]);
+						const createdAt = await fetchNeuronCreationTimestamp(neuronId[0]);
 						newTimesLeft[Number(neuronId[0].id)] = displayTimeLeft(createdAt, isMobile);
 					} catch (e) {
 						console.log(e);
