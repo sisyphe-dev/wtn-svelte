@@ -1,5 +1,4 @@
 import { IDL } from '@dfinity/candid';
-
 export const idlFactory = () => {
 	const UpgradeArg = IDL.Record({
 		governance_fee_share_percent: IDL.Opt(IDL.Nat64)

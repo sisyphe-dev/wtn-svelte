@@ -11,11 +11,10 @@
 		OISY_RPC
 	} from '$lib/authentification';
 	import { fade } from 'svelte/transition';
-	import { isMobile, isContainerHigher } from '$lib';
+	import { isMobile } from '$lib';
 	import { onMount } from 'svelte';
 
-	let connectDialog: HTMLDialogElement;
-	let isHigher = false;
+	let dialog: HTMLDialogElement;
 
 	async function handleConnection(identityProvider: 'internetIdentity' | 'plug' | 'oisy' | 'nfid') {
 		if ($isBusy) return;
@@ -39,28 +38,12 @@
 		} catch (e) {
 			console.error(e);
 		}
-
+		dialog.close();
 		isBusy.set(false);
-		isLogging.set(false);
 	}
-
-	function handleKeydown(event: KeyboardEvent) {
-		if (event.key === 'Escape') {
-			event.preventDefault();
-			connectDialog.close();
-			isLogging.set(false);
-		}
-	}
-
 	onMount(() => {
-		connectDialog = document.getElementById('connectDialog') as HTMLDialogElement;
-		connectDialog.showModal();
-		isHigher = isContainerHigher('send');
-		connectDialog.addEventListener('keydown', handleKeydown);
-
-		return () => {
-			connectDialog.removeEventListener('keydown', handleKeydown);
-		};
+		dialog = document.getElementById('connectDialog') as HTMLDialogElement;
+		dialog.showModal();
 	});
 </script>
 
@@ -68,7 +51,9 @@
 	id="connectDialog"
 	in:fade={{ duration: 500 }}
 	class:mobile-size={isMobile}
-	style:align-items={isHigher ? 'flex-start' : 'center'}
+	on:close={() => {
+		isLogging.set(false);
+	}}
 >
 	{#if $isBusy}
 		<button class="login-btn">
@@ -105,7 +90,7 @@
 					isBusy.set(true);
 					await localSignIn();
 					isBusy.set(false);
-					isLogging.set(false);
+					dialog.close();
 				}}
 				title="ii-connect-btn"
 			>
@@ -117,7 +102,7 @@
 	<button
 		id="close-btn"
 		on:click={() => {
-			isLogging.set(false);
+			dialog.close();
 		}}
 	>
 		<h2>Close</h2>

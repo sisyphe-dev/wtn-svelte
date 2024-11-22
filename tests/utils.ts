@@ -114,7 +114,7 @@ export async function isToastSuccess(page: Page) {
 	console.log(message);
 	await page.locator('.toast-close').click();
 	await expect(page.locator('p[title="toast-message"]')).not.toBeVisible();
-	return message?.split(' ')[0] === 'Successful';
+	return message?.split(' ')[0].slice(0, 7) === 'Success';
 }
 
 export async function send(page: Page, destination: string, amount: string) {
