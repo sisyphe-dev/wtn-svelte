@@ -104,6 +104,13 @@ export async function connectWithPlug() {
 		const transport = new PlugTransport();
 		const newSigner = new Signer({ transport });
 
+		await newSigner.requestPermissions([
+			{
+				method: 'icrc27_accounts'
+			},
+			{ method: 'icrc49_call_canister' }
+		]);
+
 		console.log('The wallet set the following permission scope:', await newSigner.permissions());
 
 		const userPrincipal = (await newSigner.accounts())[0].owner;
