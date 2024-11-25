@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { isLogging, isBusy, availableAccounts } from '$lib/stores';
+	import { isLogging, isBusy, availableAccounts, signer, toasts } from '$lib/stores';
 	import {
 		DEV,
 		STAGING,
@@ -8,17 +8,20 @@
 		connectWithPlug,
 		localSignIn,
 		NFID_RPC,
-		OISY_RPC
+		OISY_RPC,
+
+		finalizePlugConnection
+
 	} from '$lib/authentification';
 	import { fade } from 'svelte/transition';
 	import { isMobile, displayPrincipal } from '$lib';
 	import { onMount } from 'svelte';
-	import { Principal } from '@dfinity/principal';
-	import { SignerAgent } from '@slide-computer/signer-agent';
 	import CloseIcon from '$lib/icons/CloseIcon.svelte';
+	import { Signer } from '@slide-computer/signer';
+	import { Principal } from '@dfinity/principal';
+	import { Toast } from '$lib/toast';
 
 	let dialog: HTMLDialogElement;
-	let isSelectingAccount = false;
 
 	async function handleConnection(identityProvider: 'internetIdentity' | 'plug' | 'oisy' | 'nfid') {
 		if ($isBusy) return;
@@ -41,25 +44,26 @@
 			}
 		} catch (e) {
 			console.error(e);
+			dialog.close();
 		}
-
 		isBusy.set(false);
-		if (identityProvider === 'plug') {
-			isSelectingAccount = true;
-		} else {
+
+		if ($availableAccounts.length === 0) {
 			dialog.close();
 		}
 	}
 
-	// async function finalizeConnection(userPrincipal: Principal) {
-	// 	const signerAgent = SignerAgent.createSync({
-	// 		signer: newSigner,
-	// 		account: userPrincipal
-	// 	});
+	async function finalizeConnection(newSigner: Signer | undefined, userPrincipal: Principal) {
+		if (!newSigner) {
+			toasts.add(Toast.error("Connection with wallet failed."));
+		} else {
+			await finalizePlugConnection(newSigner, userPrincipal);
+		}
 
-	// 	canisters.set(await fetchActors(signerAgent, true));
-	// 	user.set(new User(userPrincipal));
-	// }
+		dialog.close();
+		availableAccounts.set([]);
+	}
+	
 	onMount(() => {
 		dialog = document.getElementById('connectDialog') as HTMLDialogElement;
 		dialog.showModal();
@@ -74,101 +78,103 @@
 		isLogging.set(false);
 	}}
 >
-	<div class="wallets-container">
-		<div class="header-container">
-		<h2>Connect Wallet</h2>
-		<button class="close-btn">
-			<CloseIcon />
-		</button>
-		</div>
-		<div class="selection-container">
-			<button class="login-btn" on:click={() => handleConnection('internetIdentity')}>
-				<img src="/icon/astronaut.webp" width="50em" height="50em" alt="Dfinity Astronaut." />
-				<h2>Internet Identity</h2>
-			</button>
-			<button class="login-btn" on:click={() => handleConnection('nfid')}>
-				<img src="/icon/google.svg" width="auto" height="40em" alt="Google Logo." />
-				<h2>Google</h2>
-				<span>|</span>
-				<img src="/icon/nfid.webp" width="auto" height="30em" alt="NFID Logo." />
-			</button>
-			{#if !isMobile}
-			<button class="login-btn" on:click={() => handleConnection('plug')}>
-				<img src="/icon/plug.png" width="50em" height="50em" alt="Plug Icon." />
-				<h2>Plug Wallet</h2>
-			</button>
-			{/if}
-		</div>
-	</div>
-	<!-- {#if $isBusy}
-		<button class="login-btn">
-			<div class="spinner"></div>
-		</button>
-	{:else if isSelectingAccount}
-		{#each $availableAccounts as account}
-			<button class="login-btn">
-				<h2>
-					{displayPrincipal(account.owner)}
-				</h2></button
-			>
-		{/each}
-	{:else}
-		<button class="login-btn" on:click={() => handleConnection('internetIdentity')}>
-			<img src="/icon/astronaut.webp" width="50em" height="50em" alt="Dfinity Astronaut." />
-			<h2>Internet Identity</h2>
-		</button>
-		<button class="login-btn" on:click={() => handleConnection('nfid')}>
-			<img src="/icon/google.svg" width="auto" height="40em" alt="Google Logo." />
-			<h2>Google</h2>
-			<span>|</span>
-			<img src="/icon/nfid.webp" width="auto" height="30em" alt="NFID Logo." />
-		</button>
-		<button class="login-btn" on:click={() => handleConnection('oisy')}>
-			<img src="/icon/oisy.webp" width="auto" height="40em" alt="Oisy Logo." />
-			<h2>Oisy</h2>
-		</button>	
-		{#if !isMobile}
-			<button class="login-btn" on:click={() => handleConnection('plug')}>
-				<img src="/icon/plug.png" width="50em" height="50em" alt="Plug Icon." />
-				<h2>Plug Wallet</h2>
-			</button>
-		{/if}
-		{#if DEV || STAGING}
+	<div class="wallets-container" in:fade={{ duration: 500 }}>
+		{#if $availableAccounts.length > 0}
+		<div class="header-container" >
+			<h1>Select your account</h1>
 			<button
-				class="login-btn"
-				style:background-color="red"
-				on:click={async () => {
-					if ($isBusy) return;
-
-					isBusy.set(true);
-					await localSignIn();
-					isBusy.set(false);
+				on:click={() => {
 					dialog.close();
 				}}
-				title="ii-connect-btn"
+				class="close-btn"
 			>
-				<h2>Local Development</h2>
+				<CloseIcon />
 			</button>
-		{/if}
-	{/if}
+		</div>
+					<div class="selection-container">
+						{#each $availableAccounts as account}
+							<button class="login-btn" on:click={() => 
+									finalizeConnection($signer, account.owner)
+								}>
+								<p>
+									{displayPrincipal(account.owner)}
+								</p>
+							</button>
+						{/each}
+					</div>
+		{:else}
+			<div class="header-container">
+				<h1>Connect Wallet</h1>
+				<button
+					on:click={() => {
+						dialog.close();
+					}}
+					class="close-btn"
+				>
+					<CloseIcon />
+				</button>
+			</div>
+			<div class="selection-container">
+				<button class="login-btn" on:click={() => handleConnection('internetIdentity')}>
+					<img src="/icon/astronaut.webp" width="50em" height="50em" alt="Dfinity Astronaut." />
+					<h2>Internet Identity</h2>
+				</button>
+				<button class="login-btn" on:click={() => handleConnection('nfid')}>
+					<img src="/icon/google.svg" width="auto" height="40em" alt="Google Logo." />
+					<h2>Google</h2>
+					<span>|</span>
+					<img src="/icon/nfid.webp" width="auto" height="30em" alt="NFID Logo." />
+				</button>
+				{#if !isMobile}
+					<button class="login-btn" on:click={() => handleConnection('plug')}>
+						<img src="/icon/plug.png" width="50em" height="50em" alt="Plug Icon." />
+						<h2>Plug Wallet</h2>
+					</button>
+				{/if}
+				{#if DEV || STAGING}
+					<button
+						class="login-btn"
+						style:background-color="red"
+						on:click={async () => {
+							if ($isBusy) return;
 
-	<button
-		id="close-btn"
-		on:click={() => {
-			dialog.close();
-		}}
-	>
-		<h2>Close</h2>
-	</button> -->
+							isBusy.set(true);
+							await localSignIn();
+							isBusy.set(false);
+							dialog.close();
+						}}
+						title="ii-connect-btn"
+					>
+						<h2>Local Development</h2>
+					</button>
+				{/if}
+			</div>
+		{/if}
+	</div>
 </dialog>
 
 <style>
 	/* === Base Styles === */
-	h2 {
+	h1 {
 		font-family: var(--secondary-font);
 		font-weight: 600;
 		font-size: 20px;
 		color: var(--title-color);
+	}
+
+	p {
+		font-family: var(--secondary-font);
+		color: var(--main-button-text-color);
+	}
+
+	h2 {
+		color: var(--main-button-text-color);
+		font-family: var(--secondary-font);
+	}
+
+	span {
+		color: var(--main-button-text-color);
+		font-family: var(--secondary-font);
 	}
 
 	::backdrop {
@@ -191,8 +197,8 @@
 		height: fit-content;
 		max-width: 35em;
 		width: 80vw;
+		gap: 1em;
 		background: var(--background-color);
-		color: var(--stake-text-color);
 		padding: 2em;
 		border-radius: 15px;
 		border: var(--input-border);
@@ -224,7 +230,6 @@
 		cursor: pointer;
 		display: flex;
 		background: var(--main-color);
-		color: var(--title-color);
 	}
 
 	.login-btn:hover {
@@ -239,28 +244,16 @@
 		cursor: pointer;
 	}
 
-	/* === Animation === */
-
-	.spinner {
-		width: 2em;
-		height: 2em;
-		border: 3px solid var(--main-button-text-color);
-		border-top-color: transparent;
-		border-radius: 50%;
-		animation: spin 1s linear infinite;
-	}
-
-	@keyframes spin {
-		from {
-			transform: rotate(0deg);
-		}
-		to {
-			transform: rotate(360deg);
-		}
-	}
-
 	/* === Utilities === */
 	.mobile-size {
 		width: 90%;
+	}
+
+	@media (max-width: 767px) {
+		.selection-container {
+			display: flex;
+			flex-direction: column;
+			gap: 1em;
+		}
 	}
 </style>
