@@ -121,7 +121,7 @@ export async function connectWithPlug() {
 			availableAccounts.set(accounts);
 			signer.set(newSigner);
 		} else {
-			finalizePlugConnection(newSigner, accounts[0].owner);
+			await finalizePlugConnection(newSigner, accounts[0].owner);
 		}
 	} catch (error) {
 		console.error(error);
