@@ -64,6 +64,7 @@
 			}
 		}
 		dialog.close();
+		isBusy.set(false);
 	}
 
 	onMount(() => {
