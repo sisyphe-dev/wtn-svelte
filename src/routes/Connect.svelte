@@ -9,9 +9,7 @@
 		localSignIn,
 		NFID_RPC,
 		OISY_RPC,
-
 		finalizePlugConnection
-
 	} from '$lib/authentification';
 	import { fade } from 'svelte/transition';
 	import { isMobile, displayPrincipal } from '$lib';
@@ -20,6 +18,7 @@
 	import { Signer } from '@slide-computer/signer';
 	import { Principal } from '@dfinity/principal';
 	import { Toast } from '$lib/toast';
+	import Page from './+page.svelte';
 
 	let dialog: HTMLDialogElement;
 
@@ -44,26 +43,30 @@
 			}
 		} catch (e) {
 			console.error(e);
+			isBusy.set(false);
 			dialog.close();
+			return;
 		}
-		isBusy.set(false);
 
 		if ($availableAccounts.length === 0) {
+			isBusy.set(false);
 			dialog.close();
 		}
 	}
 
 	async function finalizeConnection(newSigner: Signer | undefined, userPrincipal: Principal) {
 		if (!newSigner) {
-			toasts.add(Toast.error("Connection with wallet failed."));
+			toasts.add(Toast.error('Connection with wallet failed.'));
 		} else {
-			await finalizePlugConnection(newSigner, userPrincipal);
+			try {
+				await finalizePlugConnection(newSigner, userPrincipal);
+			} catch (error) {
+				console.log(error);
+			}
 		}
-
 		dialog.close();
-		availableAccounts.set([]);
 	}
-	
+
 	onMount(() => {
 		dialog = document.getElementById('connectDialog') as HTMLDialogElement;
 		dialog.showModal();
@@ -76,32 +79,32 @@
 	class:mobile-size={isMobile}
 	on:close={() => {
 		isLogging.set(false);
+		availableAccounts.set([]);
+		signer.set(undefined);
 	}}
 >
 	<div class="wallets-container" in:fade={{ duration: 500 }}>
 		{#if $availableAccounts.length > 0}
-		<div class="header-container" >
-			<h1>Select your account</h1>
-			<button
-				on:click={() => {
-					dialog.close();
-				}}
-				class="close-btn"
-			>
-				<CloseIcon />
-			</button>
-		</div>
-					<div class="selection-container">
-						{#each $availableAccounts as account}
-							<button class="login-btn" on:click={() => 
-									finalizeConnection($signer, account.owner)
-								}>
-								<p>
-									{displayPrincipal(account.owner)}
-								</p>
-							</button>
-						{/each}
-					</div>
+			<div class="header-container">
+				<h1>Select your account</h1>
+				<button
+					on:click={() => {
+						dialog.close();
+					}}
+					class="close-btn"
+				>
+					<CloseIcon />
+				</button>
+			</div>
+			<div class="selection-container">
+				{#each $availableAccounts as account}
+					<button class="login-btn" on:click={() => finalizeConnection($signer, account.owner)}>
+						<p>
+							{displayPrincipal(account.owner)}
+						</p>
+					</button>
+				{/each}
+			</div>
 		{:else}
 			<div class="header-container">
 				<h1>Connect Wallet</h1>
@@ -242,11 +245,6 @@
 		border: none;
 		background: none;
 		cursor: pointer;
-	}
-
-	/* === Utilities === */
-	.mobile-size {
-		width: 90%;
 	}
 
 	@media (max-width: 767px) {

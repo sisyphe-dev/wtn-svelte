@@ -117,13 +117,12 @@ export async function connectWithPlug() {
 
 		const accounts = await newSigner.accounts();
 
-		if (accounts.length > 1){
-			availableAccounts.set(await newSigner.accounts());
+		if (accounts.length > 1) {
+			availableAccounts.set(accounts);
 			signer.set(newSigner);
 		} else {
 			finalizePlugConnection(newSigner, accounts[0].owner);
 		}
-		
 	} catch (error) {
 		console.error(error);
 	}
