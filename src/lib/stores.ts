@@ -20,6 +20,7 @@ export const inSnsMenu = writable<boolean>(false);
 
 /* === Components === */
 export const language = writable<'en' | 'es' | 'ja' | 'ru'>('en');
+export const availableAccounts = writable<{ owner: Principal; subaccount?: ArrayBuffer }[]>();
 export const selectedAsset = writable<Asset>(new Asset(AssetType.ICP));
 export const selectedWithdrawal = writable<WithdrawalDetails | undefined>(undefined);
 export const user = writable<User | undefined>(undefined);
