@@ -1,5 +1,5 @@
 <svg
-	fill="#000000"
+	fill="var(--title-color)"
 	height="20px"
 	width="20px"
 	version="1.1"
