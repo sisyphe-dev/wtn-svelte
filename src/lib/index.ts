@@ -301,8 +301,10 @@ export async function getWarningError(withdrawal: WithdrawalDetails): Promise<st
 			const value: { neuron_id: NeuronId } = withdrawal.status[key];
 			const createdAt = await fetchNeuronCreationTimestamp(value.neuron_id);
 			const currentTime = Date.now() / 1000;
-			const twoWeeksSeconds = 14 * 24 * 60 * 60;
-			if (currentTime - createdAt <= twoWeeksSeconds) {
+			const oneYearSeconds = (4 * 365 + 1) * 24 * 60 * 60 / 4;
+			const twoWeeksSeconds = oneYearSeconds / 24;
+			const sixMonthsSeconds = oneYearSeconds / 2;
+			if (currentTime - createdAt > sixMonthsSeconds - twoWeeksSeconds) {
 				return 'Withdrawal is too close to disbursing.';
 			} else {
 				return undefined;
