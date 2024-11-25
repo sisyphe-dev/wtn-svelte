@@ -216,6 +216,7 @@
 		display: grid;
 		grid-template-columns: repeat(2, 1fr);
 		gap: 1em;
+		padding: 1em;
 	}
 
 	/* === Components === */
