@@ -16,7 +16,6 @@ import { user, canisters, availableAccounts, signer } from './stores';
 import { CanisterActor, Canisters, User } from './state';
 import { SignerAgent } from '@slide-computer/signer-agent';
 import { PlugTransport } from '@slide-computer/signer-transport-plug';
-import { get } from 'svelte/store';
 import { Principal } from '@dfinity/principal';
 
 // 1 hour in nanoseconds

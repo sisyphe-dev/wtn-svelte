@@ -18,7 +18,6 @@
 	import { Signer } from '@slide-computer/signer';
 	import { Principal } from '@dfinity/principal';
 	import { Toast } from '$lib/toast';
-	import Page from './+page.svelte';
 
 	let dialog: HTMLDialogElement;
 
