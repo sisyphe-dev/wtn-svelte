@@ -42,13 +42,11 @@
 			}
 		} catch (e) {
 			console.error(e);
-			isBusy.set(false);
 			dialog.close();
 			return;
 		}
 
 		if ($availableAccounts.length === 0) {
-			isBusy.set(false);
 			dialog.close();
 		}
 	}
@@ -64,7 +62,6 @@
 			}
 		}
 		dialog.close();
-		isBusy.set(false);
 	}
 
 	onMount(() => {
@@ -81,6 +78,7 @@
 		isLogging.set(false);
 		availableAccounts.set([]);
 		signer.set(undefined);
+		isBusy.set(false);
 	}}
 >
 	<div class="wallets-container" in:fade={{ duration: 500 }}>
