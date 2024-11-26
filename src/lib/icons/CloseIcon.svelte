@@ -3,7 +3,7 @@
 </script>
 
 <svg
-	fill="var(--title-color)"
+	fill={color}
 	height="20px"
 	width="20px"
 	version="1.1"
