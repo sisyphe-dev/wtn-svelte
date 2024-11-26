@@ -91,7 +91,7 @@
 					}}
 					class="close-btn"
 				>
-					<CloseIcon />
+					<CloseIcon color="--title-color" />
 				</button>
 			</div>
 			<div class="selection-container">
@@ -112,7 +112,7 @@
 					}}
 					class="close-btn"
 				>
-					<CloseIcon />
+					<CloseIcon color="--title-color" />
 				</button>
 			</div>
 			<div class="selection-container">

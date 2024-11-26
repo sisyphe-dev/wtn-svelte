@@ -1,3 +1,7 @@
+<script lang="ts">
+	export let color: '--main-button-text-color' | '--title-color';
+</script>
+
 <svg
 	fill="var(--title-color)"
 	height="20px"
