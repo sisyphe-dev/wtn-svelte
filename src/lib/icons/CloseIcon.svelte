@@ -1,20 +1,24 @@
-<svg height="20px" width="20px" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-	<rect
-		x="14.4194"
-		y="4.52441"
-		width="1.5"
-		height="14"
-		rx="0.75"
-		transform="rotate(45 14.4194 4.52441)"
-		fill="var(--main-button-text-color)"
-	/>
-	<rect
-		x="4.5199"
-		y="5.58496"
-		width="1.5"
-		height="14"
-		rx="0.75"
-		transform="rotate(-45 4.5199 5.58496)"
-		fill="var(--main-button-text-color)"
-	/>
-</svg>
+<svg
+	fill="var(--title-color)"
+	height="20px"
+	width="20px"
+	version="1.1"
+	id="Layer_1"
+	xmlns="http://www.w3.org/2000/svg"
+	xmlns:xlink="http://www.w3.org/1999/xlink"
+	viewBox="0 0 512 512"
+	xml:space="preserve"
+	><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g
+		id="SVGRepo_tracerCarrier"
+		stroke-linecap="round"
+		stroke-linejoin="round"
+	></g><g id="SVGRepo_iconCarrier">
+		<g>
+			<g>
+				<polygon
+					points="512,59.076 452.922,0 256,196.922 59.076,0 0,59.076 196.922,256 0,452.922 59.076,512 256,315.076 452.922,512 512,452.922 315.076,256 "
+				></polygon>
+			</g>
+		</g>
+	</g></svg
+>

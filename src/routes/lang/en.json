@@ -14,11 +14,11 @@
 		},
 		{
 			"title": "How do I convert ICP to nICP?",
-			"content": "Exchange your ICP for nICP tokens at the current exchange rate. Your ICP will be committed to a six-month neuron where it will begin accruing yield."
+			"content": "Exchange your ICP for nICP tokens at the current exchange rate. Your ICP will be committed to a six-month neuron where it will begin accruing yield. The minimum amount is 1 ICP."
 		},
 		{
 			"title": "How do I convert back nICP to ICP?",
-			"content": "Your nICP will be burned and a six-month neuron in dissolving mode will be created with the corresponding amount of ICP at the current exchange rate. After the six-month period, you will receive your ICP as soon as your neuron is disbursed."
+			"content": "Your nICP will be burned and a six-month neuron in dissolving mode will be created with the corresponding amount of ICP at the current exchange rate. After the six-month period, you will receive your ICP as soon as your neuron is disbursed. The minimum amount is 10 ICP worth of nICP."
 		},
 		{
 			"title": "What is the exchange rate?",
