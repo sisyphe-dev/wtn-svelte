@@ -12,7 +12,7 @@
 		finalizePlugConnection
 	} from '$lib/authentification';
 	import { fade } from 'svelte/transition';
-	import { isMobile, displayPrincipal } from '$lib';
+	import { displayPrincipal } from '$lib';
 	import { onMount } from 'svelte';
 	import CloseIcon from '$lib/icons/CloseIcon.svelte';
 	import { Signer } from '@slide-computer/signer';
@@ -73,7 +73,6 @@
 <dialog
 	id="connectDialog"
 	in:fade={{ duration: 500 }}
-	class:mobile-size={isMobile}
 	on:close={() => {
 		isLogging.set(false);
 		availableAccounts.set([]);
