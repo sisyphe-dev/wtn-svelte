@@ -148,7 +148,7 @@ export async function connectWithTransport(rpc: typeof NFID_RPC | typeof OISY_RP
 		});
 
 		const newSigner = new Signer({ transport });
-		
+
 		console.log('The wallet set the following permission scope:', await newSigner.permissions());
 
 		const userPrincipal = (await newSigner.accounts())[0].owner;
