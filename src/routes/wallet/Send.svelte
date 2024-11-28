@@ -1,13 +1,5 @@
 <script lang="ts">
-	import {
-		AssetType,
-		displayUsFormat,
-		numberToBigintE8s,
-		Asset,
-		E8S,
-		isContainerHigher,
-		getMaybeAccount
-	} from '$lib';
+	import { AssetType, displayUsFormat, numberToBigintE8s, Asset, E8S, getMaybeAccount } from '$lib';
 	import {
 		inSendingMenu,
 		selectedAsset,
@@ -38,8 +30,7 @@
 
 	let principal: string;
 	let isSending = false;
-	let isHigher = false;
-	let sendingDialog: HTMLDialogElement;
+	let dialog: HTMLDialogElement;
 
 	function isValidAmount(amount: BigNumber): boolean {
 		if (amount && $user) {
@@ -130,7 +121,7 @@
 			}
 			if (status.success) {
 				toasts.add(ToastMessage.success(status.message));
-				inSendingMenu.set(false);
+				dialog.close();
 			} else {
 				toasts.add(ToastMessage.error(status.message));
 			}
@@ -169,28 +160,19 @@
 		}
 	}
 
-	function handleKeydown(event: KeyboardEvent) {
-		if (event.key === 'Escape') {
-			event.preventDefault();
-			sendingDialog.close();
-			inSendingMenu.set(false);
-			inputAmount.reset();
-		}
-	}
-
 	onMount(() => {
-		sendingDialog = document.getElementById('senderDialog') as HTMLDialogElement;
-		sendingDialog.showModal();
-		isHigher = isContainerHigher('send');
-		sendingDialog.addEventListener('keydown', handleKeydown);
-
-		return () => {
-			sendingDialog.removeEventListener('keydown', handleKeydown);
-		};
+		dialog = document.getElementById('senderDialog') as HTMLDialogElement;
+		dialog.showModal();
 	});
 </script>
 
-<dialog id="senderDialog" style:align-items={isHigher ? 'flex-start' : 'center'}>
+<dialog
+	id="senderDialog"
+	on:close={() => {
+		inSendingMenu.set(false);
+		inputAmount.reset();
+	}}
+>
 	<div class="send-container" transition:fade={{ duration: 100 }}>
 		<div class="header-container">
 			<h2>Send {$selectedAsset.intoStr()}</h2>
@@ -268,14 +250,14 @@
 				</button>
 			{:else}
 				<button
+					id="abort-btn"
 					class="toggle-btn"
 					on:click={() => {
-						sendingDialog.close();
-						inSendingMenu.set(false);
-						inputAmount.reset();
-					}}>Cancel</button
+						dialog.close();
+					}}>Back</button
 				>
 				<button
+					id="continue-btn"
 					class="toggle-btn"
 					title="continue-btn"
 					on:click={() => {
@@ -301,6 +283,7 @@
 		display: flex;
 		background: transparent;
 		justify-content: center;
+		align-items: center;
 		height: fit-content;
 		min-height: 100%;
 		min-width: 100dvw;
@@ -396,11 +379,11 @@
 		border-radius: 8px;
 		position: relative;
 		border: 2px solid black;
-		font-size: 16px;
+		font-size: 14px;
 		box-shadow: 3px 3px 0 0 black;
 		padding: 0 1em 0 1em;
 		max-width: none;
-		height: 60px;
+		height: 3em;
 		font-weight: bold;
 		display: flex;
 		justify-content: center;
@@ -412,6 +395,16 @@
 		transform: scale(0.95);
 		transition: all 0.3s;
 		box-shadow: 6px 6px 0 0 black;
+	}
+
+	#abort-btn {
+		background: var(--main-button-text-color);
+		color: var(--main-color);
+	}
+
+	#continue-btn {
+		background: var(--main-color);
+		color: var(--main-button-text-color);
 	}
 
 	input::-webkit-outer-spin-button,

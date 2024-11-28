@@ -71,7 +71,7 @@ export async function fetchWtnAllocation(
 	try {
 		return await waterNeuron.get_airdrop_allocation([principal]);
 	} catch (e) {
-		console.log('Error while fetching airdrop allocation:', e);
+		console.log('[fetchWtnAllocation] error:', e);
 	}
 }
 

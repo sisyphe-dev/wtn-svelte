@@ -12,10 +12,11 @@ import type { _SERVICE as icpswapPoolInterface } from '../declarations/icpswap_p
 import { idlFactory as idlFactoryIcpswapPool } from '../declarations/icpswap_pool';
 import { Signer } from '@slide-computer/signer';
 import { PostMessageTransport } from '@slide-computer/signer-web';
-import { user, canisters } from './stores';
+import { user, canisters, availableAccounts, signer } from './stores';
 import { CanisterActor, Canisters, User } from './state';
 import { SignerAgent } from '@slide-computer/signer-agent';
 import { PlugTransport } from '@slide-computer/signer-transport-plug';
+import { Principal } from '@dfinity/principal';
 
 // 1 hour in nanoseconds
 const AUTH_MAX_TIME_TO_LIVE = BigInt(60 * 60 * 1000 * 1000 * 1000);
@@ -104,19 +105,39 @@ export async function connectWithPlug() {
 		const transport = new PlugTransport();
 		const newSigner = new Signer({ transport });
 
+		await newSigner.requestPermissions([
+			{
+				method: 'icrc27_accounts'
+			},
+			{ method: 'icrc49_call_canister' }
+		]);
+
 		console.log('The wallet set the following permission scope:', await newSigner.permissions());
 
-		const userPrincipal = (await newSigner.accounts())[0].owner;
+		const accounts = await newSigner.accounts();
 
+		if (accounts.length > 1) {
+			availableAccounts.set(accounts);
+			signer.set(newSigner);
+		} else {
+			await finalizePlugConnection(newSigner, accounts[0].owner);
+		}
+	} catch (error) {
+		console.error(error);
+	}
+}
+
+export async function finalizePlugConnection(newSigner: Signer, userPrincipal: Principal) {
+	try {
 		const signerAgent = SignerAgent.createSync({
 			signer: newSigner,
 			account: userPrincipal
 		});
 
-		canisters.set(await fetchActors(signerAgent, true));
+		canisters.set(await fetchActors(signerAgent));
 		user.set(new User(userPrincipal));
 	} catch (error) {
-		console.error(error);
+		console.log(error);
 	}
 }
 

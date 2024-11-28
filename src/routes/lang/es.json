@@ -14,11 +14,11 @@
 		},
 		{
 			"title": "¿Cómo convierto ICP a nICP?",
-			"content": "Intercambia tu ICP por tokens nICP a la tasa de cambio actual. Tu ICP se comprometerá a una neurona de seis meses donde comenzará a acumular rendimiento."
+			"content": "Intercambia tu ICP por tokens nICP a la tasa de cambio actual. Tu ICP se comprometerá a una neurona de seis meses donde comenzará a acumular rendimiento. El importe mínimo es de 10 ICP."
 		},
 		{
 			"title": "¿Cómo convierto nICP a ICP?",
-			"content": "Tu nICP será quemado y se creará una neurona de seis meses en modo de disolución con la cantidad correspondiente de ICP a la tasa de cambio actual. Después del período de seis meses, recibirás tu ICP tan pronto como se disuelva tu neurona."
+			"content": "Tu nICP será quemado y se creará una neurona de seis meses en modo de disolución con la cantidad correspondiente de ICP a la tasa de cambio actual. Después del período de seis meses, recibirás tu ICP tan pronto como se disuelva tu neurona. El importe mínimo es de 10 ICP por valor de nICP."
 		},
 		{
 			"title": "¿Cuál es la tasa de cambio?",

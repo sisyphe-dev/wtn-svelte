@@ -101,7 +101,7 @@
 					}
 				}
 			} catch (error) {
-				console.log('nicpToIcp error:', error);
+				console.log('[nicpToIcp] error:', error);
 				toasts.add(Toast.error('Call was rejected.'));
 			}
 		} else {
@@ -255,7 +255,6 @@
 
 			switch (key) {
 				case 'err':
-					console.log(result[key]);
 					toasts.add(Toast.error('Failed to fetch balances on ICPswap. Please retry.'));
 					break;
 				case 'ok':

@@ -4,6 +4,7 @@
 	import { internetIdentityLogout } from '$lib/authentification';
 	import { ThemeToggle } from '@dfinity/gix-components';
 	import PowerOffIcon from '$lib/icons/PowerOffIcon.svelte';
+	import { goto } from '$app/navigation';
 </script>
 
 <nav class:filter={$isLogging}>
@@ -41,6 +42,7 @@
 				on:click={async () => {
 					await internetIdentityLogout();
 					user.set(undefined);
+					goto('/');
 				}}
 			>
 				<PowerOffIcon />

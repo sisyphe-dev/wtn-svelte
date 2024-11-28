@@ -27,7 +27,7 @@
 					toasts.remove(toast.id);
 				}}
 			>
-				<CloseIcon />
+				<CloseIcon color="--main-button-text-color" />
 			</button>
 		</div>
 	{/each}

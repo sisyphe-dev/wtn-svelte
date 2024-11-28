@@ -56,6 +56,11 @@
 			"treasury": 362423
 		},
 		{
+			"name": "KongSwap",
+			"governance_id": "oypg6-faaaa-aaaaq-aadza-cai",
+			"treasury": 235836
+		},
+		{
 			"name": "Neutrinite",
 			"governance_id": "eqsml-lyaaa-aaaaq-aacdq-cai",
 			"treasury": 194848
