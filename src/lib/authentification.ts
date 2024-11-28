@@ -21,7 +21,7 @@ import { Principal } from '@dfinity/principal';
 // 1 hour in nanoseconds
 const AUTH_MAX_TIME_TO_LIVE = BigInt(60 * 60 * 1000 * 1000 * 1000);
 
-export const DEV = import.meta.env ? import.meta.env.DEV : true;
+export const DEV = false;
 export const STAGING = process.env.CANISTER_ID === '47pxu-byaaa-aaaap-ahpsa-cai';
 
 export const HOST = DEV ? 'http://127.0.1:8080' : 'https://ic0.app';
