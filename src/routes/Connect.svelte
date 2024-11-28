@@ -33,9 +33,9 @@
 				case 'plug':
 					await connectWithPlug();
 					break;
-				// case 'oisy':
-					// await connectWithTransport(OISY_RPC);
-					// break;
+				case 'oisy':
+					await connectWithTransport(OISY_RPC);
+					break;
 				case 'nfid':
 					await connectWithTransport(NFID_RPC);
 					break;
@@ -132,6 +132,10 @@
 						<h2>Plug Wallet</h2>
 					</button>
 				{/if}
+				<button class="login-btn" on:click={() => handleConnection('oisy')}>
+					<img src="/icon/oisy.webp" width="50em" height="50em" alt="Oisy Icon." />
+					<h2>Oisy Wallet</h2>
+				</button>
 				{#if DEV || STAGING}
 					<button
 						class="login-btn"
