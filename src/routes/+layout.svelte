@@ -4,7 +4,7 @@
 	import Connect from './Connect.svelte';
 	import Send from './wallet/Send.svelte';
 	import Menu from './Menu.svelte';
-	import SnsMenu from './sns/SnsMenu.svelte';
+	import SnsMenu from './boomerang/SnsMenu.svelte';
 	import Receive from './wallet/Receive.svelte';
 	import CancelWarning from './wallet/CancelWarning.svelte';
 	import {
