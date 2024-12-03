@@ -133,7 +133,7 @@
 		}
 		isNotAvailable = false;
 	};
-	
+
 	const updateBalance = async () => {
 		if (!destination) return;
 		try {
@@ -285,9 +285,9 @@
 				class:blur={destination === undefined}
 				class:visible={destination !== undefined}
 				class="submit-container"
-				style:align-items={status.time_left === 0n ? 'start': 'center'}
+				style:align-items={status.time_left !== 0n ? 'start' : 'center'}
 			>
-				{#if status.time_left === 0n}
+				{#if status.time_left !== 0n}
 					<h2>Participate</h2>
 					<div class="destination-container">
 						<span> Send ICP to the following destination: </span>
@@ -350,10 +350,7 @@
 				{/if}
 			</div>
 			{#if destination === undefined}
-				<div
-					class="register-container"
-					out:fade={{ duration: 500 }}
-				>
+				<div class="register-container" out:fade={{ duration: 500 }}>
 					<span>Register the principal you want to use for the SNS.</span>
 					<div class="derive-container">
 						<input class="raw derive-input" placeholder="Principal" bind:value={participant} />
@@ -361,7 +358,7 @@
 							{#if isNotAvailable}
 								<div class="spinner spinner-type-2"></div>
 							{:else}
-							<SuccessIcon color="--title-color" />
+								<SuccessIcon color="--title-color" />
 							{/if}
 						</button>
 					</div>
@@ -434,7 +431,6 @@
 		border: 2px solid var(--title-color);
 		border-top-color: transparent;
 	}
-
 
 	@keyframes spin {
 		from {
@@ -535,7 +531,7 @@
 		text-wrap: wrap;
 		word-break: break-word;
 	}
-	
+
 	.visible {
 		display: flex;
 	}
