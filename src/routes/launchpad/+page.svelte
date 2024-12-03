@@ -13,6 +13,7 @@
 	import { toasts } from '$lib/stores';
 	import { isMobile } from '$lib';
 	import { DEV } from '$lib/authentification';
+	import { fade } from 'svelte/transition';
 
 	const Amount = new Intl.NumberFormat('en-US', { maximumSignificantDigits: 8 });
 
@@ -38,10 +39,16 @@
 	let icpLedger: icpLedgerInterface;
 	let isNotAvailable = false;
 	let snsRatio = 0;
+	let icpDepositedSns: bigint;
 
 	function displayAmount(x: number | bigint) {
 		return Amount.format(x).replaceAll(',', "'");
 	}
+
+	const updateWtnAllocation = async () => {
+		if (!participant) return;
+		icpDepositedSns = await snsCanister.get_icp_deposited(Principal.fromText(participant));
+	};
 
 	function displayTime(timeLeft: number) {
 		const hours = (timeLeft / 3_600).toFixed(0);
@@ -76,7 +83,7 @@
 
 		const barWidth = totalBar.offsetWidth;
 		const ratio =
-			status.total_icp_deposited === 0n ? 0 : 23_000_000 / Number(status.total_icp_deposited);
+			status.total_icp_deposited === 0n ? 0 : 23_295_621 / Number(status.total_icp_deposited);
 		const previousSnsCheckpoint = barWidth / 2;
 		const previousSnsCheckRatio = 65.6;
 		snsRatio = ratio;
@@ -107,6 +114,26 @@
 		});
 	};
 
+	const claimWtn = async () => {
+		isNotAvailable = true;
+		try {
+			const result = await snsCanister.claim_wtn(Principal.fromText(participant));
+			const key = Object.keys(result)[0];
+			switch (key) {
+				case 'Err':
+					toasts.add(Toast.error((result as { Err: string }).Err));
+					break;
+				case 'Ok':
+					toasts.add(
+						Toast.success(`Successful transfer at block ${(result as { Ok: bigint }).Ok}`)
+					);
+			}
+		} catch (e) {
+			console.error(e);
+		}
+		isNotAvailable = false;
+	};
+	
 	const updateBalance = async () => {
 		if (!destination) return;
 		try {
@@ -129,12 +156,15 @@
 	};
 
 	const setDestination = async () => {
+		isNotAvailable = true;
 		try {
 			destination = await snsCanister.get_icp_deposit_address(Principal.fromText(participant));
 			await updateBalance();
+			await updateWtnAllocation();
 		} catch (e) {
 			console.log(e);
 		}
+		isNotAvailable = false;
 	};
 
 	const notifyDeposit = async () => {
@@ -166,6 +196,7 @@
 		const intervalId = setInterval(async () => {
 			await fetchStatus();
 			await updateBalance();
+			await updateWtnAllocation();
 			setPositions();
 		}, 5000);
 
@@ -220,7 +251,7 @@
 			</div>
 			<div class="parameter">
 				<span>Tokens Distributed</span>
-				<span>23'000'000.00 WTN</span>
+				<span>23'295'621 WTN</span>
 			</div>
 			<div class="commitment-container">
 				<div class="overall-commitment">
@@ -246,7 +277,7 @@
 				<span style="color: #faa123">{displayAmount(65.6)} WTN/ICP</span>
 			</div>
 			<div class="parameter">
-				<span>{displayTime(Number(status.time_left))}</span>
+				<span>{displayTime(Number(status.time_left / 1_000_000_000n))}</span>
 			</div>
 		</div>
 		<div class="participate-container">
@@ -254,51 +285,88 @@
 				class:blur={destination === undefined}
 				class:visible={destination !== undefined}
 				class="submit-container"
+				style:align-items={status.time_left === 0n ? 'start': 'center'}
 			>
-				<h2>Participate</h2>
-				<div class="destination-container">
-					<span> Send ICP to the following destination: </span>
-					<span style="margin-left: 10px;" id="destination-accountId">
-						{displayAccountId(destination)}
-					</span>
-					<button
-						class="raw copy-btn"
-						on:click={() => navigator.clipboard.writeText(destination ?? '')}
-					>
-						<CopyIcon />
-					</button>
-				</div>
-				<div class="destination-container">
-					<span>Current Balance: </span>
-					<span style="margin-left: 10px;" id="destination-icp-balance">
-						{#if balance !== undefined}
-							{displayAmount(balance)} ICP
+				{#if status.time_left === 0n}
+					<h2>Participate</h2>
+					<div class="destination-container">
+						<span> Send ICP to the following destination: </span>
+						<span style="margin-left: 10px;" id="destination-accountId">
+							{displayAccountId(destination)}
+						</span>
+						<button
+							class="raw copy-btn"
+							on:click={() => navigator.clipboard.writeText(destination ?? '')}
+						>
+							<CopyIcon />
+						</button>
+					</div>
+					<div class="destination-container">
+						<span>ICP available for commit: </span>
+						<span style="margin-left: 10px;" id="destination-icp-balance">
+							{#if balance !== undefined}
+								{displayAmount(balance)} ICP
+							{:else}
+								-/- ICP
+							{/if}
+						</span>
+					</div>
+					<div class="destination-container">
+						<span>ICP deposited in the SNS: </span>
+						<span style="margin-left: 10px;" id="destination-icp-balance">
+							{#if icpDepositedSns !== undefined}
+								{displayAmount(icpDepositedSns)} ICP
+							{:else}
+								-/- ICP
+							{/if}
+						</span>
+					</div>
+					<button class="commit-btn" on:click={notifyDeposit}>
+						{#if isNotAvailable}
+							<div class="spinner spinner-type-1"></div>
 						{:else}
-							-/- ICP
+							Commit
 						{/if}
-					</span>
-				</div>
-				<button class="commit-btn" on:click={notifyDeposit}>
-					{#if isNotAvailable}
-						<div class="spinner"></div>
-					{:else}
-						Commit
-					{/if}
-				</button>
-			</div>
-			<div
-				class:hide={destination !== undefined}
-				class:visible={destination === undefined}
-				class="register-container"
-			>
-				<span>Register the principal you want to use for the SNS.</span>
-				<div class="derive-container">
-					<input class="raw derive-input" placeholder="Principal" bind:value={participant} />
-					<button class="raw derive-btn" on:click={setDestination}>
-						<SuccessIcon color="--title-color" />
 					</button>
-				</div>
+				{:else}
+					<h2>Thank you for your participation!</h2>
+					<div class="destination-container">
+						<span>You have successfully deposited</span>
+						<span style="margin-left: 10px;" id="destination-icp-balance">
+							{#if icpDepositedSns !== undefined}
+								{displayAmount(icpDepositedSns)} ICP.
+							{:else}
+								-/- ICP.
+							{/if}
+						</span>
+					</div>
+					<button class="commit-btn" on:click={claimWtn}>
+						{#if isNotAvailable}
+							<div class="spinner spinner-type-1"></div>
+						{:else}
+							Claim WTN
+						{/if}
+					</button>
+				{/if}
 			</div>
+			{#if destination === undefined}
+				<div
+					class="register-container"
+					out:fade={{ duration: 500 }}
+				>
+					<span>Register the principal you want to use for the SNS.</span>
+					<div class="derive-container">
+						<input class="raw derive-input" placeholder="Principal" bind:value={participant} />
+						<button class="raw derive-btn" on:click={setDestination}>
+							{#if isNotAvailable}
+								<div class="spinner spinner-type-2"></div>
+							{:else}
+							<SuccessIcon color="--title-color" />
+							{/if}
+						</button>
+					</div>
+				</div>
+			{/if}
 		</div>
 	</div>
 </main>
@@ -353,11 +421,20 @@
 	.spinner {
 		width: 1em;
 		height: 1em;
-		border: 3px solid var(--main-button-text-color);
-		border-top-color: transparent;
 		border-radius: 50%;
 		animation: spin 1s linear infinite;
 	}
+
+	.spinner-type-1 {
+		border: 2px solid var(--main-button-text-color);
+		border-top-color: transparent;
+	}
+
+	.spinner-type-2 {
+		border: 2px solid var(--title-color);
+		border-top-color: transparent;
+	}
+
 
 	@keyframes spin {
 		from {
@@ -389,7 +466,7 @@
 		grid-column: 1 / span 4;
 		position: relative;
 		width: 100%;
-		height: 200px;
+		height: 250px;
 	}
 
 	.register-container,
@@ -406,6 +483,7 @@
 
 	.register-container {
 		z-index: 1;
+		display: flex;
 		gap: 1em;
 		align-items: center;
 		justify-content: center;
@@ -416,8 +494,10 @@
 	}
 
 	.submit-container {
-		justify-content: space-between;
 		flex-direction: column;
+		gap: 1em;
+		justify-content: space-around;
+		align-items: center;
 	}
 
 	.commit-btn {
@@ -455,11 +535,7 @@
 		text-wrap: wrap;
 		word-break: break-word;
 	}
-
-	.hide {
-		display: none;
-	}
-
+	
 	.visible {
 		display: flex;
 	}
