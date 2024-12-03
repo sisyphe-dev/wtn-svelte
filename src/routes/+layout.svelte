@@ -4,7 +4,7 @@
 	import Connect from './Connect.svelte';
 	import Send from './wallet/Send.svelte';
 	import Menu from './Menu.svelte';
-	import SnsMenu from './boomerang/SnsMenu.svelte';
+	import SnsMenu from './sns/SnsMenu.svelte';
 	import Receive from './wallet/Receive.svelte';
 	import CancelWarning from './wallet/CancelWarning.svelte';
 	import {
@@ -134,6 +134,7 @@
 		--border-color: #454545;
 		--page-background: #fcfffd;
 		--background-color: #fcfffd;
+		--background-color-transparent: #fefefede;
 		--qr-code-background: #283e95;
 
 		--input-color: #fcfffd;
@@ -163,6 +164,7 @@
 
 		--border-color: rgb(158 163 178);
 		--background-color: rgb(43, 51, 67);
+		--background-color-transparent: rgb(43, 51, 67, 0.9);
 		--input-color: rgb(39, 46, 60);
 		--text-color: rgb(181 181 181);
 
