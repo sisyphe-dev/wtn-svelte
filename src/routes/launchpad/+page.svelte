@@ -41,6 +41,27 @@
 	let snsRatio = 0;
 	let icpDepositedSns: bigint;
 
+	let timeCountDown: bigint;
+	let intervalTimer: NodeJS.Timeout;
+
+
+	function startTimer() {
+		intervalTimer = setInterval(() => {
+			timeCountDown -= 1n;
+		}, 1000);
+	}
+
+	function stopTimer() {
+		if (intervalTimer) {
+			clearInterval(intervalTimer);
+		}
+	}
+
+	function resetTimerToElapsedTime(n: bigint) {
+		stopTimer();
+		timeCountDown = n;
+	}
+
 	function displayAmount(x: number | bigint) {
 		return Amount.format(x).replaceAll(',', "'");
 	}
@@ -50,19 +71,22 @@
 		icpDepositedSns = await snsCanister.get_icp_deposited(Principal.fromText(participant));
 	};
 
-	function displayTime(timeLeft: number) {
-		const hours = (timeLeft / 3_600).toFixed(0);
-		const mins = (timeLeft / 60).toFixed(0);
-		const secs = timeLeft % 60;
-		if (parseInt(hours) > 1) {
-			return `${hours} hours and ${mins} minutes left. `;
-		} else if (parseInt(mins) > 1) {
-			return `${mins} minutes left.`;
-		} else if (secs > 1) {
-			return `${secs} seconds left.`;
-		} else {
-			return 'The SNS has ended.';
+	export function displayTime(timeLeft: number): string {
+		const days = Math.floor((timeLeft/(3600*24)));
+		const hours = Math.floor(timeLeft%(3600*24)/3600);
+		const minutes = Math.floor(timeLeft%(60*60)/60);
+		const seconds = timeLeft % 60;
+
+		if (days > 0) {
+			return `${days} day${days > 1 ? 's' : ''} and ${hours} hour${hours > 1 ? 's' : ''} left.`;
 		}
+ 		if (hours > 0) {
+		return `${hours} hour${hours > 1 ? 's' : ''} and ${minutes} minute${minutes > 1 ? 's' : ''} left.`;
+		}
+		if (minutes > 0) {
+		return `${minutes} minute${minutes > 1 ? 's' : ''} and ${seconds} second${seconds > 1 ? 's' : ''} left.`;
+		}
+		return `${seconds} second${seconds > 1 ? 's' : ''} left.`;
 	}
 
 	function displayAccountId(accountId: string) {
@@ -148,8 +172,9 @@
 
 	const fetchStatus = async () => {
 		try {
-			snsCanister.get_status();
 			status = await snsCanister.get_status();
+			resetTimerToElapsedTime(status.time_left/1_000_000_000n);
+			startTimer();
 		} catch (e) {
 			console.log(e);
 		}
@@ -277,7 +302,7 @@
 				<span style="color: #faa123">{displayAmount(65.6)} WTN/ICP</span>
 			</div>
 			<div class="parameter">
-				<span>{displayTime(Number(status.time_left / 1_000_000_000n))}</span>
+				<span>{displayTime(Number(timeCountDown))}</span>
 			</div>
 		</div>
 		<div class="participate-container">

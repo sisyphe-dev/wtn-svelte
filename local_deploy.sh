@@ -22,7 +22,7 @@ dfx deploy internet_identity
 
 dfx deploy --specified-id bd3sg-teaaa-aaaaa-qaaba-cai sns_module --argument '(record {
 icp_ledger_id = principal "ryjl3-tyaaa-aaaaa-aaaba-cai";
-  start_ts = 1733219157;
+  start_ts = 1733219157_000_000_000;
   wtn_ledger_id = principal "jcmow-hyaaa-aaaaq-aadlq-cai";
-  end_ts = 1734428757;
+  end_ts = 1734428757_000_000_000;
 })'
