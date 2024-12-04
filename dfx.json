@@ -43,7 +43,7 @@
 		"sns_module": {
 			"type": "custom",
 			"candid": "candid/sns_module.did",
-			"wasm": "wasm/sns_module.wasm"
+			"wasm": "wasm/sns_module.wasm.gz"
 		},
 		"nns-cycles-minting": {
 			"build": "",

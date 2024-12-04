@@ -69,8 +69,8 @@
 		return accountId;
 	}
 
-	function displayDate(timestamp_ns: bigint): string {
-		const date = new Date(Number(timestamp_ns / 1_000_000n));
+	function displayDate(timestamp: bigint): string {
+		const date = new Date(Number(timestamp * 1_000n));
 
 		const formattedDate = date.toLocaleDateString('en-US', {
 			year: 'numeric',
@@ -321,7 +321,7 @@
 					<span style="color: #faa123">{displayAmount(65.6)} WTN/ICP</span>
 				</div>
 				<div class="parameter">
-					<span>{displaySnsTimeLeft(Number(status.time_left / 1_000_000_000n))}</span>
+					<span>{displaySnsTimeLeft(Number(status.time_left))}</span>
 				</div>
 			</div>
 			<div class="participate-container">
