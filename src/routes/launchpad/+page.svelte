@@ -13,8 +13,6 @@
 	import { DEV, HOST } from '$lib/authentification';
 	import { fade } from 'svelte/transition';
 
-	const Amount = new Intl.NumberFormat('en-US', { maximumSignificantDigits: 8 });
-
 	let status: {
 		participants: bigint;
 		time_left: bigint;
@@ -39,13 +37,9 @@
 	let icpDepositedSns: bigint;
 
 	function displayAmount(x: number | bigint) {
+		const Amount = new Intl.NumberFormat('en-US', { maximumSignificantDigits: 8 });
 		return Amount.format(x).replaceAll(',', "'");
 	}
-
-	const updateWtnAllocation = async () => {
-		if (!participant) return;
-		icpDepositedSns = await snsCanister.get_icp_deposited(Principal.fromText(participant));
-	};
 
 	export function displaySnsTimeLeft(timeLeft: number): string {
 		const days = Math.floor(timeLeft / (3600 * 24));
@@ -106,6 +100,11 @@
 		return formatted;
 	}
 
+	const updateIcpDeposited = async () => {
+		if (!participant) return;
+		icpDepositedSns = await snsCanister.get_icp_deposited(Principal.fromText(participant));
+	};
+
 	const setPositions = () => {
 		if (countDown > 0) return;
 		const currentBar = document.querySelector('.bar--1') as HTMLDivElement;
@@ -124,7 +123,7 @@
 		minCommitment.style.left = `${barWidth / 2}px`;
 	};
 
-	const setUpSns = async () => {
+	const setupLaunchpad = async () => {
 		const agent = HttpAgent.createSync({
 			host: HOST
 		});
@@ -186,7 +185,7 @@
 		try {
 			destination = await snsCanister.get_icp_deposit_address(Principal.fromText(participant));
 			await updateBalance();
-			await updateWtnAllocation();
+			await updateIcpDeposited();
 		} catch (e) {
 			console.log(e);
 		}
@@ -213,6 +212,8 @@
 		isNotAvailable = false;
 	};
 
+	// The countdown is displayed when it's strictly greater than 0.
+	// Hence an initialization to a non zero value until the status can be fetched.
 	let countDown: bigint = 1_0000n;
 
 	function startTimer(timeLeft: bigint) {
@@ -223,7 +224,7 @@
 	}
 
 	onMount(() => {
-		setUpSns().then(async () => {
+		setupLaunchpad().then(async () => {
 			await fetchStatus();
 			const timeLeft = status.start_at / 1_000_000_000n - BigInt(Math.floor(Date.now() / 1_000));
 			startTimer(timeLeft);
@@ -233,7 +234,7 @@
 		const intervalId = setInterval(async () => {
 			await fetchStatus();
 			await updateBalance();
-			await updateWtnAllocation();
+			await updateIcpDeposited();
 			setPositions();
 		}, 5000);
 
