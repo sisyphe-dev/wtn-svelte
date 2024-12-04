@@ -35,6 +35,10 @@
 	let isNotAvailable = false;
 	let snsRatio = 0;
 	let icpDepositedSns: bigint;
+	let minCommitment: HTMLDivElement;
+	let selector: HTMLDivElement;
+	let currentBar: HTMLDivElement;
+	let totalBar: HTMLDivElement;
 
 	function displayAmount(x: number | bigint) {
 		const Amount = new Intl.NumberFormat('en-US', { maximumSignificantDigits: 8 });
@@ -106,11 +110,7 @@
 	};
 
 	const setPositions = () => {
-		if (countDown > 0) return;
-		const currentBar = document.querySelector('.bar--1') as HTMLDivElement;
-		const totalBar = document.querySelector('.bar--2') as HTMLDivElement;
-		const selector = document.querySelector('.triangle-down') as HTMLDivElement;
-		const minCommitment = document.querySelector('.checkpoint') as HTMLDivElement;
+		if (Date.now() / 1000 < status.start_at) return;
 
 		const barWidth = totalBar.offsetWidth;
 		const ratio =
@@ -175,6 +175,7 @@
 	const fetchStatus = async () => {
 		try {
 			status = await snsCanister.get_status();
+			setPositions();
 		} catch (e) {
 			console.log(e);
 		}
@@ -226,16 +227,14 @@
 	onMount(() => {
 		setupLaunchpad().then(async () => {
 			await fetchStatus();
-			const timeLeft = status.start_at / 1_000_000_000n - BigInt(Math.floor(Date.now() / 1_000));
+			const timeLeft = status.start_at - BigInt(Math.floor(Date.now() / 1_000));
 			startTimer(timeLeft);
-			setPositions();
 		});
 
 		const intervalId = setInterval(async () => {
 			await fetchStatus();
 			await updateBalance();
 			await updateIcpDeposited();
-			setPositions();
 		}, 5000);
 
 		return () => clearInterval(intervalId);
@@ -243,7 +242,7 @@
 </script>
 
 <main>
-	{#if countDown > 0n}
+	{#if Date.now() / 1000 < status.start_at}
 		<div class="countdown-container">
 			<span style:font-size="30px"
 				>Launchpad will start in: <b>{displayCountDown(countDown)}</b></span
@@ -304,10 +303,10 @@
 							<span>{displayAmount(status.total_icp_deposited)} ICP</span>
 						</div>
 						<div class="progress-bar">
-							<div class="triangle-down"></div>
-							<div class="checkpoint"></div>
-							<div class="bar bar--1"></div>
-							<div class="bar bar--2"></div>
+							<div bind:this={selector} class="triangle-down"></div>
+							<div bind:this={minCommitment} class="checkpoint"></div>
+							<div bind:this={currentBar} class="bar bar--1"></div>
+							<div bind:this={totalBar} class="bar bar--2"></div>
 						</div>
 					</div>
 				</div>
