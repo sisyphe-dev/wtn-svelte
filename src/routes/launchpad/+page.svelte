@@ -375,7 +375,7 @@
 			</div>
 			{#if destination === undefined}
 				<div class="register-container" out:fade={{ duration: 500 }}>
-					<span>Register the principal you want to use for the SNS.</span>
+					<span>Register your NNS principal to participate in the SNS.</span>
 					<div class="derive-container">
 						<input class="raw derive-input" placeholder="Principal" bind:value={participant} />
 						<button class="raw derive-btn" on:click={setDestination}>
