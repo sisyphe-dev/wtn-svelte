@@ -1,4 +1,6 @@
-export const idlFactory = ({ IDL }) => {
+import { IDL } from '@dfinity/candid';
+
+export const idlFactory = () => {
 	const Result = IDL.Variant({ Ok: IDL.Nat64, Err: IDL.Text });
 	const Result_1 = IDL.Variant({ Ok: IDL.Null, Err: IDL.Text });
 	const Status = IDL.Record({
@@ -29,6 +31,6 @@ export const idlFactory = ({ IDL }) => {
 		notify_icp_deposit: IDL.Func([IDL.Principal, IDL.Nat64], [Result], [])
 	});
 };
-export const init = ({ IDL }) => {
+export const init = () => {
 	return [];
 };

@@ -301,9 +301,7 @@
 					<div class="overall-commitment">
 						<div class="parameter">
 							<span>Overall Commitment</span>
-							<span
-								>{displayUsFormat(bigintE8sToNumber(status.total_icp_deposited))} ICP</span
-							>
+							<span>{displayUsFormat(bigintE8sToNumber(status.total_icp_deposited))} ICP</span>
 						</div>
 						<div class="progress-bar">
 							<div bind:this={selector} class="triangle-down"></div>
