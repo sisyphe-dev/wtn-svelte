@@ -5,7 +5,7 @@
 	if (!$user) goto('/');
 
 	import Withdrawals from './Withdrawals.svelte';
-	import { Asset } from '$lib';
+	import { Asset, displayUsFormat } from '$lib';
 	import SendButton from './SendButton.svelte';
 	import { scale } from 'svelte/transition';
 	import CopyIcon from '$lib/icons/CopyIcon.svelte';
