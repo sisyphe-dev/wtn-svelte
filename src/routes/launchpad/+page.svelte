@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { HttpAgent, Actor } from '@dfinity/agent';
 	import { idlFactory as idlFactorySns } from './sns_module';
-	import { idlFactory as idlFactoryIcp } from './icp_ledger';
+	import { idlFactory as idlFactoryIcp } from '$lib/../declarations/icp_ledger';
 	import { Principal } from '@dfinity/principal';
 	import type { _SERVICE as snsModuleInterface } from './sns_module.did';
 	import type { _SERVICE as icpLedgerInterface } from '$lib/../declarations/icp_ledger/icp_ledger.did';
@@ -10,7 +10,7 @@
 	import CopyIcon from '$lib/icons/CopyIcon.svelte';
 	import { onMount } from 'svelte';
 	import { Toast } from '$lib/toast';
-	import { toasts } from '$lib/stores';
+	import { toasts, canisters } from '$lib/stores';
 	import { isMobile } from '$lib';
 	import { DEV } from '$lib/authentification';
 	import { fade } from 'svelte/transition';
@@ -36,7 +36,6 @@
 	let participant: string;
 	let balance: bigint;
 	let snsCanister: snsModuleInterface;
-	let icpLedger: icpLedgerInterface;
 	let isNotAvailable = false;
 	let snsRatio = 0;
 	let icpDepositedSns: bigint;
@@ -125,15 +124,10 @@
 		}
 
 		const CANISTER_ID = 'bd3sg-teaaa-aaaaa-qaaba-cai';
-		const ICP_LEDGER_ID = 'ryjl3-tyaaa-aaaaa-aaaba-cai';
 
 		snsCanister = Actor.createActor(idlFactorySns, {
 			agent,
 			canisterId: CANISTER_ID
-		});
-		icpLedger = Actor.createActor(idlFactoryIcp, {
-			agent,
-			canisterId: ICP_LEDGER_ID
 		});
 	};
 
@@ -158,9 +152,9 @@
 	};
 
 	const updateBalance = async () => {
-		if (!destination) return;
+		if (!destination || !$canisters) return;
 		try {
-			const { e8s } = await icpLedger.account_balance({
+			const { e8s } = await $canisters.icpLedger.anonymousActor.account_balance({
 				account: AccountIdentifier.fromHex(destination).toUint8Array()
 			});
 			balance = e8s;
