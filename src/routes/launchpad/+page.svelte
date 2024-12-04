@@ -44,7 +44,6 @@
 	let timeCountDown: bigint;
 	let intervalTimer: NodeJS.Timeout;
 
-
 	function startTimer() {
 		intervalTimer = setInterval(() => {
 			timeCountDown -= 1n;
@@ -72,19 +71,19 @@
 	};
 
 	export function displayTime(timeLeft: number): string {
-		const days = Math.floor((timeLeft/(3600*24)));
-		const hours = Math.floor(timeLeft%(3600*24)/3600);
-		const minutes = Math.floor(timeLeft%(60*60)/60);
+		const days = Math.floor(timeLeft / (3600 * 24));
+		const hours = Math.floor((timeLeft % (3600 * 24)) / 3600);
+		const minutes = Math.floor((timeLeft % (60 * 60)) / 60);
 		const seconds = timeLeft % 60;
 
 		if (days > 0) {
 			return `${days} day${days > 1 ? 's' : ''} and ${hours} hour${hours > 1 ? 's' : ''} left.`;
 		}
- 		if (hours > 0) {
-		return `${hours} hour${hours > 1 ? 's' : ''} and ${minutes} minute${minutes > 1 ? 's' : ''} left.`;
+		if (hours > 0) {
+			return `${hours} hour${hours > 1 ? 's' : ''} and ${minutes} minute${minutes > 1 ? 's' : ''} left.`;
 		}
 		if (minutes > 0) {
-		return `${minutes} minute${minutes > 1 ? 's' : ''} and ${seconds} second${seconds > 1 ? 's' : ''} left.`;
+			return `${minutes} minute${minutes > 1 ? 's' : ''} and ${seconds} second${seconds > 1 ? 's' : ''} left.`;
 		}
 		return `${seconds} second${seconds > 1 ? 's' : ''} left.`;
 	}
@@ -173,7 +172,7 @@
 	const fetchStatus = async () => {
 		try {
 			status = await snsCanister.get_status();
-			resetTimerToElapsedTime(status.time_left/1_000_000_000n);
+			resetTimerToElapsedTime(status.time_left / 1_000_000_000n);
 			startTimer();
 		} catch (e) {
 			console.log(e);
