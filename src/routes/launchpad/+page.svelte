@@ -10,7 +10,7 @@
 	import { onMount } from 'svelte';
 	import { Toast } from '$lib/toast';
 	import { toasts, canisters } from '$lib/stores';
-	import { isMobile, displayUsFormat } from '$lib';
+	import { isMobile, displayUsFormat, bigintE8sToNumber } from '$lib';
 	import { DEV, HOST } from '$lib/authentification';
 	import { fade } from 'svelte/transition';
 
@@ -302,7 +302,7 @@
 						<div class="parameter">
 							<span>Overall Commitment</span>
 							<span
-								>{displayUsFormat(BigNumber(status.total_icp_deposited / 100_000_000n))} ICP</span
+								>{displayUsFormat(bigintE8sToNumber(status.total_icp_deposited))} ICP</span
 							>
 						</div>
 						<div class="progress-bar">
@@ -351,7 +351,7 @@
 							<span>ICP available for commit: </span>
 							<span style="margin-left: 10px;" id="destination-icp-balance">
 								{#if balance !== undefined}
-									{displayUsFormat(BigNumber(balance / 100_000_000n))} ICP
+									{displayUsFormat(bigintE8sToNumber(balance))} ICP
 								{:else}
 									-/- ICP
 								{/if}
@@ -361,7 +361,7 @@
 							<span>ICP deposited in the SNS: </span>
 							<span style="margin-left: 10px;" id="destination-icp-balance">
 								{#if icpDepositedSns !== undefined}
-									{displayUsFormat(BigNumber(icpDepositedSns / 100_000_000n))} ICP
+									{displayUsFormat(bigintE8sToNumber(icpDepositedSns))} ICP
 								{:else}
 									-/- ICP
 								{/if}
