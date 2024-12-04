@@ -75,6 +75,21 @@
 		return accountId;
 	}
 
+	function displayDate(timestamp_ns: bigint): string {
+		const date = new Date(Number(timestamp_ns / 1_000_000n));
+
+		const formattedDate = date.toLocaleDateString('en-US', {
+			year: 'numeric',
+			month: 'long',
+			day: 'numeric',
+			hour: '2-digit',
+			minute: '2-digit',
+			second: '2-digit'
+		});
+
+		return formattedDate;
+	}
+
 	const setPositions = () => {
 		const currentBar = document.querySelector('.bar--1') as HTMLDivElement;
 		const totalBar = document.querySelector('.bar--2') as HTMLDivElement;
@@ -206,7 +221,11 @@
 			WaterNeuron is a liquid staking protocol designed for the Internet Computer network. Staking
 			ICP becomes straightforward and efficient.
 		</p>
-		<span><a target="_blank" href="https://docs.waterneuron.fi">https://docs.waterneuron.fi</a> | <a target="_blank" href="https://x.com/waterneuron">https://x.com/waterneuron</a> | <a target="_blank" href="https://t.me/waterneuron">https://t.me/waterneuron</a></span>
+		<span
+			><a target="_blank" href="https://docs.waterneuron.fi">https://docs.waterneuron.fi</a> |
+			<a target="_blank" href="https://x.com/waterneuron">https://x.com/waterneuron</a>
+			| <a target="_blank" href="https://t.me/waterneuron">https://t.me/waterneuron</a></span
+		>
 	</div>
 	<div class="core-container">
 		<div class="parameters-container">
@@ -227,11 +246,11 @@
 			</div>
 
 			<div class="parameter">
-				<span>Swap Start</span> <span>Jul 3, 2024 6:00 PM</span>
+				<span>Swap Start</span> <span>{displayDate(status.start_at)}</span>
 			</div>
 
 			<div class="parameter">
-				<span>Swap End</span> <span>Jul 3, 2024 6:00 PM</span>
+				<span>Swap End</span> <span>{displayDate(status.end_at)}</span>
 			</div>
 		</div>
 		<div class="sns-status-container">
@@ -268,7 +287,7 @@
 				<span style="color: #faa123">{displayAmount(65.6)} WTN/ICP</span>
 			</div>
 			<div class="parameter">
-				<span>{displayTime(Number(status.time_left/1_000_000_000n))}</span>
+				<span>{displayTime(Number(status.time_left / 1_000_000_000n))}</span>
 			</div>
 		</div>
 		<div class="participate-container">
@@ -402,7 +421,7 @@
 
 	h2,
 	p,
-	span, 
+	span,
 	a {
 		color: var(--title-color);
 	}
