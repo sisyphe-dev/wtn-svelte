@@ -5,11 +5,12 @@
 	import type { _SERVICE as snsModuleInterface } from './sns_module.did';
 	import { AccountIdentifier } from '@dfinity/ledger-icp';
 	import SuccessIcon from '$lib/icons/SuccessIcon.svelte';
+	import BigNumber from 'bignumber.js';
 	import CopyIcon from '$lib/icons/CopyIcon.svelte';
 	import { onMount } from 'svelte';
 	import { Toast } from '$lib/toast';
 	import { toasts, canisters } from '$lib/stores';
-	import { isMobile } from '$lib';
+	import { isMobile, displayUsFormat } from '$lib';
 	import { DEV, HOST } from '$lib/authentification';
 	import { fade } from 'svelte/transition';
 
@@ -76,7 +77,7 @@
 	function displayDate(timestamp: bigint): string {
 		const date = new Date(Number(timestamp * 1_000n));
 
-		const formattedDate = date.toLocaleDateString('en-US', {
+		const formattedDate = date.toLocaleString('en-US', {
 			year: 'numeric',
 			month: 'long',
 			day: 'numeric',
@@ -300,7 +301,9 @@
 					<div class="overall-commitment">
 						<div class="parameter">
 							<span>Overall Commitment</span>
-							<span>{displayAmount(status.total_icp_deposited)} ICP</span>
+							<span
+								>{displayUsFormat(BigNumber(status.total_icp_deposited / 100_000_000n))} ICP</span
+							>
 						</div>
 						<div class="progress-bar">
 							<div bind:this={selector} class="triangle-down"></div>
@@ -348,7 +351,7 @@
 							<span>ICP available for commit: </span>
 							<span style="margin-left: 10px;" id="destination-icp-balance">
 								{#if balance !== undefined}
-									{displayAmount(balance)} ICP
+									{displayUsFormat(BigNumber(balance / 100_000_000n))} ICP
 								{:else}
 									-/- ICP
 								{/if}
@@ -358,7 +361,7 @@
 							<span>ICP deposited in the SNS: </span>
 							<span style="margin-left: 10px;" id="destination-icp-balance">
 								{#if icpDepositedSns !== undefined}
-									{displayAmount(icpDepositedSns)} ICP
+									{displayUsFormat(BigNumber(icpDepositedSns / 100_000_000n))} ICP
 								{:else}
 									-/- ICP
 								{/if}
