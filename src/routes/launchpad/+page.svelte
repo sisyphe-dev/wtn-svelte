@@ -1,10 +1,8 @@
 <script lang="ts">
 	import { HttpAgent, Actor } from '@dfinity/agent';
 	import { idlFactory as idlFactorySns } from './sns_module';
-	import { idlFactory as idlFactoryIcp } from '$lib/../declarations/icp_ledger';
 	import { Principal } from '@dfinity/principal';
 	import type { _SERVICE as snsModuleInterface } from './sns_module.did';
-	import type { _SERVICE as icpLedgerInterface } from '$lib/../declarations/icp_ledger/icp_ledger.did';
 	import { AccountIdentifier } from '@dfinity/ledger-icp';
 	import SuccessIcon from '$lib/icons/SuccessIcon.svelte';
 	import CopyIcon from '$lib/icons/CopyIcon.svelte';
@@ -39,26 +37,6 @@
 	let isNotAvailable = false;
 	let snsRatio = 0;
 	let icpDepositedSns: bigint;
-
-	let timeCountDown: bigint;
-	let intervalTimer: NodeJS.Timeout;
-
-	function startTimer() {
-		intervalTimer = setInterval(() => {
-			timeCountDown -= 1n;
-		}, 1000);
-	}
-
-	function stopTimer() {
-		if (intervalTimer) {
-			clearInterval(intervalTimer);
-		}
-	}
-
-	function resetTimerToElapsedTime(n: bigint) {
-		stopTimer();
-		timeCountDown = n;
-	}
 
 	function displayAmount(x: number | bigint) {
 		return Amount.format(x).replaceAll(',', "'");
@@ -166,8 +144,6 @@
 	const fetchStatus = async () => {
 		try {
 			status = await snsCanister.get_status();
-			resetTimerToElapsedTime(status.time_left / 1_000_000_000n);
-			startTimer();
 		} catch (e) {
 			console.log(e);
 		}
@@ -295,7 +271,7 @@
 				<span style="color: #faa123">{displayAmount(65.6)} WTN/ICP</span>
 			</div>
 			<div class="parameter">
-				<span>{displayTime(Number(timeCountDown))}</span>
+				<span>{displayTime(Number(status.time_left/1_000_000_000n))}</span>
 			</div>
 		</div>
 		<div class="participate-container">
