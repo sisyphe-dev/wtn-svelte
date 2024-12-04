@@ -5,11 +5,11 @@
 	import type { _SERVICE as snsModuleInterface } from './sns_module.did';
 	import { AccountIdentifier } from '@dfinity/ledger-icp';
 	import SuccessIcon from '$lib/icons/SuccessIcon.svelte';
-	import BigNumber from 'bignumber.js';
 	import CopyIcon from '$lib/icons/CopyIcon.svelte';
 	import { onMount } from 'svelte';
 	import { Toast } from '$lib/toast';
 	import { toasts, canisters } from '$lib/stores';
+	import BigNumber from 'bignumber.js';
 	import { isMobile, displayUsFormat, bigintE8sToNumber } from '$lib';
 	import { DEV, HOST } from '$lib/authentification';
 	import { fade } from 'svelte/transition';
@@ -114,14 +114,13 @@
 		if (Date.now() / 1000 < status.start_at) return;
 
 		const barWidth = totalBar.offsetWidth;
-		const ratio =
-			status.total_icp_deposited === 0n ? 0 : 23_295_621 / Number(status.total_icp_deposited);
-		const previousSnsCheckpoint = barWidth / 2;
-		const previousSnsCheckRatio = 65.6;
+		const ratio = bigintE8sToNumber(status.total_icp_deposited).toNumber() / 23_295_621;
+		const previousSnsCheckpoint = (3 * barWidth) / 4;
+		const previousSnsCheckRatio = 0.01526;
 		snsRatio = ratio;
-		selector.style.left = `${(ratio * previousSnsCheckpoint) / previousSnsCheckRatio}px`;
-		currentBar.style.width = `${(ratio * previousSnsCheckpoint) / previousSnsCheckRatio}px`;
-		minCommitment.style.left = `${barWidth / 2}px`;
+		selector.style.left = `${ratio >= (4 * previousSnsCheckRatio) / 3 ? barWidth : (ratio * previousSnsCheckpoint) / previousSnsCheckRatio}px`;
+		currentBar.style.width = `${ratio >= (4 * previousSnsCheckRatio) / 3 ? barWidth : (ratio * previousSnsCheckpoint) / previousSnsCheckRatio}px`;
+		minCommitment.style.left = `${(3 * barWidth) / 4}px`;
 	};
 
 	const setupLaunchpad = async () => {
@@ -314,11 +313,11 @@
 
 				<div class="parameter">
 					<span style="color: #4d79ff">Current SNS</span>
-					<span style="color: #4d79ff">{displayAmount(snsRatio)} WTN/ICP</span>
+					<span style="color: #4d79ff">{displayUsFormat(BigNumber(1 / snsRatio))} WTN/ICP</span>
 				</div>
 				<div class="parameter">
 					<span style="color: #faa123">Previous SNS</span>
-					<span style="color: #faa123">{displayAmount(65.6)} WTN/ICP</span>
+					<span style="color: #faa123">{displayAmount(65.5)} WTN/ICP</span>
 				</div>
 				<div class="parameter">
 					<span>{displaySnsTimeLeft(Number(status.time_left))}</span>
@@ -668,7 +667,7 @@
 		position: absolute;
 		transform: translate(-50%, -50%);
 		translate: 0 4px;
-		z-index: 1;
+		z-index: 2;
 	}
 
 	.progress-bar {
