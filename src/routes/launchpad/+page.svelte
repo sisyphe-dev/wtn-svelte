@@ -10,7 +10,7 @@
 	import { Toast } from '$lib/toast';
 	import { toasts, canisters } from '$lib/stores';
 	import { isMobile } from '$lib';
-	import { DEV } from '$lib/authentification';
+	import { DEV, HOST } from '$lib/authentification';
 	import { fade } from 'svelte/transition';
 
 	const Amount = new Intl.NumberFormat('en-US', { maximumSignificantDigits: 8 });
@@ -94,7 +94,7 @@
 
 	const setUpSns = async () => {
 		const agent = HttpAgent.createSync({
-			host: 'http://127.0.1:8080'
+			host: HOST
 		});
 
 		if (DEV) {
@@ -206,7 +206,7 @@
 			WaterNeuron is a liquid staking protocol designed for the Internet Computer network. Staking
 			ICP becomes straightforward and efficient.
 		</p>
-		<span>https://docs.waterneuron.fi | https://x.com/waterneuron | https://t.me/waterneuron</span>
+		<span><a target="_blank" href="https://docs.waterneuron.fi">https://docs.waterneuron.fi</a> | <a target="_blank" href="https://x.com/waterneuron">https://x.com/waterneuron</a> | <a target="_blank" href="https://t.me/waterneuron">https://t.me/waterneuron</a></span>
 	</div>
 	<div class="core-container">
 		<div class="parameters-container">
@@ -221,16 +221,13 @@
 			<div class="parameter">
 				<span>Total Supply</span> <span>116'479'684.72 WTN</span>
 			</div>
-			<div class="parameter">
-				<span>Minimum Participants</span> <span>Unlimited</span>
-			</div>
 
 			<div class="parameter">
 				<span>Minimum Participant Commitment</span> <span>10 ICP</span>
 			</div>
 
 			<div class="parameter">
-				<span>Maximum Participant Commitment</span> <span>Unlimited</span>
+				<span>Swap Start</span> <span>Jul 3, 2024 6:00 PM</span>
 			</div>
 
 			<div class="parameter">
@@ -405,7 +402,8 @@
 
 	h2,
 	p,
-	span {
+	span, 
+	a {
 		color: var(--title-color);
 	}
 
