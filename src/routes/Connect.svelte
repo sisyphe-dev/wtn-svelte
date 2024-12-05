@@ -12,7 +12,7 @@
 		finalizePlugConnection
 	} from '$lib/authentification';
 	import { fade } from 'svelte/transition';
-	import { isMobile, displayPrincipal } from '$lib';
+	import { displayPrincipal } from '$lib';
 	import { onMount } from 'svelte';
 	import CloseIcon from '$lib/icons/CloseIcon.svelte';
 	import { Signer } from '@slide-computer/signer';
@@ -73,7 +73,6 @@
 <dialog
 	id="connectDialog"
 	in:fade={{ duration: 500 }}
-	class:mobile-size={isMobile}
 	on:close={() => {
 		isLogging.set(false);
 		availableAccounts.set([]);
@@ -126,12 +125,10 @@
 					<span>|</span>
 					<img src="/icon/nfid.webp" width="auto" height="30em" alt="NFID Logo." />
 				</button>
-				{#if !isMobile}
-					<button class="login-btn" on:click={() => handleConnection('plug')}>
-						<img src="/icon/plug.png" width="50em" height="50em" alt="Plug Icon." />
-						<h2>Plug Wallet</h2>
-					</button>
-				{/if}
+				<button class="login-btn" on:click={() => handleConnection('plug')}>
+					<img src="/icon/plug.png" width="50em" height="50em" alt="Plug Icon." />
+					<h2>Plug Wallet</h2>
+				</button>
 				{#if DEV || STAGING}
 					<button
 						class="login-btn"
