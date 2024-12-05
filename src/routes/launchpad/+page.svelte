@@ -313,7 +313,7 @@
 
 				<div class="parameter">
 					<span style="color: #4d79ff">Current SNS</span>
-					<span style="color: #4d79ff">{displayUsFormat(BigNumber(1 / snsRatio))} WTN/ICP</span>
+					<span style="color: #4d79ff">{snsRatio === 0 ? 0 : displayUsFormat(BigNumber(1 / snsRatio))} WTN/ICP</span>
 				</div>
 				<div class="parameter">
 					<span style="color: #faa123">Previous SNS</span>
