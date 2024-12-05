@@ -2,7 +2,7 @@
 	import { HttpAgent, Actor } from '@dfinity/agent';
 	import { idlFactory as idlFactorySns } from './sns_module';
 	import { Principal } from '@dfinity/principal';
-	import type { _SERVICE as snsModuleInterface } from './sns_module.did';
+	import type { _SERVICE as snsModuleInterface, Status } from './sns_module.did';
 	import { AccountIdentifier } from '@dfinity/ledger-icp';
 	import SuccessIcon from '$lib/icons/SuccessIcon.svelte';
 	import CopyIcon from '$lib/icons/CopyIcon.svelte';
@@ -14,16 +14,9 @@
 	import { DEV, HOST } from '$lib/authentification';
 	import { fade } from 'svelte/transition';
 
-	let status: {
-		participants: bigint;
-		time_left: bigint;
-		start_at: bigint;
-		minimum_deposit_amount: bigint;
-		total_icp_deposited: bigint;
-		end_at: bigint;
-	} = {
+	let status: Status = {
 		participants: 0n,
-		time_left: 0n,
+		time_left: [0n],
 		start_at: 0n,
 		minimum_deposit_amount: 0n,
 		total_icp_deposited: 0n,
@@ -41,12 +34,9 @@
 	let currentBar: HTMLDivElement;
 	let totalBar: HTMLDivElement;
 
-	function displayAmount(x: number | bigint) {
-		const Amount = new Intl.NumberFormat('en-US', { maximumSignificantDigits: 8 });
-		return Amount.format(x).replaceAll(',', "'");
-	}
-
 	export function displaySnsTimeLeft(timeLeft: number): string {
+		if (timeLeft === 0) return "The SNS has ended.";
+
 		const days = Math.floor(timeLeft / (3600 * 24));
 		const hours = Math.floor((timeLeft % (3600 * 24)) / 3600);
 		const minutes = Math.floor((timeLeft % (60 * 60)) / 60);
@@ -111,7 +101,7 @@
 	};
 
 	const setPositions = () => {
-		if (Date.now() / 1000 < status.start_at) return;
+		if (status.time_left.length === 0) return;
 
 		const barWidth = totalBar.offsetWidth;
 		const ratio = bigintE8sToNumber(status.total_icp_deposited).toNumber() / 23_295_621;
@@ -242,11 +232,11 @@
 </script>
 
 <main>
-	{#if Date.now() / 1000 < status.start_at}
+	{#if status.time_left.length === 0}
 		<div class="countdown-container">
 			<span style:font-size="30px"
-				>Launchpad will start in: <b>{displayCountDown(countDown)}</b></span
-			>
+				>Launchpad will start in: <b>{displayCountDown(countDown)}</b>
+			</span>
 		</div>
 	{:else}
 		<div class="header-container">
@@ -257,8 +247,8 @@
 			<span
 				><a target="_blank" href="https://docs.waterneuron.fi">https://docs.waterneuron.fi</a> |
 				<a target="_blank" href="https://x.com/waterneuron">https://x.com/waterneuron</a>
-				| <a target="_blank" href="https://t.me/waterneuron">https://t.me/waterneuron</a></span
-			>
+				| <a target="_blank" href="https://t.me/waterneuron">https://t.me/waterneuron</a>
+				</span>
 		</div>
 		<div class="core-container">
 			<div class="parameters-container">
@@ -317,7 +307,7 @@
 				</div>
 				<div class="parameter">
 					<span style="color: #faa123">Previous SNS</span>
-					<span style="color: #faa123">{displayAmount(65.5)} WTN/ICP</span>
+					<span style="color: #faa123">{displayUsFormat(BigNumber(65.5))} WTN/ICP</span>
 				</div>
 				<div class="parameter">
 					<span>{displaySnsTimeLeft(Number(status.time_left))}</span>
@@ -328,9 +318,9 @@
 					class:blur={destination === undefined}
 					class:visible={destination !== undefined}
 					class="submit-container"
-					style:align-items={status.time_left !== 0n ? 'start' : 'center'}
+					style:align-items={status.time_left[0] !== 0n ? 'start' : 'center'}
 				>
-					{#if status.time_left !== 0n}
+					{#if status.time_left[0] !== 0n}
 						<h2>Participate</h2>
 						<div class="destination-container">
 							<span> Send ICP to the following destination: </span>
@@ -377,7 +367,7 @@
 							<span>You have successfully deposited</span>
 							<span style="margin-left: 10px;" id="destination-icp-balance">
 								{#if icpDepositedSns !== undefined}
-									{displayAmount(icpDepositedSns)} ICP.
+									{displayUsFormat(bigintE8sToNumber(icpDepositedSns))} ICP.
 								{:else}
 									-/- ICP.
 								{/if}
