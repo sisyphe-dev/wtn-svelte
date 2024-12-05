@@ -35,7 +35,7 @@
 	let totalBar: HTMLDivElement;
 
 	export function displaySnsTimeLeft(timeLeft: number): string {
-		if (timeLeft === 0) return "The SNS has ended.";
+		if (timeLeft === 0) return 'The SNS has ended.';
 
 		const days = Math.floor(timeLeft / (3600 * 24));
 		const hours = Math.floor((timeLeft % (3600 * 24)) / 3600);
@@ -248,7 +248,7 @@
 				><a target="_blank" href="https://docs.waterneuron.fi">https://docs.waterneuron.fi</a> |
 				<a target="_blank" href="https://x.com/waterneuron">https://x.com/waterneuron</a>
 				| <a target="_blank" href="https://t.me/waterneuron">https://t.me/waterneuron</a>
-				</span>
+			</span>
 		</div>
 		<div class="core-container">
 			<div class="parameters-container">
@@ -303,7 +303,9 @@
 
 				<div class="parameter">
 					<span style="color: #4d79ff">Current SNS</span>
-					<span style="color: #4d79ff">{snsRatio === 0 ? 0 : displayUsFormat(BigNumber(1 / snsRatio))} WTN/ICP</span>
+					<span style="color: #4d79ff"
+						>{snsRatio === 0 ? 0 : displayUsFormat(BigNumber(1 / snsRatio))} WTN/ICP</span
+					>
 				</div>
 				<div class="parameter">
 					<span style="color: #faa123">Previous SNS</span>

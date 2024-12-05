@@ -8,7 +8,7 @@
 		connectWithPlug,
 		localSignIn,
 		NFID_RPC,
-		OISY_RPC,
+		//OISY_RPC,
 		finalizePlugConnection
 	} from '$lib/authentification';
 	import { fade } from 'svelte/transition';
@@ -33,9 +33,9 @@
 				case 'plug':
 					await connectWithPlug();
 					break;
-				case 'oisy':
-					await connectWithTransport(OISY_RPC);
-					break;
+				// case 'oisy':
+				// 	await connectWithTransport(OISY_RPC);
+				// 	break;
 				case 'nfid':
 					await connectWithTransport(NFID_RPC);
 					break;
