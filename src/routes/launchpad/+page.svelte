@@ -132,7 +132,7 @@
 			agent.fetchRootKey();
 		}
 
-		const CANISTER_ID = 'bd3sg-teaaa-aaaaa-qaaba-cai';
+		const CANISTER_ID = 'zftzm-qqaaa-aaaam-adxfa-cai';
 
 		snsCanister = Actor.createActor(idlFactorySns, {
 			agent,
