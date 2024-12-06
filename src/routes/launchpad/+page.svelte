@@ -30,6 +30,7 @@
 	let isNotAvailable = false;
 	let snsRatio = 0;
 	let icpDepositedSns: bigint;
+	let wtnClaimable: bitint;
 	let minCommitment: HTMLDivElement;
 	let selector: HTMLDivElement;
 	let currentBar: HTMLDivElement;
@@ -99,6 +100,11 @@
 	const updateIcpDeposited = async () => {
 		if (!participant) return;
 		icpDepositedSns = await snsCanister.get_icp_deposited(Principal.fromText(participant));
+	};
+
+	const updateWTNClaimable = async () => {
+		if (!participant) return;
+		wtnClaimable = await snsCanister.get_wtn_allocated(Principal.fromText(participant));
 	};
 
 	const setPositions = () => {
@@ -178,6 +184,7 @@
 			destination = await snsCanister.get_icp_deposit_address(Principal.fromText(participant));
 			await updateBalance();
 			await updateIcpDeposited();
+			await updateWTNClaimable();
 			renderQrCode();
 		} catch (e) {
 			console.log(e);
@@ -242,6 +249,7 @@
 			await fetchStatus();
 			await updateBalance();
 			await updateIcpDeposited();
+			await updateWTNClaimable();
 		}, 5000);
 
 		return () => clearInterval(intervalId);
@@ -296,7 +304,7 @@
 			<div class="sns-status-container">
 				<h2>Status</h2>
 				<div class="parameter">
-					<span>Current Total Participants</span>
+					<span>Total Participants</span>
 					<span>{status.participants.toString()}</span>
 				</div>
 				<div class="parameter">
@@ -384,14 +392,24 @@
 							{/if}
 						</button>
 					{:else}
-						<h2>Thank you for your participation!</h2>
+						<h2>🎉 The swap is successful.</h2>
 						<div class="destination-container">
 							<span>You have successfully deposited</span>
-							<span style="margin-left: 10px;" id="destination-icp-balance">
+							<span style="margin-left: 0.5em;" id="destination-icp-balance">
 								{#if icpDepositedSns !== undefined}
 									{displayUsFormat(bigintE8sToNumber(icpDepositedSns))} ICP.
 								{:else}
 									-/- ICP.
+								{/if}
+							</span>
+						</div>
+						<div class="destination-container">
+							<span>Claimable:</span>
+							<span style="margin-left: 0.5em;" id="destination-icp-balance">
+								{#if wtnClaimable !== undefined}
+									{displayUsFormat(bigintE8sToNumber(wtnClaimable))} WTN
+								{:else}
+									-/- WTN.
 								{/if}
 							</span>
 						</div>
@@ -572,7 +590,6 @@
 		box-shadow: 3px 3px 0 0 black;
 		padding: 0 1em 0 1em;
 		max-width: none;
-		width: 5em;
 		align-self: center;
 		height: 3em;
 		font-weight: bold;
