@@ -11,6 +11,7 @@
 	import { toasts, canisters } from '$lib/stores';
 	import BigNumber from 'bignumber.js';
 	import { isMobile, displayUsFormat, bigintE8sToNumber } from '$lib';
+	import QrCreator from 'qr-creator';
 	import { DEV, HOST } from '$lib/authentification';
 	import { fade } from 'svelte/transition';
 
@@ -177,6 +178,7 @@
 			destination = await snsCanister.get_icp_deposit_address(Principal.fromText(participant));
 			await updateBalance();
 			await updateIcpDeposited();
+			renderQrCode();
 		} catch (e) {
 			console.log(e);
 		}
@@ -202,6 +204,21 @@
 		}
 		isNotAvailable = false;
 	};
+
+	function renderQrCode() {
+		QrCreator.render(
+			{
+				text: `${destination ?? ''}`,
+				radius: 0.5, // 0.0 to 0.5
+				ecLevel: 'M', // L, M, Q, H
+				fill: 'white',
+				background: null,
+				size: 50 // in pixels
+			},
+			document.querySelector('#qr-code-launchpad') as HTMLElement
+		);
+
+	}
 
 	// The countdown is displayed when it's strictly greater than 0.
 	// Hence an initialization to a non zero value until the status can be fetched.
@@ -326,6 +343,9 @@
 						<h2>Participate</h2>
 						<div class="destination-container">
 							<span> Send ICP to the following destination: </span>
+							<div class="qr-code-container">
+								<canvas id="qr-code-launchpad" />
+							</div>
 							<span style="margin-left: 10px;" id="destination-accountId">
 								{displayAccountId(destination)}
 							</span>
@@ -672,6 +692,14 @@
 		gap: 0.5em;
 		margin-bottom: 1em;
 	}
+
+	.qr-code-container {
+		position: relative;
+		display: flex;
+		justify-content: center;
+		border-radius: 8px;
+	}
+
 
 	main {
 		display: flex;
