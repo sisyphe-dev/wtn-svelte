@@ -88,6 +88,10 @@
 	<SnsMenu />
 {:else}
 	<div class="page-container">
+		<div class="redirect-container">
+			<h2>Do you want to participate in our second SNS ? </h2>
+			<h2>Check out our <a target="_blank" href="https://waterneuron.fi/launchpad/">launchpad</a></h2>
+		</div>
 		<Navbar />
 		<div class="content-container" class:filter={$inReceivingMenu || $inSendingMenu || $isLogging}>
 			<slot />
@@ -239,6 +243,20 @@
 		color: white;
 	}
 
+	.redirect-container {
+		display: flex;
+		color: var(--title-color);
+		align-items: center;
+		font-family: var(--secondary-font);
+	}
+
+	a {
+		text-decoration: none;
+		outline: none;
+		color: var(--title-color);
+		text-align: center;
+		
+	}
 	/* === Utilities ===*/
 	.filter {
 		filter: blur(5px);
