@@ -6,7 +6,7 @@
 	import { AccountIdentifier } from '@dfinity/ledger-icp';
 	import SuccessIcon from '$lib/icons/SuccessIcon.svelte';
 	import CopyIcon from '$lib/icons/CopyIcon.svelte';
-	import { onMount } from 'svelte';
+	import { afterUpdate, onMount } from 'svelte';
 	import { Toast } from '$lib/toast';
 	import { toasts, canisters, inReceivingMenu, selectedAsset, inQrDestination } from '$lib/stores';
 	import BigNumber from 'bignumber.js';
@@ -107,7 +107,7 @@
 	};
 
 	const setPositions = () => {
-		if (status.time_left.length === 0) return;
+		if (!selector || !currentBar || !minCommitment) return;
 
 		const barWidth = totalBar.offsetWidth;
 		const ratio = bigintE8sToNumber(status.total_icp_deposited).toNumber() / 23_295_621;
@@ -171,7 +171,6 @@
 	const fetchStatus = async () => {
 		try {
 			status = await snsCanister.get_status();
-			setPositions();
 		} catch (e) {
 			console.log(e);
 		}
@@ -212,7 +211,7 @@
 
 	// The countdown is displayed when it's strictly greater than 0.
 	// Hence an initialization to a non zero value until the status can be fetched.
-	let countDown: bigint = 1_0000n;
+	let countDown: bigint;
 
 	function startTimer(timeLeft: bigint) {
 		countDown = timeLeft;
@@ -224,8 +223,6 @@
 	onMount(() => {
 		setupLaunchpad().then(async () => {
 			await fetchStatus();
-			const timeLeft = status.start_at - BigInt(Math.floor(Date.now() / 1_000));
-			startTimer(timeLeft);
 		});
 
 		const intervalId = setInterval(async () => {
@@ -233,9 +230,16 @@
 			await updateBalance();
 			await updateIcpDeposited();
 			await updateWTNClaimable();
+			setPositions();
 		}, 5000);
 
 		return () => clearInterval(intervalId);
+	});
+
+	afterUpdate(() => {
+		setPositions();
+		const timeLeft = status.start_at - BigInt(Math.floor(Date.now() / 1_000));
+		startTimer(timeLeft);
 	});
 </script>
 
@@ -245,8 +249,10 @@
 <main>
 	{#if status.time_left.length === 0}
 		<div class="countdown-container">
-			<span style:font-size="30px" style:text-align="center"
-				>Launchpad will start in <b>{displayCountDown(countDown)}</b>
+			<span style:font-size="30px" style:text-align="center">
+				{#if countDown}
+					Launchpad will start in <b>{displayCountDown(countDown)}</b>
+				{/if}
 			</span>
 		</div>
 	{:else}
