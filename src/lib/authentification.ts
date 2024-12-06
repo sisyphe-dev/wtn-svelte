@@ -101,44 +101,36 @@ declare global {
 }
 
 export async function connectWithPlug() {
-	try {
-		const transport = new PlugTransport();
-		const newSigner = new Signer({ transport });
+	const transport = new PlugTransport();
+	const newSigner = new Signer({ transport });
 
-		await newSigner.requestPermissions([
-			{
-				method: 'icrc27_accounts'
-			},
-			{ method: 'icrc49_call_canister' }
-		]);
+	await newSigner.requestPermissions([
+		{
+			method: 'icrc27_accounts'
+		},
+		{ method: 'icrc49_call_canister' }
+	]);
 
-		console.log('The wallet set the following permission scope:', await newSigner.permissions());
+	console.log('The wallet set the following permission scope:', await newSigner.permissions());
 
-		const accounts = await newSigner.accounts();
+	const accounts = await newSigner.accounts();
 
-		if (accounts.length > 1) {
-			availableAccounts.set(accounts);
-			signer.set(newSigner);
-		} else {
-			await finalizePlugConnection(newSigner, accounts[0].owner);
-		}
-	} catch (error) {
-		console.error(error);
+	if (accounts.length > 1) {
+		availableAccounts.set(accounts);
+		signer.set(newSigner);
+	} else {
+		await finalizePlugConnection(newSigner, accounts[0].owner);
 	}
 }
 
 export async function finalizePlugConnection(newSigner: Signer, userPrincipal: Principal) {
-	try {
-		const signerAgent = SignerAgent.createSync({
-			signer: newSigner,
-			account: userPrincipal
-		});
+	const signerAgent = SignerAgent.createSync({
+		signer: newSigner,
+		account: userPrincipal
+	});
 
-		canisters.set(await fetchActors(signerAgent));
-		user.set(new User(userPrincipal));
-	} catch (error) {
-		console.log(error);
-	}
+	canisters.set(await fetchActors(signerAgent));
+	user.set(new User(userPrincipal));
 }
 
 export async function connectWithTransport(rpc: typeof NFID_RPC) {

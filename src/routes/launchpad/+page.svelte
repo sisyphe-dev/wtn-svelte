@@ -242,7 +242,7 @@
 </script>
 
 {#if $inQrDestination}
-<QrDestination {destination}/>
+	<QrDestination {destination} />
 {/if}
 <main>
 	{#if status.time_left.length === 0}
