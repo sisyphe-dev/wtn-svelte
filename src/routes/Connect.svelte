@@ -41,12 +41,7 @@
 					break;
 			}
 		} catch (e) {
-			if (identityProvider !== 'plug') {
-				toasts.add(Toast.error('Connection failed. Please try again.'));
-			} else {
-				toasts.add(Toast.error('Extension not recognized. Please try again.'));
-			}
-
+			toasts.add(Toast.error('Connection failed. Please try again.'));
 			console.error(e);
 			dialog.close();
 			return;
