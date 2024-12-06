@@ -88,11 +88,10 @@
 	<SnsMenu />
 {:else}
 	<div class="page-container">
-		<div class="redirect-container">
-			<h2>Do you want to participate in our second SNS ? </h2>
-			<h2>Check out our <a target="_blank" href="https://waterneuron.fi/launchpad/">launchpad</a></h2>
-		</div>
 		<Navbar />
+		<div class="redirect-container">
+			<p><a href="/launchpad">Join Papaya SNS 🥭</a></p>
+		</div>
 		<div class="content-container" class:filter={$inReceivingMenu || $inSendingMenu || $isLogging}>
 			<slot />
 		</div>
@@ -248,6 +247,24 @@
 		color: var(--title-color);
 		align-items: center;
 		font-family: var(--secondary-font);
+		background: linear-gradient(135deg, #ffdab9, #ffb347);
+		width: fit-content;
+		padding: 1em;
+		height: fit-content;
+		border-radius: 10px;
+		display: flex;
+		align-self: center;
+	}
+
+	.redirect-container p {
+		margin: 0;
+		text-decoration: underline;
+		text-decoration-color: black;
+		font-size: 1.2em;
+	}
+
+	.redirect-container a {
+		color: black;
 	}
 
 	a {
@@ -255,7 +272,6 @@
 		outline: none;
 		color: var(--title-color);
 		text-align: center;
-		
 	}
 	/* === Utilities ===*/
 	.filter {
