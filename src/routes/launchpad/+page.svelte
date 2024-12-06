@@ -18,7 +18,7 @@
 
 	let status: Status = {
 		participants: 0n,
-		time_left: [0n],
+		time_left: [],
 		start_at: 0n,
 		minimum_deposit_amount: 0n,
 		total_icp_deposited: 0n,
@@ -83,13 +83,11 @@
 	}
 
 	function displayCountDown(timeLeft: bigint): string {
-		const days = Math.floor(Number(timeLeft) / (3600 * 24));
 		const hours = Math.floor((Number(timeLeft) % (3600 * 24)) / 3600);
 		const minutes = Math.floor((Number(timeLeft) % (60 * 60)) / 60);
 		const seconds = Number(timeLeft) % 60;
 
 		const formatted = [
-			days.toString().padStart(2, '0'),
 			hours.toString().padStart(2, '0'),
 			minutes.toString().padStart(2, '0'),
 			seconds.toString().padStart(2, '0')
@@ -247,8 +245,8 @@
 <main>
 	{#if status.time_left.length === 0}
 		<div class="countdown-container">
-			<span style:font-size="30px"
-				>Launchpad will start in: <b>{displayCountDown(countDown)}</b>
+			<span style:font-size="30px" style:text-align="center"
+				>Launchpad will start in <b>{displayCountDown(countDown)}</b>
 			</span>
 		</div>
 	{:else}
