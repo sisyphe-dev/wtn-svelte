@@ -26,7 +26,7 @@
 					selectedAsset.set(asset);
 				}}
 			>
-				<QRCodeScannerIcon />
+				<QRCodeScannerIcon color="--main-color" />
 			</button>
 			<button
 				class="mobile-action-btn"

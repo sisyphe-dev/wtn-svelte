@@ -28,5 +28,8 @@
 	},
 	"icpswap-pool": {
 		"ic": "e5a7x-pqaaa-aaaag-qkcga-cai"
+	},
+	"sns_module": {
+		"ic": "zftzm-qqaaa-aaaam-adxfa-cai"
 	}
 }
