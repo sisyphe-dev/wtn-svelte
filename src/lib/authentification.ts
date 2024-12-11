@@ -28,7 +28,7 @@ export const HOST = DEV ? 'http://127.0.1:8080' : 'https://ic0.app';
 const DAPP_DERIVATION_ORIGIN = 'https://n3i53-gyaaa-aaaam-acfaq-cai.icp0.io';
 const IDENTITY_PROVIDER = 'https://identity.ic0.app';
 
-export const OISY_RPC = 'https://oisy.com/sign' as const;
+// export const OISY_RPC = 'https://oisy.com/sign' as const;
 export const NFID_RPC = 'https://nfid.one/rpc' as const;
 
 const CANISTER_ID_II = DEV ? 'iidmm-fiaaa-aaaaq-aadmq-cai' : 'rdmx6-jaaaa-aaaaa-aaadq-cai';
@@ -101,47 +101,39 @@ declare global {
 }
 
 export async function connectWithPlug() {
-	try {
-		const transport = new PlugTransport();
-		const newSigner = new Signer({ transport });
+	const transport = new PlugTransport();
+	const newSigner = new Signer({ transport });
 
-		await newSigner.requestPermissions([
-			{
-				method: 'icrc27_accounts'
-			},
-			{ method: 'icrc49_call_canister' }
-		]);
+	await newSigner.requestPermissions([
+		{
+			method: 'icrc27_accounts'
+		},
+		{ method: 'icrc49_call_canister' }
+	]);
 
-		console.log('The wallet set the following permission scope:', await newSigner.permissions());
+	console.log('The wallet set the following permission scope:', await newSigner.permissions());
 
-		const accounts = await newSigner.accounts();
+	const accounts = await newSigner.accounts();
 
-		if (accounts.length > 1) {
-			availableAccounts.set(accounts);
-			signer.set(newSigner);
-		} else {
-			await finalizePlugConnection(newSigner, accounts[0].owner);
-		}
-	} catch (error) {
-		console.error(error);
+	if (accounts.length > 1) {
+		availableAccounts.set(accounts);
+		signer.set(newSigner);
+	} else {
+		await finalizePlugConnection(newSigner, accounts[0].owner);
 	}
 }
 
 export async function finalizePlugConnection(newSigner: Signer, userPrincipal: Principal) {
-	try {
-		const signerAgent = SignerAgent.createSync({
-			signer: newSigner,
-			account: userPrincipal
-		});
+	const signerAgent = SignerAgent.createSync({
+		signer: newSigner,
+		account: userPrincipal
+	});
 
-		canisters.set(await fetchActors(signerAgent));
-		user.set(new User(userPrincipal));
-	} catch (error) {
-		console.log(error);
-	}
+	canisters.set(await fetchActors(signerAgent));
+	user.set(new User(userPrincipal));
 }
 
-export async function connectWithTransport(rpc: typeof OISY_RPC | typeof NFID_RPC) {
+export async function connectWithTransport(rpc: typeof NFID_RPC) {
 	try {
 		const transport = new PostMessageTransport({
 			url: rpc
