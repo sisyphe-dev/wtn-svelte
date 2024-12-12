@@ -22,7 +22,9 @@
 
 	let dialog: HTMLDialogElement;
 
-	async function handleConnection(identityProvider: 'internetIdentity' | 'plug' | 'oisy' | 'nfid' | 'primevault') {
+	async function handleConnection(
+		identityProvider: 'internetIdentity' | 'plug' | 'oisy' | 'nfid' | 'primevault'
+	) {
 		if ($isBusy) return;
 		isBusy.set(true);
 
@@ -40,8 +42,8 @@
 				case 'nfid':
 					await connectWithTransport(NFID_RPC);
 					break;
-				case 'primevault': 
-					await connectWithExtension(); 
+				case 'primevault':
+					await connectWithExtension();
 					break;
 			}
 		} catch (e) {
@@ -135,7 +137,7 @@
 					<h2>Plug Wallet</h2>
 				</button>
 				<button class="login-btn" on:click={() => handleConnection('primevault')}>
-					<img src="/icon/plug.png" width="50em" height="50em" alt="Primevault Icon." />
+					<img src="/icon/primevault.png" width="50em" height="50em" alt="Primevault Icon." />
 					<h2>PrimeVault Wallet</h2>
 				</button>
 				{#if DEV || STAGING}
