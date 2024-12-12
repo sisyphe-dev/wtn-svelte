@@ -77,14 +77,14 @@
 	}
 
 	let isAnimating = false;
-	let isCircleSubaccountVisible = false;
+	let isCircleVisible = false;
 
-	const handleAnimation = (target: 'owner' | 'subaccount') => {
+	const handleAnimation = () => {
 		if (!isAnimating) {
 			isAnimating = true;
-			isCircleSubaccountVisible = target === 'subaccount';
+			isCircleVisible = true;
 			setTimeout(() => {
-				isCircleSubaccountVisible = false;
+				isCircleVisible = false;
 				setTimeout(() => {
 					isAnimating = false;
 				}, 500);
@@ -156,12 +156,12 @@
 						<button
 							class="copy-btn"
 							on:click={() => {
-								handleAnimation('subaccount');
+								handleAnimation();
 								navigator.clipboard.writeText($sns.encodedBoomerangAccount ?? '');
 							}}
 						>
 							<CopyIcon />
-							{#if isCircleSubaccountVisible}
+							{#if isCircleVisible}
 								<div class="circle" transition:scale={{ duration: 500 }}></div>
 							{/if}
 						</button>
