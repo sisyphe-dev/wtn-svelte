@@ -82,20 +82,6 @@
 		return formattedDate;
 	}
 
-	function displayCountDown(timeLeft: bigint): string {
-		const hours = Math.floor((Number(timeLeft) % (3600 * 24)) / 3600);
-		const minutes = Math.floor((Number(timeLeft) % (60 * 60)) / 60);
-		const seconds = Number(timeLeft) % 60;
-
-		const formatted = [
-			hours.toString().padStart(2, '0'),
-			minutes.toString().padStart(2, '0'),
-			seconds.toString().padStart(2, '0')
-		].join(':');
-
-		return formatted;
-	}
-
 	const updateIcpDeposited = async () => {
 		if (!participant) return;
 		icpDepositedSns = await snsCanister.get_icp_deposited(Principal.fromText(participant));
