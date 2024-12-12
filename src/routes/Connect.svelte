@@ -6,6 +6,7 @@
 		connectWithInternetIdentity,
 		connectWithTransport,
 		connectWithPlug,
+		connectWithExtension,
 		localSignIn,
 		NFID_RPC,
 		//OISY_RPC,
@@ -21,7 +22,7 @@
 
 	let dialog: HTMLDialogElement;
 
-	async function handleConnection(identityProvider: 'internetIdentity' | 'plug' | 'oisy' | 'nfid') {
+	async function handleConnection(identityProvider: 'internetIdentity' | 'plug' | 'oisy' | 'nfid' | 'primevault') {
 		if ($isBusy) return;
 		isBusy.set(true);
 
@@ -38,6 +39,9 @@
 				// 	break;
 				case 'nfid':
 					await connectWithTransport(NFID_RPC);
+					break;
+				case 'primevault': 
+					await connectWithExtension(); 
 					break;
 			}
 		} catch (e) {
@@ -129,6 +133,10 @@
 				<button class="login-btn" on:click={() => handleConnection('plug')}>
 					<img src="/icon/plug.png" width="50em" height="50em" alt="Plug Icon." />
 					<h2>Plug Wallet</h2>
+				</button>
+				<button class="login-btn" on:click={() => handleConnection('primevault')}>
+					<img src="/icon/plug.png" width="50em" height="50em" alt="Primevault Icon." />
+					<h2>PrimeVault Wallet</h2>
 				</button>
 				{#if DEV || STAGING}
 					<button

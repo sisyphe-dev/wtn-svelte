@@ -77,16 +77,13 @@
 	}
 
 	let isAnimating = false;
-	let isCircleOwnerVisible = false;
 	let isCircleSubaccountVisible = false;
 
 	const handleAnimation = (target: 'owner' | 'subaccount') => {
 		if (!isAnimating) {
 			isAnimating = true;
-			isCircleOwnerVisible = target === 'owner';
 			isCircleSubaccountVisible = target === 'subaccount';
 			setTimeout(() => {
-				isCircleOwnerVisible = false;
 				isCircleSubaccountVisible = false;
 				setTimeout(() => {
 					isAnimating = false;

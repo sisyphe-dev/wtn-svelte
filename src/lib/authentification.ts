@@ -11,11 +11,12 @@ import type { _SERVICE as boomerangInterface } from '../declarations/boomerang/b
 import type { _SERVICE as icpswapPoolInterface } from '../declarations/icpswap_pool/icpswap_pool.did';
 import { idlFactory as idlFactoryIcpswapPool } from '../declarations/icpswap_pool';
 import { Signer } from '@slide-computer/signer';
-import { PostMessageTransport } from '@slide-computer/signer-web';
 import { user, canisters, availableAccounts, signer } from './stores';
 import { CanisterActor, Canisters, User } from './state';
 import { SignerAgent } from '@slide-computer/signer-agent';
+import { PostMessageTransport } from '@slide-computer/signer-web';
 import { PlugTransport } from '@slide-computer/signer-transport-plug';
+import { BrowserExtensionTransport } from '@slide-computer/signer-extension';
 import { Principal } from '@dfinity/principal';
 
 // 1 hour in nanoseconds
@@ -133,6 +134,15 @@ export async function finalizePlugConnection(newSigner: Signer, userPrincipal: P
 	user.set(new User(userPrincipal));
 }
 
+export async function connectWithExtension() {
+	try {
+		const providerDetails = await BrowserExtensionTransport.discover();
+		console.log(providerDetails);
+	} catch (e) {
+		console.error(e);
+	}
+}
+
 export async function connectWithTransport(rpc: typeof NFID_RPC) {
 	try {
 		const transport = new PostMessageTransport({
@@ -153,7 +163,7 @@ export async function connectWithTransport(rpc: typeof NFID_RPC) {
 		canisters.set(await fetchActors(signerAgent));
 		user.set(new User(userPrincipal));
 	} catch (error) {
-		console.log(error);
+		console.error(error);
 	}
 }
 
