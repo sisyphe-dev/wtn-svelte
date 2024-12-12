@@ -209,17 +209,6 @@
 		isNotAvailable = false;
 	};
 
-	// The countdown is displayed when it's strictly greater than 0.
-	// Hence an initialization to a non zero value until the status can be fetched.
-	let countDown: bigint;
-
-	function startTimer(timeLeft: bigint) {
-		countDown = timeLeft;
-		setInterval(() => {
-			countDown -= 1n;
-		}, 1000);
-	}
-
 	onMount(() => {
 		setupLaunchpad().then(async () => {
 			await fetchStatus();
@@ -238,8 +227,6 @@
 
 	afterUpdate(() => {
 		setPositions();
-		const timeLeft = status.start_at - BigInt(Math.floor(Date.now() / 1_000));
-		startTimer(timeLeft);
 	});
 </script>
 
@@ -247,196 +234,186 @@
 	<QrDestination {destination} />
 {/if}
 <main>
-	{#if status.time_left.length === 0}
-		<div class="countdown-container">
-			<span style:font-size="30px" style:text-align="center">
-				{#if countDown}
-					Launchpad will start in <b>{displayCountDown(countDown)}</b>
-				{/if}
-			</span>
-		</div>
-	{:else}
-		<div class="header-container">
-			<p>
-				WaterNeuron is a liquid staking protocol designed for the Internet Computer network. Staking
-				ICP becomes straightforward and efficient.
-			</p>
-			<span
-				><a target="_blank" href="https://docs.waterneuron.fi">https://docs.waterneuron.fi</a> |
-				<a target="_blank" href="https://x.com/waterneuron">https://x.com/waterneuron</a>
-				| <a target="_blank" href="https://t.me/waterneuron">https://t.me/waterneuron</a>
-			</span>
-		</div>
-		<div class="core-container">
-			<div class="parameters-container">
-				<div class="parameter">
-					<span>Token Name</span> <span>WaterNeuron</span>
-				</div>
-
-				<div class="parameter">
-					<span>Token Symbol</span> <span>WTN</span>
-				</div>
-
-				<div class="parameter">
-					<span>Total Supply</span> <span>116'479'684.72 WTN</span>
-				</div>
-
-				<div class="parameter">
-					<span>Minimum Participant Commitment</span> <span>10 ICP</span>
-				</div>
-
-				<div class="parameter">
-					<span>Swap Start</span> <span>{displayDate(status.start_at)}</span>
-				</div>
-
-				<div class="parameter">
-					<span>Swap End</span> <span>{displayDate(status.end_at)}</span>
-				</div>
+	<div class="header-container">
+		<p>
+			WaterNeuron is a liquid staking protocol designed for the Internet Computer network. Staking
+			ICP becomes straightforward and efficient.
+		</p>
+		<span
+			><a target="_blank" href="https://docs.waterneuron.fi">https://docs.waterneuron.fi</a> |
+			<a target="_blank" href="https://x.com/waterneuron">https://x.com/waterneuron</a>
+			| <a target="_blank" href="https://t.me/waterneuron">https://t.me/waterneuron</a>
+		</span>
+	</div>
+	<div class="core-container">
+		<div class="parameters-container">
+			<div class="parameter">
+				<span>Token Name</span> <span>WaterNeuron</span>
 			</div>
-			<div class="sns-status-container">
-				<h2>Status</h2>
-				<div class="parameter">
-					<span>Total Participants</span>
-					<span>{status.participants.toString()}</span>
-				</div>
-				<div class="parameter">
-					<span>Tokens Distributed</span>
-					<span>23'295'621 WTN</span>
-				</div>
-				<div class="commitment-container">
-					<div class="overall-commitment">
-						<div class="parameter">
-							<span>Overall Commitment</span>
-							<span>{displayUsFormat(bigintE8sToNumber(status.total_icp_deposited))} ICP</span>
-						</div>
-						<div class="progress-bar">
-							<div bind:this={selector} class="triangle-down"></div>
-							<div bind:this={minCommitment} class="checkpoint"></div>
-							<div bind:this={currentBar} class="bar bar--1"></div>
-							<div bind:this={totalBar} class="bar bar--2"></div>
-						</div>
+
+			<div class="parameter">
+				<span>Token Symbol</span> <span>WTN</span>
+			</div>
+
+			<div class="parameter">
+				<span>Total Supply</span> <span>116'479'684.72 WTN</span>
+			</div>
+
+			<div class="parameter">
+				<span>Minimum Participant Commitment</span> <span>10 ICP</span>
+			</div>
+
+			<div class="parameter">
+				<span>Swap Start</span> <span>{displayDate(status.start_at)}</span>
+			</div>
+
+			<div class="parameter">
+				<span>Swap End</span> <span>{displayDate(status.end_at)}</span>
+			</div>
+		</div>
+		<div class="sns-status-container">
+			<h2>Status</h2>
+			<div class="parameter">
+				<span>Total Participants</span>
+				<span>{status.participants.toString()}</span>
+			</div>
+			<div class="parameter">
+				<span>Tokens Distributed</span>
+				<span>23'295'621 WTN</span>
+			</div>
+			<div class="commitment-container">
+				<div class="overall-commitment">
+					<div class="parameter">
+						<span>Overall Commitment</span>
+						<span>{displayUsFormat(bigintE8sToNumber(status.total_icp_deposited))} ICP</span>
+					</div>
+					<div class="progress-bar">
+						<div bind:this={selector} class="triangle-down"></div>
+						<div bind:this={minCommitment} class="checkpoint"></div>
+						<div bind:this={currentBar} class="bar bar--1"></div>
+						<div bind:this={totalBar} class="bar bar--2"></div>
 					</div>
 				</div>
-
-				<div class="parameter">
-					<span style="color: #4d79ff">Current SNS</span>
-					<span style="color: #4d79ff"
-						>{snsRatio === 0 ? 0 : displayUsFormat(BigNumber(1 / snsRatio))} WTN/ICP</span
-					>
-				</div>
-				<div class="parameter">
-					<span style="color: #faa123">Previous SNS</span>
-					<span style="color: #faa123">{displayUsFormat(BigNumber(65.5))} WTN/ICP</span>
-				</div>
-				<div class="parameter">
-					<span>{displaySnsTimeLeft(Number(status.time_left))}</span>
-				</div>
 			</div>
-			<div class="participate-container">
-				<div
-					class:blur={destination === undefined}
-					class:visible={destination !== undefined}
-					class="submit-container"
-					style:align-items={status.time_left[0] !== 0n ? 'start' : 'center'}
+
+			<div class="parameter">
+				<span style="color: #4d79ff">Current SNS</span>
+				<span style="color: #4d79ff"
+					>{snsRatio === 0 ? 0 : displayUsFormat(BigNumber(1 / snsRatio))} WTN/ICP</span
 				>
-					{#if status.time_left[0] !== 0n}
-						<h2>Participate</h2>
-						<div class="destination-container">
-							<span> Send ICP to the following destination: </span>
-							<span style="margin-left: 10px;" id="destination-accountId">
-								{displayAccountId(destination)}
-							</span>
-							<button
-								class="raw icon-btn"
-								on:click={() => navigator.clipboard.writeText(destination ?? '')}
-							>
-								<CopyIcon />
-							</button>
-							<button
-								class="raw icon-btn"
-								on:click={() => {
-									inQrDestination.set(true);
-								}}
-							>
-								<QrCodeScannerIcon color="--title-color" />
-							</button>
-						</div>
-						<div class="destination-container">
-							<span>ICP available for commit: </span>
-							<span style="margin-left: 10px;" id="destination-icp-balance">
-								{#if balance !== undefined}
-									{displayUsFormat(bigintE8sToNumber(balance))} ICP
-								{:else}
-									-/- ICP
-								{/if}
-							</span>
-						</div>
-						<div class="destination-container">
-							<span>ICP deposited in the SNS: </span>
-							<span style="margin-left: 10px;" id="destination-icp-balance">
-								{#if icpDepositedSns !== undefined}
-									{displayUsFormat(bigintE8sToNumber(icpDepositedSns))} ICP
-								{:else}
-									-/- ICP
-								{/if}
-							</span>
-						</div>
-						<button class="commit-btn" on:click={notifyDeposit}>
-							{#if isNotAvailable}
-								<div class="spinner spinner-type-1"></div>
-							{:else}
-								Commit
-							{/if}
-						</button>
-					{:else}
-						<h2>🎉 The swap is successful.</h2>
-						<div class="destination-container">
-							<span>You have successfully deposited</span>
-							<span style="margin-left: 0.5em;" id="destination-icp-balance">
-								{#if icpDepositedSns !== undefined}
-									{displayUsFormat(bigintE8sToNumber(icpDepositedSns))} ICP.
-								{:else}
-									-/- ICP.
-								{/if}
-							</span>
-						</div>
-						<div class="destination-container">
-							<span>Claimable:</span>
-							<span style="margin-left: 0.5em;" id="destination-icp-balance">
-								{#if wtnClaimable !== undefined}
-									{displayUsFormat(bigintE8sToNumber(wtnClaimable))} WTN
-								{:else}
-									-/- WTN.
-								{/if}
-							</span>
-						</div>
-						<button class="commit-btn" on:click={claimWtn}>
-							{#if isNotAvailable}
-								<div class="spinner spinner-type-1"></div>
-							{:else}
-								Claim WTN
-							{/if}
-						</button>
-					{/if}
-				</div>
-				{#if destination === undefined}
-					<div class="register-container" out:fade={{ duration: 500 }}>
-						<span>Register your NNS principal to participate in the SNS.</span>
-						<div class="derive-container">
-							<input class="raw derive-input" placeholder="Principal" bind:value={participant} />
-							<button class="raw derive-btn" on:click={setDestination}>
-								{#if isNotAvailable}
-									<div class="spinner spinner-type-2"></div>
-								{:else}
-									<SuccessIcon color="--title-color" />
-								{/if}
-							</button>
-						</div>
-					</div>
-				{/if}
+			</div>
+			<div class="parameter">
+				<span style="color: #faa123">Previous SNS</span>
+				<span style="color: #faa123">{displayUsFormat(BigNumber(65.5))} WTN/ICP</span>
+			</div>
+			<div class="parameter">
+				<span>{displaySnsTimeLeft(Number(status.time_left))}</span>
 			</div>
 		</div>
-	{/if}
+		<div class="participate-container">
+			<div
+				class:blur={destination === undefined}
+				class:visible={destination !== undefined}
+				class="submit-container"
+				style:align-items={status.time_left[0] !== 0n ? 'start' : 'center'}
+			>
+				{#if status.time_left[0] !== 0n}
+					<h2>Participate</h2>
+					<div class="destination-container">
+						<span> Send ICP to the following destination: </span>
+						<span style="margin-left: 10px;" id="destination-accountId">
+							{displayAccountId(destination)}
+						</span>
+						<button
+							class="raw icon-btn"
+							on:click={() => navigator.clipboard.writeText(destination ?? '')}
+						>
+							<CopyIcon />
+						</button>
+						<button
+							class="raw icon-btn"
+							on:click={() => {
+								inQrDestination.set(true);
+							}}
+						>
+							<QrCodeScannerIcon color="--title-color" />
+						</button>
+					</div>
+					<div class="destination-container">
+						<span>ICP available for commit: </span>
+						<span style="margin-left: 10px;" id="destination-icp-balance">
+							{#if balance !== undefined}
+								{displayUsFormat(bigintE8sToNumber(balance))} ICP
+							{:else}
+								-/- ICP
+							{/if}
+						</span>
+					</div>
+					<div class="destination-container">
+						<span>ICP deposited in the SNS: </span>
+						<span style="margin-left: 10px;" id="destination-icp-balance">
+							{#if icpDepositedSns !== undefined}
+								{displayUsFormat(bigintE8sToNumber(icpDepositedSns))} ICP
+							{:else}
+								-/- ICP
+							{/if}
+						</span>
+					</div>
+					<button class="commit-btn" on:click={notifyDeposit}>
+						{#if isNotAvailable}
+							<div class="spinner spinner-type-1"></div>
+						{:else}
+							Commit
+						{/if}
+					</button>
+				{:else}
+					<h2>🎉 The swap is successful.</h2>
+					<div class="destination-container">
+						<span>You have successfully deposited</span>
+						<span style="margin-left: 0.5em;" id="destination-icp-balance">
+							{#if icpDepositedSns !== undefined}
+								{displayUsFormat(bigintE8sToNumber(icpDepositedSns))} ICP.
+							{:else}
+								-/- ICP.
+							{/if}
+						</span>
+					</div>
+					<div class="destination-container">
+						<span>Claimable:</span>
+						<span style="margin-left: 0.5em;" id="destination-icp-balance">
+							{#if wtnClaimable !== undefined}
+								{displayUsFormat(bigintE8sToNumber(wtnClaimable))} WTN
+							{:else}
+								-/- WTN.
+							{/if}
+						</span>
+					</div>
+					<button class="commit-btn" on:click={claimWtn}>
+						{#if isNotAvailable}
+							<div class="spinner spinner-type-1"></div>
+						{:else}
+							Claim WTN
+						{/if}
+					</button>
+				{/if}
+			</div>
+			{#if destination === undefined}
+				<div class="register-container" out:fade={{ duration: 500 }}>
+					<span>Register your NNS principal to participate in the SNS.</span>
+					<div class="derive-container">
+						<input class="raw derive-input" placeholder="Principal" bind:value={participant} />
+						<button class="raw derive-btn" on:click={setDestination}>
+							{#if isNotAvailable}
+								<div class="spinner spinner-type-2"></div>
+							{:else}
+								<SuccessIcon color="--title-color" />
+							{/if}
+						</button>
+					</div>
+				</div>
+			{/if}
+		</div>
+	</div>
 </main>
 
 <style>
@@ -478,15 +455,6 @@
 
 	h2 {
 		margin: 0;
-	}
-
-	.countdown-container {
-		width: 100%;
-		height: 100%;
-		display: flex;
-		flex-grow: 1;
-		justify-content: center;
-		align-items: center;
 	}
 
 	h2,
