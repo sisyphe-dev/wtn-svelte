@@ -36,7 +36,8 @@
 		ApproveArgs,
 		ApproveResult,
 		Allowance,
-		AllowanceArgs
+		AllowanceArgs,
+		Account
 	} from '$lib/../declarations/icrc_ledger/icrc_ledger.did';
 	import type {
 		DepositArgs,
@@ -47,7 +48,6 @@
 		Result_7 as IcpSwapUnusedBalanceResult
 	} from '$lib/../declarations/icpswap_pool/icpswap_pool.did';
 	import type { ConversionArg } from '$lib/../declarations/water_neuron/water_neuron.did';
-	import type { Account } from '@dfinity/ledger-icp';
 	import { onMount, afterUpdate } from 'svelte';
 	import { fade } from 'svelte/transition';
 	import { Principal } from '@dfinity/principal';
@@ -57,6 +57,7 @@
 	let exchangeRate: BigNumber;
 	let minimumWithdraw: BigNumber;
 	let fastUnstakeAmount = BigNumber(0);
+	let timeoutId: NodeJS.Timeout | null = null;
 	let showFailedHelp = false;
 	let showImmediateHelp = false;
 	let showDelayedHelp = false;
@@ -66,19 +67,19 @@
 		if (
 			!$user ||
 			$isConverting ||
-			!$canisters ||
+			!$canisters?.nicpLedger.authenticatedActor ||
+			!$canisters?.waterNeuron.authenticatedActor ||
 			!$waterNeuronInfo ||
 			amount.isNaN() ||
-			amount.isLessThan(BigNumber(10).dividedBy($waterNeuronInfo.exchangeRate()))
+			amount.isLessThan(minimumWithdraw)
 		)
 			return;
 		isConverting.set(true);
 		if ($user.nicpBalance().isGreaterThanOrEqualTo(amount) && amount.isGreaterThan(0)) {
 			try {
 				let amountE8s = numberToBigintE8s(amount);
-				const approveAmount = amountE8s * 3n;
 				const approval = await nicpTransferApproved(
-					approveAmount,
+					amountE8s,
 					{
 						owner: $user.principal,
 						subaccount: []
@@ -88,7 +89,7 @@
 				if (!approval.success) {
 					toasts.add(Toast.error(approval.message ?? 'Unknown Error.'));
 				} else {
-					const conversionResult = await $canisters.waterNeuron.nicp_to_icp({
+					const conversionResult = await $canisters.waterNeuron.authenticatedActor.nicp_to_icp({
 						maybe_subaccount: [],
 						amount_e8s: amountE8s
 					} as ConversionArg);
@@ -100,7 +101,7 @@
 					}
 				}
 			} catch (error) {
-				console.log('nicpToIcp error:', error);
+				console.log('[nicpToIcp] error:', error);
 				toasts.add(Toast.error('Call was rejected.'));
 			}
 		} else {
@@ -110,18 +111,19 @@
 	}
 
 	const approveInFastUnstake = async (spender: Account, amountE8s: bigint) => {
-		if (!$canisters) return;
+		if (!$canisters?.nicpLedger.authenticatedActor) return;
 
-		const approveResult: ApproveResult = await $canisters.nicpLedger.icrc2_approve({
-			spender,
-			fee: [],
-			memo: [],
-			from_subaccount: [],
-			created_at_time: [],
-			expires_at: [],
-			expected_allowance: [],
-			amount: amountE8s
-		} as ApproveArgs);
+		const approveResult: ApproveResult =
+			await $canisters.nicpLedger.authenticatedActor.icrc2_approve({
+				spender,
+				fee: [],
+				memo: [],
+				from_subaccount: [],
+				created_at_time: [],
+				expires_at: [],
+				expected_allowance: [],
+				amount: amountE8s
+			} as ApproveArgs);
 
 		const status = handleApproveResult(approveResult);
 		if (!status.success) {
@@ -131,9 +133,9 @@
 	};
 
 	const depositInFastUnstake = async (amountE8s: bigint) => {
-		if (!$canisters) return;
+		if (!$canisters?.icpswapPool.authenticatedActor) return;
 
-		const depositResult = await $canisters.icpswapPool.depositFrom({
+		const depositResult = await $canisters.icpswapPool.authenticatedActor.depositFrom({
 			fee: DEFAULT_LEDGER_FEE,
 			token: CANISTER_ID_NICP_LEDGER,
 			amount: amountE8s
@@ -153,9 +155,9 @@
 	};
 
 	const swapInFastUnstake = async (amountIn: string, amountOut: string) => {
-		if (!$canisters) return;
+		if (!$canisters?.icpswapPool.authenticatedActor) return;
 
-		const swapResult = await $canisters.icpswapPool.swap({
+		const swapResult = await $canisters.icpswapPool.authenticatedActor.swap({
 			amountIn: amountIn.toString(),
 			zeroForOne: true,
 			amountOutMinimum: amountOut.toString()
@@ -175,9 +177,9 @@
 	};
 
 	const withdrawInFastUnstake = async (amountToWithdrawE8s: bigint) => {
-		if (!$canisters) return;
+		if (!$canisters?.icpswapPool.authenticatedActor) return;
 
-		const withdrawResult = await $canisters.icpswapPool.withdraw({
+		const withdrawResult = await $canisters.icpswapPool.authenticatedActor.withdraw({
 			fee: DEFAULT_LEDGER_FEE,
 			token: CANISTER_ID_ICP_LEDGER,
 			amount: amountToWithdrawE8s
@@ -208,10 +210,12 @@
 				subaccount: []
 			} as Account;
 
-			const allowanceResult: Allowance = await $canisters.nicpLedger.icrc2_allowance({
-				account: { owner: $user.principal, subaccount: [] } as Account,
-				spender
-			} as AllowanceArgs);
+			const allowanceResult: Allowance = await $canisters.nicpLedger.anonymousActor.icrc2_allowance(
+				{
+					account: { owner: $user.principal, subaccount: [] } as Account,
+					spender
+				} as AllowanceArgs
+			);
 			const allowance = allowanceResult['allowance'];
 			if (numberToBigintE8s(amount) > allowance) {
 				await approveInFastUnstake(spender, amountE8s);
@@ -241,21 +245,22 @@
 	}
 
 	const withdrawIcpswapTokens = async () => {
-		if (!$canisters || !$user) return;
+		if (!$canisters?.icpswapPool.authenticatedActor || !$user) return;
 		isConverting.set(true);
 		try {
-			const result = await $canisters.icpswapPool.getUserUnusedBalance($user.principal);
+			const result = await $canisters.icpswapPool.anonymousActor.getUserUnusedBalance(
+				$user.principal
+			);
 			const key = Object.keys(result)[0] as keyof IcpSwapUnusedBalanceResult;
 
 			switch (key) {
 				case 'err':
-					console.log(result[key]);
 					toasts.add(Toast.error('Failed to fetch balances on ICPswap. Please retry.'));
 					break;
 				case 'ok':
 					const nicpBalanceE8s = result[key]['balance0'];
 					if (nicpBalanceE8s > DEFAULT_LEDGER_FEE) {
-						const withdrawNicpResult = await $canisters.icpswapPool.withdraw({
+						const withdrawNicpResult = await $canisters.icpswapPool.authenticatedActor.withdraw({
 							fee: DEFAULT_LEDGER_FEE,
 							token: CANISTER_ID_NICP_LEDGER,
 							amount: nicpBalanceE8s
@@ -280,7 +285,7 @@
 
 					const icpBalanceE8s = result[key]['balance1'];
 					if (icpBalanceE8s > DEFAULT_LEDGER_FEE) {
-						const withdrawIcpResult = await $canisters.icpswapPool.withdraw({
+						const withdrawIcpResult = await $canisters.icpswapPool.authenticatedActor.withdraw({
 							fee: DEFAULT_LEDGER_FEE,
 							token: CANISTER_ID_ICP_LEDGER,
 							amount: icpBalanceE8s
@@ -319,7 +324,8 @@
 
 			const amountIn = numberToBigintE8s(amount);
 			const amountOut = amountIn - numberToBigintE8s(amount.multipliedBy(BigNumber(0.02)));
-			const result = await $canisters.icpswapPool.quote({
+
+			const result = await $canisters.icpswapPool.anonymousActor.quote({
 				amountIn: amountIn.toString(),
 				zeroForOne: true,
 				amountOutMinimum: amountOut.toString()
@@ -357,11 +363,26 @@
 	});
 
 	onMount(() => {
-		const intervalId = setInterval(fetchData, 5000);
-		return () => clearInterval(intervalId);
+		const intervalIdFetchData = setInterval(fetchData, 5000);
+
+		return () => {
+			clearInterval(intervalIdFetchData);
+			if (timeoutId) {
+				clearTimeout(timeoutId);
+			}
+		};
 	});
 
-	$: $inputAmount, computeReceiveAmountFastUnstake();
+	const triggerTimeout = async () => {
+		if (timeoutId) {
+			clearTimeout(timeoutId);
+		}
+		timeoutId = setTimeout(async () => {
+			await computeReceiveAmountFastUnstake();
+		}, 400);
+	};
+
+	$: $inputAmount, triggerTimeout();
 </script>
 
 <div class="swap-container">
@@ -415,7 +436,7 @@
 				{#if fastUnstakeAmount.isGreaterThanOrEqualTo(0.0002)}
 					Receive {displayUsFormat(fastUnstakeAmount.minus(BigNumber(0.0002)), 8)} ICP
 				{:else}
-					Receive 0 ICP
+					Receive -/- ICP
 				{/if}
 			</p>
 			<button

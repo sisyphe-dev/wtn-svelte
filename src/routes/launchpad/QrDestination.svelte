@@ -1,10 +1,11 @@
 <script lang="ts">
-	import { selectedAsset, inReceivingMenu, user } from '$lib/stores';
+	import { inQrDestination } from '$lib/stores';
 	import CopyIcon from '$lib/icons/CopyIcon.svelte';
 	import { fade, scale } from 'svelte/transition';
 	import { onMount } from 'svelte';
 	import QrCreator from 'qr-creator';
 
+	export let destination: string;
 	let dialog: HTMLDialogElement;
 
 	let isAnimating = false;
@@ -29,7 +30,7 @@
 
 		QrCreator.render(
 			{
-				text: `${$selectedAsset.intoStr() === 'ICP' ? $user?.accountId : $user?.principal}`,
+				text: `${destination ?? ''}`,
 				radius: 0.0, // 0.0 to 0.5
 				ecLevel: 'H', // L, M, Q, H
 				fill: 'white',
@@ -44,48 +45,30 @@
 <dialog
 	id="receiverDialog"
 	on:close={() => {
-		inReceivingMenu.set(false);
+		inQrDestination.set(false);
 	}}
 >
 	<div class="receive-container" transition:fade={{ duration: 100 }}>
 		<div class="header-container">
-			<h3>Receive {$selectedAsset.intoStr()}</h3>
-			<img alt="ICP logo" src={$selectedAsset.getIconPath()} width="50px" height="50px" />
+			<h3>Send ICP to the following destination</h3>
 		</div>
 		<div class="qr-code-container">
 			<canvas id="qr-code" />
-			<img id="wtn-logo" src="/tokens/WTN.webp" width="70px" height="70px" alt="WTN logo." />
 		</div>
 		<div class="principal-container">
-			{#if $selectedAsset.intoStr() === 'ICP'}
-				<p>{$user?.accountId}</p>
-				<button
-					class="copy-btn"
-					on:click={() => {
-						handleAnimation();
-						navigator.clipboard.writeText($user ? $user.accountId : '');
-					}}
-				>
-					<CopyIcon />
-					{#if circleVisible}
-						<div class="circle" transition:scale={{ duration: 500 }}></div>
-					{/if}
-				</button>
-			{:else}
-				<p>{$user?.principal}</p>
-				<button
-					class="copy-btn"
-					on:click={() => {
-						handleAnimation();
-						navigator.clipboard.writeText($user ? $user.principal.toString() : '');
-					}}
-				>
-					<CopyIcon />
-					{#if circleVisible}
-						<div class="circle" transition:scale={{ duration: 500 }}></div>
-					{/if}
-				</button>
-			{/if}
+			<p>{destination}</p>
+			<button
+				class="copy-btn"
+				on:click={() => {
+					handleAnimation();
+					navigator.clipboard.writeText(destination ?? '');
+				}}
+			>
+				<CopyIcon />
+				{#if circleVisible}
+					<div class="circle" transition:scale={{ duration: 500 }}></div>
+				{/if}
+			</button>
 		</div>
 		<div class="finish-container">
 			<button
@@ -223,12 +206,6 @@
 	#qr-code {
 		height: 268px;
 		width: 268px;
-	}
-
-	#wtn-logo {
-		position: absolute;
-		top: 50%;
-		transform: translate(0, -50%);
 	}
 
 	.copy-btn {

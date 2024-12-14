@@ -6,6 +6,8 @@ import BigNumber from 'bignumber.js';
 import { get } from 'svelte/store';
 import { Principal } from '@dfinity/principal';
 import { encodeIcrcAccount } from '@dfinity/ledger-icrc';
+import type { WithdrawalDetails } from '../declarations/water_neuron/water_neuron.did';
+import { Signer } from '@slide-computer/signer';
 
 /* === Flags === */
 export const isLogging = writable<boolean>(false);
@@ -13,12 +15,17 @@ export const isBusy = writable<boolean>(false);
 export const isConverting = writable<boolean>(false);
 export const inSendingMenu = writable<boolean>(false);
 export const inReceivingMenu = writable<boolean>(false);
+export const inCancelWarningMenu = writable<boolean>(false);
 export const inMobileMenu = writable<boolean>(false);
+export const inQrDestination = writable<boolean>(false);
 export const inSnsMenu = writable<boolean>(false);
 
 /* === Components === */
 export const language = writable<'en' | 'es' | 'ja' | 'ru'>('en');
+export const availableAccounts = writable<{ owner: Principal; subaccount?: ArrayBuffer }[]>([]);
+export const signer = writable<Signer | undefined>(undefined);
 export const selectedAsset = writable<Asset>(new Asset(AssetType.ICP));
+export const selectedWithdrawal = writable<WithdrawalDetails | undefined>(undefined);
 export const user = writable<User | undefined>(undefined);
 export const canisters = writable<Canisters | undefined>(undefined);
 export const waterNeuronInfo = writable<WaterNeuronInfo | undefined>(undefined);
@@ -96,25 +103,30 @@ export const handleSnsChange = async (name?: string, principal?: string) => {
 
 	sns.reset();
 	inputAmount.reset();
-	if (name && principal) {
-		sns.setName(name);
-		const p = Principal.fromText(principal);
-		sns.setPrincipal(principal);
-		const [account, icpBalanceE8s, nicpBalanceE8s] = await Promise.all([
-			fetchedCanisters.boomerang.get_staking_account(p),
-			fetchIcpBalance(p, fetchedCanisters.icpLedger),
-			fetchNicpBalance(p, fetchedCanisters.nicpLedger)
-		]);
-		const encodedBoomerangAccount = encodeIcrcAccount({
-			owner: account.owner,
-			subaccount: account.subaccount[0]
-		});
-		sns.setEncodedBoomerangAccount(encodedBoomerangAccount);
-		sns.setIcpBalance(bigintE8sToNumber(icpBalanceE8s));
-		sns.setNicpBalance(bigintE8sToNumber(nicpBalanceE8s));
-	} else {
-		sns.setName('Custom');
-		sns.setPrincipal('');
+
+	try {
+		if (name && principal) {
+			sns.setName(name);
+			const p = Principal.fromText(principal);
+			sns.setPrincipal(principal);
+			const [account, icpBalanceE8s, nicpBalanceE8s] = await Promise.all([
+				fetchedCanisters.boomerang.anonymousActor.get_staking_account(p),
+				fetchIcpBalance(p, fetchedCanisters.icpLedger.anonymousActor),
+				fetchNicpBalance(p, fetchedCanisters.nicpLedger.anonymousActor)
+			]);
+			const encodedBoomerangAccount = encodeIcrcAccount({
+				owner: account.owner,
+				subaccount: account.subaccount[0]
+			});
+			sns.setEncodedBoomerangAccount(encodedBoomerangAccount);
+			sns.setIcpBalance(bigintE8sToNumber(icpBalanceE8s));
+			sns.setNicpBalance(bigintE8sToNumber(nicpBalanceE8s));
+		} else {
+			sns.setName('Custom');
+			sns.setPrincipal('');
+		}
+	} catch (error) {
+		console.log(error);
 	}
 };
 

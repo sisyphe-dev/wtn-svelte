@@ -4,6 +4,10 @@ import type { WithdrawalStatus } from '../declarations/water_neuron/water_neuron
 import { AccountIdentifier } from '@dfinity/ledger-icp';
 import { decodeIcrcAccount } from '@dfinity/ledger-icrc';
 import type { Account } from '../declarations/icp_ledger/icp_ledger.did';
+import type {
+	NeuronId,
+	WithdrawalDetails
+} from '$lib/../declarations/water_neuron/water_neuron.did';
 
 export const E8S = BigNumber(10).pow(BigNumber(8));
 
@@ -179,6 +183,8 @@ export function renderStatus(status: WithdrawalStatus): string {
 			return 'Waiting Dissolvement';
 		case 'WaitingToStartDissolving':
 			return `Waiting to Start Dissolving`;
+		case 'Cancelled':
+			return 'Cancelled';
 		default:
 			return 'Unknown Status';
 	}
@@ -201,25 +207,27 @@ export function displayTimeLeft(created_at: number, isMobile = false) {
 	return `Less than an hour left`;
 }
 
-export const isMobile = typeof window !== 'undefined' && window.innerWidth <= 767;
-
-export function isContainerHigher(type: 'receive' | 'send'): boolean {
-	let name: string;
-	switch (type) {
-		case 'receive':
-			name = '.receive-container';
-			break;
-		case 'send':
-			name = '.send-container';
-			break;
+// Timestamp in seconds.
+export async function fetchNeuronCreationTimestamp(neuron_id: NeuronId): Promise<number> {
+	// October 28th, 2024. 3:12 PM
+	const localTestingTimestamp = 1730124683;
+	if (process.env.DFX_NETWORK !== 'ic') return localTestingTimestamp;
+	try {
+		const response = await fetch(
+			`https://ic-api.internetcomputer.org/api/v3/neurons/${neuron_id.id}`
+		);
+		if (!response.ok) {
+			throw new Error('Network response was not ok');
+		}
+		const data = await response.json();
+		const neuron_created_at = data['created_timestamp_seconds'];
+		return Number(neuron_created_at);
+	} catch (error) {
+		throw new Error('[fetchNeuronCreationTimestamp] Failed to fetch with error: ' + error);
 	}
-	const container: HTMLDivElement | null = document.querySelector(name);
-	if (container === null) return false;
-	const containerHeight = container.offsetHeight;
-	const viewportHeight = window.innerHeight;
-
-	return containerHeight >= viewportHeight;
 }
+
+export const isMobile = typeof window !== 'undefined' && window.innerWidth <= 767;
 
 export function isPrincipalValid(input: string): boolean {
 	try {
@@ -240,6 +248,17 @@ export function principalToHex(principalString: string): string {
 	}
 }
 
+export function displayNeuronId(neuronId: [] | [NeuronId], truncate = true): string {
+	if (neuronId.length == 0) {
+		return 'Not Set';
+	} else if (truncate) {
+		const id = neuronId[0].id.toString();
+		return id.substring(0, 4) + '...' + id.substring(id.length - 5, id.length - 1);
+	} else {
+		return neuronId[0].id.toString();
+	}
+}
+
 export function getMaybeAccount(accountString: string): Account | AccountIdentifier | undefined {
 	try {
 		if (accountString.length === 64) {
@@ -253,7 +272,6 @@ export function getMaybeAccount(accountString: string): Account | AccountIdentif
 			return { owner: icrcAccount.owner, subaccount: [] } as Account;
 		}
 	} catch (error) {
-		console.log('[getMaybeAccount]', error);
 		return;
 	}
 }
@@ -273,5 +291,31 @@ export function computeReceiveAmount(
 		}
 	} else {
 		return BigNumber(0);
+	}
+}
+
+export async function getWarningError(withdrawal: WithdrawalDetails): Promise<string | undefined> {
+	const key = Object.keys(withdrawal.status)[0] as keyof WithdrawalStatus;
+	switch (key) {
+		case 'WaitingDissolvement':
+			const value: { neuron_id: NeuronId } = withdrawal.status[key];
+			const createdAt = await fetchNeuronCreationTimestamp(value.neuron_id);
+			const currentTime = Date.now() / 1000;
+			const oneYearSeconds = ((4 * 365 + 1) * 24 * 60 * 60) / 4;
+			const twoWeeksSeconds = oneYearSeconds / 24;
+			const sixMonthsSeconds = oneYearSeconds / 2;
+			if (currentTime - createdAt > sixMonthsSeconds - twoWeeksSeconds) {
+				return 'Withdrawal is too close to disbursing.';
+			} else {
+				return undefined;
+			}
+		case 'WaitingToStartDissolving':
+			return undefined;
+		case 'NotFound':
+			return 'Withdrawal not found.';
+		case 'Cancelled':
+			return 'Withdrawal already cancelled.';
+		case 'WaitingToSplitNeuron':
+			return 'Waiting for the withdrawal to split.';
 	}
 }

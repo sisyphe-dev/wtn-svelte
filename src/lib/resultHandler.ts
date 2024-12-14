@@ -5,15 +5,18 @@ import type {
 	Account,
 	ApproveArgs,
 	ApproveResult,
-	ApproveError,
-	_SERVICE as nicpLedgerInterface
+	ApproveError
 } from '../declarations/icrc_ledger/icrc_ledger.did';
 import type {
 	ConversionError,
-	Result_1 as IcpToNicpResult,
-	Result_2 as NicpToIcpResult,
+	Result as CancelResult,
+	Result_3 as IcpToNicpResult,
+	Result_4 as NicpToIcpResult,
 	TransferError,
-	TransferFromError
+	TransferFromError,
+	MergeResponse,
+	NeuronInfo,
+	CancelWithdrawalError
 } from '../declarations/water_neuron/water_neuron.did';
 import type {
 	BoomerangError,
@@ -26,7 +29,9 @@ import type {
 	Icrc1TransferResult,
 	_SERVICE as icpLedgerInterface
 } from '../declarations/icp_ledger/icp_ledger.did';
+import type { _SERVICE as icrcLedgerInterface } from '../declarations/icrc_ledger/icrc_ledger.did';
 import { CANISTER_ID_WATER_NEURON } from './authentification';
+import { CanisterActor } from './state';
 
 export const DEFAULT_ERROR_MESSAGE: string = 'Unknown result, please refresh the page.';
 
@@ -108,26 +113,30 @@ export function handleApproveResult(result: ApproveResult): ToastResult {
 export async function nicpTransferApproved(
 	amount: bigint,
 	account: Account,
-	nicpLedger: nicpLedgerInterface
+	nicpLedger: CanisterActor<icrcLedgerInterface>
 ): Promise<ToastResult> {
+	if (!nicpLedger.authenticatedActor) return { success: false, message: 'User not authenticated.' };
+
 	const spender = {
 		owner: Principal.fromText(CANISTER_ID_WATER_NEURON),
 		subaccount: []
 	} as Account;
-	const allowanceResult: Allowance = await nicpLedger.icrc2_allowance({
+	const allowanceResult: Allowance = await nicpLedger.anonymousActor.icrc2_allowance({
 		account,
 		spender
 	} as AllowanceArgs);
 	const allowance = allowanceResult['allowance'];
 	if (amount > allowance) {
 		try {
-			const approveResult: ApproveResult = await nicpLedger.icrc2_approve({
+			// Two weeks later, in nanoseconds
+			const expiryDate = BigInt(Date.now() * 1_000_000 + 1_209_600_000_000_000);
+			const approveResult: ApproveResult = await nicpLedger.authenticatedActor.icrc2_approve({
 				spender,
 				fee: [],
 				memo: [],
 				from_subaccount: [],
 				created_at_time: [],
-				expires_at: [],
+				expires_at: [expiryDate],
 				expected_allowance: [],
 				amount: amount * BigInt(3)
 			} as ApproveArgs);
@@ -142,26 +151,29 @@ export async function nicpTransferApproved(
 export async function icpTransferApproved(
 	amount: bigint,
 	account: Account,
-	icpLedger: icpLedgerInterface
+	icpLedger: CanisterActor<icpLedgerInterface>
 ): Promise<ToastResult> {
+	if (!icpLedger.authenticatedActor) return { success: false, message: 'User not authenticated.' };
 	const spender = {
 		owner: Principal.fromText(CANISTER_ID_WATER_NEURON),
 		subaccount: []
 	} as Account;
-	const allowanceResult: Allowance = await icpLedger.icrc2_allowance({
+	const allowanceResult: Allowance = await icpLedger.anonymousActor.icrc2_allowance({
 		account,
 		spender
 	} as AllowanceArgs);
 	const allowance = allowanceResult['allowance'];
 	if (amount > allowance) {
 		try {
-			const approveResult: ApproveResult = await icpLedger.icrc2_approve({
+			// Two weeks later, in nanoseconds
+			const expiryDate = BigInt(Date.now() * 1_000_000 + 1_209_600_000_000_000);
+			const approveResult: ApproveResult = await icpLedger.authenticatedActor.icrc2_approve({
 				spender,
 				fee: [],
 				memo: [],
 				from_subaccount: [],
 				created_at_time: [],
-				expires_at: [],
+				expires_at: [expiryDate],
 				expected_allowance: [],
 				amount: amount * BigInt(3)
 			} as ApproveArgs);
@@ -444,6 +456,96 @@ export function handleIcrcTransferResult(result: Icrc1TransferResult, asset: Ass
 		case 'Err':
 			return handleTransferFromError(result[key]);
 
+		default:
+			return {
+				success: false,
+				message: DEFAULT_ERROR_MESSAGE
+			};
+	}
+}
+
+function handleCancelError(error: CancelWithdrawalError): ToastResult {
+	const key = Object.keys(error)[0] as keyof CancelWithdrawalError;
+
+	switch (key) {
+		case 'GenericError':
+			return {
+				success: false,
+				message: `Generic Error: ${error[key]['message']}`
+			};
+		case 'TooLate':
+			return {
+				success: false,
+				message: 'The neuron is too close to disbursement.'
+			};
+		case 'BadCommand':
+			return {
+				success: false,
+				message: `The protocol did not trigger the neuron merge. Try again.`
+			};
+		case 'UnknownTimeLeft':
+			return {
+				success: false,
+				message: `Unable to fetch the neuron information. Try again.`
+			};
+		case 'BadCaller':
+			return {
+				success: false,
+				message: 'You are not the owner of this neuron. Check neuron ownership.'
+			};
+		case 'MergeNeuronError':
+			return {
+				success: false,
+				message: `The merge failed with error: ${error[key]}.`
+			};
+		case 'StopDissolvementError':
+			return {
+				success: false,
+				message: `Failed to stop the neuron dissolvement. Try again later.`
+			};
+		case 'RequestNotFound':
+			return {
+				success: false,
+				message: `Unable to find the withdrawal request. The withdrawal might have been already cancelled.`
+			};
+		case 'GovernanceError':
+			return {
+				success: false,
+				message: 'Failed to merge neuron. Please, try again.'
+			};
+		case 'GuardError':
+			const guardErrorKey = Object.keys(error[key])[0];
+
+			switch (guardErrorKey) {
+				case 'AlreadyProcessing':
+					return { success: false, message: `Conversion already processing.` };
+				case 'TooManyConcurrentRequests':
+					return { success: false, message: `Too many concurrent requests.` };
+			}
+		case 'GetFullNeuronError':
+			return { success: false, message: `Call failed with error: ${error[key]}` };
+		default:
+			return {
+				success: false,
+				message: DEFAULT_ERROR_MESSAGE
+			};
+	}
+}
+
+export function handleCancelWithdrawalResult(result: CancelResult): ToastResult {
+	const key = Object.keys(result)[0] as keyof CancelResult;
+
+	switch (key) {
+		case 'Ok':
+			const response: MergeResponse = result[key];
+			const info: [] | [NeuronInfo] = response.source_neuron_info;
+			if (info.length === 1) {
+				return { success: true, message: `Successfully cancelled withdrawal.` };
+			} else {
+				return { success: false, message: DEFAULT_ERROR_MESSAGE };
+			}
+		case 'Err':
+			return handleCancelError(result[key]);
 		default:
 			return {
 				success: false,

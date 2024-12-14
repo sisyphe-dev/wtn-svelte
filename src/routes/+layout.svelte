@@ -6,11 +6,13 @@
 	import Menu from './Menu.svelte';
 	import SnsMenu from './sns/SnsMenu.svelte';
 	import Receive from './wallet/Receive.svelte';
+	import CancelWarning from './wallet/CancelWarning.svelte';
 	import {
 		isLogging,
 		inMobileMenu,
 		inSendingMenu,
 		inReceivingMenu,
+		inCancelWarningMenu,
 		inSnsMenu,
 		user,
 		canisters,
@@ -25,27 +27,38 @@
 		fetchWtnBalance,
 		fetchWtnAllocation
 	} from '$lib/state';
-	import { signIn } from '$lib/authentification';
+	import { tryConnectOnReload } from '$lib/authentification';
 	import Toast from './Toast.svelte';
 
 	async function updateBalances() {
 		if ($canisters && $user) {
-			$user.icpBalanceE8s = await fetchIcpBalance($user.principal, $canisters.icpLedger);
-			$user.nicpBalanceE8s = await fetchNicpBalance($user.principal, $canisters.nicpLedger);
-			$user.wtnBalanceE8s = await fetchWtnBalance($user.principal, $canisters.wtnLedger);
+			$user.icpBalanceE8s = await fetchIcpBalance(
+				$user.principal,
+				$canisters.icpLedger.anonymousActor
+			);
+			$user.nicpBalanceE8s = await fetchNicpBalance(
+				$user.principal,
+				$canisters.nicpLedger.anonymousActor
+			);
+			$user.wtnBalanceE8s = await fetchWtnBalance(
+				$user.principal,
+				$canisters.wtnLedger.anonymousActor
+			);
 			$user.wtnAllocationE8s =
-				(await fetchWtnAllocation($user.principal, $canisters.waterNeuron)) ?? 0n;
+				(await fetchWtnAllocation($user.principal, $canisters.waterNeuron.anonymousActor)) ?? 0n;
 		}
 	}
 
 	async function updateWaterNeuronInfo() {
 		if ($canisters) {
-			waterNeuronInfo.set(new WaterNeuronInfo(await $canisters.waterNeuron.get_info()));
+			waterNeuronInfo.set(
+				new WaterNeuronInfo(await $canisters.waterNeuron.anonymousActor.get_info())
+			);
 		}
 	}
 
 	onMount(() => {
-		signIn('reload').then(() => {
+		tryConnectOnReload().then(() => {
 			updateBalances();
 			updateWaterNeuronInfo();
 			handleSnsChange('BOOM DAO', 'xomae-vyaaa-aaaaq-aabhq-cai');
@@ -61,13 +74,13 @@
 </script>
 
 {#if $isLogging}
-	<div class="background-filter">
-		<Connect />
-	</div>
+	<Connect />
 {:else if $inSendingMenu}
 	<Send />
 {:else if $inReceivingMenu}
 	<Receive />
+{:else if $inCancelWarningMenu}
+	<CancelWarning />
 {/if}
 {#if $inMobileMenu}
 	<Menu />
@@ -76,6 +89,9 @@
 {:else}
 	<div class="page-container">
 		<Navbar />
+		<div class="redirect-container">
+			<p><a href="/launchpad">Join Papaya SNS 🥭</a></p>
+		</div>
 		<div class="content-container" class:filter={$inReceivingMenu || $inSendingMenu || $isLogging}>
 			<slot />
 		</div>
@@ -121,6 +137,7 @@
 		--border-color: #454545;
 		--page-background: #fcfffd;
 		--background-color: #fcfffd;
+		--background-color-transparent: #fefefede;
 		--qr-code-background: #283e95;
 
 		--input-color: #fcfffd;
@@ -143,21 +160,22 @@
 		--stake-text-color: white;
 
 		--main-color: #4c66dc;
-		--qr-code-background: #4c66dc;
+		--qr-code-background: none;
 
 		--main-button-text-color: #fcfffd;
 		--title-color: white;
 
 		--border-color: rgb(158 163 178);
-		--background-color: #0d1432;
-		--input-color: #0d1432;
+		--background-color: rgb(43, 51, 67);
+		--background-color-transparent: rgb(43, 51, 67, 0.9);
+		--input-color: rgb(39, 46, 60);
 		--text-color: rgb(181 181 181);
 
 		--unstake-selection-color: #a9bbff54;
 
 		--faq-color: white;
 
-		--page-background: #0d1432;
+		--page-background: radial-gradient(farthest-corner circle at 0% 100%, #090a0d, #272f3d);
 		--sns-selected-button-color: #404f9987;
 	}
 
@@ -224,17 +242,37 @@
 		color: white;
 	}
 
-	/* === Components === */
-	.background-filter {
-		position: fixed;
-		width: 100vw;
-		height: 100vh;
-		z-index: 1;
+	.redirect-container {
 		display: flex;
+		color: var(--title-color);
 		align-items: center;
-		justify-content: center;
+		font-family: var(--secondary-font);
+		background: linear-gradient(135deg, #ffdab9, #ffb347);
+		width: fit-content;
+		padding: 1em;
+		height: fit-content;
+		border-radius: 10px;
+		display: flex;
+		align-self: center;
 	}
 
+	.redirect-container p {
+		margin: 0;
+		text-decoration: underline;
+		text-decoration-color: black;
+		font-size: 1.2em;
+	}
+
+	.redirect-container a {
+		color: black;
+	}
+
+	a {
+		text-decoration: none;
+		outline: none;
+		color: var(--title-color);
+		text-align: center;
+	}
 	/* === Utilities ===*/
 	.filter {
 		filter: blur(5px);

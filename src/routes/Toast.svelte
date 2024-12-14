@@ -14,7 +14,7 @@
 			<div class="info-container">
 				<div class="info-icon">
 					{#if toast.type == ToastType.Success}
-						<SuccessIcon />
+						<SuccessIcon color="--main-button-text-color" />
 					{:else}
 						<ErrorIcon />
 					{/if}
@@ -27,7 +27,7 @@
 					toasts.remove(toast.id);
 				}}
 			>
-				<CloseIcon />
+				<CloseIcon color="--main-button-text-color" />
 			</button>
 		</div>
 	{/each}

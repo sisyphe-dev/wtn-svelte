@@ -28,14 +28,13 @@ const parsedKey = JSON.stringify(key);
 export const mockSetup = async () => {
 	try {
 		const dummyIdentity = Ed25519KeyIdentity.fromJSON(parsedKey);
-		const agent = new HttpAgent({ host: 'http://127.0.1:8080', identity: dummyIdentity });
+		const agent = HttpAgent.createSync({ host: 'http://127.0.1:8080', identity: dummyIdentity });
 		agent.fetchRootKey().catch((err) => {
 			console.warn('Unable to fetch root key. Check to ensure that your local replica is running');
 			console.error(err);
 		});
-		const actors = await fetchActors(agent);
 
-		canisters.set(new Canisters(actors));
+		canisters.set(await fetchActors(agent));
 		user.set(new User(dummyIdentity.getPrincipal()));
 	} catch (error) {
 		console.error('Login failed:', error);
@@ -55,7 +54,7 @@ export async function transferICP(accountString: string) {
 	if (!maybeAccount) throw new Error('Failed to decode account.');
 
 	if (maybeAccount instanceof AccountIdentifier) {
-		const result = await mockCanisters.icpLedger.transfer({
+		const result = await mockCanisters.icpLedger.authenticatedActor?.transfer({
 			to: maybeAccount.toUint8Array(),
 			fee: { e8s: 10000n } as Tokens,
 			memo: 0n,
@@ -64,9 +63,9 @@ export async function transferICP(accountString: string) {
 			amount: { e8s: 15n * 100_000_000n } as Tokens
 		} as TransferArgs);
 
-		if (Object.keys(result)[0] === 'Err') throw new Error('Failed to transfer balance');
+		if (!result || Object.keys(result)[0] === 'Err') throw new Error('Failed to transfer balance');
 	} else {
-		const result = await mockCanisters.icpLedger.icrc1_transfer({
+		const result = await mockCanisters.icpLedger.authenticatedActor?.icrc1_transfer({
 			to: maybeAccount,
 			fee: [],
 			memo: [],
@@ -75,7 +74,7 @@ export async function transferICP(accountString: string) {
 			amount: 15n * 100_000_000n
 		} as TransferArg);
 
-		if (Object.keys(result)[0] === 'Err') throw new Error('Failed to transfer balance');
+		if (!result || Object.keys(result)[0] === 'Err') throw new Error('Failed to transfer balance');
 	}
 }
 
@@ -92,7 +91,7 @@ export async function transferNICP(accountString: string) {
 	if (!maybeAccount) throw new Error('Failed to decode account.');
 	if (maybeAccount instanceof AccountIdentifier)
 		throw new Error('Acount ID provided. You should use principal.');
-	const result = await mockCanisters.nicpLedger.icrc1_transfer({
+	const result = await mockCanisters.nicpLedger.authenticatedActor?.icrc1_transfer({
 		to: maybeAccount,
 		fee: [],
 		memo: [],
@@ -101,7 +100,7 @@ export async function transferNICP(accountString: string) {
 		amount: 15n * 100_000_000n
 	} as TransferArg);
 
-	if (Object.keys(result)[0] === 'Err') throw new Error('Failed to transfer balance');
+	if (!result || Object.keys(result)[0] === 'Err') throw new Error('Failed to transfer balance');
 }
 
 export async function swap(page: Page, amount: number) {
@@ -110,11 +109,12 @@ export async function swap(page: Page, amount: number) {
 }
 
 export async function isToastSuccess(page: Page) {
+	await page.waitForTimeout(2000);
 	const message = await page.locator('p[title="toast-message"]').evaluate((msg) => msg.textContent);
 	console.log(message);
 	await page.locator('.toast-close').click();
 	await expect(page.locator('p[title="toast-message"]')).not.toBeVisible();
-	return message?.split(' ')[0] === 'Successful';
+	return message?.split(' ')[0].slice(0, 7) === 'Success';
 }
 
 export async function send(page: Page, destination: string, amount: string) {

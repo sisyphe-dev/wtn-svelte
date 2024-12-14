@@ -23,7 +23,7 @@
 	let principalInput: string;
 
 	const handlePrincipalInputChange = async () => {
-		if (!$canisters || $sns.name !== 'Custom') return;
+		if ($sns.name !== 'Custom') return;
 
 		const filteredInput = principalInput.replace(/\s+/g, '');
 		const shouldChange = isPrincipalValid(filteredInput);
@@ -37,7 +37,7 @@
 		try {
 			isBusy.set(true);
 			isConfirmBusy = true;
-			const boomerangResult = await $canisters.boomerang.notify_icp_deposit(
+			const boomerangResult = await $canisters.boomerang.anonymousActor.notify_icp_deposit(
 				Principal.fromText($sns.principal)
 			);
 			const result = handleSnsIcpDepositResult(boomerangResult);
@@ -59,7 +59,7 @@
 		try {
 			isBusy.set(true);
 			isRetrieveBusy = true;
-			const retrieveResult = await $canisters.boomerang.retrieve_nicp(
+			const retrieveResult = await $canisters.boomerang.anonymousActor.retrieve_nicp(
 				Principal.fromText($sns.principal)
 			);
 			const result = handleSnsRetrieveNicpResult(retrieveResult);
@@ -77,17 +77,14 @@
 	}
 
 	let isAnimating = false;
-	let isCircleOwnerVisible = false;
-	let isCircleSubaccountVisible = false;
+	let isCircleVisible = false;
 
-	const handleAnimation = (target: 'owner' | 'subaccount') => {
+	const handleAnimation = () => {
 		if (!isAnimating) {
 			isAnimating = true;
-			isCircleOwnerVisible = target === 'owner';
-			isCircleSubaccountVisible = target === 'subaccount';
+			isCircleVisible = true;
 			setTimeout(() => {
-				isCircleOwnerVisible = false;
-				isCircleSubaccountVisible = false;
+				isCircleVisible = false;
 				setTimeout(() => {
 					isAnimating = false;
 				}, 500);
@@ -159,12 +156,12 @@
 						<button
 							class="copy-btn"
 							on:click={() => {
-								handleAnimation('subaccount');
+								handleAnimation();
 								navigator.clipboard.writeText($sns.encodedBoomerangAccount ?? '');
 							}}
 						>
 							<CopyIcon />
-							{#if isCircleSubaccountVisible}
+							{#if isCircleVisible}
 								<div class="circle" transition:scale={{ duration: 500 }}></div>
 							{/if}
 						</button>

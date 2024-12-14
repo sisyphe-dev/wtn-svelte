@@ -6,6 +6,24 @@ export interface Account {
 	owner: Principal;
 	subaccount: [] | [Uint8Array | number[]];
 }
+export interface BallotInfo {
+	vote: number;
+	proposal_id: [] | [NeuronId];
+}
+export type CancelWithdrawalError =
+	| {
+			GenericError: { code: number; message: string };
+	  }
+	| { TooLate: null }
+	| { BadCommand: { message: string } }
+	| { UnknownTimeLeft: null }
+	| { BadCaller: { message: string } }
+	| { MergeNeuronError: { message: string } }
+	| { StopDissolvementError: { message: string } }
+	| { RequestNotFound: null }
+	| { GovernanceError: GovernanceError }
+	| { GuardError: { guard_error: GuardError } }
+	| { GetFullNeuronError: { message: string } };
 export interface CanisterInfo {
 	neuron_6m_account: Account;
 	latest_distribution_icp_per_vp: [] | [number];
@@ -40,6 +58,9 @@ export interface DepositSuccess {
 	block_index: bigint;
 	transfer_id: bigint;
 }
+export type DissolveState =
+	| { DissolveDelaySeconds: bigint }
+	| { WhenDissolvedTimestampSeconds: bigint };
 export interface Event {
 	timestamp: bigint;
 	payload: EventType;
@@ -73,6 +94,7 @@ export type EventType =
 				receiver: Account;
 			};
 	  }
+	| { MergeNeuron: { neuron_id: NeuronId } }
 	| {
 			IcpDeposit: {
 				block_index: bigint;
@@ -111,6 +133,9 @@ export interface ExecutedTransfer {
 	timestamp: bigint;
 	transfer: PendingTransfer;
 }
+export interface Followees {
+	followees: Array<NeuronId>;
+}
 export interface GetEventsArg {
 	start: bigint;
 	length: bigint;
@@ -119,17 +144,76 @@ export interface GetEventsResult {
 	total_event_count: bigint;
 	events: Array<Event>;
 }
+export interface GovernanceError {
+	error_message: string;
+	error_type: number;
+}
 export type GuardError = { AlreadyProcessing: null } | { TooManyConcurrentRequests: null };
 export interface InitArg {
 	wtn_ledger_id: Principal;
 	wtn_governance_id: Principal;
 	nicp_ledger_id: Principal;
 }
+export interface KnownNeuronData {
+	name: string;
+	description: [] | [string];
+}
 export type LiquidArg = { Upgrade: [] | [UpgradeArg] } | { Init: InitArg };
+export interface MergeResponse {
+	target_neuron: [] | [Neuron];
+	source_neuron: [] | [Neuron];
+	target_neuron_info: [] | [NeuronInfo];
+	source_neuron_info: [] | [NeuronInfo];
+}
+export interface Neuron {
+	id: [] | [NeuronId];
+	staked_maturity_e8s_equivalent: [] | [bigint];
+	controller: [] | [Principal];
+	recent_ballots: Array<BallotInfo>;
+	kyc_verified: boolean;
+	neuron_type: [] | [number];
+	not_for_profit: boolean;
+	maturity_e8s_equivalent: bigint;
+	cached_neuron_stake_e8s: bigint;
+	created_timestamp_seconds: bigint;
+	auto_stake_maturity: [] | [boolean];
+	aging_since_timestamp_seconds: bigint;
+	hot_keys: Array<Principal>;
+	account: Uint8Array | number[];
+	joined_community_fund_timestamp_seconds: [] | [bigint];
+	dissolve_state: [] | [DissolveState];
+	followees: Array<[number, Followees]>;
+	neuron_fees_e8s: bigint;
+	transfer: [] | [NeuronStakeTransfer];
+	known_neuron_data: [] | [KnownNeuronData];
+	spawn_at_timestamp_seconds: [] | [bigint];
+}
 export interface NeuronId {
 	id: bigint;
 }
+export interface NeuronInfo {
+	dissolve_delay_seconds: bigint;
+	recent_ballots: Array<BallotInfo>;
+	neuron_type: [] | [number];
+	created_timestamp_seconds: bigint;
+	state: number;
+	stake_e8s: bigint;
+	joined_community_fund_timestamp_seconds: [] | [bigint];
+	retrieved_at_timestamp_seconds: bigint;
+	known_neuron_data: [] | [KnownNeuronData];
+	voting_power: bigint;
+	age_seconds: bigint;
+}
 export type NeuronOrigin = { NICPSixMonths: null } | { SnsGovernanceEightYears: null };
+export interface NeuronStakeTransfer {
+	to_subaccount: Uint8Array | number[];
+	neuron_stake_e8s: bigint;
+	from: [] | [Principal];
+	memo: bigint;
+	from_subaccount: Uint8Array | number[];
+	transfer_timestamp: bigint;
+	block_height: bigint;
+}
 export interface PendingTransfer {
 	memo: [] | [bigint];
 	unit: Unit;
@@ -138,9 +222,11 @@ export interface PendingTransfer {
 	amount: bigint;
 	receiver: Account;
 }
-export type Result = { Ok: bigint } | { Err: ConversionError };
-export type Result_1 = { Ok: DepositSuccess } | { Err: ConversionError };
-export type Result_2 = { Ok: WithdrawalSuccess } | { Err: ConversionError };
+export type Result = { Ok: MergeResponse } | { Err: CancelWithdrawalError };
+export type Result_1 = { Ok: bigint } | { Err: ConversionError };
+export type Result_2 = { Ok: NeuronId } | { Err: NeuronId };
+export type Result_3 = { Ok: DepositSuccess } | { Err: ConversionError };
+export type Result_4 = { Ok: WithdrawalSuccess } | { Err: ConversionError };
 export type TransferError =
 	| {
 			GenericError: { message: string; error_code: bigint };
@@ -190,6 +276,7 @@ export type WithdrawalStatus =
 			ConversionDone: { transfer_block_height: bigint };
 	  }
 	| { NotFound: null }
+	| { Cancelled: null }
 	| { WaitingToSplitNeuron: null }
 	| { WaitingDissolvement: { neuron_id: NeuronId } }
 	| { WaitingToStartDissolving: { neuron_id: NeuronId } };
@@ -199,15 +286,16 @@ export interface WithdrawalSuccess {
 	icp_amount: [] | [bigint];
 }
 export interface _SERVICE {
-	claim_airdrop: ActorMethod<[], Result>;
+	cancel_withdrawal: ActorMethod<[NeuronId], Result>;
+	claim_airdrop: ActorMethod<[], Result_1>;
 	get_airdrop_allocation: ActorMethod<[[] | [Principal]], bigint>;
 	get_events: ActorMethod<[GetEventsArg], GetEventsResult>;
 	get_info: ActorMethod<[], CanisterInfo>;
 	get_transfer_statuses: ActorMethod<[BigUint64Array | bigint[]], Array<TransferStatus>>;
 	get_withdrawal_requests: ActorMethod<[[] | [Account]], Array<WithdrawalDetails>>;
-	get_wtn_proposal_id: ActorMethod<[bigint], [] | [bigint]>;
-	icp_to_nicp: ActorMethod<[ConversionArg], Result_1>;
-	nicp_to_icp: ActorMethod<[ConversionArg], Result_2>;
+	get_wtn_proposal_id: ActorMethod<[bigint], Result_2>;
+	icp_to_nicp: ActorMethod<[ConversionArg], Result_3>;
+	nicp_to_icp: ActorMethod<[ConversionArg], Result_4>;
 }
 export declare const idlFactory: IDL.InterfaceFactory;
-export declare const init: ({ IDL }: { IDL: IDL }) => IDL.Type[];
+export declare const init: (args: { IDL: typeof IDL }) => IDL.Type[];

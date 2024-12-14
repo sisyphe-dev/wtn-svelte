@@ -4,6 +4,8 @@
 	import { internetIdentityLogout } from '$lib/authentification';
 	import { ThemeToggle } from '@dfinity/gix-components';
 	import PowerOffIcon from '$lib/icons/PowerOffIcon.svelte';
+	import { goto } from '$app/navigation';
+	import { page } from '$app/stores';
 </script>
 
 <nav class:filter={$isLogging}>
@@ -18,50 +20,53 @@
 		<div class="theme-toggle">
 			<ThemeToggle />
 		</div>
-		{#if !$user}
-			<button
-				title="connect-btn"
-				class="smart"
-				on:click={() => {
-					isLogging.set(true);
-				}}
-			>
-				Connect
-			</button>
-		{:else}
-			<a href="/wallet" class="wallet-btn" id="wallet-info">
-				<h2 style:font-weight={'bold'}>{displayPrincipal($user.principal)}</h2>
-				<p title="icp-balance-nav">{displayUsFormat($user.icpBalance(), 2)} ICP</p>
-				<p title="nicp-balance-nav">{displayUsFormat($user.nicpBalance(), 2)} nICP</p>
-				<p title="wtn-balance-nav">{displayUsFormat($user.wtnBalance(), 2)} WTN</p>
-			</a>
-			<button
-				id="disconnect-btn"
-				class="wallet-action-btn"
-				on:click={async () => {
-					await internetIdentityLogout();
-					user.set(undefined);
-				}}
-			>
-				<PowerOffIcon />
-			</button>
-			<button
-				id="menu-btn"
-				class="wallet-action-btn"
-				on:click={() => {
-					inMobileMenu.set(true);
-				}}
-			>
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					height="24"
-					viewBox="0 -960 960 960"
-					width="24"
-					fill="var(--title-color)"
+		{#if !($page.url.pathname === '/launchpad/')}
+			{#if !$user}
+				<button
+					title="connect-btn"
+					class="smart"
+					on:click={() => {
+						isLogging.set(true);
+					}}
 				>
-					<path d="M120-240v-80h720v80H120Zm0-200v-80h720v80H120Zm0-200v-80h720v80H120Z"></path>
-				</svg>
-			</button>
+					Connect
+				</button>
+			{:else}
+				<a href="/wallet" class="wallet-btn" id="wallet-info">
+					<h2 style:font-weight={'bold'}>{displayPrincipal($user.principal)}</h2>
+					<p title="icp-balance-nav">{displayUsFormat($user.icpBalance(), 2)} ICP</p>
+					<p title="nicp-balance-nav">{displayUsFormat($user.nicpBalance(), 2)} nICP</p>
+					<p title="wtn-balance-nav">{displayUsFormat($user.wtnBalance(), 2)} WTN</p>
+				</a>
+				<button
+					id="disconnect-btn"
+					class="wallet-action-btn"
+					on:click={async () => {
+						await internetIdentityLogout();
+						user.set(undefined);
+						goto('/');
+					}}
+				>
+					<PowerOffIcon />
+				</button>
+				<button
+					id="menu-btn"
+					class="wallet-action-btn"
+					on:click={() => {
+						inMobileMenu.set(true);
+					}}
+				>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						height="24"
+						viewBox="0 -960 960 960"
+						width="24"
+						fill="var(--title-color)"
+					>
+						<path d="M120-240v-80h720v80H120Zm0-200v-80h720v80H120Zm0-200v-80h720v80H120Z"></path>
+					</svg>
+				</button>
+			{/if}
 		{/if}
 	</div>
 </nav>

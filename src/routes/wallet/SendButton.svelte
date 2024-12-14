@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { AssetType, displayUsFormat, isMobile } from '$lib';
 	import { user, selectedAsset, inSendingMenu, inReceivingMenu } from '$lib/stores';
-	import BigNumber from 'bignumber.js';
+	import { BigNumber } from 'bignumber.js';
 	import { fade } from 'svelte/transition';
 	import QRCodeScannerIcon from '$lib/icons/QRCodeScannerIcon.svelte';
 	import UpIcon from '$lib/icons/UpIcon.svelte';
@@ -26,7 +26,7 @@
 					selectedAsset.set(asset);
 				}}
 			>
-				<QRCodeScannerIcon />
+				<QRCodeScannerIcon color="--main-color" />
 			</button>
 			<button
 				class="mobile-action-btn"

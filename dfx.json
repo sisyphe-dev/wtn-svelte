@@ -1,5 +1,5 @@
 {
-	"dfx": "0.16.1",
+	"dfx": "0.23.0",
 	"canisters": {
 		"water_neuron": {
 			"candid": "candid/water_neuron.did",
@@ -39,6 +39,11 @@
 			"candid": "candid/ledger.did",
 			"type": "custom",
 			"wasm": "wasm/ic-icrc1-ledger.wasm.gz"
+		},
+		"sns_module": {
+			"type": "custom",
+			"candid": "candid/sns_module.did",
+			"wasm": "wasm/sns_module.wasm"
 		},
 		"nns-cycles-minting": {
 			"build": "",

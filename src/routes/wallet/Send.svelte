@@ -1,13 +1,5 @@
 <script lang="ts">
-	import {
-		AssetType,
-		displayUsFormat,
-		numberToBigintE8s,
-		Asset,
-		E8S,
-		isContainerHigher,
-		getMaybeAccount
-	} from '$lib';
+	import { AssetType, displayUsFormat, numberToBigintE8s, Asset, E8S, getMaybeAccount } from '$lib';
 	import {
 		inSendingMenu,
 		selectedAsset,
@@ -31,13 +23,14 @@
 		TransferArgs,
 		TransferArg
 	} from '$lib/../declarations/icp_ledger/icp_ledger.did';
+	import type { _SERVICE as icrcLedgerInterface } from '$lib/../declarations/icrc_ledger/icrc_ledger.did';
+	import type { _SERVICE as icpLedgerInterface } from '$lib/../declarations/icp_ledger/icp_ledger.did';
 	import { fade } from 'svelte/transition';
 	import Toast from '../Toast.svelte';
 
 	let principal: string;
 	let isSending = false;
-	let isHigher = false;
-	let sendingDialog: HTMLDialogElement;
+	let dialog: HTMLDialogElement;
 
 	function isValidAmount(amount: BigNumber): boolean {
 		if (amount && $user) {
@@ -50,9 +43,8 @@
 		}
 	}
 
-	async function icrcTransfer(amount: BigNumber, accountString: string) {
+	async function handleTransferRequest(amount: BigNumber, accountString: string) {
 		if (isSending || amount.isNaN() || !isValidAmount(amount) || !principal || !$canisters) return;
-
 		isSending = true;
 		const amount_e8s = numberToBigintE8s(amount);
 		const maybeAccount = getMaybeAccount(accountString);
@@ -60,116 +52,127 @@
 			isSending = false;
 			return;
 		}
+
 		try {
+			const icrcArgs = {
+				to: maybeAccount,
+				fee: [],
+				memo: [],
+				from_subaccount: [],
+				created_at_time: [],
+				amount: amount_e8s
+			} as TransferArg;
+
 			let status: ToastResult;
 			switch ($selectedAsset.type) {
 				case AssetType.ICP:
-					{
-						if (maybeAccount instanceof AccountIdentifier) {
-							const transferResult = await $canisters.icpLedger.transfer({
-								to: maybeAccount.toUint8Array(),
-								fee: { e8s: 10000n } as Tokens,
-								memo: 0n,
-								from_subaccount: [],
-								created_at_time: [],
-								amount: { e8s: amount_e8s } as Tokens
-							} as TransferArgs);
-							status = handleTransferResult(transferResult);
+					if (maybeAccount instanceof AccountIdentifier) {
+						const args = {
+							to: maybeAccount.toUint8Array(),
+							fee: { e8s: 10000n } as Tokens,
+							memo: 0n,
+							from_subaccount: [],
+							created_at_time: [],
+							amount: { e8s: amount_e8s } as Tokens
+						} as TransferArgs;
+						status = await icpTransfer(args);
+					} else {
+						if ($canisters.icpLedger.authenticatedActor) {
+							status = await icrcTransfer(icrcArgs, $canisters.icpLedger.authenticatedActor, 'ICP');
 						} else {
-							const transferResult = await $canisters.icpLedger.icrc1_transfer({
-								to: maybeAccount,
-								fee: [],
-								memo: [],
-								from_subaccount: [],
-								created_at_time: [],
-								amount: amount_e8s
-							} as TransferArg);
-							status = handleIcrcTransferResult(transferResult, Asset.fromText('ICP'));
+							status = { success: false, message: 'User is not authenticated.' };
 						}
 					}
 					break;
 				case AssetType.nICP:
-					{
-						if (maybeAccount instanceof AccountIdentifier) {
-							toasts.add(
-								ToastMessage.error(
-									'Transfer failed: nICP transfers require a principal. Please provide a valid principal.'
-								)
+					if (maybeAccount instanceof AccountIdentifier) {
+						status = {
+							success: false,
+							message:
+								'Transfer failed: nICP transfers require a principal. Please provide a valid principal.'
+						};
+					} else {
+						if ($canisters.nicpLedger.authenticatedActor) {
+							status = await icrcTransfer(
+								icrcArgs,
+								$canisters.nicpLedger.authenticatedActor,
+								'nICP'
 							);
-							isSending = false;
-							return;
+						} else {
+							status = { success: false, message: 'User is not authenticated.' };
 						}
-						const transferResult = await $canisters.nicpLedger.icrc1_transfer({
-							to: maybeAccount,
-							fee: [],
-							memo: [],
-							from_subaccount: [],
-							created_at_time: [],
-							amount: amount_e8s
-						} as TransferArg);
-						status = handleIcrcTransferResult(transferResult, Asset.fromText('nICP'));
 					}
 					break;
 				case AssetType.WTN:
-					{
-						if (maybeAccount instanceof AccountIdentifier) {
-							toasts.add(
-								ToastMessage.error(
-									'Transfer failed: WTN transfers require a principal. Please provide a valid principal.'
-								)
-							);
-							isSending = false;
-							return;
+					if (maybeAccount instanceof AccountIdentifier) {
+						status = {
+							success: false,
+							message:
+								'Transfer failed: WTN transfers require a principal. Please provide a valid principal.'
+						};
+					} else {
+						if ($canisters.wtnLedger.authenticatedActor) {
+							status = await icrcTransfer(icrcArgs, $canisters.wtnLedger.authenticatedActor, 'WTN');
+						} else {
+							status = { success: false, message: 'User is not authenticated.' };
 						}
-						const transferResult = await $canisters.wtnLedger.icrc1_transfer({
-							to: maybeAccount,
-							fee: [],
-							memo: [],
-							from_subaccount: [],
-							created_at_time: [],
-							amount: amount_e8s
-						} as TransferArg);
-						status = handleIcrcTransferResult(transferResult, Asset.fromText('WTN'));
 					}
 					break;
 			}
-
 			if (status.success) {
 				toasts.add(ToastMessage.success(status.message));
-				inSendingMenu.set(false);
+				dialog.close();
 			} else {
 				toasts.add(ToastMessage.error(status.message));
 			}
 		} catch (error) {
-			console.log(error);
+			console.error(error);
 			toasts.add(ToastMessage.error('Transfer failed. Try again.'));
 		}
 		isSending = false;
 		inputAmount.reset();
 	}
 
-	function handleKeydown(event: KeyboardEvent) {
-		if (event.key === 'Escape') {
-			event.preventDefault();
-			sendingDialog.close();
-			inSendingMenu.set(false);
-			inputAmount.reset();
+	async function icpTransfer(args: TransferArgs): Promise<ToastResult> {
+		if (!$canisters?.icpLedger.authenticatedActor || !$user)
+			return { success: false, message: 'User is not authenticated.' };
+
+		try {
+			const result = await $canisters?.icpLedger.authenticatedActor.transfer(args);
+			return handleTransferResult(result);
+		} catch (error) {
+			console.error('[icpTransfer] ', error);
+			return { success: false, message: 'Call failed. Please, try again.' };
+		}
+	}
+
+	async function icrcTransfer(
+		args: TransferArg,
+		ledger: icrcLedgerInterface | icpLedgerInterface,
+		asset: 'ICP' | 'nICP' | 'WTN'
+	): Promise<ToastResult> {
+		try {
+			const transferResult = await ledger.icrc1_transfer(args);
+			return handleIcrcTransferResult(transferResult, Asset.fromText(asset));
+		} catch (error) {
+			console.error('[icpTransfer] ', error);
+			return { success: false, message: 'Call failed. Please, try again.' };
 		}
 	}
 
 	onMount(() => {
-		sendingDialog = document.getElementById('senderDialog') as HTMLDialogElement;
-		sendingDialog.showModal();
-		isHigher = isContainerHigher('send');
-		sendingDialog.addEventListener('keydown', handleKeydown);
-
-		return () => {
-			sendingDialog.removeEventListener('keydown', handleKeydown);
-		};
+		dialog = document.getElementById('senderDialog') as HTMLDialogElement;
+		dialog.showModal();
 	});
 </script>
 
-<dialog id="senderDialog" style:align-items={isHigher ? 'flex-start' : 'center'}>
+<dialog
+	id="senderDialog"
+	on:close={() => {
+		inSendingMenu.set(false);
+		inputAmount.reset();
+	}}
+>
 	<div class="send-container" transition:fade={{ duration: 100 }}>
 		<div class="header-container">
 			<h2>Send {$selectedAsset.intoStr()}</h2>
@@ -247,18 +250,18 @@
 				</button>
 			{:else}
 				<button
+					id="abort-btn"
 					class="toggle-btn"
 					on:click={() => {
-						sendingDialog.close();
-						inSendingMenu.set(false);
-						inputAmount.reset();
-					}}>Cancel</button
+						dialog.close();
+					}}>Back</button
 				>
 				<button
+					id="continue-btn"
 					class="toggle-btn"
 					title="continue-btn"
 					on:click={() => {
-						icrcTransfer(BigNumber($inputAmount), principal);
+						handleTransferRequest(BigNumber($inputAmount), principal);
 					}}
 				>
 					<span>Continue</span>
@@ -280,6 +283,7 @@
 		display: flex;
 		background: transparent;
 		justify-content: center;
+		align-items: center;
 		height: fit-content;
 		min-height: 100%;
 		min-width: 100dvw;
@@ -375,11 +379,11 @@
 		border-radius: 8px;
 		position: relative;
 		border: 2px solid black;
-		font-size: 16px;
+		font-size: 14px;
 		box-shadow: 3px 3px 0 0 black;
 		padding: 0 1em 0 1em;
 		max-width: none;
-		height: 60px;
+		height: 3em;
 		font-weight: bold;
 		display: flex;
 		justify-content: center;
@@ -391,6 +395,16 @@
 		transform: scale(0.95);
 		transition: all 0.3s;
 		box-shadow: 6px 6px 0 0 black;
+	}
+
+	#abort-btn {
+		background: var(--main-button-text-color);
+		color: var(--main-color);
+	}
+
+	#continue-btn {
+		background: var(--main-color);
+		color: var(--main-button-text-color);
 	}
 
 	input::-webkit-outer-spin-button,
