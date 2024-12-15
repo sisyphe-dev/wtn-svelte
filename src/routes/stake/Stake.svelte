@@ -41,7 +41,7 @@
 			!$canisters?.waterNeuron.authenticatedActor ||
 			!$canisters?.icpLedger.authenticatedActor ||
 			amount.isNaN() ||
-			amount.isLessThan(BigNumber(1)) || 
+			amount.isLessThan(BigNumber(1)) ||
 			$isBusy
 		)
 			return;
@@ -193,8 +193,8 @@
 	}
 
 	button:disabled {
-		color: #a1a1a1; 
-		cursor: default; 
+		color: #a1a1a1;
+		cursor: default;
 	}
 
 	/* === Layout === */
@@ -262,7 +262,7 @@
 		max-width: fit-content;
 		position: relative;
 		border: 2px solid black;
-		border-radius: 8px; 
+		border-radius: 8px;
 		font-size: 16px;
 		font-weight: bold;
 		box-shadow: 3px 3px 0 0 black;

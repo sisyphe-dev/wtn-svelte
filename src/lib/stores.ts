@@ -15,6 +15,7 @@ export const isBusy = writable<boolean>(false);
 export const inSendingMenu = writable<boolean>(false);
 export const inReceivingMenu = writable<boolean>(false);
 export const inCancelWarningMenu = writable<boolean>(false);
+export const inUnstakeWarningMenu = writable<boolean>(false);
 export const inMobileMenu = writable<boolean>(false);
 export const inQrDestination = writable<boolean>(false);
 export const inSnsMenu = writable<boolean>(false);
