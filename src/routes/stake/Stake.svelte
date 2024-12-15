@@ -16,8 +16,8 @@
 		canisters,
 		user,
 		isLogging,
-		isConverting,
-		toasts
+		toasts,
+		isBusy
 	} from '$lib/stores';
 	import BigNumber from 'bignumber.js';
 	import {
@@ -33,18 +33,19 @@
 	let invertExchangeRate = false;
 	let exchangeRate: BigNumber;
 	let totalIcpDeposited: BigNumber;
+	let isStaking = false;
 
 	async function icpToNicp(amount: BigNumber) {
 		if (
 			!$user ||
-			$isConverting ||
 			!$canisters?.waterNeuron.authenticatedActor ||
 			!$canisters?.icpLedger.authenticatedActor ||
 			amount.isNaN() ||
-			amount.isLessThan(BigNumber(1))
+			amount.isLessThan(BigNumber(1)) || 
+			$isBusy
 		)
 			return;
-		isConverting.set(true);
+		isBusy.set(true);
 
 		if ($user.icpBalance().isGreaterThanOrEqualTo(amount) && amount.isGreaterThan(0)) {
 			try {
@@ -78,7 +79,7 @@
 		} else {
 			toasts.add(Toast.error('Sorry, there are not enough funds in this account.'));
 		}
-		isConverting.set(false);
+		isBusy.set(false);
 	}
 
 	const fetchData = async () => {
@@ -161,12 +162,15 @@
 	{:else}
 		<button
 			class="swap-btn"
-			on:click={() => {
-				icpToNicp(BigNumber($inputAmount));
+			on:click={async () => {
+				isStaking = true;
+				await icpToNicp(BigNumber($inputAmount));
+				isStaking = false;
 			}}
 			title="stake-unstake-btn"
+			disabled={$isBusy}
 		>
-			{#if $isConverting}
+			{#if isStaking}
 				<div class="spinner"></div>
 			{:else}
 				<span>Stake</span>
@@ -186,6 +190,11 @@
 		justify-content: end;
 		align-items: center;
 		gap: 0.2em;
+	}
+
+	button:disabled {
+		color: #a1a1a1; 
+		cursor: default; 
 	}
 
 	/* === Layout === */
@@ -253,7 +262,7 @@
 		max-width: fit-content;
 		position: relative;
 		border: 2px solid black;
-		border-radius: 8px;
+		border-radius: 8px; 
 		font-size: 16px;
 		font-weight: bold;
 		box-shadow: 3px 3px 0 0 black;

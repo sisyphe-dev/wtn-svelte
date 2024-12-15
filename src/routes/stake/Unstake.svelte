@@ -17,8 +17,8 @@
 		canisters,
 		user,
 		isLogging,
-		isConverting,
-		toasts
+		toasts,
+		isBusy
 	} from '$lib/stores';
 	import BigNumber from 'bignumber.js';
 	import {
@@ -54,6 +54,7 @@
 
 	let invertExchangeRate = false;
 	let isFastUnstake = true;
+	let isUnstaking = false;
 	let exchangeRate: BigNumber;
 	let minimumWithdraw: BigNumber;
 	let fastUnstakeAmount = BigNumber(0);
@@ -66,7 +67,7 @@
 	async function nicpToIcp(amount: BigNumber) {
 		if (
 			!$user ||
-			$isConverting ||
+			$isBusy ||
 			!$canisters?.nicpLedger.authenticatedActor ||
 			!$canisters?.waterNeuron.authenticatedActor ||
 			!$waterNeuronInfo ||
@@ -74,7 +75,7 @@
 			amount.isLessThan(minimumWithdraw)
 		)
 			return;
-		isConverting.set(true);
+		isBusy.set(true);
 		if ($user.nicpBalance().isGreaterThanOrEqualTo(amount) && amount.isGreaterThan(0)) {
 			try {
 				let amountE8s = numberToBigintE8s(amount);
@@ -107,7 +108,7 @@
 		} else {
 			toasts.add(Toast.error('Sorry, there are not enough funds in this account.'));
 		}
-		isConverting.set(false);
+		isBusy.set(false);
 	}
 
 	const approveInFastUnstake = async (spender: Account, amountE8s: bigint) => {
@@ -128,7 +129,7 @@
 		const status = handleApproveResult(approveResult);
 		if (!status.success) {
 			toasts.add(Toast.error(status.message));
-			isConverting.set(false);
+			isBusy.set(false);
 		}
 	};
 
@@ -200,8 +201,8 @@
 	};
 
 	async function fastUnstake(amount: BigNumber) {
-		if (!$canisters || !$user || $isConverting || amount.isNaN() || !fastUnstakeAmount) return;
-		isConverting.set(true);
+		if (!$canisters || !$user || $isBusy || amount.isNaN() || !fastUnstakeAmount) return;
+		isBusy.set(true);
 		try {
 			let amountE8s = numberToBigintE8s(amount);
 			// 1. Approve
@@ -241,12 +242,12 @@
 		} catch (error) {
 			console.log('[fastUnstake] error:', error);
 		}
-		isConverting.set(false);
+		isBusy.set(false);
 	}
 
 	const withdrawIcpswapTokens = async () => {
 		if (!$canisters?.icpswapPool.authenticatedActor || !$user) return;
-		isConverting.set(true);
+		isBusy.set(true);
 		try {
 			const result = await $canisters.icpswapPool.anonymousActor.getUserUnusedBalance(
 				$user.principal
@@ -312,7 +313,7 @@
 			console.log('[withdrawIcpswapTokens] error:', error);
 			toasts.add(Toast.success(DEFAULT_ERROR_MESSAGE));
 		}
-		isConverting.set(false);
+		isBusy.set(false);
 	};
 
 	const computeReceiveAmountFastUnstake = async () => {
@@ -503,16 +504,21 @@
 	{:else}
 		<button
 			class="main-btn swap-btn"
-			on:click={() => {
+			on:click={async () => {
 				if (isFastUnstake) {
-					fastUnstake(BigNumber($inputAmount));
+					isUnstaking = true;
+					await fastUnstake(BigNumber($inputAmount));
+					isUnstaking = false;
 				} else {
-					nicpToIcp(BigNumber($inputAmount));
+					isUnstaking = true;
+					await nicpToIcp(BigNumber($inputAmount));
+					isUnstaking = false;
 				}
 			}}
 			title="stake-unstake-btn"
+			disabled={$isBusy}
 		>
-			{#if $isConverting}
+			{#if isUnstaking}
 				<div class="spinner"></div>
 			{:else}
 				Unstake
@@ -540,6 +546,13 @@
 		margin: 0;
 		color: var(--title-color);
 		display: flex;
+	}
+
+	button:disabled {
+		background-color: var(--main-color); 
+		color: #a1a1a1; 
+		cursor: default; 
+		border: 1px solid #ccc;
 	}
 
 	/* === Layout === */
