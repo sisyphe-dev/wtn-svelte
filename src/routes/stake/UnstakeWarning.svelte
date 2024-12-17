@@ -129,7 +129,7 @@
 		} as DepositArgs);
 
 		if ('ok' in depositResult) {
-			return depositResult.ok
+			return depositResult.ok;
 		} else {
 			toasts.add(Toast.error('Failed to deposit nICP on ICPSwap. Please try again.'));
 			throw new Error(`${depositResult.err}`);
@@ -146,7 +146,7 @@
 		} as SwapArgs);
 
 		if ('ok' in swapResult) {
-			return swapResult.ok
+			return swapResult.ok;
 		} else {
 			toasts.add(Toast.error('Failed swap. Please try again.'));
 			throw new Error(`${swapResult.err}`);
@@ -162,12 +162,12 @@
 			amount: amountToWithdrawE8s
 		} as WithdrawArgs);
 
-		if ('ok' in withdrawResult) { 
+		if ('ok' in withdrawResult) {
 			const swapAmount = displayUsFormat(bigintE8sToNumber(withdrawResult.ok), 4);
 			toasts.add(Toast.success(`Successful swap, ${swapAmount} ICP received.`));
 		} else {
 			toasts.add(Toast.error('Failed swap. Please try again.'));
-			throw new Error(`${withdrawResult.err}`)
+			throw new Error(`${withdrawResult.err}`);
 		}
 	};
 
@@ -200,7 +200,10 @@
 
 				// 3. Swap
 				const amountOut = numberToBigintE8s(fastUnstakeAmount.multipliedBy(BigNumber(0.98)));
-				const amountToWithdrawE8s = await swapInFastUnstake(amountIn.toString(), amountOut.toString());
+				const amountToWithdrawE8s = await swapInFastUnstake(
+					amountIn.toString(),
+					amountOut.toString()
+				);
 				if (amountToWithdrawE8s === undefined) return;
 
 				// 4. Withdraw
