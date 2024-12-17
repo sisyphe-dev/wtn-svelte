@@ -271,6 +271,7 @@
 			>
 			<button
 				id="confirm-btn"
+				title="confirm-unstake-btn"
 				on:click={async () => {
 					if (isFastUnstake) {
 						isUnstaking = true;

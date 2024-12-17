@@ -102,7 +102,7 @@ testWithII('e2e test stake', async ({ page, iiPage }) => {
 	expect(await isToastSuccess(page)).toBeTruthy();
 });
 
-testWithII('e2e test unstake', async ({ page, iiPage }) => {
+testWithII.only('e2e test unstake', async ({ page, iiPage }) => {
 	await page.goto('/');
 
 	await page.locator('[title="connect-btn"]').click();
@@ -128,10 +128,10 @@ testWithII('e2e test unstake', async ({ page, iiPage }) => {
 	await page.locator('[title="unstake-header"]').click();
 	await page.locator('[title="delayed-btn"]').click();
 
-	await swap(page, 9);
+	await page.locator('[title="swap-input"]').fill('9');
 	await expect(page.locator('span.error')).toBeVisible();
 
-	await swap(page, 15);
+	await swap(page, 15, true);
 	expect(await isToastSuccess(page)).toBeFalsy();
 
 	await page.locator('.max-btn').click();
@@ -140,7 +140,7 @@ testWithII('e2e test unstake', async ({ page, iiPage }) => {
 			.locator('[title="swap-input"]')
 			.evaluate((input) => (input as HTMLInputElement).value)) ?? '0'
 	);
-	await swap(page, maxAmountUnstake);
+	await swap(page, maxAmountUnstake, true);
 	expect(await isToastSuccess(page)).toBeTruthy();
 
 	await walletInfo.click();

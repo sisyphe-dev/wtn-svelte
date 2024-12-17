@@ -16,7 +16,6 @@
 		waterNeuronInfo,
 		canisters,
 		user,
-		isLogging,
 		toasts,
 		isBusy,
 		inUnstakeWarningMenu
@@ -147,6 +146,16 @@
 			fastUnstakeAmount = BigNumber(0);
 		}
 	};
+
+	function unstakeAvailable(): boolean {
+		return (
+			$inputAmount !== '' &&
+			((isFastUnstake && fastUnstakeAmount.toNumber() > 0) ||
+				(!isFastUnstake &&
+					minimumWithdraw &&
+					parseFloat($inputAmount) >= minimumWithdraw.toNumber()))
+		);
+	}
 
 	const fetchData = async () => {
 		if ($waterNeuronInfo)
@@ -301,13 +310,7 @@
 	<button
 		class="main-btn swap-btn"
 		on:click={() => {
-			if (
-				$inputAmount !== '' &&
-				((isFastUnstake && fastUnstakeAmount.toNumber() > 0) ||
-					(!isFastUnstake &&
-						minimumWithdraw &&
-						parseFloat($inputAmount) >= minimumWithdraw.toNumber()))
-			) {
+			if (unstakeAvailable()) {
 				inUnstakeWarningMenu.set(true);
 			}
 		}}

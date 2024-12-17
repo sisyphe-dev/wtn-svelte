@@ -10,15 +10,7 @@
 	import { Toast } from '$lib/toast';
 	import ChangeIcon from '$lib/icons/ChangeIcon.svelte';
 	import ErrorIcon from '$lib/icons/ErrorIcon.svelte';
-	import {
-		inputAmount,
-		waterNeuronInfo,
-		canisters,
-		user,
-		isLogging,
-		toasts,
-		isBusy
-	} from '$lib/stores';
+	import { inputAmount, waterNeuronInfo, canisters, user, toasts, isBusy } from '$lib/stores';
 	import BigNumber from 'bignumber.js';
 	import {
 		icpTransferApproved,
