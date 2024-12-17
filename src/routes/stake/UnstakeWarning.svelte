@@ -10,20 +10,19 @@
 		AllowanceArgs,
 		Account
 	} from '$lib/../declarations/icrc_ledger/icrc_ledger.did';
+	import { fade } from 'svelte/transition';
 	import type {
 		DepositArgs,
 		SwapArgs,
 		WithdrawArgs,
 		Result as IcpSwapResult,
-		Error as IcpSwapError,
-		Result_7 as IcpSwapUnusedBalanceResult
+		Error as IcpSwapError
 	} from '$lib/../declarations/icpswap_pool/icpswap_pool.did';
 	import { Principal } from '@dfinity/principal';
 	import {
 		nicpTransferApproved,
 		handleUnstakeResult,
-		handleApproveResult,
-		DEFAULT_ERROR_MESSAGE
+		handleApproveResult
 	} from '$lib/resultHandler';
 	import {
 		CANISTER_ID_ICP_LEDGER,
@@ -31,17 +30,19 @@
 		CANISTER_ID_NICP_LEDGER
 	} from '$lib/authentification';
 	import { Toast } from '$lib/toast';
-    import {
-		Asset,
+	import {
 		displayUsFormat,
 		numberToBigintE8s,
 		bigintE8sToNumber,
 		computeReceiveAmount
 	} from '$lib';
 
+	const DEFAULT_LEDGER_FEE = 10_000n;
 
 	export let isFastUnstake: boolean;
+	export let fastUnstakeAmount: BigNumber;
 	export let minimumWithdraw: BigNumber;
+	export let exchangeRate: BigNumber;
 	let isUnstaking = false;
 	let dialog: HTMLDialogElement;
 
@@ -236,9 +237,31 @@
 	on:close={() => {
 		inUnstakeWarningMenu.set(false);
 	}}
+	in:fade={{ duration: 500 }}
 >
 	<div class="main-container">
 		<h2>Unstake Confirmation</h2>
+		{#if isFastUnstake}
+			<p>You are currently swapping on the market.</p>
+		{:else}
+			<p>You are currently unstaking with the protocol.</p>
+		{/if}
+		<div class="sum-up-container">
+			<p>Convert {displayUsFormat(BigNumber($inputAmount), 8)} nICP</p>
+			{#if isFastUnstake}
+				<p>
+					Receive {fastUnstakeAmount.toNumber() === 0 ? '-/-' : displayUsFormat(fastUnstakeAmount)} ICP
+				</p>
+			{:else}
+				<p>
+					Receive {displayUsFormat(
+						computeReceiveAmount(false, BigNumber($inputAmount), exchangeRate),
+						8
+					)} ICP
+				</p>
+			{/if}
+			<p>Effective {isFastUnstake ? 'immediately' : 'in 6 months'}</p>
+		</div>
 		<div class="toggle-container">
 			<button
 				id="abort-btn"
@@ -253,12 +276,12 @@
 						isUnstaking = true;
 						await fastUnstake(BigNumber($inputAmount));
 						isUnstaking = false;
-                        dialog.close();
+						dialog.close();
 					} else {
 						isUnstaking = true;
 						await nicpToIcp(BigNumber($inputAmount));
 						isUnstaking = false;
-                        dialog.close();
+						dialog.close();
 					}
 				}}
 				disabled={$isBusy}
@@ -296,6 +319,12 @@
 		font-family: var(--main-font);
 		align-self: center;
 		margin: 0.2em;
+		margin-bottom: 1em;
+	}
+
+	p {
+		font-family: var(--secondary-font);
+		margin: 0.3em;
 	}
 
 	button {
@@ -343,6 +372,17 @@
 		margin-top: 1em;
 	}
 
+	.sum-up-container {
+		display: flex;
+		flex-direction: column;
+		border-radius: 8 px;
+		background: var(--background-color);
+		border: var(--input-border);
+		padding: 0.5em 1em;
+		margin: 0.5em 0;
+		border-radius: 8px;
+	}
+
 	/* === Components === */
 	#abort-btn {
 		background: var(--main-button-text-color);
@@ -354,7 +394,7 @@
 		color: var(--main-button-text-color);
 	}
 
-    /* === Animation === */
+	/* === Animation === */
 	.spinner {
 		width: 2em;
 		height: 2em;
@@ -381,5 +421,4 @@
 			transform: scale(1.2);
 		}
 	}
-
 </style>

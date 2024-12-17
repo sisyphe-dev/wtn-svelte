@@ -188,7 +188,7 @@
 </script>
 
 {#if $inUnstakeWarningMenu}
-	<UnstakeWarning {isFastUnstake} {minimumWithdraw} />
+	<UnstakeWarning {isFastUnstake} {minimumWithdraw} {fastUnstakeAmount} {exchangeRate} />
 {/if}
 
 <div class="swap-container">
@@ -297,31 +297,29 @@
 			<h2 class="waiting-time">Waiting time: 6 months</h2>
 		</button>
 	</div>
-	{#if !$user}
-		<button
-			class="main-btn swap-btn"
-			on:click={() => {
-				isLogging.update(() => true);
-			}}
-		>
-			Connect your wallet
-		</button>
-	{:else}
-		<button
-			class="main-btn swap-btn"
-			on:click={() => {
+
+	<button
+		class="main-btn swap-btn"
+		on:click={() => {
+			if (
+				$inputAmount !== '' &&
+				((isFastUnstake && fastUnstakeAmount.toNumber() > 0) ||
+					(!isFastUnstake &&
+						minimumWithdraw &&
+						parseFloat($inputAmount) >= minimumWithdraw.toNumber()))
+			) {
 				inUnstakeWarningMenu.set(true);
-			}}
-			title="stake-unstake-btn"
-			disabled={$isBusy}
-		>
-			{#if isUnstaking}
-				<div class="spinner"></div>
-			{:else}
-				Unstake
-			{/if}
-		</button>
-	{/if}
+			}
+		}}
+		title="stake-unstake-btn"
+		disabled={$isBusy || !$user}
+	>
+		{#if isUnstaking}
+			<div class="spinner"></div>
+		{:else}
+			Unstake
+		{/if}
+	</button>
 </div>
 
 <style>
@@ -346,10 +344,9 @@
 	}
 
 	button:disabled {
-		background-color: var(--main-color);
-		color: #a1a1a1;
+		background-color: var(--main-color-disabled);
+		color: var(--title-color-disabled);
 		cursor: default;
-		border: 1px solid #ccc;
 	}
 
 	/* === Layout === */

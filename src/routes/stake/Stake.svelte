@@ -150,33 +150,22 @@
 			<img src="/tokens/WTN.webp" width="30em" height="30em" alt="WTN logo" class="wtn-logo" />
 		</div>
 	</div>
-	{#if !$user}
-		<button
-			class="swap-btn"
-			on:click={() => {
-				isLogging.update(() => true);
-			}}
-		>
-			<span>Connect your wallet</span>
-		</button>
-	{:else}
-		<button
-			class="swap-btn"
-			on:click={async () => {
-				isStaking = true;
-				await icpToNicp(BigNumber($inputAmount));
-				isStaking = false;
-			}}
-			title="stake-unstake-btn"
-			disabled={$isBusy}
-		>
-			{#if isStaking}
-				<div class="spinner"></div>
-			{:else}
-				<span>Stake</span>
-			{/if}
-		</button>
-	{/if}
+	<button
+		class="swap-btn"
+		on:click={async () => {
+			isStaking = true;
+			await icpToNicp(BigNumber($inputAmount));
+			isStaking = false;
+		}}
+		title="stake-unstake-btn"
+		disabled={$isBusy || !$user}
+	>
+		{#if isStaking}
+			<div class="spinner"></div>
+		{:else}
+			<span>Stake</span>
+		{/if}
+	</button>
 </div>
 
 <style>
@@ -193,7 +182,8 @@
 	}
 
 	button:disabled {
-		color: #a1a1a1;
+		background-color: var(--main-color-disabled);
+		color: var(--title-color-disabled);
 		cursor: default;
 	}
 

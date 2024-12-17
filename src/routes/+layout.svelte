@@ -89,9 +89,6 @@
 {:else}
 	<div class="page-container">
 		<Navbar />
-		<div class="redirect-container">
-			<p><a href="/launchpad">Join Papaya SNS 🥭</a></p>
-		</div>
 		<div class="content-container" class:filter={$inReceivingMenu || $inSendingMenu || $isLogging}>
 			<slot />
 		</div>
@@ -160,10 +157,12 @@
 		--stake-text-color: white;
 
 		--main-color: #4c66dc;
+		--main-color-disabled: #4c66dcbd;
 		--qr-code-background: none;
 
 		--main-button-text-color: #fcfffd;
 		--title-color: white;
+		--title-color-disabled: #fefefeb5;
 
 		--border-color: rgb(158 163 178);
 		--background-color: rgb(43, 51, 67);
@@ -242,37 +241,6 @@
 		color: white;
 	}
 
-	.redirect-container {
-		display: flex;
-		color: var(--title-color);
-		align-items: center;
-		font-family: var(--secondary-font);
-		background: linear-gradient(135deg, #ffdab9, #ffb347);
-		width: fit-content;
-		padding: 1em;
-		height: fit-content;
-		border-radius: 10px;
-		display: flex;
-		align-self: center;
-	}
-
-	.redirect-container p {
-		margin: 0;
-		text-decoration: underline;
-		text-decoration-color: black;
-		font-size: 1.2em;
-	}
-
-	.redirect-container a {
-		color: black;
-	}
-
-	a {
-		text-decoration: none;
-		outline: none;
-		color: var(--title-color);
-		text-align: center;
-	}
 	/* === Utilities ===*/
 	.filter {
 		filter: blur(5px);
