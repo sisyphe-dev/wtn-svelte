@@ -189,44 +189,47 @@
 	async function fastUnstake(amount: BigNumber) {
 		if (!$canisters || !$user || $isBusy || amount.isNaN() || !fastUnstakeAmount) return;
 		isBusy.set(true);
-		try {
-			let amountE8s = numberToBigintE8s(amount);
-			// 1. Approve
-			const spender = {
-				owner: Principal.fromText(CANISTER_ID_ICPSWAP_POOL),
-				subaccount: []
-			} as Account;
+		if ($user.nicpBalance().isGreaterThanOrEqualTo(amount) && amount.isGreaterThan(0)) {
+			try {
+				let amountE8s = numberToBigintE8s(amount);
+				// 1. Approve
+				const spender = {
+					owner: Principal.fromText(CANISTER_ID_ICPSWAP_POOL),
+					subaccount: []
+				} as Account;
 
-			const allowanceResult: Allowance = await $canisters.nicpLedger.anonymousActor.icrc2_allowance(
-				{
-					account: { owner: $user.principal, subaccount: [] } as Account,
-					spender
-				} as AllowanceArgs
-			);
-			const allowance = allowanceResult['allowance'];
-			if (numberToBigintE8s(amount) > allowance) {
-				await approveInFastUnstake(spender, amountE8s);
-				amountE8s -= DEFAULT_LEDGER_FEE;
+				const allowanceResult: Allowance =
+					await $canisters.nicpLedger.anonymousActor.icrc2_allowance({
+						account: { owner: $user.principal, subaccount: [] } as Account,
+						spender
+					} as AllowanceArgs);
+				const allowance = allowanceResult['allowance'];
+				if (numberToBigintE8s(amount) > allowance) {
+					await approveInFastUnstake(spender, amountE8s);
+					amountE8s -= DEFAULT_LEDGER_FEE;
+				}
+
+				// 2. Deposit
+				const depositResult = (await depositInFastUnstake(amountE8s)) as
+					| { ok: bigint }
+					| { err: Error }
+					| undefined;
+				if (depositResult === undefined) return;
+
+				// 3. Swap
+				const amountIn: bigint = (depositResult as { ok: bigint }).ok;
+				const amountOut = numberToBigintE8s(fastUnstakeAmount.multipliedBy(BigNumber(0.98)));
+				const swapResult = await swapInFastUnstake(amountIn.toString(), amountOut.toString());
+				if (swapResult === undefined) return;
+
+				// 4. Withdraw
+				const amountToWithdrawE8s = (swapResult as { ok: bigint }).ok;
+				await withdrawInFastUnstake(amountToWithdrawE8s);
+			} catch (error) {
+				console.log('[fastUnstake] error:', error);
 			}
-
-			// 2. Deposit
-			const depositResult = (await depositInFastUnstake(amountE8s)) as
-				| { ok: bigint }
-				| { err: Error }
-				| undefined;
-			if (depositResult === undefined) return;
-
-			// 3. Swap
-			const amountIn: bigint = (depositResult as { ok: bigint }).ok;
-			const amountOut = numberToBigintE8s(fastUnstakeAmount.multipliedBy(BigNumber(0.98)));
-			const swapResult = await swapInFastUnstake(amountIn.toString(), amountOut.toString());
-			if (swapResult === undefined) return;
-
-			// 4. Withdraw
-			const amountToWithdrawE8s = (swapResult as { ok: bigint }).ok;
-			await withdrawInFastUnstake(amountToWithdrawE8s);
-		} catch (error) {
-			console.log('[fastUnstake] error:', error);
+		} else {
+			toasts.add(Toast.error('Sorry, there are not enough funds in this account.'));
 		}
 		isBusy.set(false);
 	}
@@ -250,7 +253,9 @@
 			<p>Convert {displayUsFormat(BigNumber($inputAmount), 8)} nICP</p>
 			{#if isFastUnstake}
 				<p>
-					Receive {fastUnstakeAmount.toNumber() === 0 ? '-/-' : displayUsFormat(fastUnstakeAmount, 8)} ICP
+					Receive {fastUnstakeAmount.toNumber() === 0
+						? '-/-'
+						: displayUsFormat(fastUnstakeAmount, 8)} ICP
 				</p>
 			{:else}
 				<p>

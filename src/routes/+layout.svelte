@@ -143,8 +143,6 @@
 
 		--input-color: #fcfffd;
 
-		
-
 		--text-color: rgb(127 127 127);
 		--faq-color: black;
 
