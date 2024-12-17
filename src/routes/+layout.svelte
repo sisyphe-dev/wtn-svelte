@@ -123,10 +123,14 @@
 		--padding-8x: calc(8 * var(--padding));
 		--card-background-contrast: var(--main-color);
 		--card-background: white;
+
+		--main-color: #4c66dc;
+		--main-color-disabled: #4c66dcbd;
+		--main-button-text-color: white;
+		--main-button-text-color-disabled: #fefefeb5;
 	}
 
 	:root[theme='light'] {
-		--main-color: #283e95;
 		--important-text-color: black;
 		--stake-text-color: black;
 
@@ -139,7 +143,7 @@
 
 		--input-color: #fcfffd;
 
-		--main-button-text-color: white;
+		
 
 		--text-color: rgb(127 127 127);
 		--faq-color: black;
@@ -155,14 +159,10 @@
 		--svg-fill-color: #ffffff;
 		--svg-opposite-color: #7f7f7f;
 		--stake-text-color: white;
-
-		--main-color: #4c66dc;
-		--main-color-disabled: #4c66dcbd;
 		--qr-code-background: none;
 
 		--main-button-text-color: #fcfffd;
 		--title-color: white;
-		--title-color-disabled: #fefefeb5;
 
 		--border-color: rgb(158 163 178);
 		--background-color: rgb(43, 51, 67);

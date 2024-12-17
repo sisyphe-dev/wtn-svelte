@@ -175,7 +175,7 @@
 
 	button:disabled {
 		background-color: var(--main-color-disabled);
-		color: var(--title-color-disabled);
+		color: var(--main-button-text-color-disabled);
 		cursor: default;
 	}
 
