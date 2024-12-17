@@ -21,6 +21,7 @@
 	import type { Account } from '../../declarations/icrc_ledger/icrc_ledger.did';
 	import { onMount, afterUpdate } from 'svelte';
 	import { fade } from 'svelte/transition';
+	import { fullUnicodeString } from 'fast-check';
 
 	let invertExchangeRate = false;
 	let exchangeRate: BigNumber;
@@ -104,6 +105,8 @@
 				<ErrorIcon /> Cannot read amount
 			{:else if $inputAmount && parseFloat($inputAmount) < 1}
 				<ErrorIcon /> Minimum: 1 ICP
+			{:else if $user && $user.icpBalance().toNumber() < parseFloat($inputAmount)}
+				<ErrorIcon /> Insuficient funds
 			{/if}
 		</span>
 		<p style:color="var(--important-text-color)">

@@ -208,6 +208,8 @@
 				<ErrorIcon /> Cannot read amount
 			{:else if !isFastUnstake && $inputAmount && minimumWithdraw && parseFloat($inputAmount) < minimumWithdraw.toNumber()}
 				<ErrorIcon /> Minimum: {displayUsFormat(minimumWithdraw, 4)} nICP
+			{:else if $user && $user.nicpBalance().toNumber() < parseFloat($inputAmount)}
+				<ErrorIcon /> Insuficient funds
 			{/if}
 		</span>
 		<p style:padding-right="0.4em">
