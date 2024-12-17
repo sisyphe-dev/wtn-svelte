@@ -127,18 +127,13 @@
 			token: CANISTER_ID_NICP_LEDGER,
 			amount: amountE8s
 		} as DepositArgs);
-		const key = Object.keys(depositResult)[0] as keyof IcpSwapResult;
-		switch (key) {
-			case 'ok':
-				break;
-			case 'err':
-				const error = depositResult[key];
-				const errorKey = Object.keys(error)[0] as keyof IcpSwapError;
-				console.log('[ICPSwap deposit] error:', error[errorKey]);
-				toasts.add(Toast.error('Failed to deposit nICP on ICPSwap. Please try again.'));
-				break;
+
+		if ('ok' in depositResult) {
+			return depositResult.ok
+		} else {
+			toasts.add(Toast.error('Failed to deposit nICP on ICPSwap. Please try again.'));
+			throw new Error(`${depositResult.err}`);
 		}
-		return depositResult;
 	};
 
 	const swapInFastUnstake = async (amountIn: string, amountOut: string) => {
@@ -149,18 +144,13 @@
 			zeroForOne: true,
 			amountOutMinimum: amountOut.toString()
 		} as SwapArgs);
-		const key = Object.keys(swapResult)[0] as keyof IcpSwapResult;
-		switch (key) {
-			case 'ok':
-				break;
-			case 'err':
-				const error = swapResult[key];
-				const errorKey = Object.keys(error)[0] as keyof IcpSwapError;
-				console.log('[ICPSwap swap] error:', error[errorKey]);
-				toasts.add(Toast.error('Failed swap. Please try again.'));
-				break;
+
+		if ('ok' in swapResult) {
+			return swapResult.ok
+		} else {
+			toasts.add(Toast.error('Failed swap. Please try again.'));
+			throw new Error(`${swapResult.err}`);
 		}
-		return swapResult;
 	};
 
 	const withdrawInFastUnstake = async (amountToWithdrawE8s: bigint) => {
@@ -171,18 +161,13 @@
 			token: CANISTER_ID_ICP_LEDGER,
 			amount: amountToWithdrawE8s
 		} as WithdrawArgs);
-		const key = Object.keys(withdrawResult)[0] as keyof IcpSwapResult;
-		switch (key) {
-			case 'ok':
-				const swapAmount = displayUsFormat(bigintE8sToNumber(withdrawResult[key]), 4);
-				toasts.add(Toast.success(`Successful swap, ${swapAmount} ICP received.`));
-				break;
-			case 'err':
-				const error = withdrawResult[key];
-				const errorKey = Object.keys(error)[0] as keyof IcpSwapError;
-				console.log('[ICPSwap withdraw] error:', error[errorKey]);
-				toasts.add(Toast.error('Failed swap. Please try again.'));
-				break;
+
+		if ('ok' in withdrawResult) { 
+			const swapAmount = displayUsFormat(bigintE8sToNumber(withdrawResult.ok), 4);
+			toasts.add(Toast.success(`Successful swap, ${swapAmount} ICP received.`));
+		} else {
+			toasts.add(Toast.error('Failed swap. Please try again.'));
+			throw new Error(`${withdrawResult.err}`)
 		}
 	};
 
@@ -210,20 +195,16 @@
 				}
 
 				// 2. Deposit
-				const depositResult = (await depositInFastUnstake(amountE8s)) as
-					| { ok: bigint }
-					| { err: Error }
-					| undefined;
-				if (depositResult === undefined) return;
+				const amountIn = await depositInFastUnstake(amountE8s);
+				if (!amountIn) return;
 
 				// 3. Swap
-				const amountIn: bigint = (depositResult as { ok: bigint }).ok;
 				const amountOut = numberToBigintE8s(fastUnstakeAmount.multipliedBy(BigNumber(0.98)));
-				const swapResult = await swapInFastUnstake(amountIn.toString(), amountOut.toString());
-				if (swapResult === undefined) return;
+				const amountToWithdrawE8s = await swapInFastUnstake(amountIn.toString(), amountOut.toString());
+				if (amountToWithdrawE8s === undefined) return;
 
 				// 4. Withdraw
-				const amountToWithdrawE8s = (swapResult as { ok: bigint }).ok;
+
 				await withdrawInFastUnstake(amountToWithdrawE8s);
 			} catch (error) {
 				console.log('[fastUnstake] error:', error);
@@ -402,8 +383,8 @@
 
 	/* === Animation === */
 	.spinner {
-		width: 2em;
-		height: 2em;
+		width: 1em;
+		height: 1em;
 		border: 3px solid var(--main-button-text-color);
 		border-top-color: transparent;
 		border-radius: 50%;
