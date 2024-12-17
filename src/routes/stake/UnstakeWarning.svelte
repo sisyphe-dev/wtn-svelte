@@ -250,7 +250,7 @@
 			<p>Convert {displayUsFormat(BigNumber($inputAmount), 8)} nICP</p>
 			{#if isFastUnstake}
 				<p>
-					Receive {fastUnstakeAmount.toNumber() === 0 ? '-/-' : displayUsFormat(fastUnstakeAmount)} ICP
+					Receive {fastUnstakeAmount.toNumber() === 0 ? '-/-' : displayUsFormat(fastUnstakeAmount, 8)} ICP
 				</p>
 			{:else}
 				<p>
