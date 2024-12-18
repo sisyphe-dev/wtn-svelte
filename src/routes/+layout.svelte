@@ -89,9 +89,6 @@
 {:else}
 	<div class="page-container">
 		<Navbar />
-		<div class="redirect-container">
-			<p><a href="/launchpad">Join Papaya SNS 🥭</a></p>
-		</div>
 		<div class="content-container" class:filter={$inReceivingMenu || $inSendingMenu || $isLogging}>
 			<slot />
 		</div>
@@ -126,10 +123,14 @@
 		--padding-8x: calc(8 * var(--padding));
 		--card-background-contrast: var(--main-color);
 		--card-background: white;
+
+		--main-color: #4c66dc;
+		--main-color-disabled: #4c66dcbd;
+		--main-button-text-color: white;
+		--main-button-text-color-disabled: #fefefeb5;
 	}
 
 	:root[theme='light'] {
-		--main-color: #283e95;
 		--important-text-color: black;
 		--stake-text-color: black;
 
@@ -141,8 +142,6 @@
 		--qr-code-background: #283e95;
 
 		--input-color: #fcfffd;
-
-		--main-button-text-color: white;
 
 		--text-color: rgb(127 127 127);
 		--faq-color: black;
@@ -158,8 +157,6 @@
 		--svg-fill-color: #ffffff;
 		--svg-opposite-color: #7f7f7f;
 		--stake-text-color: white;
-
-		--main-color: #4c66dc;
 		--qr-code-background: none;
 
 		--main-button-text-color: #fcfffd;
@@ -242,37 +239,6 @@
 		color: white;
 	}
 
-	.redirect-container {
-		display: flex;
-		color: var(--title-color);
-		align-items: center;
-		font-family: var(--secondary-font);
-		background: linear-gradient(135deg, #ffdab9, #ffb347);
-		width: fit-content;
-		padding: 1em;
-		height: fit-content;
-		border-radius: 10px;
-		display: flex;
-		align-self: center;
-	}
-
-	.redirect-container p {
-		margin: 0;
-		text-decoration: underline;
-		text-decoration-color: black;
-		font-size: 1.2em;
-	}
-
-	.redirect-container a {
-		color: black;
-	}
-
-	a {
-		text-decoration: none;
-		outline: none;
-		color: var(--title-color);
-		text-align: center;
-	}
 	/* === Utilities ===*/
 	.filter {
 		filter: blur(5px);

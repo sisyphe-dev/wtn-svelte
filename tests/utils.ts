@@ -103,9 +103,13 @@ export async function transferNICP(accountString: string) {
 	if (!result || Object.keys(result)[0] === 'Err') throw new Error('Failed to transfer balance');
 }
 
-export async function swap(page: Page, amount: number) {
+export async function swap(page: Page, amount: number, isUnstake?: boolean) {
 	await page.locator('[title="swap-input"]').fill(amount.toString());
 	await page.locator('[title="stake-unstake-btn"]').click();
+
+	if (isUnstake) {
+		await page.locator('[title="confirm-unstake-btn"]').click();
+	}
 }
 
 export async function isToastSuccess(page: Page) {

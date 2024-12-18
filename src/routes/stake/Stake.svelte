@@ -10,15 +10,7 @@
 	import { Toast } from '$lib/toast';
 	import ChangeIcon from '$lib/icons/ChangeIcon.svelte';
 	import ErrorIcon from '$lib/icons/ErrorIcon.svelte';
-	import {
-		inputAmount,
-		waterNeuronInfo,
-		canisters,
-		user,
-		isLogging,
-		isConverting,
-		toasts
-	} from '$lib/stores';
+	import { inputAmount, waterNeuronInfo, canisters, user, toasts, isBusy } from '$lib/stores';
 	import BigNumber from 'bignumber.js';
 	import {
 		icpTransferApproved,
@@ -33,18 +25,19 @@
 	let invertExchangeRate = false;
 	let exchangeRate: BigNumber;
 	let totalIcpDeposited: BigNumber;
+	let isStaking = false;
 
 	async function icpToNicp(amount: BigNumber) {
 		if (
 			!$user ||
-			$isConverting ||
 			!$canisters?.waterNeuron.authenticatedActor ||
 			!$canisters?.icpLedger.authenticatedActor ||
 			amount.isNaN() ||
-			amount.isLessThan(BigNumber(1))
+			amount.isLessThan(BigNumber(1)) ||
+			$isBusy
 		)
 			return;
-		isConverting.set(true);
+		isBusy.set(true);
 
 		if ($user.icpBalance().isGreaterThanOrEqualTo(amount) && amount.isGreaterThan(0)) {
 			try {
@@ -78,7 +71,7 @@
 		} else {
 			toasts.add(Toast.error('Sorry, there are not enough funds in this account.'));
 		}
-		isConverting.set(false);
+		isBusy.set(false);
 	}
 
 	const fetchData = async () => {
@@ -149,30 +142,22 @@
 			<img src="/tokens/WTN.webp" width="30em" height="30em" alt="WTN logo" class="wtn-logo" />
 		</div>
 	</div>
-	{#if !$user}
-		<button
-			class="swap-btn"
-			on:click={() => {
-				isLogging.update(() => true);
-			}}
-		>
-			<span>Connect your wallet</span>
-		</button>
-	{:else}
-		<button
-			class="swap-btn"
-			on:click={() => {
-				icpToNicp(BigNumber($inputAmount));
-			}}
-			title="stake-unstake-btn"
-		>
-			{#if $isConverting}
-				<div class="spinner"></div>
-			{:else}
-				<span>Stake</span>
-			{/if}
-		</button>
-	{/if}
+	<button
+		class="swap-btn"
+		on:click={async () => {
+			isStaking = true;
+			await icpToNicp(BigNumber($inputAmount));
+			isStaking = false;
+		}}
+		title="stake-unstake-btn"
+		disabled={$isBusy || !$user}
+	>
+		{#if isStaking}
+			<div class="spinner"></div>
+		{:else}
+			<span>Stake</span>
+		{/if}
+	</button>
 </div>
 
 <style>
@@ -186,6 +171,12 @@
 		justify-content: end;
 		align-items: center;
 		gap: 0.2em;
+	}
+
+	button:disabled {
+		background-color: var(--main-color-disabled);
+		color: var(--main-button-text-color-disabled);
+		cursor: default;
 	}
 
 	/* === Layout === */
