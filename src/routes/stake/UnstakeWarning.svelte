@@ -20,7 +20,8 @@
 	import {
 		nicpTransferApproved,
 		handleUnstakeResult,
-		handleApproveResult
+		handleApproveResult,
+		handleIcpSwapError
 	} from '$lib/resultHandler';
 	import {
 		CANISTER_ID_ICP_LEDGER,
@@ -113,7 +114,7 @@
 		const status = handleApproveResult(approveResult);
 		if (!status.success) {
 			toasts.add(Toast.error(status.message));
-			throw new Error('Failed to approve the call. Please try again.');
+			throw new Error(`${status.message}`);
 		}
 	};
 
@@ -130,7 +131,7 @@
 			return depositResult.ok;
 		} else {
 			toasts.add(Toast.error('Failed to deposit nICP on ICPSwap. Please try again.'));
-			throw new Error(`${depositResult.err}`);
+			throw new Error(`${handleIcpSwapError(depositResult.err)}`);
 		}
 	};
 
@@ -147,7 +148,7 @@
 			return swapResult.ok;
 		} else {
 			toasts.add(Toast.error('Failed swap. Please try again.'));
-			throw new Error(`${swapResult.err}`);
+			throw new Error(`${handleIcpSwapError(swapResult.err)}`);
 		}
 	};
 
@@ -164,8 +165,8 @@
 			const swapAmount = displayUsFormat(bigintE8sToNumber(withdrawResult.ok), 4);
 			toasts.add(Toast.success(`Successful swap, ${swapAmount} ICP received.`));
 		} else {
-			toasts.add(Toast.error('Failed swap. Please try again.'));
-			throw new Error(`${withdrawResult.err}`);
+			toasts.add(Toast.error('Failed to withdraw funds during swap. Please try again.'));
+			throw new Error(`${handleIcpSwapError(withdrawResult.err)}`);
 		}
 	};
 
