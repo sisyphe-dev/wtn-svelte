@@ -196,7 +196,10 @@
 
 				// 2. Deposit
 				const amountIn = await depositInFastUnstake(amountE8s);
-				if (!amountIn) return;
+				if (!amountIn) {
+					isBusy.set(false);
+					return;
+				}
 
 				// 3. Swap
 				const amountOut = numberToBigintE8s(fastUnstakeAmount.multipliedBy(BigNumber(0.98)));
@@ -204,7 +207,10 @@
 					amountIn.toString(),
 					amountOut.toString()
 				);
-				if (amountToWithdrawE8s === undefined) return;
+				if (!amountToWithdrawE8s) {
+					isBusy.set(false);
+					return;
+				}
 
 				// 4. Withdraw
 
