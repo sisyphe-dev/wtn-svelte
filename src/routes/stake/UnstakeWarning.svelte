@@ -14,9 +14,7 @@
 	import type {
 		DepositArgs,
 		SwapArgs,
-		WithdrawArgs,
-		Result as IcpSwapResult,
-		Error as IcpSwapError
+		WithdrawArgs
 	} from '$lib/../declarations/icpswap_pool/icpswap_pool.did';
 	import { Principal } from '@dfinity/principal';
 	import {
@@ -115,7 +113,7 @@
 		const status = handleApproveResult(approveResult);
 		if (!status.success) {
 			toasts.add(Toast.error(status.message));
-			isBusy.set(false);
+			throw new Error('Failed to approve the call. Please try again.');
 		}
 	};
 

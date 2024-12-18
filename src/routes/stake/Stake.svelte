@@ -21,7 +21,6 @@
 	import type { Account } from '../../declarations/icrc_ledger/icrc_ledger.did';
 	import { onMount, afterUpdate } from 'svelte';
 	import { fade } from 'svelte/transition';
-	import { fullUnicodeString } from 'fast-check';
 
 	let invertExchangeRate = false;
 	let exchangeRate: BigNumber;

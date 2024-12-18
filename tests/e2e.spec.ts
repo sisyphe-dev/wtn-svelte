@@ -102,7 +102,7 @@ testWithII('e2e test stake', async ({ page, iiPage }) => {
 	expect(await isToastSuccess(page)).toBeTruthy();
 });
 
-testWithII.only('e2e test unstake', async ({ page, iiPage }) => {
+testWithII('e2e test unstake', async ({ page, iiPage }) => {
 	await page.goto('/');
 
 	await page.locator('[title="connect-btn"]').click();
