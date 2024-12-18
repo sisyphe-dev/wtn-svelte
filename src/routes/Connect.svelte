@@ -6,6 +6,7 @@
 		connectWithInternetIdentity,
 		connectWithTransport,
 		connectWithPlug,
+		connectWithHardwareWallet,
 		localSignIn,
 		NFID_RPC,
 		//OISY_RPC,
@@ -21,7 +22,9 @@
 
 	let dialog: HTMLDialogElement;
 
-	async function handleConnection(identityProvider: 'internetIdentity' | 'plug' | 'oisy' | 'nfid') {
+	async function handleConnection(
+		identityProvider: 'internetIdentity' | 'plug' | 'oisy' | 'nfid' | 'ledger'
+	) {
 		if ($isBusy) return;
 		isBusy.set(true);
 
@@ -38,6 +41,9 @@
 				// 	break;
 				case 'nfid':
 					await connectWithTransport(NFID_RPC);
+					break;
+				case 'ledger':
+					await connectWithHardwareWallet();
 					break;
 			}
 		} catch (e) {
@@ -117,7 +123,7 @@
 			</div>
 			<div class="selection-container">
 				<button class="login-btn" on:click={() => handleConnection('internetIdentity')}>
-					<img src="/icon/astronaut.webp" width="50em" height="50em" alt="Dfinity Astronaut." />
+					<img src="/icon/astronaut.webp" width="40em" height="40em" alt="Dfinity Astronaut." />
 					<h2>Internet Identity</h2>
 				</button>
 				<button class="login-btn" on:click={() => handleConnection('nfid')}>
@@ -127,8 +133,12 @@
 					<img src="/icon/nfid.webp" width="auto" height="30em" alt="NFID Logo." />
 				</button>
 				<button class="login-btn" on:click={() => handleConnection('plug')}>
-					<img src="/icon/plug.png" width="50em" height="50em" alt="Plug Icon." />
+					<img src="/icon/plug.png" width="40em" height="40em" alt="Plug Icon." />
 					<h2>Plug Wallet</h2>
+				</button>
+				<button class="login-btn" on:click={() => handleConnection('ledger')}>
+					<img src="/icon/ledger.png" width="40em" height="40em" alt="Ledger Icon." />
+					<h2>Ledger Wallet</h2>
 				</button>
 				{#if DEV || STAGING}
 					<button

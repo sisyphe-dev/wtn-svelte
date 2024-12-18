@@ -1,4 +1,4 @@
-import { DerEncodedPublicKey, PublicKey } from '@dfinity/agent';
+import type { DerEncodedPublicKey, PublicKey } from '@dfinity/agent';
 
 function equals(b1: ArrayBuffer, b2: ArrayBuffer): boolean {
 	if (b1.byteLength !== b2.byteLength) {

@@ -1,24 +1,18 @@
 import {
-	CallRequest,
+	type CallRequest,
 	Cbor,
-	HttpAgentRequest,
-	PublicKey,
-	ReadRequest,
-	Signature,
+	type HttpAgentRequest,
+	type PublicKey,
+	type ReadRequest,
+	type Signature,
 	SignIdentity
 } from '@dfinity/agent';
 import { Principal } from '@dfinity/principal';
 import LedgerApp, { LedgerError, ResponseAddress, ResponseSign } from '@zondax/ledger-icp';
 import { Secp256k1PublicKey } from './secp256k1';
+import type Transport from '@ledgerhq/hw-transport';
 
-// @ts-ignore (no types are available)
-import TransportWebHID, { Transport } from '@ledgerhq/hw-transport-webhid';
-import TransportNodeHidNoEvents from '@ledgerhq/hw-transport-node-hid-noevents';
-
-// Add polyfill for `window.fetch` for agent-js to work.
-// @ts-ignore (no types are available)
-import fetch from 'node-fetch';
-global.fetch = fetch;
+export const LEDGER_DEFAULT_DERIVE_PATH = `m/44'/223'/0'/0/0`;
 
 /**
  * Convert the HttpAgentRequest body into cbor which can be signed by the Ledger Hardware Wallet.
@@ -36,46 +30,32 @@ export class LedgerIdentity extends SignIdentity {
 	 * Create a LedgerIdentity using the Web USB transport.
 	 * @param derivePath The derivation path.
 	 */
-	public static async create(derivePath = `m/44'/223'/0'/0/0`): Promise<LedgerIdentity> {
-		const [app, transport] = await this._connect();
+	public static async create(derivePath = LEDGER_DEFAULT_DERIVE_PATH): Promise<LedgerIdentity> {
+		const { app, transport } = await this._connect();
 
 		try {
 			const publicKey = await this._fetchPublicKeyFromDevice(app, derivePath);
+
 			return new this(derivePath, publicKey);
 		} finally {
 			// Always close the transport.
-			transport.close();
+			await transport.close();
 		}
 	}
 
-	private constructor(
-		public readonly derivePath: string,
-		private readonly _publicKey: Secp256k1PublicKey
-	) {
-		super();
+	public static async getTransport(): Promise<Transport> {
+		const { default: TransportWebHID } = await import('@ledgerhq/hw-transport-webhid');
+		return TransportWebHID.create();
 	}
 
 	/**
 	 * Connect to a ledger hardware wallet.
 	 */
-	private static async _connect(): Promise<[LedgerApp, Transport]> {
-		async function getTransport() {
-			if (await TransportWebHID.isSupported()) {
-				// We're in a web browser.
-				return TransportWebHID.create();
-			} else if (await TransportNodeHidNoEvents.isSupported()) {
-				// Maybe we're in a CLI.
-				return TransportNodeHidNoEvents.create();
-			} else {
-				// Unknown environment.
-				throw Error();
-			}
-		}
-
+	private static async _connect(): Promise<{app: LedgerApp, transport: Transport}> {
 		try {
-			const transport = await getTransport();
+			const transport = await this.getTransport();
 			const app = new LedgerApp(transport);
-			return [app, transport];
+			return {app, transport};
 		} catch (err) {
 			// @ts-ignore
 			if (err.id && err.id == 'NoDeviceFound') {
@@ -92,6 +72,13 @@ export class LedgerIdentity extends SignIdentity {
 				throw `Cannot connect to Ledger Wallet. Either you have other wallet applications open (e.g. Ledger Live), or your browser doesn't support WebHID, which is necessary to communicate with your Ledger hardware wallet.\n\nSupported browsers:\n* Chrome (Desktop) v89+\n* Edge v89+\n* Opera v76+\n\nError: ${err}`;
 			}
 		}
+	}
+
+	private constructor(
+		public readonly derivePath: string,
+		private readonly _publicKey: Secp256k1PublicKey
+	) {
+		super();
 	}
 
 	private static async _fetchPublicKeyFromDevice(
@@ -151,12 +138,8 @@ export class LedgerIdentity extends SignIdentity {
 
 	public async sign(blob: ArrayBuffer): Promise<Signature> {
 		return await this._executeWithApp(async (app: LedgerApp) => {
-			const resp: ResponseSign = await app.sign(
-				this.derivePath,
-				Buffer.from(blob),
-				0
-			);
-            
+			const resp: ResponseSign = await app.sign(this.derivePath, Buffer.from(blob), 0);
+
 			const signatureRS = resp.signatureRS;
 			if (!signatureRS) {
 				throw new Error(
@@ -188,7 +171,7 @@ export class LedgerIdentity extends SignIdentity {
 	}
 
 	private async _executeWithApp<T>(func: (app: LedgerApp) => Promise<T>): Promise<T> {
-		const [app, transport] = await LedgerIdentity._connect();
+		const {app, transport} = await LedgerIdentity._connect();
 
 		try {
 			// Verify that the public key of the device matches the public key of this identity.
@@ -212,10 +195,10 @@ interface Version {
 }
 
 function bufferToArrayBuffer(buffer: Buffer): ArrayBuffer {
-    const sourceView = new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength);
-    const result = new ArrayBuffer(buffer.byteLength);
-    const targetView = new Uint8Array(result);
-    targetView.set(sourceView);
+	const sourceView = new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+	const result = new ArrayBuffer(buffer.byteLength);
+	const targetView = new Uint8Array(result);
+	targetView.set(sourceView);
 
 	return result;
 }

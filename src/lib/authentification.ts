@@ -17,6 +17,7 @@ import { CanisterActor, Canisters, User } from './state';
 import { SignerAgent } from '@slide-computer/signer-agent';
 import { PlugTransport } from '@slide-computer/signer-transport-plug';
 import { Principal } from '@dfinity/principal';
+import { LedgerIdentity } from './leger-wallet/identity';
 
 // 1 hour in nanoseconds
 const AUTH_MAX_TIME_TO_LIVE = BigInt(60 * 60 * 1000 * 1000 * 1000);
@@ -154,6 +155,15 @@ export async function connectWithTransport(rpc: typeof NFID_RPC) {
 		user.set(new User(userPrincipal));
 	} catch (error) {
 		console.log(error);
+	}
+}
+
+export async function connectWithHardwareWallet() {
+	try {
+		const ledgerIdentity = await LedgerIdentity.create();
+		console.log(ledgerIdentity);
+	} catch (e) {
+		console.error(e);
 	}
 }
 
