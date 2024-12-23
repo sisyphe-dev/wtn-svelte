@@ -159,12 +159,13 @@ export async function connectWithTransport(rpc: typeof NFID_RPC) {
 }
 
 export async function connectWithHardwareWallet() {
-	try {
-		const ledgerIdentity = await LedgerIdentity.create();
-		console.log(ledgerIdentity);
-	} catch (e) {
-		console.error(e);
-	}
+	const ledgerIdentity = await LedgerIdentity.create();
+	const agent = HttpAgent.createSync({
+		identity: ledgerIdentity,
+		host: HOST
+	});
+	canisters.set(await fetchActors(agent));
+	user.set(new User(await agent.getPrincipal()));
 }
 
 export async function localSignIn() {

@@ -47,7 +47,14 @@
 					break;
 			}
 		} catch (e) {
-			toasts.add(Toast.error('Connection failed. Please try again.'));
+			switch (identityProvider) {
+				case 'ledger':
+					toasts.add(Toast.error(`${e}`));
+					break;
+				default:
+					toasts.add(Toast.error('Connection failed. Please try again.'));
+					break;
+			}
 			console.error(e);
 			dialog.close();
 			return;

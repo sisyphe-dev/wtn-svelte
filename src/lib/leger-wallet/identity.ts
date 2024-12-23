@@ -51,11 +51,11 @@ export class LedgerIdentity extends SignIdentity {
 	/**
 	 * Connect to a ledger hardware wallet.
 	 */
-	private static async _connect(): Promise<{app: LedgerApp, transport: Transport}> {
+	private static async _connect(): Promise<{ app: LedgerApp; transport: Transport }> {
 		try {
 			const transport = await this.getTransport();
 			const app = new LedgerApp(transport);
-			return {app, transport};
+			return { app, transport };
 		} catch (err) {
 			// @ts-ignore
 			if (err.id && err.id == 'NoDeviceFound') {
@@ -98,7 +98,6 @@ export class LedgerIdentity extends SignIdentity {
 
 		// This type doesn't have the right fields in it, so we have to manually type it.
 		const principal = (resp as unknown as { principalText: string }).principalText;
-
 		const publicKey = Secp256k1PublicKey.fromRaw(bufferToArrayBuffer(resp.publicKey));
 
 		if (principal !== Principal.selfAuthenticating(new Uint8Array(publicKey.toDer())).toText()) {
@@ -138,8 +137,9 @@ export class LedgerIdentity extends SignIdentity {
 
 	public async sign(blob: ArrayBuffer): Promise<Signature> {
 		return await this._executeWithApp(async (app: LedgerApp) => {
-			const resp: ResponseSign = await app.sign(this.derivePath, Buffer.from(blob), 0);
-
+			console.log(blob);
+			const resp: ResponseSign = await app.sign(this.derivePath, Buffer.from(blob), 1);
+			console.log(resp);
 			const signatureRS = resp.signatureRS;
 			if (!signatureRS) {
 				throw new Error(
@@ -171,7 +171,7 @@ export class LedgerIdentity extends SignIdentity {
 	}
 
 	private async _executeWithApp<T>(func: (app: LedgerApp) => Promise<T>): Promise<T> {
-		const {app, transport} = await LedgerIdentity._connect();
+		const { app, transport } = await LedgerIdentity._connect();
 
 		try {
 			// Verify that the public key of the device matches the public key of this identity.
@@ -195,6 +195,7 @@ interface Version {
 }
 
 function bufferToArrayBuffer(buffer: Buffer): ArrayBuffer {
+	if (!buffer) throw new Error('Please make sure your Ledger device is live. Try again.');
 	const sourceView = new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength);
 	const result = new ArrayBuffer(buffer.byteLength);
 	const targetView = new Uint8Array(result);
