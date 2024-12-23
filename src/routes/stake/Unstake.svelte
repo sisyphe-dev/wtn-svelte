@@ -60,6 +60,12 @@
 					break;
 				case 'ok':
 					const nicpBalanceE8s = result[key]['balance0'];
+					const icpBalanceE8s = result[key]['balance1'];
+
+					if (nicpBalanceE8s + icpBalanceE8s < 2n * DEFAULT_LEDGER_FEE) {
+						toasts.add(Toast.error('No funds to withdraw detected.'));
+					}
+
 					if (nicpBalanceE8s > DEFAULT_LEDGER_FEE) {
 						const withdrawNicpResult = await $canisters.icpswapPool.authenticatedActor.withdraw({
 							fee: DEFAULT_LEDGER_FEE,
@@ -84,7 +90,6 @@
 						}
 					}
 
-					const icpBalanceE8s = result[key]['balance1'];
 					if (icpBalanceE8s > DEFAULT_LEDGER_FEE) {
 						const withdrawIcpResult = await $canisters.icpswapPool.authenticatedActor.withdraw({
 							fee: DEFAULT_LEDGER_FEE,
