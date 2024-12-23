@@ -416,4 +416,10 @@
 			transform: scale(1.2);
 		}
 	}
+
+	@media (max-width: 767px) {
+		.main-container {
+			width: 85%;
+		}
+	}
 </style>
