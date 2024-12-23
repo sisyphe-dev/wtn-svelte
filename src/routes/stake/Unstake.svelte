@@ -34,7 +34,7 @@
 	import UnstakeWarning from './UnstakeWarning.svelte';
 
 	let invertExchangeRate = false;
-	let isFastUnstake = true;
+	let isFastUnstake = false;
 	let isUnstaking = false;
 	let exchangeRate: BigNumber;
 	let minimumWithdraw: BigNumber;
