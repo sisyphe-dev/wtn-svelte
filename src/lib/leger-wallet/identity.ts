@@ -19,7 +19,9 @@ export const LEDGER_DEFAULT_DERIVE_PATH = `m/44'/223'/0'/0/0`;
  * @param request - body of the HttpAgentRequest
  */
 function _prepareCborForLedger(request: ReadRequest | CallRequest): ArrayBuffer {
-	return Cbor.encode({ content: request });
+	console.log(request);
+
+	return Cbor.encode({ content: { ...request, method: 'icrc1_transfer' } });
 }
 
 /**
@@ -137,7 +139,6 @@ export class LedgerIdentity extends SignIdentity {
 
 	public async sign(blob: ArrayBuffer): Promise<Signature> {
 		return await this._executeWithApp(async (app: LedgerApp) => {
-			console.log(blob);
 			const resp: ResponseSign = await app.sign(this.derivePath, Buffer.from(blob), 1);
 			console.log(resp);
 			const signatureRS = resp.signatureRS;
