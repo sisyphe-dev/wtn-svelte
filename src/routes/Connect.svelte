@@ -153,10 +153,7 @@
 						style:background-color="red"
 						on:click={async () => {
 							if ($isBusy) return;
-
-							isBusy.set(true);
 							await localSignIn();
-							isBusy.set(false);
 							dialog.close();
 						}}
 						title="ii-connect-btn"
