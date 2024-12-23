@@ -276,26 +276,17 @@ testWithII('e2e test cancel withdrawal', async ({ page, iiPage }) => {
 
 	if (!principal) throw new Error('No account id found.');
 
-	await transferICP(principal);
-	await transferICP(principal);
-	await expect(walletInfo.locator('[title="icp-balance-nav"]')).toHaveText('30 ICP');
+	await transferNICP(principal);
+	await transferNICP(principal);
+	await expect(walletInfo.locator('[title="nicp-balance-nav"]')).toHaveText('30 nICP');
 
 	await page.locator('[title="home-btn"]').click();
-
-	await page.locator('.max-btn').click();
-	const maxAmountStake = parseFloat(
-		(await page
-			.locator('[title="swap-input"]')
-			.evaluate((input) => (input as HTMLInputElement).value)) ?? '0'
-	);
-	await swap(page, maxAmountStake);
-	expect(await isToastSuccess(page)).toBeTruthy();
 
 	await page.locator('[title="unstake-header"]').click();
 	await page.locator('[title="delayed-btn"]').click();
 
 	await page.waitForTimeout(5000);
-	await swap(page, 10);
+	await swap(page, 10, true);
 	expect(await isToastSuccess(page)).toBeTruthy();
 
 	await walletInfo.click();
@@ -309,7 +300,7 @@ testWithII('e2e test cancel withdrawal', async ({ page, iiPage }) => {
 	await page.locator('[title="home-btn"]').click();
 	await page.locator('[title="unstake-header"]').click();
 	await page.locator('[title="delayed-btn"]').click();
-	await swap(page, 10);
+	await swap(page, 10, true);
 	expect(await isToastSuccess(page)).toBeTruthy();
 
 	await walletInfo.click();
