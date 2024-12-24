@@ -20,7 +20,7 @@
 		class="max-btn"
 		on:click={() => {
 			const fee =
-				asset.intoStr() === 'ICP'
+				asset.type === 'ICP'
 					? BigNumber(2).multipliedBy(asset.getTransferFee())
 					: BigNumber(1).multipliedBy(asset.getTransferFee());
 			const maxAmount = $user?.getBalance(asset.type).minus(fee).toNumber() ?? 0;
@@ -28,7 +28,7 @@
 		}}
 	>
 		<div class="max-btn-items">
-			<h2>{asset.intoStr()}</h2>
+			<h2>{asset}</h2>
 			<span>Max</span>
 		</div>
 		<img class="asset-logo" src={asset.getIconPath()} alt="ICP Icon" />

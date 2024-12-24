@@ -1,4 +1,4 @@
-import { AssetType, bigintE8sToNumber } from '$lib';
+import { bigintE8sToNumber } from '$lib';
 import { AccountIdentifier, type Account, SubAccount } from '@dfinity/ledger-icp';
 import { Principal } from '@dfinity/principal';
 import BigNumber from 'bignumber.js';
@@ -48,13 +48,13 @@ export class User {
 		return bigintE8sToNumber(this.wtnAllocationE8s);
 	}
 
-	getBalance(asset: AssetType): BigNumber {
+	getBalance(asset: 'ICP' | 'WTN' | 'nICP'): BigNumber {
 		switch (asset) {
-			case AssetType.ICP:
+			case 'ICP':
 				return this.icpBalance();
-			case AssetType.nICP:
+			case 'nICP':
 				return this.nicpBalance();
-			case AssetType.WTN:
+			case 'WTN':
 				return this.wtnBalance();
 		}
 	}
@@ -87,7 +87,7 @@ export class CanisterActor<canisterInterface> {
 		this._canisterId = canisterId;
 	}
 
-	setAuthenticatedActor<T extends Pick<Signer, 'callCanister'>>(
+	setAuthenticatedActor<T extends Pick<Signer, 'callCanister' | 'openChannel'>>(
 		authenticatedAgent: SignerAgent<T> | HttpAgent
 	) {
 		this.authenticatedActor = Actor.createActor(this._idl, {

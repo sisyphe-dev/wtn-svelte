@@ -33,10 +33,15 @@ export default defineConfig({
 			}
 		}
 	},
+	// Polyfill Buffer for production build. The hardware wallet needs Buffer.
 	plugins: [
 		sveltekit(),
 		environment('all', { prefix: 'CANISTER_' }),
-		environment('all', { prefix: 'DFX_' })
+		environment('all', { prefix: 'DFX_' }),
+		inject({
+			include: ['node_modules/@ledgerhq/**'],
+			modules: { Buffer: ['buffer', 'Buffer'] }
+		})
 	],
 	resolve: {
 		alias: [

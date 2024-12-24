@@ -5,7 +5,7 @@
 	import ja from './lang/ja.json';
 	import { language } from '$lib/stores';
 	import { fade, slide } from 'svelte/transition';
-	import DownArrowIcon from '$lib/icons/DownArrowIcon.svelte';
+	import ArrowIcon from '$lib/icons/ArrowIcon.svelte';
 
 	const data = {
 		en: en,
@@ -29,7 +29,7 @@
 		}
 	}
 
-	let toggledMap = getContent($language).map(() => {
+	let toggledMap: boolean[] = getContent($language).map(() => {
 		return false;
 	});
 </script>
@@ -45,7 +45,9 @@
 				}}
 			>
 				<h2>{section.title}</h2>
-				<DownArrowIcon invert={toggledMap[i]} />
+				{#key toggledMap[i]}
+					<ArrowIcon direction={toggledMap[i] ? 'up' : 'down'} color="--svg-fill-color" />
+				{/key}
 			</button>
 
 			{#if toggledMap[i]}

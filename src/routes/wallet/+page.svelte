@@ -1,97 +1,71 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { user } from '$lib/stores';
+	import { selectedWallet, user } from '$lib/stores';
 
 	if (!$user) goto('/');
 
 	import Withdrawals from './Withdrawals.svelte';
-	import { Asset } from '$lib';
-	import SendButton from './SendButton.svelte';
-	import { scale } from 'svelte/transition';
-	import CopyIcon from '$lib/icons/CopyIcon.svelte';
+	import LedgerWallet from './LedgerWallet.svelte';
+	import MainWallet from './MainWallet.svelte';
+	import ArrowIcon from '$lib/icons/ArrowIcon.svelte';
 	import { fade } from 'svelte/transition';
+	import { LedgerIdentity } from '$lib/leger-wallet/identity';
+	import { onMount } from 'svelte';
 
-	let isAnimating = false;
-	let circleVisible = false;
-	let accountId = false;
+	let inMainWallet = true;
+	let isSwitchVisible = false;
 
-	function handleAnimation() {
-		if (!isAnimating) {
-			isAnimating = true;
-			circleVisible = true;
-			setTimeout(() => {
-				circleVisible = false;
-				setTimeout(() => {
-					isAnimating = false;
-				}, 500);
-			}, 500);
+	const isDeviceDetected = async () => {
+		try {
+			await LedgerIdentity.create();
+			isSwitchVisible = true;
+		} catch (_) {
+			isSwitchVisible = false;
+			inMainWallet = true;
+			selectedWallet.set('main');
 		}
-	}
+	};
+
+	onMount(() => {
+		isDeviceDetected();
+
+		const intervalId = setInterval(async () => {
+			await isDeviceDetected();
+		}, 5000);
+
+		return () => clearInterval(intervalId);
+	});
 </script>
 
 <div class="wallet-menu-container" in:fade={{ duration: 500 }}>
-	<h1>Wallet</h1>
-	<div class="address-container">
-		<h2>ICP Account Id</h2>
-		<div class="principal-container">
-			<p title="accountIdentifier-hex" style:max-width="82%">{$user?.accountId}</p>
+	<div class="header-container">
+		<h1>{inMainWallet ? 'Main Wallet' : 'Ledger Wallet'}</h1>
+		{#if isSwitchVisible}
 			<button
-				class="copy-btn"
+				class="switch-btn"
 				on:click={() => {
-					accountId = true;
-					handleAnimation();
-					navigator.clipboard.writeText($user ? $user.accountId : '');
+					inMainWallet = !inMainWallet;
+					selectedWallet.set(inMainWallet ? 'main' : 'ledger');
 				}}
 			>
-				<CopyIcon />
-				{#if circleVisible && accountId}
-					<div class="circle" transition:scale={{ duration: 500 }}></div>
-				{/if}
+				<ArrowIcon direction="left" color="--main-color" />
+				<ArrowIcon direction="right" color="--main-color" />
 			</button>
-		</div>
-		<SendButton asset={Asset.fromText('ICP')} />
+		{/if}
 	</div>
-	<div class="address-container">
-		<h2>Principal Address</h2>
-		<div class="principal-container">
-			<p title="principal-user" style:max-width="80%">{$user?.principal}</p>
-			<button
-				class="copy-btn"
-				on:click={() => {
-					accountId = false;
-					handleAnimation();
-					navigator.clipboard.writeText($user ? $user.principal.toString() : '');
-				}}
-			>
-				<CopyIcon />
-				{#if circleVisible && !accountId}
-					<div class="circle" transition:scale={{ duration: 500 }}></div>
-				{/if}
-			</button>
-		</div>
-		<SendButton asset={Asset.fromText('nICP')} />
-		<SendButton asset={Asset.fromText('WTN')} />
-	</div>
+	{#if inMainWallet}
+		<MainWallet />
+	{:else}
+		<LedgerWallet />
+	{/if}
 </div>
 <Withdrawals />
 
 <style>
 	/* === Base Styles === */
 	h1 {
-		text-align: center;
 		margin: 0;
 		font-family: var(--secondary-font);
-	}
-
-	h2 {
-		margin: 0;
-		margin-top: 1em;
-		font-family: var(--secondary-font);
-	}
-
-	p {
-		font-family: var(--secondary-font);
-		overflow-wrap: anywhere;
 	}
 
 	/* === Layout === */
@@ -107,38 +81,19 @@
 		max-width: 80vw;
 	}
 
-	.principal-container {
-		margin-left: 1em;
+	.header-container {
 		display: flex;
+		position: relative;
 		align-items: center;
-	}
-
-	.address-container {
-		gap: 1em;
-		display: flex;
-		flex-direction: column;
+		justify-content: center;
 	}
 
 	/* === Components ==== */
-	.copy-btn {
-		background-color: transparent;
+	.switch-btn {
+		background: none;
 		border: none;
 		cursor: pointer;
-		transition: all 0.3s ease;
-		display: flex;
-		position: relative;
-	}
-
-	/* === Animation === */
-
-	.circle {
 		position: absolute;
-		border-radius: 50%;
-		background-color: rgb(37, 139, 255, 0.5);
-		width: 25px;
-		height: 25px;
-		top: 50%;
-		left: 50%;
-		transform: translate(-50%, -50%);
+		right: 0;
 	}
 </style>

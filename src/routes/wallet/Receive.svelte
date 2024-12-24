@@ -1,15 +1,25 @@
 <script lang="ts">
-	import { selectedAsset, inReceivingMenu, user } from '$lib/stores';
+	import { selectedAsset, inReceivingMenu, user, selectedWallet, ledgerDevice } from '$lib/stores';
 	import CopyIcon from '$lib/icons/CopyIcon.svelte';
 	import { fade, scale } from 'svelte/transition';
 	import { onMount } from 'svelte';
 	import QrCreator from 'qr-creator';
 
 	let dialog: HTMLDialogElement;
-
+	let accountId: string | undefined;
+	let principal: string | undefined;
 	let isAnimating = false;
 	let circleVisible = false;
 
+	const setInfo = () => {
+		if ($selectedWallet === 'ledger') {
+			accountId = $ledgerDevice?.accountId;
+			principal = $ledgerDevice?.principal.toString();
+		} else {
+			accountId = $user?.accountId;
+			principal = $user?.principal.toString();
+		}
+	};
 	function handleAnimation() {
 		if (!isAnimating) {
 			isAnimating = true;
@@ -26,10 +36,11 @@
 	onMount(() => {
 		dialog = document.getElementById('receiverDialog') as HTMLDialogElement;
 		dialog.showModal();
+		setInfo();
 
 		QrCreator.render(
 			{
-				text: `${$selectedAsset.intoStr() === 'ICP' ? $user?.accountId : $user?.principal}`,
+				text: `${$selectedAsset.type === 'ICP' ? accountId : principal}`,
 				radius: 0.0, // 0.0 to 0.5
 				ecLevel: 'H', // L, M, Q, H
 				fill: 'white',
@@ -49,7 +60,7 @@
 >
 	<div class="receive-container" transition:fade={{ duration: 100 }}>
 		<div class="header-container">
-			<h3>Receive {$selectedAsset.intoStr()}</h3>
+			<h3>Receive {$selectedAsset.type}</h3>
 			<img alt="ICP logo" src={$selectedAsset.getIconPath()} width="50px" height="50px" />
 		</div>
 		<div class="qr-code-container">
@@ -57,13 +68,13 @@
 			<img id="wtn-logo" src="/tokens/WTN.webp" width="70px" height="70px" alt="WTN logo." />
 		</div>
 		<div class="principal-container">
-			{#if $selectedAsset.intoStr() === 'ICP'}
-				<p>{$user?.accountId}</p>
+			{#if $selectedAsset.type === 'ICP'}
+				<p>{accountId ?? '-/-'}</p>
 				<button
 					class="copy-btn"
 					on:click={() => {
 						handleAnimation();
-						navigator.clipboard.writeText($user ? $user.accountId : '');
+						navigator.clipboard.writeText(accountId ?? '');
 					}}
 				>
 					<CopyIcon />
@@ -72,12 +83,12 @@
 					{/if}
 				</button>
 			{:else}
-				<p>{$user?.principal}</p>
+				<p>{principal ?? '-/-'}</p>
 				<button
 					class="copy-btn"
 					on:click={() => {
 						handleAnimation();
-						navigator.clipboard.writeText($user ? $user.principal.toString() : '');
+						navigator.clipboard.writeText(principal ?? '');
 					}}
 				>
 					<CopyIcon />

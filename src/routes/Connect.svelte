@@ -117,7 +117,7 @@
 			</div>
 			<div class="selection-container">
 				<button class="login-btn" on:click={() => handleConnection('internetIdentity')}>
-					<img src="/icon/astronaut.webp" width="50em" height="50em" alt="Dfinity Astronaut." />
+					<img src="/icon/astronaut.webp" width="40em" height="40em" alt="Dfinity Astronaut." />
 					<h2>Internet Identity</h2>
 				</button>
 				<button class="login-btn" on:click={() => handleConnection('nfid')}>
@@ -127,7 +127,7 @@
 					<img src="/icon/nfid.webp" width="auto" height="30em" alt="NFID Logo." />
 				</button>
 				<button class="login-btn" on:click={() => handleConnection('plug')}>
-					<img src="/icon/plug.png" width="50em" height="50em" alt="Plug Icon." />
+					<img src="/icon/plug.png" width="40em" height="40em" alt="Plug Icon." />
 					<h2>Plug Wallet</h2>
 				</button>
 				{#if DEV || STAGING}

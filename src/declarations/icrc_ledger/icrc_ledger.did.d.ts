@@ -4,11 +4,11 @@ import type { IDL } from '@dfinity/candid';
 
 export interface Account {
 	owner: Principal;
-	subaccount: [] | [Subaccount];
+	subaccount: [] | [Uint8Array | number[]];
 }
 export interface Allowance {
 	allowance: bigint;
-	expires_at: [] | [Timestamp];
+	expires_at: [] | [bigint];
 }
 export interface AllowanceArgs {
 	account: Account;
@@ -18,20 +18,20 @@ export interface Approve {
 	fee: [] | [bigint];
 	from: Account;
 	memo: [] | [Uint8Array | number[]];
-	created_at_time: [] | [Timestamp];
+	created_at_time: [] | [bigint];
 	amount: bigint;
 	expected_allowance: [] | [bigint];
-	expires_at: [] | [Timestamp];
+	expires_at: [] | [bigint];
 	spender: Account;
 }
 export interface ApproveArgs {
 	fee: [] | [bigint];
 	memo: [] | [Uint8Array | number[]];
 	from_subaccount: [] | [Uint8Array | number[]];
-	created_at_time: [] | [Timestamp];
+	created_at_time: [] | [bigint];
 	amount: bigint;
 	expected_allowance: [] | [bigint];
-	expires_at: [] | [Timestamp];
+	expires_at: [] | [bigint];
 	spender: Account;
 }
 export type ApproveError =
@@ -39,76 +39,155 @@ export type ApproveError =
 			GenericError: { message: string; error_code: bigint };
 	  }
 	| { TemporarilyUnavailable: null }
-	| { Duplicate: { duplicate_of: BlockIndex } }
+	| { Duplicate: { duplicate_of: bigint } }
 	| { BadFee: { expected_fee: bigint } }
 	| { AllowanceChanged: { current_allowance: bigint } }
-	| { CreatedInFuture: { ledger_time: Timestamp } }
+	| { CreatedInFuture: { ledger_time: bigint } }
 	| { TooOld: null }
-	| { Expired: { ledger_time: Timestamp } }
+	| { Expired: { ledger_time: bigint } }
 	| { InsufficientFunds: { balance: bigint } };
-export type ApproveResult = { Ok: BlockIndex } | { Err: ApproveError };
 export interface ArchiveInfo {
-	block_range_end: BlockIndex;
+	block_range_end: bigint;
 	canister_id: Principal;
-	block_range_start: BlockIndex;
+	block_range_start: bigint;
 }
-export type Block = Value;
-export type BlockIndex = bigint;
+export interface ArchiveOptions {
+	num_blocks_to_archive: bigint;
+	max_transactions_per_response: [] | [bigint];
+	trigger_threshold: bigint;
+	more_controller_ids: [] | [Array<Principal>];
+	max_message_size_bytes: [] | [bigint];
+	cycles_for_archive_creation: [] | [bigint];
+	node_max_memory_size_bytes: [] | [bigint];
+	controller_id: Principal;
+}
+export interface ArchivedBlocks {
+	args: Array<GetBlocksRequest>;
+	callback: [Principal, string];
+}
+export interface ArchivedRange {
+	callback: [Principal, string];
+	start: bigint;
+	length: bigint;
+}
+export interface ArchivedRange_1 {
+	callback: [Principal, string];
+	start: bigint;
+	length: bigint;
+}
 export interface BlockRange {
-	blocks: Array<Block>;
+	blocks: Array<Value>;
+}
+export interface BlockWithId {
+	id: bigint;
+	block: ICRC3Value;
 }
 export interface Burn {
 	from: Account;
 	memo: [] | [Uint8Array | number[]];
-	created_at_time: [] | [Timestamp];
+	created_at_time: [] | [bigint];
 	amount: bigint;
 	spender: [] | [Account];
 }
+export interface ChangeArchiveOptions {
+	num_blocks_to_archive: [] | [bigint];
+	max_transactions_per_response: [] | [bigint];
+	trigger_threshold: [] | [bigint];
+	more_controller_ids: [] | [Array<Principal>];
+	max_message_size_bytes: [] | [bigint];
+	cycles_for_archive_creation: [] | [bigint];
+	node_max_memory_size_bytes: [] | [bigint];
+	controller_id: [] | [Principal];
+}
 export type ChangeFeeCollector = { SetTo: Account } | { Unset: null };
+export interface ConsentInfo {
+	metadata: ConsentMessageMetadata;
+	consent_message: ConsentMessage;
+}
+export type ConsentMessage =
+	| {
+			LineDisplayMessage: { pages: Array<LineDisplayPage> };
+	  }
+	| { GenericDisplayMessage: string };
+export interface ConsentMessageMetadata {
+	utc_offset_minutes: [] | [number];
+	language: string;
+}
+export interface ConsentMessageRequest {
+	arg: Uint8Array | number[];
+	method: string;
+	user_preferences: ConsentMessageSpec;
+}
+export interface ConsentMessageSpec {
+	metadata: ConsentMessageMetadata;
+	device_spec: [] | [DisplayMessageType];
+}
 export interface DataCertificate {
 	certificate: [] | [Uint8Array | number[]];
 	hash_tree: Uint8Array | number[];
 }
-export type Duration = bigint;
+export type DisplayMessageType =
+	| { GenericDisplay: null }
+	| {
+			LineDisplay: {
+				characters_per_line: number;
+				lines_per_page: number;
+			};
+	  };
+export interface ErrorInfo {
+	description: string;
+}
 export interface FeatureFlags {
 	icrc2: boolean;
 }
-export interface GetBlocksArgs {
-	start: BlockIndex;
+export interface GetArchivesArgs {
+	from: [] | [Principal];
+}
+export interface GetBlocksRequest {
+	start: bigint;
 	length: bigint;
 }
 export interface GetBlocksResponse {
 	certificate: [] | [Uint8Array | number[]];
-	first_index: BlockIndex;
-	blocks: Array<Block>;
+	first_index: bigint;
+	blocks: Array<Value>;
 	chain_length: bigint;
-	archived_blocks: Array<{
-		callback: QueryBlockArchiveFn;
-		start: BlockIndex;
-		length: bigint;
-	}>;
+	archived_blocks: Array<ArchivedRange>;
 }
-export interface GetTransactionsRequest {
-	start: TxIndex;
-	length: bigint;
+export interface GetBlocksResult {
+	log_length: bigint;
+	blocks: Array<BlockWithId>;
+	archived_blocks: Array<ArchivedBlocks>;
 }
 export interface GetTransactionsResponse {
-	first_index: TxIndex;
+	first_index: bigint;
 	log_length: bigint;
 	transactions: Array<Transaction>;
-	archived_transactions: Array<{ callback: QueryArchiveFn; start: TxIndex; length: bigint }>;
+	archived_transactions: Array<ArchivedRange_1>;
 }
-export interface HttpRequest {
-	url: string;
-	method: string;
-	body: Uint8Array | number[];
-	headers: Array<[string, string]>;
+export interface ICRC3ArchiveInfo {
+	end: bigint;
+	canister_id: Principal;
+	start: bigint;
 }
-export interface HttpResponse {
-	body: Uint8Array | number[];
-	headers: Array<[string, string]>;
-	status_code: number;
+export interface ICRC3DataCertificate {
+	certificate: Uint8Array | number[];
+	hash_tree: Uint8Array | number[];
 }
+export type ICRC3Value =
+	| { Int: bigint }
+	| { Map: Array<[string, ICRC3Value]> }
+	| { Nat: bigint }
+	| { Blob: Uint8Array | number[] }
+	| { Text: string }
+	| { Array: Array<ICRC3Value> };
+export type Icrc21Error =
+	| {
+			GenericError: { description: string; error_code: bigint };
+	  }
+	| { InsufficientPayment: ErrorInfo }
+	| { UnsupportedCanisterCall: ErrorInfo }
+	| { ConsentMessageUnavailable: ErrorInfo };
 export interface InitArgs {
 	decimals: [] | [number];
 	token_symbol: string;
@@ -119,22 +198,15 @@ export interface InitArgs {
 	maximum_number_of_accounts: [] | [bigint];
 	accounts_overflow_trim_quantity: [] | [bigint];
 	fee_collector_account: [] | [Account];
-	archive_options: {
-		num_blocks_to_archive: bigint;
-		max_transactions_per_response: [] | [bigint];
-		trigger_threshold: bigint;
-		more_controller_ids: [] | [Array<Principal>];
-		max_message_size_bytes: [] | [bigint];
-		cycles_for_archive_creation: [] | [bigint];
-		node_max_memory_size_bytes: [] | [bigint];
-		controller_id: Principal;
-	};
+	archive_options: ArchiveOptions;
 	max_memo_length: [] | [number];
 	token_name: string;
 	feature_flags: [] | [FeatureFlags];
 }
-export type LedgerArg = { Upgrade: [] | [UpgradeArgs] } | { Init: InitArgs };
-export type Map = Array<[string, Value]>;
+export type LedgerArgument = { Upgrade: [] | [UpgradeArgs] } | { Init: InitArgs };
+export interface LineDisplayPage {
+	lines: Array<string>;
+}
 export type MetadataValue =
 	| { Int: bigint }
 	| { Nat: bigint }
@@ -143,24 +215,27 @@ export type MetadataValue =
 export interface Mint {
 	to: Account;
 	memo: [] | [Uint8Array | number[]];
-	created_at_time: [] | [Timestamp];
+	created_at_time: [] | [bigint];
 	amount: bigint;
 }
-export type QueryArchiveFn = ActorMethod<[GetTransactionsRequest], TransactionRange>;
-export type QueryBlockArchiveFn = ActorMethod<[GetBlocksArgs], BlockRange>;
+export type Result = { Ok: bigint } | { Err: TransferError };
+export type Result_1 = { Ok: ConsentInfo } | { Err: Icrc21Error };
+export type Result_2 = { Ok: bigint } | { Err: ApproveError };
+export type Result_3 = { Ok: bigint } | { Err: TransferFromError };
 export interface StandardRecord {
 	url: string;
 	name: string;
 }
-export type Subaccount = Uint8Array | number[];
-export type Timestamp = bigint;
-export type Tokens = bigint;
+export interface SupportedBlockType {
+	url: string;
+	block_type: string;
+}
 export interface Transaction {
 	burn: [] | [Burn];
 	kind: string;
 	mint: [] | [Mint];
 	approve: [] | [Approve];
-	timestamp: Timestamp;
+	timestamp: bigint;
 	transfer: [] | [Transfer];
 }
 export interface TransactionRange {
@@ -171,58 +246,55 @@ export interface Transfer {
 	fee: [] | [bigint];
 	from: Account;
 	memo: [] | [Uint8Array | number[]];
-	created_at_time: [] | [Timestamp];
+	created_at_time: [] | [bigint];
 	amount: bigint;
 	spender: [] | [Account];
 }
 export interface TransferArg {
 	to: Account;
-	fee: [] | [Tokens];
+	fee: [] | [bigint];
 	memo: [] | [Uint8Array | number[]];
-	from_subaccount: [] | [Subaccount];
-	created_at_time: [] | [Timestamp];
-	amount: Tokens;
+	from_subaccount: [] | [Uint8Array | number[]];
+	created_at_time: [] | [bigint];
+	amount: bigint;
 }
 export type TransferError =
 	| {
 			GenericError: { message: string; error_code: bigint };
 	  }
 	| { TemporarilyUnavailable: null }
-	| { BadBurn: { min_burn_amount: Tokens } }
-	| { Duplicate: { duplicate_of: BlockIndex } }
-	| { BadFee: { expected_fee: Tokens } }
-	| { CreatedInFuture: { ledger_time: Timestamp } }
+	| { BadBurn: { min_burn_amount: bigint } }
+	| { Duplicate: { duplicate_of: bigint } }
+	| { BadFee: { expected_fee: bigint } }
+	| { CreatedInFuture: { ledger_time: bigint } }
 	| { TooOld: null }
-	| { InsufficientFunds: { balance: Tokens } };
+	| { InsufficientFunds: { balance: bigint } };
 export interface TransferFromArgs {
 	to: Account;
-	fee: [] | [Tokens];
-	spender_subaccount: [] | [Subaccount];
+	fee: [] | [bigint];
+	spender_subaccount: [] | [Uint8Array | number[]];
 	from: Account;
 	memo: [] | [Uint8Array | number[]];
-	created_at_time: [] | [Timestamp];
-	amount: Tokens;
+	created_at_time: [] | [bigint];
+	amount: bigint;
 }
 export type TransferFromError =
 	| {
 			GenericError: { message: string; error_code: bigint };
 	  }
 	| { TemporarilyUnavailable: null }
-	| { InsufficientAllowance: { allowance: Tokens } }
-	| { BadBurn: { min_burn_amount: Tokens } }
-	| { Duplicate: { duplicate_of: BlockIndex } }
-	| { BadFee: { expected_fee: Tokens } }
-	| { CreatedInFuture: { ledger_time: Timestamp } }
+	| { InsufficientAllowance: { allowance: bigint } }
+	| { BadBurn: { min_burn_amount: bigint } }
+	| { Duplicate: { duplicate_of: bigint } }
+	| { BadFee: { expected_fee: bigint } }
+	| { CreatedInFuture: { ledger_time: bigint } }
 	| { TooOld: null }
-	| { InsufficientFunds: { balance: Tokens } };
-export type TransferFromResult = { Ok: BlockIndex } | { Err: TransferFromError };
-export type TransferResult = { Ok: BlockIndex } | { Err: TransferError };
-export type TxIndex = bigint;
+	| { InsufficientFunds: { balance: bigint } };
 export interface UpgradeArgs {
+	change_archive_options: [] | [ChangeArchiveOptions];
 	token_symbol: [] | [string];
 	transfer_fee: [] | [bigint];
 	metadata: [] | [Array<[string, MetadataValue]>];
-	maximum_number_of_accounts: [] | [bigint];
 	accounts_overflow_trim_quantity: [] | [bigint];
 	change_fee_collector: [] | [ChangeFeeCollector];
 	max_memo_length: [] | [number];
@@ -231,30 +303,45 @@ export interface UpgradeArgs {
 }
 export type Value =
 	| { Int: bigint }
-	| { Map: Map }
+	| { Map: Array<[string, Value]> }
 	| { Nat: bigint }
 	| { Nat64: bigint }
 	| { Blob: Uint8Array | number[] }
 	| { Text: string }
-	| { Array: Array<Value> };
+	| { Array: Vec };
+export type Vec = Array<
+	| { Int: bigint }
+	| { Map: Array<[string, Value]> }
+	| { Nat: bigint }
+	| { Nat64: bigint }
+	| { Blob: Uint8Array | number[] }
+	| { Text: string }
+	| { Array: Vec }
+>;
 export interface _SERVICE {
 	archives: ActorMethod<[], Array<ArchiveInfo>>;
-	get_blocks: ActorMethod<[GetBlocksArgs], GetBlocksResponse>;
+	get_blocks: ActorMethod<[GetBlocksRequest], GetBlocksResponse>;
 	get_data_certificate: ActorMethod<[], DataCertificate>;
-	get_transactions: ActorMethod<[GetTransactionsRequest], GetTransactionsResponse>;
-	icrc1_balance_of: ActorMethod<[Account], Tokens>;
+	get_transactions: ActorMethod<[GetBlocksRequest], GetTransactionsResponse>;
+	icrc10_supported_standards: ActorMethod<[], Array<StandardRecord>>;
+	icrc1_balance_of: ActorMethod<[Account], bigint>;
 	icrc1_decimals: ActorMethod<[], number>;
-	icrc1_fee: ActorMethod<[], Tokens>;
+	icrc1_fee: ActorMethod<[], bigint>;
 	icrc1_metadata: ActorMethod<[], Array<[string, MetadataValue]>>;
 	icrc1_minting_account: ActorMethod<[], [] | [Account]>;
 	icrc1_name: ActorMethod<[], string>;
 	icrc1_supported_standards: ActorMethod<[], Array<StandardRecord>>;
 	icrc1_symbol: ActorMethod<[], string>;
-	icrc1_total_supply: ActorMethod<[], Tokens>;
-	icrc1_transfer: ActorMethod<[TransferArg], TransferResult>;
+	icrc1_total_supply: ActorMethod<[], bigint>;
+	icrc1_transfer: ActorMethod<[TransferArg], Result>;
+	icrc21_canister_call_consent_message: ActorMethod<[ConsentMessageRequest], Result_1>;
 	icrc2_allowance: ActorMethod<[AllowanceArgs], Allowance>;
-	icrc2_approve: ActorMethod<[ApproveArgs], ApproveResult>;
-	icrc2_transfer_from: ActorMethod<[TransferFromArgs], TransferFromResult>;
+	icrc2_approve: ActorMethod<[ApproveArgs], Result_2>;
+	icrc2_transfer_from: ActorMethod<[TransferFromArgs], Result_3>;
+	icrc3_get_archives: ActorMethod<[GetArchivesArgs], Array<ICRC3ArchiveInfo>>;
+	icrc3_get_blocks: ActorMethod<[Array<GetBlocksRequest>], GetBlocksResult>;
+	icrc3_get_tip_certificate: ActorMethod<[], [] | [ICRC3DataCertificate]>;
+	icrc3_supported_block_types: ActorMethod<[], Array<SupportedBlockType>>;
 }
 export declare const idlFactory: IDL.InterfaceFactory;
-export declare const init: ({ IDL }: { IDL: IDL }) => IDL.Type[];
+export declare const init: (args: { IDL: typeof IDL }) => IDL.Type[];
