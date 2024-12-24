@@ -40,7 +40,7 @@
 			{/if}
 		</button>
 	</div>
-	<SendButton asset="ICP" wallet="main" />
+	<SendButton asset="ICP" />
 </div>
 <div class="address-container">
 	<h2>Principal Address</h2>
@@ -60,8 +60,8 @@
 			{/if}
 		</button>
 	</div>
-	<SendButton asset={'nICP'} wallet="main" />
-	<SendButton asset={'WTN'} wallet="main" />
+	<SendButton asset={'nICP'} />
+	<SendButton asset={'WTN'} />
 </div>
 
 <style>

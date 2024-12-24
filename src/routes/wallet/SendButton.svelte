@@ -1,18 +1,23 @@
 <script lang="ts">
 	import { Asset, displayUsFormat, isMobile } from '$lib';
-	import { user, selectedAsset, inSendingMenu, inReceivingMenu, ledgerDevice } from '$lib/stores';
+	import {
+		user,
+		selectedAsset,
+		inSendingMenu,
+		inReceivingMenu,
+		ledgerDevice,
+		selectedWallet
+	} from '$lib/stores';
 	import { BigNumber } from 'bignumber.js';
-	import { fade } from 'svelte/transition';
 	import QRCodeScannerIcon from '$lib/icons/QRCodeScannerIcon.svelte';
 	import UpIcon from '$lib/icons/UpIcon.svelte';
 	import { onMount } from 'svelte';
 
 	export let asset: 'ICP' | 'nICP' | 'WTN';
-	export let wallet: 'ledger' | 'main';
 	let balance: BigNumber | undefined;
 
 	const setBalance = async () => {
-		if (wallet === 'ledger') {
+		if ($selectedWallet === 'ledger') {
 			balance = $ledgerDevice?.getBalance(asset);
 		} else {
 			balance = $user?.getBalance(asset);
@@ -74,7 +79,7 @@
 			</button>
 		{/if}
 	</div>
-	{#if asset === 'WTN' && wallet === 'main'}
+	{#if asset === 'WTN' && $selectedWallet === 'main'}
 		<p class="airdrop-allocation">
 			{#if isMobile}
 				Airdrop:

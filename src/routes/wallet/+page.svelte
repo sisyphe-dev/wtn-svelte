@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { inLedgerMenu, user } from '$lib/stores';
+	import { selectedWallet, user } from '$lib/stores';
 
 	if (!$user) goto('/');
 
@@ -9,17 +9,49 @@
 	import MainWallet from './MainWallet.svelte';
 	import ArrowIcon from '$lib/icons/ArrowIcon.svelte';
 	import { fade } from 'svelte/transition';
+	import { LedgerIdentity } from '$lib/leger-wallet/identity';
+	import { onMount } from 'svelte';
 
 	let inMainWallet = true;
+	let isSwitchVisible = false;
+
+	const isDeviceDetected = async () => {
+		try {
+			await LedgerIdentity.create();
+			isSwitchVisible = true;
+		} catch (_) {
+			isSwitchVisible = false;
+			inMainWallet = true;
+			selectedWallet.set('main');
+		}
+	};
+
+	onMount(() => {
+		isDeviceDetected();
+
+		const intervalId = setInterval(async () => {
+			await isDeviceDetected();
+		}, 5000);
+
+		return () => clearInterval(intervalId);
+	});
 </script>
 
 <div class="wallet-menu-container" in:fade={{ duration: 500 }}>
 	<div class="header-container">
 		<h1>{inMainWallet ? 'Main Wallet' : 'Ledger Wallet'}</h1>
-		<button class="switch-btn" on:click={() => (inMainWallet = !inMainWallet)}>
-			<ArrowIcon direction="left" color="--main-color" />
-			<ArrowIcon direction="right" color="--main-color" />
-		</button>
+		{#if isSwitchVisible}
+			<button
+				class="switch-btn"
+				on:click={() => {
+					inMainWallet = !inMainWallet;
+					selectedWallet.set(inMainWallet ? 'main' : 'ledger');
+				}}
+			>
+				<ArrowIcon direction="left" color="--main-color" />
+				<ArrowIcon direction="right" color="--main-color" />
+			</button>
+		{/if}
 	</div>
 	{#if inMainWallet}
 		<MainWallet />

@@ -18,7 +18,6 @@ export const inReceivingMenu = writable<boolean>(false);
 export const inCancelWarningMenu = writable<boolean>(false);
 export const inUnstakeWarningMenu = writable<boolean>(false);
 export const inMobileMenu = writable<boolean>(false);
-export const inLedgerMenu = writable<boolean>(false);
 export const inQrDestination = writable<boolean>(false);
 export const inSnsMenu = writable<boolean>(false);
 
@@ -27,6 +26,7 @@ export const language = writable<'en' | 'es' | 'ja' | 'ru'>('en');
 export const availableAccounts = writable<{ owner: Principal; subaccount?: ArrayBuffer }[]>([]);
 export const signer = writable<Signer | undefined>(undefined);
 export const selectedAsset = writable<Asset>(new Asset('ICP'));
+export const selectedWallet = writable<'ledger' | 'main'>('main');
 export const selectedWithdrawal = writable<WithdrawalDetails | undefined>(undefined);
 export const user = writable<User | undefined>(undefined);
 export const ledgerDevice = writable<LedgerDevice | undefined>(undefined);

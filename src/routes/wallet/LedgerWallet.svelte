@@ -1,17 +1,15 @@
 <script lang="ts">
-	import { inLedgerMenu, inputAmount, ledgerDevice, toasts } from '$lib/stores';
+	import { inputAmount, ledgerDevice, toasts } from '$lib/stores';
 	import { onMount } from 'svelte';
-	import { fade } from 'svelte/transition';
-	import { displayUsFormat, getMaybeAccount, isMobile, numberToBigintE8s } from '$lib';
+	import { getMaybeAccount, numberToBigintE8s } from '$lib';
 	import { Toast as ToastMessage } from '$lib/toast';
 	import { scale } from 'svelte/transition';
 	import CopyIcon from '$lib/icons/CopyIcon.svelte';
 	import { connectWithHardwareWallet } from '$lib/authentification';
 	import BigNumber from 'bignumber.js';
-	import UpIcon from '$lib/icons/UpIcon.svelte';
 	import { AccountIdentifier } from '@dfinity/ledger-icp';
+	import SendButton from './SendButton.svelte';
 
-	let dialog: HTMLDialogElement;
 	let isAnimating = false;
 	let circleVisible = false;
 	let accountId = false;
@@ -117,7 +115,7 @@
 	}
 
 	onMount(() => {
-		connectWithHardwareWallet().then(() => $ledgerDevice?.identity.showAddressAndPubKeyOnDevice());
+		connectWithHardwareWallet();
 	});
 </script>
 
@@ -139,39 +137,12 @@
 			{/if}
 		</button>
 	</div>
-	<p>
-		{displayUsFormat($ledgerDevice ? $ledgerDevice.icpBalance() : BigNumber(0), 8)}
-		ICP
-	</p>
-	<p>
-		{displayUsFormat($ledgerDevice ? $ledgerDevice.nicpBalance() : BigNumber(0), 8)}
-		nICP
-	</p>
-	{#if isMobile}
-		<button
-			class="mobile-action-btn"
-			on:click={() => {
-				handleTransferRequest(BigNumber(0.001), 'nICP');
-			}}
-		>
-			<UpIcon />
-		</button>
-	{:else}
-		<button
-			class="action-btn"
-			title="send-btn-ICP"
-			on:click={() => {
-				handleTransferRequest(BigNumber(0.001), 'nICP');
-			}}
-		>
-			Send
-		</button>
-	{/if}
+	<SendButton asset="ICP" />
 </div>
 <div class="address-container">
 	<h2>Principal Address</h2>
 	<div class="principal-container">
-		<p title="principal-ledgerDevice" style:max-width="80%">{$ledgerDevice?.principal}</p>
+		<p title="principal-user" style:max-width="80%">{$ledgerDevice?.principal}</p>
 		<button
 			class="copy-btn"
 			on:click={() => {
@@ -186,11 +157,12 @@
 			{/if}
 		</button>
 	</div>
+	<SendButton asset="nICP" />
+	<SendButton asset="WTN" />
 </div>
 
 <style>
 	/* === Base Styles === */
-
 	h2 {
 		margin: 0;
 		margin-top: 1em;
