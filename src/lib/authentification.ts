@@ -12,17 +12,19 @@ import type { _SERVICE as icpswapPoolInterface } from '../declarations/icpswap_p
 import { idlFactory as idlFactoryIcpswapPool } from '../declarations/icpswap_pool';
 import { Signer } from '@slide-computer/signer';
 import { PostMessageTransport } from '@slide-computer/signer-web';
-import { user, canisters, availableAccounts, signer } from './stores';
+import { user, canisters, availableAccounts, signer, ledgerDevice } from './stores';
 import { CanisterActor, Canisters, User } from './state';
 import { SignerAgent } from '@slide-computer/signer-agent';
 import { PlugTransport } from '@slide-computer/signer-transport-plug';
 import { Principal } from '@dfinity/principal';
-import { LedgerIdentity } from './leger-wallet/identity';
+import { LedgerDevice, LedgerIdentity } from './leger-wallet/identity';
+import { IcrcLedgerCanister } from '@dfinity/ledger-icrc';
+import { LedgerCanister } from '@dfinity/ledger-icp';
 
 // 1 hour in nanoseconds
 const AUTH_MAX_TIME_TO_LIVE = BigInt(60 * 60 * 1000 * 1000 * 1000);
 
-export const DEV = import.meta.env ? import.meta.env.DEV : true;
+export const DEV = false;
 export const STAGING = process.env.CANISTER_ID === '47pxu-byaaa-aaaap-ahpsa-cai';
 
 export const HOST = DEV ? 'http://127.0.1:8080' : 'https://ic0.app';
@@ -56,7 +58,7 @@ export async function connectWithInternetIdentity() {
 			await authClient.login({
 				maxTimeToLive: AUTH_MAX_TIME_TO_LIVE,
 				allowPinAuthentication: true,
-				derivationOrigin: DAPP_DERIVATION_ORIGIN,
+				derivationOrigin: undefined,
 				identityProvider: IDENTITY_PROVIDER,
 				onSuccess: async () => {
 					const identity = authClient.getIdentity();
@@ -161,11 +163,39 @@ export async function connectWithTransport(rpc: typeof NFID_RPC) {
 export async function connectWithHardwareWallet() {
 	const ledgerIdentity = await LedgerIdentity.create();
 	const agent = HttpAgent.createSync({
+		host: HOST
+	});
+
+	const authenticatedAgent = HttpAgent.createSync({
 		identity: ledgerIdentity,
 		host: HOST
 	});
-	canisters.set(await fetchActors(agent));
-	user.set(new User(await agent.getPrincipal()));
+
+	const icpLedger = LedgerCanister.create({
+		agent: authenticatedAgent,
+		canisterId: Principal.fromText(CANISTER_ID_ICP_LEDGER)
+	});
+
+	const nicpLedger = IcrcLedgerCanister.create({
+		agent: authenticatedAgent,
+		canisterId: Principal.fromText(CANISTER_ID_NICP_LEDGER)
+	});
+
+	const wtnLedger = IcrcLedgerCanister.create({
+		agent: authenticatedAgent,
+		canisterId: Principal.fromText(CANISTER_ID_WTN_LEDGER)
+	});
+
+	ledgerDevice.set(
+		new LedgerDevice({
+			principal: await authenticatedAgent.getPrincipal(),
+			identity: ledgerIdentity,
+			agent,
+			icpLedger,
+			nicpLedger,
+			wtnLedger
+		})
+	);
 }
 
 export async function localSignIn() {
@@ -204,7 +234,7 @@ export async function internetIdentityLogout() {
 	await autClient.logout();
 }
 
-export function fetchActors<T extends Pick<Signer, 'callCanister'>>(
+export function fetchActors<T extends Pick<Signer, 'callCanister' | 'openChannel'>>(
 	authenticatedAgent?: HttpAgent | SignerAgent<T>,
 	isPlug = false
 ): Promise<Canisters> {

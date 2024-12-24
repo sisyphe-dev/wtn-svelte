@@ -1,409 +1,455 @@
-import type { Secp256k1PublicKey } from "./secp256k1";
+import { Principal } from '@dfinity/principal';
+import { Secp256k1PublicKey } from './secp256k1';
 import {
-  Cbor,
-  SignIdentity,
-  requestIdOf,
-  type CallRequest,
-  type HttpAgentReadStateRequest,
-  type HttpAgentRequest,
-  type PublicKey,
-  type ReadRequest,
-  type ReadRequestType,
-  type ReadStateRequest,
-  type RequestId,
-  type Signature,
-} from "@dfinity/agent";
-import { isNullish, nonNullish, smallerVersion } from "@dfinity/utils";
-import type Transport from "@ledgerhq/hw-transport";
-import type LedgerApp from "@zondax/ledger-icp";
-import type {
-  ResponseAddress,
-  ResponseSign,
-  ResponseSignUpdateCall,
-  ResponseVersion,
-} from "@zondax/ledger-icp";
-import { get } from "svelte/store";
-
-// TODO(L2-433): should we use @dfinity/identity-ledgerhq
-
+	Cbor,
+	HttpAgent,
+	requestIdOf,
+	SignIdentity,
+	type CallRequest,
+	type HttpAgentRequest,
+	type PublicKey,
+	type ReadRequest,
+	type ReadStateRequest,
+	type ReadRequestType,
+	type RequestId,
+	type Signature
+} from '@dfinity/agent';
+import { smallerVersion } from '@dfinity/utils';
+import type Transport from '@ledgerhq/hw-transport';
+import LedgerApp from '@zondax/ledger-icp';
+import {
+	LedgerError,
+	ResponseAddress,
+	ResponseSign,
+	ResponseVersion,
+	ResponseSignUpdateCall
+} from '@zondax/ledger-icp';
+import { AccountIdentifier, LedgerCanister } from '@dfinity/ledger-icp';
+import { bigintE8sToNumber } from '$lib';
+import BigNumber from 'bignumber.js';
+import { IcrcLedgerCanister } from '@dfinity/ledger-icrc';
 
 const LEDGER_DEFAULT_DERIVE_PATH = `m/44'/223'/0'/0/0`;
+const LEDGER_SIGNATURE_LENGTH = 64;
+// Version published in October 2023. Includes all transactions supported in Candid
+export const ALL_CANDID_TXS_VERSION = '2.4.9';
 
 type ReadStateData = {
-  signature: Signature;
-  body: ReadStateRequest;
+	signature: Signature;
+	body: ReadStateRequest;
 };
 
+type RequestSignatures = {
+	callSignature: Signature;
+	readStateSignature: Signature;
+};
+
+interface LedgerHQTransportError {
+	name: string;
+	message: string;
+	id: string;
+}
+
+export class LedgerDevice {
+	public agent: HttpAgent;
+	public identity: LedgerIdentity;
+	public principal: Principal;
+	public accountId: string;
+	public icpLedger: LedgerCanister;
+	public nicpLedger: IcrcLedgerCanister;
+	public wtnLedger: IcrcLedgerCanister;
+	public icpBalanceE8s: bigint;
+	public nicpBalanceE8s: bigint;
+	public wtnBalanceE8s: bigint;
+	public wtnAllocationE8s: bigint;
+
+	constructor({
+		principal,
+		identity,
+		agent,
+		icpLedger,
+		nicpLedger,
+		wtnLedger
+	}: {
+		principal: Principal;
+		identity: LedgerIdentity;
+		agent: HttpAgent;
+		icpLedger: LedgerCanister;
+		nicpLedger: IcrcLedgerCanister;
+		wtnLedger: IcrcLedgerCanister;
+	}) {
+		this.agent = agent;
+		this.identity = identity;
+		this.principal = principal;
+		this.icpLedger = icpLedger;
+		this.nicpLedger = nicpLedger;
+		this.wtnLedger = wtnLedger;
+		this.accountId = AccountIdentifier.fromPrincipal({ principal }).toHex();
+		this.icpBalanceE8s = 0n;
+		this.nicpBalanceE8s = 0n;
+		this.wtnBalanceE8s = 0n;
+		this.wtnAllocationE8s = 0n;
+	}
+
+	icpBalance(): BigNumber {
+		return bigintE8sToNumber(this.icpBalanceE8s);
+	}
+
+	nicpBalance(): BigNumber {
+		return bigintE8sToNumber(this.nicpBalanceE8s);
+	}
+
+	wtnBalance(): BigNumber {
+		return bigintE8sToNumber(this.wtnBalanceE8s);
+	}
+
+	wtnAllocation(): BigNumber {
+		return bigintE8sToNumber(this.wtnAllocationE8s);
+	}
+
+	getBalance(asset: 'ICP' | 'nICP' | 'WTN'): BigNumber {
+		switch (asset) {
+			case 'ICP':
+				return this.icpBalance();
+			case 'nICP':
+				return this.nicpBalance();
+			case 'WTN':
+				return this.wtnBalance();
+		}
+	}
+}
+
 export class LedgerIdentity extends SignIdentity {
-  // TODO(L2-433): is there a better way to solve this requirements than a class variable that is set and unset?
-  // A flag to signal that the next transaction to be signed will be a "stake neuron" transaction.
-  private neuronStakeFlag = false;
-  // Used to avoid signing the read state transaction twice.
-  // The key is the request id of the first request, not the read state request.
-  // Entries from the map are never removed. Because each one required manual action from the user with a HW wallet, it shouldn't get very large.
-  // Map<requestIdHex, ReadStateData>
-  private readStateMap: Map<string, ReadStateData> = new Map();
+	// TODO(L2-433): is there a better way to solve this requirements than a class variable that is set and unset?
+	// A flag to signal that the next transaction to be signed will be a "stake neuron" transaction.
+	private neuronStakeFlag = false;
 
-  private constructor(
-    private readonly derivePath: string,
-    private readonly publicKey: Secp256k1PublicKey
-  ) {
-    super();
-  }
+	private constructor(
+		private readonly derivePath: string,
+		private readonly publicKey: Secp256k1PublicKey
+	) {
+		super();
+	}
 
-  public static async create(
-    derivePath = LEDGER_DEFAULT_DERIVE_PATH
-  ): Promise<LedgerIdentity> {
-    const { app, transport } = await this.connect();
+	public static async create(derivePath = LEDGER_DEFAULT_DERIVE_PATH): Promise<LedgerIdentity> {
+		const { app, transport } = await this.connect();
 
-    try {
-      const publicKey = await this.fetchPublicKeyFromDevice({
-        app,
-        derivePath,
-      });
+		try {
+			const publicKey = await this.fetchPublicKeyFromDevice({
+				app,
+				derivePath
+			});
 
-      return new this(derivePath, publicKey);
-    } finally {
-      // Always close the transport.
-      await transport.close();
-    }
-  }
+			return new this(derivePath, publicKey);
+		} finally {
+			// Always close the transport.
+			await transport.close();
+		}
+	}
 
-  public override getPublicKey(): Required<PublicKey> {
-    return this.publicKey;
-  }
+	public override getPublicKey(): Required<PublicKey> {
+		return this.publicKey;
+	}
 
-  public override async sign(blob: ArrayBuffer): Promise<Signature> {
-    await this.raiseIfVersionIsDeprecated();
+	private raiseIfVersionIsDeprecated = async () => {
+		const { major, minor, patch } = await this.getVersion();
+		const currentVersion = `${major}.${minor}.${patch}`;
+		if (smallerVersion({ minVersion: ALL_CANDID_TXS_VERSION, currentVersion })) {
+			throw new Error('error__ledger.app_version_not_supported');
+		}
+	};
 
-    const callback = async (app: LedgerApp): Promise<Signature> => {
-      const responseSign: ResponseSign = await app.sign(
-        this.derivePath,
-        Buffer.from(blob),
-        this.neuronStakeFlag ? 1 : 0
-      );
+	private async signWithReadState(
+		callBlob: ArrayBuffer,
+		readStateBlob: ArrayBuffer
+	): Promise<RequestSignatures> {
+		await this.raiseIfVersionIsDeprecated();
 
-      // Remove the "neuron stake" flag, since we already signed the transaction.
-      this.neuronStakeFlag = false;
+		const callback = async (app: LedgerApp): Promise<RequestSignatures> => {
+			const responseSign: ResponseSignUpdateCall = await app.signUpdateCall(
+				this.derivePath,
+				Buffer.from(callBlob),
+				Buffer.from(readStateBlob),
+				this.neuronStakeFlag ? 1 : 0
+			);
 
-      return decodeSignature(responseSign);
-    };
+			// Remove the "neuron stake" flag, since we already signed the transaction.
+			this.neuronStakeFlag = false;
 
-    return this.executeWithApp<Signature>(callback);
-  }
+			return decodeUpdateSignatures(responseSign);
+		};
 
-  private async signWithReadState(
-    callBlob: ArrayBuffer,
-    readStateBlob: ArrayBuffer
-  ): Promise<RequestSignatures> {
-    await this.raiseIfVersionIsDeprecated();
+		return this.executeWithApp<RequestSignatures>(callback);
+	}
 
-    const callback = async (app: LedgerApp): Promise<RequestSignatures> => {
-      const responseSign: ResponseSignUpdateCall = await app.signUpdateCall(
-        this.derivePath,
-        Buffer.from(callBlob),
-        Buffer.from(readStateBlob),
-        this.neuronStakeFlag ? 1 : 0
-      );
+	public override async sign(blob: ArrayBuffer): Promise<Signature> {
+		await this.raiseIfVersionIsDeprecated();
 
-      // Remove the "neuron stake" flag, since we already signed the transaction.
-      this.neuronStakeFlag = false;
+		const callback = async (app: LedgerApp): Promise<Signature> => {
+			const responseSign: ResponseSign = await app.sign(
+				this.derivePath,
+				Buffer.from(blob),
+				this.neuronStakeFlag ? 1 : 0
+			);
+			console.log(responseSign);
 
-      return decodeUpdateSignatures(responseSign);
-    };
+			// Remove the "neuron stake" flag, since we already signed the transaction.
+			this.neuronStakeFlag = false;
 
-    return this.executeWithApp<RequestSignatures>(callback);
-  }
+			return decodeSignature(responseSign);
+		};
 
-  /**
-   * Signals that the upcoming transaction to be signed will be a "stake neuron" transaction.
-   */
-  public flagUpcomingStakeNeuron(): void {
-    this.neuronStakeFlag = true;
-  }
+		return this.executeWithApp<Signature>(callback);
+	}
 
-  /**
-   * Required by Ledger.com that the user should be able to press a Button in UI
-   * and verify the address/pubkey are the same as on the device screen.
-   */
-  public async showAddressAndPubKeyOnDevice(): Promise<ResponseAddress> {
-    // The function `showAddressAndPubKey` should not be destructured from the `app` because it internally accesses `this.transport` that refers to an `app` variable
-    const callback = (app: LedgerApp): Promise<ResponseAddress> =>
-      app.showAddressAndPubKey(this.derivePath);
+	/**
+	 * Signals that the upcoming transaction to be signed will be a "stake neuron" transaction.
+	 */
+	public flagUpcomingStakeNeuron(): void {
+		this.neuronStakeFlag = true;
+	}
 
-    return this.executeWithApp<ResponseAddress>(callback);
-  }
+	/**
+	 * Required by Ledger.com that the user should be able to press a Button in UI
+	 * and verify the address/pubkey are the same as on the device screen.
+	 */
+	public async showAddressAndPubKeyOnDevice(): Promise<ResponseAddress> {
+		// The function `showAddressAndPubKey` should not be destructured from the `app` because it internally accesses `this.transport` that refers to an `app` variable
+		const callback = (app: LedgerApp): Promise<ResponseAddress> =>
+			app.showAddressAndPubKey(this.derivePath);
 
-  /**
-   * @returns The version of the `Internet Computer' app installed on the Ledger device and the device model used under the `targeId` key:
-   *
-   * 0x3110???? => LNS
-   * 0x3300???? => LNX
-   * 0x3310???? => LNS+
-   * 0x3320???? => stax
-   *
-   * Source: https://github.com/LedgerHQ/blue-loader-python?tab=readme-ov-file#target-id
-   *
-   * PS: Another way to find the device model is under the `Transport` object, the `deviceModel` field.
-   */
-  public async getVersion(): Promise<ResponseVersion> {
-    // See comment about `app` in function `showAddressAndPubKeyOnDevice`
-    const callback = async (app: LedgerApp): Promise<ResponseVersion> =>
-      app.getVersion();
+		return this.executeWithApp<ResponseAddress>(callback);
+	}
 
-    return this.executeWithApp<ResponseVersion>(callback);
-  }
+	/**
+	 * @returns The version of the `Internet Computer' app installed on the Ledger device and the device model used under the `targeId` key:
+	 *
+	 * 0x3110???? => LNS
+	 * 0x3300???? => LNX
+	 * 0x3310???? => LNS+
+	 * 0x3320???? => stax
+	 *
+	 * Source: https://github.com/LedgerHQ/blue-loader-python?tab=readme-ov-file#target-id
+	 *
+	 * PS: Another way to find the device model is under the `Transport` object, the `deviceModel` field.
+	 */
+	public async getVersion(): Promise<ResponseVersion> {
+		// See comment about `app` in function `showAddressAndPubKeyOnDevice`
+		const callback = async (app: LedgerApp): Promise<ResponseVersion> => app.getVersion();
 
-  private static async getTransport(): Promise<Transport> {
-    const { default: TransportWebHID } = await import(
-      "@ledgerhq/hw-transport-webhid"
-    );
-    return TransportWebHID.create();
-  }
+		return this.executeWithApp<ResponseVersion>(callback);
+	}
 
-  // Public to be able to mock it in tests.
-  public static async connect(): Promise<{
-    app: LedgerApp;
-    transport: Transport;
-  }> {
-    try {
-      const transport = await this.getTransport();
+	public static async getTransport(): Promise<Transport> {
+		const { default: TransportWebHID } = await import('@ledgerhq/hw-transport-webhid');
+		return TransportWebHID.create();
+	}
 
-      const { default: LedgerAppConstructor } = await import(
-        "@zondax/ledger-icp"
-      );
-      const app = new LedgerAppConstructor(transport);
+	// Public to be able to mock it in tests.
+	public static async connect(): Promise<{
+		app: LedgerApp;
+		transport: Transport;
+	}> {
+		try {
+			const transport = await this.getTransport();
 
-      return { app, transport };
-    } catch (err: unknown) {
-      if (
-        (err as LedgerHQTransportError)?.name === "TransportOpenUserCancelled"
-      ) {
-        if (
-          (err as LedgerHQTransportError)?.message.includes("not supported")
-        ) {
-          throw new LedgerErrorKey({
-            message: "error__ledger.browser_not_supported",
-          });
-        }
-        throw new LedgerErrorKey({ message: "error__ledger.access_denied" });
-      }
+			const { default: LedgerAppConstructor } = await import('@zondax/ledger-icp');
+			const app = new LedgerAppConstructor(transport);
 
-      if ((err as LedgerHQTransportError)?.id === "NoDeviceFound") {
-        throw new LedgerErrorKey({
-          message: "error__ledger.connect_no_device",
-        });
-      }
+			return { app, transport };
+		} catch (err: unknown) {
+			if ((err as LedgerHQTransportError)?.name === 'TransportOpenUserCancelled') {
+				if ((err as LedgerHQTransportError)?.message.includes('not supported')) {
+					throw new Error('error__ledger.browser_not_supported');
+				}
+				throw new Error('error__ledger.access_denied');
+			}
 
-      if (
-        (err as LedgerHQTransportError).message?.includes(
-          "cannot open device with path"
-        )
-      ) {
-        throw new LedgerErrorKey({
-          message: "error__ledger.connect_many_apps",
-        });
-      }
+			if ((err as LedgerHQTransportError)?.id === 'NoDeviceFound') {
+				throw new Error('error__ledger.connect_no_device');
+			}
 
-      // Unsupported browser. Data on browser compatibility is taken from https://caniuse.com/webhid
-      const labels = get(i18n);
+			if ((err as LedgerHQTransportError).message?.includes('cannot open device with path')) {
+				throw new Error('error__ledger.connect_many_apps');
+			}
 
-      throw new LedgerErrorMessage(
-        replacePlaceholders(labels.error__ledger.connect_not_supported, {
-          $err: `${err}`,
-        })
-      );
-    }
-  }
+			// Unsupported browser. Data on browser compatibility is taken from https://caniuse.com/webhid
+			throw new Error(`${err}`);
+		}
+	}
 
-  // Public to be able to mock it in tests.
-  public static async fetchPublicKeyFromDevice({
-    app,
-    derivePath,
-  }: {
-    app: LedgerApp;
-    derivePath: string;
-  }): Promise<Secp256k1PublicKey> {
-    const response = await app.getAddressAndPubKey(derivePath);
+	// Public to be able to mock it in tests.
+	public static async fetchPublicKeyFromDevice({
+		app,
+		derivePath
+	}: {
+		app: LedgerApp;
+		derivePath: string;
+	}): Promise<Secp256k1PublicKey> {
+		const resp = await app.getAddressAndPubKey(derivePath);
 
-    return decodePublicKey(response);
-  }
+		// This type doesn't have the right fields in it, so we have to manually type it.
+		const principal = (resp as unknown as { principalText: string }).principalText;
 
-  private async executeWithApp<T>(
-    callback: (app: LedgerApp) => Promise<T>
-  ): Promise<T> {
-    const { app, transport } = await LedgerIdentity.connect();
+		if (!resp.publicKey) {
+			throw new Error('Failed to fetch public key from device.');
+		}
+		const publicKey = Secp256k1PublicKey.fromRaw(bufferToArrayBuffer(resp.publicKey));
 
-    try {
-      // Verify that the public key of the device matches the public key of this identity.
-      const devicePublicKey: Secp256k1PublicKey =
-        await LedgerIdentity.fetchPublicKeyFromDevice({
-          app,
-          derivePath: this.derivePath,
-        });
+		if (principal !== Principal.selfAuthenticating(new Uint8Array(publicKey.toDer())).toText()) {
+			throw new Error('Principal returned by device does not match public key.');
+		}
 
-      if (JSON.stringify(devicePublicKey) !== JSON.stringify(this.publicKey)) {
-        throw new LedgerErrorKey({
-          message: "error__ledger.unexpected_wallet",
-        });
-      }
+		return publicKey;
+	}
 
-      // Run the provided function.
-      return await callback(app);
-    } finally {
-      await transport.close();
-    }
-  }
+	private async executeWithApp<T>(callback: (app: LedgerApp) => Promise<T>): Promise<T> {
+		const { app, transport } = await LedgerIdentity.connect();
 
-  private async getRequestFromCache(
-    request: HttpAgentReadStateRequest
-  ): Promise<Record<string, unknown> | undefined> {
-    const { body, ...fields } = request;
-    const requestId = getRequestId(body);
-    const requestIdHex = Buffer.from(requestId).toString("hex");
-    const requestData = this.readStateMap.get(requestIdHex);
-    if (isNullish(requestData)) {
-      console.warn(
-        `No cached data for read state request with id ${requestIdHex}.`
-      );
-      return;
-    }
-    const { signature, body: cachedBody } = requestData;
-    // If cached data doesn't match, ignore and move on to sign the request.
-    // The `ingress_expiry` is different in the cached in the new request because the new one is created after the first call.
-    // But the signature was done with the cached body. That's why we use the cached body.
-    const newBody = {
-      ...body,
-      ingress_expiry: cachedBody.ingress_expiry,
-    };
-    if (this.requestsMatch(cachedBody, newBody)) {
-      return {
-        ...fields,
-        body: {
-          content: cachedBody,
-          sender_pubkey: this.publicKey.toDer(),
-          sender_sig: signature,
-        },
-      };
-    }
-    console.warn("Cached request doesn't match read state request.");
-  }
+		try {
+			// Verify that the public key of the device matches the public key of this identity.
+			const devicePublicKey: Secp256k1PublicKey = await LedgerIdentity.fetchPublicKeyFromDevice({
+				app,
+				derivePath: this.derivePath
+			});
 
-  private async createReadStateRequest(
-    body: CallRequest
-  ): Promise<{ readStateBody: ReadStateRequest; requestId: RequestId }> {
-    const requestId = requestIdOf(body);
-    const readStateBody: ReadRequest = {
-      // Can't import ReadRequestType as value from @dfinity/agent because it's const enum
-      request_type: "read_state" as ReadRequestType.ReadState,
-      paths: createReadStatePaths(requestId),
-      ingress_expiry: body.ingress_expiry,
-      sender: body.sender,
-    };
-    return {
-      readStateBody,
-      requestId,
-    };
-  }
+			if (JSON.stringify(devicePublicKey) !== JSON.stringify(this.publicKey)) {
+				throw new Error('error__ledger.unexpected_wallet');
+			}
 
-  private storeRequestInCache({
-    requestId,
-    signature,
-    body,
-  }: {
-    requestId: RequestId;
-    signature: Signature;
-    body: ReadStateRequest;
-  }) {
-    // Store the read state signature to be able to reuse it later.
-    const requestIdHex = Buffer.from(requestId).toString("hex");
-    this.readStateMap.set(requestIdHex, {
-      signature: signature,
-      body,
-    });
-  }
+			// Run the provided function.
+			return await callback(app);
+		} finally {
+			await transport.close();
+		}
+	}
 
-  /**
-   * Convert the HttpAgentRequest body into cbor which can be signed by the Ledger Device.
-   * @param request - body of the HttpAgentRequest
-   */
-  private prepareCborForLedger = (
-    request: ReadRequest | CallRequest
-  ): ArrayBuffer => Cbor.encode({ content: request });
+	/**
+	 * Convert the HttpAgentRequest body into cbor which can be signed by the Ledger Device.
+	 * @param request - body of the HttpAgentRequest
+	 */
+	private prepareCborForLedger = (request: ReadRequest | CallRequest): ArrayBuffer => {
+		return Cbor.encode({ content: request });
+	};
 
-  private requestsMatch = (
-    request1: ReadRequest,
-    request2: ReadRequest
-  ): boolean => {
-    return sameBufferData(
-      this.prepareCborForLedger(request1),
-      this.prepareCborForLedger(request2)
-    );
-  };
+	private async createReadStateRequest(body: CallRequest): Promise<ReadStateRequest> {
+		const requestId = requestIdOf(body);
+		const readStateBody: ReadStateRequest = {
+			request_type: 'read_state' as ReadRequestType.ReadState,
+			paths: createReadStatePaths(requestId),
+			ingress_expiry: body.ingress_expiry,
+			sender: body.sender
+		};
+		return readStateBody;
+	}
 
-  private async createSignAndStoreCallRequests(request: HttpAgentRequest) {
-    const { body, ...fields } = request;
-    // If the request endpoint is a "call", then the body is a CallRequest.
-    // Reference: https://github.com/dfinity/agent-js/blob/ce772199189748f9b77c8eb3ceeb3fdd11c70b5b/packages/agent/src/agent/http/types.ts#L28
-    const callBody = body as CallRequest;
-    const { requestId, readStateBody } =
-      await this.createReadStateRequest(callBody);
-    const signatures = await this.signWithReadState(
-      this.prepareCborForLedger(body),
-      this.prepareCborForLedger(readStateBody)
-    );
-    this.storeRequestInCache({
-      requestId,
-      signature: signatures.readStateSignature,
-      body: readStateBody,
-    });
+	private async transformCallRequest(request: HttpAgentRequest) {
+		const { body, ...fields } = request;
+		// If the request endpoint is a "call", then the body is a CallRequest.
+		// Reference: https://github.com/dfinity/agent-js/blob/ce772199189748f9b77c8eb3ceeb3fdd11c70b5b/packages/agent/src/agent/http/types.ts#L28
+		const callBody = body as CallRequest;
+		const readStateBody = await this.createReadStateRequest(callBody);
+		console.log(readStateBody, body);
+		const signatures = await this.signWithReadState(
+			this.prepareCborForLedger(body),
+			this.prepareCborForLedger(readStateBody)
+		);
 
-    return {
-      ...fields,
-      body: {
-        content: body,
-        sender_pubkey: this.publicKey.toDer(),
-        sender_sig: signatures.callSignature,
-      },
-    };
-  }
+		return {
+			...fields,
+			body: {
+				content: body,
+				sender_pubkey: this.publicKey.toDer(),
+				sender_sig: signatures.callSignature
+			}
+		};
+	}
 
-  /**
-   * Required implementation for agent-js transformRequest.
-   *
-   * Without following function, transaction processed by the ledger would end in error "27012 - Data is invalid : Unexpected data type"
-   */
-  public override async transformRequest(
-    request: HttpAgentRequest
-  ): Promise<Record<string, unknown>> {
-    if (
-      // "read_state" is a value from Endpoint enum from @dfinity/agent but it's const enum and can't be imported as value with `isolatedModules` flag.
-      // More info: https://github.com/microsoft/TypeScript/issues/40344#issuecomment-956368612
-      request.endpoint === "read_state"
-    ) {
-      const cachedRequest = await this.getRequestFromCache(request);
-      if (nonNullish(cachedRequest)) {
-        return cachedRequest;
-      }
-    }
+	public async transformRequest(request: HttpAgentRequest): Promise<unknown> {
+		if (request.endpoint === 'call') {
+			return this.transformCallRequest(request);
+		}
 
-    if (request.endpoint === "call") {
-      return this.createSignAndStoreCallRequests(request);
-    }
-
-    const { body, ...fields } = request;
-    return {
-      ...fields,
-      body: {
-        content: body,
-        sender_pubkey: this.publicKey.toDer(),
-        sender_sig: await this.sign(this.prepareCborForLedger(body)),
-      },
-    };
-  }
+		const { body, ...fields } = request;
+		return {
+			...fields,
+			body: {
+				content: body,
+				sender_pubkey: this.publicKey.toDer(),
+				sender_sig: await this.sign(this.prepareCborForLedger(body))
+			}
+		};
+	}
 }
 
+const checkResponseCode = async (returnCode: LedgerError): Promise<void> => {
+	const { LedgerError } = await import('@zondax/ledger-icp');
+	if (returnCode === LedgerError.TransactionRejected) {
+		throw new Error('error__ledger.user_rejected_transaction');
+	}
+};
 
-const bufferToArrayBuffer = (buffer: Buffer): ArrayBuffer => {	
-	buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
-}
+const bufferToArrayBuffer = (buffer: Buffer): ArrayBuffer => {
+	return buffer.buffer.slice(
+		buffer.byteOffset,
+		buffer.byteOffset + buffer.byteLength
+	) as ArrayBuffer;
+};
+
+export const decodeUpdateSignatures = async ({
+	RequestSignatureRS,
+	StatusReadSignatureRS,
+	returnCode,
+	errorMessage
+}: ResponseSignUpdateCall): Promise<RequestSignatures> => {
+	await checkResponseCode(returnCode);
+	checkSignature({ signature: RequestSignatureRS, returnCode, errorMessage });
+	checkSignature({
+		signature: StatusReadSignatureRS,
+		returnCode,
+		errorMessage
+	});
+
+	return {
+		callSignature: bufferToArrayBuffer(RequestSignatureRS) as Signature,
+		readStateSignature: bufferToArrayBuffer(StatusReadSignatureRS) as Signature
+	};
+};
+
+export const decodeSignature = async ({
+	signatureRS,
+	returnCode,
+	errorMessage
+}: ResponseSign): Promise<Signature> => {
+	await checkResponseCode(returnCode);
+	checkSignature({ signature: signatureRS, returnCode, errorMessage });
+
+	return bufferToArrayBuffer(signatureRS) as Signature;
+};
+
+const checkSignature = ({
+	signature,
+	returnCode,
+	errorMessage
+}: {
+	signature?: Buffer;
+	returnCode: LedgerError;
+	errorMessage?: string;
+}) => {
+	if (returnCode === LedgerError.NoErrors) return;
+
+	if (!signature) {
+		throw new Error(`Signature error (${returnCode}): ${errorMessage}`);
+	}
+	const { byteLength, length } = signature;
+
+	if (byteLength !== LEDGER_SIGNATURE_LENGTH) {
+		throw new Error(`Signature has length ${length} instead of ${LEDGER_SIGNATURE_LENGTH}.`);
+	}
+
+	throw new Error(`Signature error (${returnCode}): ${errorMessage}`);
+};
+
+export const createReadStatePaths = (requestId: RequestId): ArrayBuffer[][] => {
+	return [[new TextEncoder().encode('request_status'), requestId]] as ArrayBuffer[][];
+};

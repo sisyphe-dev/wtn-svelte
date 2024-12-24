@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { AssetType, displayUsFormat, numberToBigintE8s, Asset, E8S, getMaybeAccount } from '$lib';
+	import { displayUsFormat, numberToBigintE8s, Asset, E8S, getMaybeAccount } from '$lib';
 	import {
 		inSendingMenu,
 		selectedAsset,
@@ -65,7 +65,7 @@
 
 			let status: ToastResult;
 			switch ($selectedAsset.type) {
-				case AssetType.ICP:
+				case 'ICP':
 					if (maybeAccount instanceof AccountIdentifier) {
 						const args = {
 							to: maybeAccount.toUint8Array(),
@@ -84,7 +84,7 @@
 						}
 					}
 					break;
-				case AssetType.nICP:
+				case 'nICP':
 					if (maybeAccount instanceof AccountIdentifier) {
 						status = {
 							success: false,
@@ -103,7 +103,7 @@
 						}
 					}
 					break;
-				case AssetType.WTN:
+				case 'WTN':
 					if (maybeAccount instanceof AccountIdentifier) {
 						status = {
 							success: false,
@@ -175,7 +175,7 @@
 >
 	<div class="send-container" transition:fade={{ duration: 100 }}>
 		<div class="header-container">
-			<h2>Send {$selectedAsset.intoStr()}</h2>
+			<h2>Send {$selectedAsset.type}</h2>
 			<img alt="ICP logo" src={$selectedAsset.getIconPath()} width="50px" height="50px" />
 		</div>
 		{#if $user}
@@ -185,10 +185,10 @@
 					<div class="balances">
 						<span style:margin-left={'1em'}
 							>{displayUsFormat($user.getBalance($selectedAsset.type), 8)}
-							{$selectedAsset.intoStr()}</span
+							{$selectedAsset.type}</span
 						>
 						<img
-							alt="{$selectedAsset.intoStr()} logo"
+							alt="{$selectedAsset} logo"
 							src={$selectedAsset.getIconPath()}
 							width="20px"
 							height="20px"
@@ -240,7 +240,7 @@
 			<p>Transfer Fee</p>
 			<p style:padding-left="1em">
 				{$selectedAsset.getTransferFee()}
-				{$selectedAsset.intoStr()}
+				{$selectedAsset.type}
 			</p>
 		</div>
 		<div class="button-container">

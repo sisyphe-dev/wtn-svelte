@@ -29,7 +29,7 @@
 
 		QrCreator.render(
 			{
-				text: `${$selectedAsset.intoStr() === 'ICP' ? $user?.accountId : $user?.principal}`,
+				text: `${$selectedAsset.type === 'ICP' ? $user?.accountId : $user?.principal}`,
 				radius: 0.0, // 0.0 to 0.5
 				ecLevel: 'H', // L, M, Q, H
 				fill: 'white',
@@ -49,7 +49,7 @@
 >
 	<div class="receive-container" transition:fade={{ duration: 100 }}>
 		<div class="header-container">
-			<h3>Receive {$selectedAsset.intoStr()}</h3>
+			<h3>Receive {$selectedAsset.type}</h3>
 			<img alt="ICP logo" src={$selectedAsset.getIconPath()} width="50px" height="50px" />
 		</div>
 		<div class="qr-code-container">
@@ -57,7 +57,7 @@
 			<img id="wtn-logo" src="/tokens/WTN.webp" width="70px" height="70px" alt="WTN logo." />
 		</div>
 		<div class="principal-container">
-			{#if $selectedAsset.intoStr() === 'ICP'}
+			{#if $selectedAsset.type === 'ICP'}
 				<p>{$user?.accountId}</p>
 				<button
 					class="copy-btn"

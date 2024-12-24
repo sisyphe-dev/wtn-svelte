@@ -4,7 +4,7 @@ import type {
 	AllowanceArgs,
 	Account,
 	ApproveArgs,
-	ApproveResult,
+	Result_2 as ApproveResult,
 	ApproveError
 } from '../declarations/icrc_ledger/icrc_ledger.did';
 import type {
@@ -24,7 +24,7 @@ import type {
 	Result_2 as SnsRetrieveNicpResult
 } from '../declarations/boomerang/boomerang.did';
 import type { Error as IcpswapError } from '$lib/../declarations/icpswap_pool/icpswap_pool.did';
-import { Asset, AssetType, bigintE8sToNumber, displayUsFormat } from '$lib';
+import { Asset, bigintE8sToNumber, displayUsFormat } from '$lib';
 import type {
 	TransferResult,
 	Icrc1TransferResult,
@@ -442,7 +442,7 @@ export function handleIcrcTransferResult(result: Icrc1TransferResult, asset: Ass
 	switch (key) {
 		case 'Ok':
 			switch (asset.type) {
-				case AssetType.nICP:
+				case 'nICP':
 					return {
 						success: true,
 						message: `Successful transfer at block index ${result[key]}.`

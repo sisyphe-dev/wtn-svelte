@@ -1,21 +1,36 @@
 <script lang="ts">
-	import { AssetType, displayUsFormat, isMobile } from '$lib';
-	import { user, selectedAsset, inSendingMenu, inReceivingMenu } from '$lib/stores';
+	import { Asset, displayUsFormat, isMobile } from '$lib';
+	import { user, selectedAsset, inSendingMenu, inReceivingMenu, ledgerDevice } from '$lib/stores';
 	import { BigNumber } from 'bignumber.js';
 	import { fade } from 'svelte/transition';
 	import QRCodeScannerIcon from '$lib/icons/QRCodeScannerIcon.svelte';
 	import UpIcon from '$lib/icons/UpIcon.svelte';
+	import { onMount } from 'svelte';
 
-	export let asset;
+	export let asset: 'ICP' | 'nICP' | 'WTN';
+	export let wallet: 'ledger' | 'main';
+	let balance: BigNumber | undefined;
+
+	const setBalance = async () => {
+		if (wallet === 'ledger') {
+			balance = $ledgerDevice?.getBalance(asset);
+		} else {
+			balance = $user?.getBalance(asset);
+		}
+	};
+
+	onMount(() => {
+		setBalance();
+	});
 </script>
 
-<div class="token-balance-container" in:fade={{ duration: 500 }}>
+<div class="token-balance-container">
 	<div class="balance">
 		<p>
-			{displayUsFormat($user ? $user.getBalance(asset.type) : BigNumber(0), 8)}
-			{asset.intoStr()}
+			{balance ? displayUsFormat(balance, 8) : '-/-'}
+			{asset}
 		</p>
-		<img alt="{asset.intoStr()} logo" src={asset.getIconPath()} width="30px" height="30px" />
+		<img alt="{asset} logo" src={new Asset(asset).getIconPath()} width="30px" height="30px" />
 	</div>
 	<div class="btns-container">
 		{#if isMobile}
@@ -23,7 +38,7 @@
 				class="mobile-action-btn"
 				on:click={() => {
 					inReceivingMenu.set(true);
-					selectedAsset.set(asset);
+					selectedAsset.set(new Asset(asset));
 				}}
 			>
 				<QRCodeScannerIcon color="--main-color" />
@@ -32,7 +47,7 @@
 				class="mobile-action-btn"
 				on:click={() => {
 					inSendingMenu.set(true);
-					selectedAsset.set(asset);
+					selectedAsset.set(new Asset(asset));
 				}}
 			>
 				<UpIcon />
@@ -42,24 +57,24 @@
 				class="action-btn"
 				on:click={() => {
 					inReceivingMenu.set(true);
-					selectedAsset.set(asset);
+					selectedAsset.set(new Asset(asset));
 				}}
 			>
 				Receive
 			</button>
 			<button
 				class="action-btn"
-				title="send-btn-{asset.intoStr()}"
+				title="send-btn-{asset}"
 				on:click={() => {
 					inSendingMenu.set(true);
-					selectedAsset.set(asset);
+					selectedAsset.set(new Asset(asset));
 				}}
 			>
 				Send
 			</button>
 		{/if}
 	</div>
-	{#if asset.type === AssetType.WTN}
+	{#if asset === 'WTN' && wallet === 'main'}
 		<p class="airdrop-allocation">
 			{#if isMobile}
 				Airdrop:

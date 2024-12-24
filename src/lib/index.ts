@@ -48,72 +48,46 @@ export function bigintE8sToNumber(x: bigint): BigNumber {
 	return BigNumber(Number(x)).dividedBy(E8S);
 }
 
-export enum AssetType {
-	ICP,
-	nICP,
-	WTN
-}
-
 export class Asset {
-	public type: AssetType;
+	public type: 'ICP' | 'nICP' | 'WTN';
 
-	constructor(asset: AssetType) {
+	constructor(asset: 'ICP' | 'nICP' | 'WTN') {
 		this.type = asset;
 	}
 
 	static fromText(symbol: 'WTN' | 'nICP' | 'ICP'): Asset {
-		switch (symbol) {
-			case 'WTN':
-				return new Asset(AssetType.WTN);
-			case 'nICP':
-				return new Asset(AssetType.nICP);
-			case 'ICP':
-				return new Asset(AssetType.ICP);
-		}
-	}
-
-	intoStr(): string {
-		switch (this.type) {
-			case AssetType.ICP:
-				return 'ICP';
-			case AssetType.nICP:
-				return 'nICP';
-			case AssetType.WTN:
-				return 'WTN';
-			default:
-				throw new Error('Unknown asset');
-		}
+		return new Asset(symbol);
 	}
 
 	getIconPath(): string {
 		switch (this.type) {
-			case AssetType.ICP:
+			case 'ICP':
 				return '/tokens/icp.webp';
-			case AssetType.nICP:
+			case 'nICP':
 				return '/tokens/nicp.webp';
-			case AssetType.WTN:
+			case 'WTN':
 				return '/tokens/WTN.webp';
 		}
 	}
 
 	getDashboardUrl(): string {
 		switch (this.type) {
-			case AssetType.ICP:
+			case 'ICP':
 				return 'https://dashboard.internetcomputer.org/transaction/';
-			case AssetType.nICP:
+			case 'nICP':
 				return '/wallet';
-			case AssetType.WTN:
+			case 'WTN':
 				return 'https://dashboard.internetcomputer.org/sns/jmod6-4iaaa-aaaaq-aadkq-cai/transaction/';
 		}
 	}
 
 	getTransferFee(): BigNumber {
 		switch (this.type) {
-			case AssetType.ICP:
+			case 'ICP':
 				return BigNumber(0.0001);
-			case AssetType.nICP:
+			case 'nICP':
 				return BigNumber(0.0001);
-			case AssetType.WTN:
+			case 'WTN':
 				return BigNumber(0.01);
 		}
 	}

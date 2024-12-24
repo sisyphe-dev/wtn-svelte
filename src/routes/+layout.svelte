@@ -17,7 +17,8 @@
 		user,
 		canisters,
 		waterNeuronInfo,
-		handleSnsChange
+		handleSnsChange,
+		ledgerDevice
 	} from '$lib/stores';
 	import { onMount } from 'svelte';
 	import {
@@ -31,7 +32,7 @@
 	import Toast from './Toast.svelte';
 
 	async function updateBalances() {
-		if ($canisters && $user) {
+		if ($canisters && $user && $ledgerDevice) {
 			$user.icpBalanceE8s = await fetchIcpBalance(
 				$user.principal,
 				$canisters.icpLedger.anonymousActor
@@ -44,6 +45,20 @@
 				$user.principal,
 				$canisters.wtnLedger.anonymousActor
 			);
+
+			$ledgerDevice.icpBalanceE8s = await fetchIcpBalance(
+				$ledgerDevice.principal,
+				$canisters.icpLedger.anonymousActor
+			);
+			$ledgerDevice.nicpBalanceE8s = await fetchNicpBalance(
+				$ledgerDevice.principal,
+				$canisters.nicpLedger.anonymousActor
+			);
+			$ledgerDevice.wtnBalanceE8s = await fetchWtnBalance(
+				$ledgerDevice.principal,
+				$canisters.wtnLedger.anonymousActor
+			);
+
 			$user.wtnAllocationE8s =
 				(await fetchWtnAllocation($user.principal, $canisters.waterNeuron.anonymousActor)) ?? 0n;
 		}

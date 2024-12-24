@@ -6,7 +6,6 @@
 		connectWithInternetIdentity,
 		connectWithTransport,
 		connectWithPlug,
-		connectWithHardwareWallet,
 		localSignIn,
 		NFID_RPC,
 		//OISY_RPC,
@@ -22,9 +21,7 @@
 
 	let dialog: HTMLDialogElement;
 
-	async function handleConnection(
-		identityProvider: 'internetIdentity' | 'plug' | 'oisy' | 'nfid' | 'ledger'
-	) {
+	async function handleConnection(identityProvider: 'internetIdentity' | 'plug' | 'oisy' | 'nfid') {
 		if ($isBusy) return;
 		isBusy.set(true);
 
@@ -42,19 +39,9 @@
 				case 'nfid':
 					await connectWithTransport(NFID_RPC);
 					break;
-				case 'ledger':
-					await connectWithHardwareWallet();
-					break;
 			}
 		} catch (e) {
-			switch (identityProvider) {
-				case 'ledger':
-					toasts.add(Toast.error(`${e}`));
-					break;
-				default:
-					toasts.add(Toast.error('Connection failed. Please try again.'));
-					break;
-			}
+			toasts.add(Toast.error('Connection failed. Please try again.'));
 			console.error(e);
 			dialog.close();
 			return;
@@ -142,10 +129,6 @@
 				<button class="login-btn" on:click={() => handleConnection('plug')}>
 					<img src="/icon/plug.png" width="40em" height="40em" alt="Plug Icon." />
 					<h2>Plug Wallet</h2>
-				</button>
-				<button class="login-btn" on:click={() => handleConnection('ledger')}>
-					<img src="/icon/ledger.png" width="40em" height="40em" alt="Ledger Icon." />
-					<h2>Ledger Wallet</h2>
 				</button>
 				{#if DEV || STAGING}
 					<button
