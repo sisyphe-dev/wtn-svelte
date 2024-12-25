@@ -32,7 +32,7 @@
 	import Toast from './Toast.svelte';
 
 	async function updateBalances() {
-		if ($canisters && $user && $ledgerDevice) {
+		if ($canisters && $user) {
 			$user.icpBalanceE8s = await fetchIcpBalance(
 				$user.principal,
 				$canisters.icpLedger.anonymousActor
@@ -46,21 +46,23 @@
 				$canisters.wtnLedger.anonymousActor
 			);
 
-			$ledgerDevice.icpBalanceE8s = await fetchIcpBalance(
-				$ledgerDevice.principal,
-				$canisters.icpLedger.anonymousActor
-			);
-			$ledgerDevice.nicpBalanceE8s = await fetchNicpBalance(
-				$ledgerDevice.principal,
-				$canisters.nicpLedger.anonymousActor
-			);
-			$ledgerDevice.wtnBalanceE8s = await fetchWtnBalance(
-				$ledgerDevice.principal,
-				$canisters.wtnLedger.anonymousActor
-			);
-
 			$user.wtnAllocationE8s =
 				(await fetchWtnAllocation($user.principal, $canisters.waterNeuron.anonymousActor)) ?? 0n;
+
+			if ($ledgerDevice) {
+				$ledgerDevice.icpBalanceE8s = await fetchIcpBalance(
+					$ledgerDevice.principal,
+					$canisters.icpLedger.anonymousActor
+				);
+				$ledgerDevice.nicpBalanceE8s = await fetchNicpBalance(
+					$ledgerDevice.principal,
+					$canisters.nicpLedger.anonymousActor
+				);
+				$ledgerDevice.wtnBalanceE8s = await fetchWtnBalance(
+					$ledgerDevice.principal,
+					$canisters.wtnLedger.anonymousActor
+				);
+			}
 		}
 	}
 

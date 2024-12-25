@@ -4,7 +4,7 @@ export const trailingSlash = 'always';
 import { DEV } from '$lib/authentification';
 import { Buffer } from 'buffer/index.js';
 
-if (!DEV) {
+if (DEV) {
 	// ⚠️ For production build the polyfill needs to be injected with Rollup (see vite.config.ts) because the page might be loaded before the _layout.js which will contains this polyfill.
 	// The / in buffer/ is mandatory here.
 	// More workaround: https://github.com/vitejs/vite/discussions/2785

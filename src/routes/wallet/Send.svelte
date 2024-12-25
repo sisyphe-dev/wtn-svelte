@@ -38,16 +38,17 @@
 	let isSending = false;
 	let dialog: HTMLDialogElement;
 
-	function isValidAmount(amount: BigNumber): boolean {
-		if (amount && $user && $ledgerDevice) {
+	function isValidAmount(amount: BigNumber): boolean | undefined {
+		if ($selectedWallet === 'main') {
 			return (
-				($selectedWallet === 'main' ? $user : $ledgerDevice)
-					.getBalance($selectedAsset.type)
-					.isGreaterThanOrEqualTo(amount) &&
+				$user?.getBalance($selectedAsset.type).isGreaterThanOrEqualTo(amount) &&
 				amount.isGreaterThanOrEqualTo(BigNumber(1).dividedBy(E8S))
 			);
 		} else {
-			return true;
+			return (
+				$ledgerDevice?.getBalance($selectedAsset.type).isGreaterThanOrEqualTo(amount) &&
+				amount.isGreaterThanOrEqualTo(BigNumber(1).dividedBy(E8S))
+			);
 		}
 	}
 
@@ -69,9 +70,19 @@
 						status = await icpTransfer(maybeAccount, amount_e8s);
 					} else {
 						if ($selectedWallet === 'main') {
-							status = await icrcTransfer(maybeAccount, amount_e8s, $canisters.icpLedger.authenticatedActor, 'ICP');
+							status = await icrcTransfer(
+								maybeAccount,
+								amount_e8s,
+								$canisters.icpLedger.authenticatedActor,
+								'ICP'
+							);
 						} else {
-							status = await icrcLedgerWalletTransfer(maybeAccount, amount_e8s, $ledgerDevice?.icpLedger, 'ICP')
+							status = await icrcLedgerWalletTransfer(
+								maybeAccount,
+								amount_e8s,
+								$ledgerDevice?.icpLedger,
+								'ICP'
+							);
 						}
 					}
 					break;
@@ -84,9 +95,19 @@
 						};
 					} else {
 						if ($selectedWallet === 'main') {
-							status = await icrcTransfer(maybeAccount, amount_e8s, $canisters.nicpLedger.authenticatedActor, 'nICP');
+							status = await icrcTransfer(
+								maybeAccount,
+								amount_e8s,
+								$canisters.nicpLedger.authenticatedActor,
+								'nICP'
+							);
 						} else {
-							status = await icrcLedgerWalletTransfer(maybeAccount, amount_e8s, $ledgerDevice?.nicpLedger, 'ICP')
+							status = await icrcLedgerWalletTransfer(
+								maybeAccount,
+								amount_e8s,
+								$ledgerDevice?.nicpLedger,
+								'ICP'
+							);
 						}
 					}
 					break;
@@ -99,9 +120,19 @@
 						};
 					} else {
 						if ($selectedWallet === 'main') {
-							status = await icrcTransfer(maybeAccount, amount_e8s, $canisters.wtnLedger.authenticatedActor, 'WTN');
+							status = await icrcTransfer(
+								maybeAccount,
+								amount_e8s,
+								$canisters.wtnLedger.authenticatedActor,
+								'WTN'
+							);
 						} else {
-							status = await icrcLedgerWalletTransfer(maybeAccount, amount_e8s, $ledgerDevice?.wtnLedger, 'ICP')
+							status = await icrcLedgerWalletTransfer(
+								maybeAccount,
+								amount_e8s,
+								$ledgerDevice?.wtnLedger,
+								'ICP'
+							);
 						}
 					}
 					break;
@@ -172,8 +203,10 @@
 					fee: numberToBigintE8s(new Asset('ICP').getTransferFee())
 				});
 
-				return { success: true, message: `Successful transfer at <a target='_blank' style="text-decoration: underline; color: var(--toast-text-color);" href=${new Asset('ICP').getDashboardUrl()}${blockHeight}>block index ${blockHeight}</a>.`}
-
+				return {
+					success: true,
+					message: `Successful transfer at <a target='_blank' style="text-decoration: underline; color: var(--toast-text-color);" href=${new Asset('ICP').getDashboardUrl()}${blockHeight}>block index ${blockHeight}</a>.`
+				};
 			} else {
 				const blockHeight = await ledger.transfer({
 					to: to_account,
@@ -182,7 +215,10 @@
 					created_at_time: BigInt(Date.now()) * BigInt(1e6)
 				});
 
-				return { success: true, message: `Successful transfer at <a target='_blank' style="text-decoration: underline; color: var(--toast-text-color);" href=${new Asset(asset).getDashboardUrl()}${blockHeight}>block index ${blockHeight}</a>.`}
+				return {
+					success: true,
+					message: `Successful transfer at <a target='_blank' style="text-decoration: underline; color: var(--toast-text-color);" href=${new Asset(asset).getDashboardUrl()}${blockHeight}>block index ${blockHeight}</a>.`
+				};
 			}
 		} catch (error) {
 			console.error('[icrcLedgerWalletTransfer] ', error);

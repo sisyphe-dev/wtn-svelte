@@ -24,7 +24,7 @@ import { LedgerCanister } from '@dfinity/ledger-icp';
 // 1 hour in nanoseconds
 const AUTH_MAX_TIME_TO_LIVE = BigInt(60 * 60 * 1000 * 1000 * 1000);
 
-export const DEV = false;
+export const DEV = import.meta.env ? import.meta.env.DEV : true;
 export const STAGING = process.env.CANISTER_ID === '47pxu-byaaa-aaaap-ahpsa-cai';
 
 export const HOST = DEV ? 'http://127.0.1:8080' : 'https://ic0.app';
@@ -58,7 +58,7 @@ export async function connectWithInternetIdentity() {
 			await authClient.login({
 				maxTimeToLive: AUTH_MAX_TIME_TO_LIVE,
 				allowPinAuthentication: true,
-				derivationOrigin: undefined,
+				derivationOrigin: DAPP_DERIVATION_ORIGIN,
 				identityProvider: IDENTITY_PROVIDER,
 				onSuccess: async () => {
 					const identity = authClient.getIdentity();

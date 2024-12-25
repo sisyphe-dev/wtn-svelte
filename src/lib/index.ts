@@ -8,6 +8,7 @@ import type {
 	NeuronId,
 	WithdrawalDetails
 } from '$lib/../declarations/water_neuron/water_neuron.did';
+import { DEV } from './authentification';
 
 export const E8S = BigNumber(10).pow(BigNumber(8));
 
@@ -246,6 +247,9 @@ export function getMaybeAccount(accountString: string): Account | AccountIdentif
 			return { owner: icrcAccount.owner, subaccount: [] } as Account;
 		}
 	} catch (error) {
+		if (DEV) {
+			console.log(error);
+		}
 		return;
 	}
 }

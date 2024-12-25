@@ -176,6 +176,7 @@ testWithII('e2e test send', async ({ page, iiPage }) => {
 
 	const icpBalance = walletInfo.locator('[title="icp-balance-nav"]');
 	const nicpBalance = walletInfo.locator('[title="nicp-balance-nav"]');
+
 	await expect(icpBalance).toHaveText('15 ICP');
 	await expect(nicpBalance).toHaveText('15 nICP');
 
