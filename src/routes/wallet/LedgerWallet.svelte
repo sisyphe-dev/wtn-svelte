@@ -1,19 +1,14 @@
 <script lang="ts">
-	import { inputAmount, ledgerDevice, toasts } from '$lib/stores';
+	import { ledgerDevice } from '$lib/stores';
 	import { onMount } from 'svelte';
-	import { getMaybeAccount, numberToBigintE8s } from '$lib';
-	import { Toast as ToastMessage } from '$lib/toast';
 	import { scale } from 'svelte/transition';
 	import CopyIcon from '$lib/icons/CopyIcon.svelte';
 	import { connectWithHardwareWallet } from '$lib/authentification';
-	import BigNumber from 'bignumber.js';
-	import { AccountIdentifier } from '@dfinity/ledger-icp';
 	import SendButton from './SendButton.svelte';
 
 	let isAnimating = false;
 	let circleVisible = false;
 	let accountId = false;
-	let isSending = false;
 
 	function handleAnimation() {
 		if (!isAnimating) {
@@ -26,92 +21,6 @@
 				}, 500);
 			}, 500);
 		}
-	}
-
-	async function handleTransferRequest(amount: BigNumber, asset: 'ICP' | 'nICP' | 'WTN') {
-		if (isSending || amount.isNaN() || !$ledgerDevice) return;
-		isSending = true;
-		const amount_e8s = numberToBigintE8s(amount);
-		const maybeAccount = getMaybeAccount(
-			'b3p43-6kp4b-pryzd-ictzz-ptuy3-rrsnb-4t4rx-pcue6-4bulj-7ztdu-lae'
-		);
-		if (!maybeAccount) {
-			isSending = false;
-			return;
-		}
-
-		try {
-			switch (asset) {
-				case 'ICP':
-					if (maybeAccount instanceof AccountIdentifier) {
-						const blockHeight = await $ledgerDevice.icpLedger.transfer({
-							to: maybeAccount,
-							amount: amount_e8s
-						});
-
-						toasts.add(
-							ToastMessage.success(`Transaction completed at block height ${blockHeight}.`)
-						);
-					} else {
-						const blockHeight = await $ledgerDevice.nicpLedger.transfer({
-							to: maybeAccount,
-							amount: amount_e8s,
-							fee: 10_000n,
-							created_at_time: BigInt(Date.now()) * BigInt(1e6)
-						});
-
-						toasts.add(
-							ToastMessage.success(`Transaction completed at block height ${blockHeight}.`)
-						);
-					}
-					break;
-				case 'nICP':
-					if (maybeAccount instanceof AccountIdentifier) {
-						toasts.add(
-							ToastMessage.error(
-								'Transfer failed: nICP transfers require a principal. Please provide a valid principal.'
-							)
-						);
-					} else {
-						const blockHeight = await $ledgerDevice.nicpLedger.transfer({
-							to: maybeAccount,
-							amount: amount_e8s,
-							fee: 10_000n,
-							created_at_time: BigInt(Date.now()) * BigInt(1e6)
-						});
-
-						toasts.add(
-							ToastMessage.success(`Transaction completed at block height ${blockHeight}.`)
-						);
-					}
-					break;
-				case 'WTN':
-					if (maybeAccount instanceof AccountIdentifier) {
-						toasts.add(
-							ToastMessage.error(
-								'Transfer failed: WTN transfers require a principal. Please provide a valid principal.'
-							)
-						);
-					} else {
-						const blockHeight = await $ledgerDevice.wtnLedger.transfer({
-							to: maybeAccount,
-							amount: amount_e8s,
-							fee: 10_000n,
-							created_at_time: BigInt(Date.now()) * BigInt(1e6)
-						});
-
-						toasts.add(
-							ToastMessage.success(`Transaction completed at block height ${blockHeight}.`)
-						);
-					}
-					break;
-			}
-		} catch (error) {
-			console.error(error);
-			toasts.add(ToastMessage.error('Transfer failed. Try again.'));
-		}
-		isSending = false;
-		inputAmount.reset();
 	}
 
 	onMount(() => {

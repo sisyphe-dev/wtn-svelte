@@ -28,7 +28,7 @@
 		}}
 	>
 		<div class="max-btn-items">
-			<h2>{asset}</h2>
+			<h2>{asset.type}</h2>
 			<span>Max</span>
 		</div>
 		<img class="asset-logo" src={asset.getIconPath()} alt="ICP Icon" />

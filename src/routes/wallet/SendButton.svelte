@@ -16,7 +16,7 @@
 	export let asset: 'ICP' | 'nICP' | 'WTN';
 	let balance: BigNumber | undefined;
 
-	const setBalance = async () => {
+	const setBalance = () => {
 		if ($selectedWallet === 'ledger') {
 			balance = $ledgerDevice?.getBalance(asset);
 		} else {
@@ -26,6 +26,12 @@
 
 	onMount(() => {
 		setBalance();
+
+		const intervalId = setInterval(async () => {
+			setBalance();
+		}, 5000);
+
+		return () => clearInterval(intervalId);
 	});
 </script>
 

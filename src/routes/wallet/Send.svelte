@@ -3,6 +3,8 @@
 	import {
 		inSendingMenu,
 		selectedAsset,
+		selectedWallet,
+		ledgerDevice,
 		user,
 		toasts,
 		canisters,
@@ -12,7 +14,7 @@
 	import { onMount } from 'svelte';
 	import { Toast as ToastMessage } from '$lib/toast';
 	import BigNumber from 'bignumber.js';
-	import { AccountIdentifier } from '@dfinity/ledger-icp';
+	import { AccountIdentifier, LedgerCanister } from '@dfinity/ledger-icp';
 	import {
 		handleIcrcTransferResult,
 		handleTransferResult,
@@ -23,19 +25,25 @@
 		TransferArgs,
 		TransferArg
 	} from '$lib/../declarations/icp_ledger/icp_ledger.did';
-	import type { _SERVICE as icrcLedgerInterface } from '$lib/../declarations/icrc_ledger/icrc_ledger.did';
+	import type {
+		Account,
+		_SERVICE as icrcLedgerInterface
+	} from '$lib/../declarations/icrc_ledger/icrc_ledger.did';
 	import type { _SERVICE as icpLedgerInterface } from '$lib/../declarations/icp_ledger/icp_ledger.did';
 	import { fade } from 'svelte/transition';
 	import Toast from '../Toast.svelte';
+	import { IcrcLedgerCanister } from '@dfinity/ledger-icrc';
 
 	let principal: string;
 	let isSending = false;
 	let dialog: HTMLDialogElement;
 
 	function isValidAmount(amount: BigNumber): boolean {
-		if (amount && $user) {
+		if (amount && $user && $ledgerDevice) {
 			return (
-				$user.getBalance($selectedAsset.type).isGreaterThanOrEqualTo(amount) &&
+				($selectedWallet === 'main' ? $user : $ledgerDevice)
+					.getBalance($selectedAsset.type)
+					.isGreaterThanOrEqualTo(amount) &&
 				amount.isGreaterThanOrEqualTo(BigNumber(1).dividedBy(E8S))
 			);
 		} else {
@@ -54,33 +62,16 @@
 		}
 
 		try {
-			const icrcArgs = {
-				to: maybeAccount,
-				fee: [],
-				memo: [],
-				from_subaccount: [],
-				created_at_time: [],
-				amount: amount_e8s
-			} as TransferArg;
-
 			let status: ToastResult;
 			switch ($selectedAsset.type) {
 				case 'ICP':
 					if (maybeAccount instanceof AccountIdentifier) {
-						const args = {
-							to: maybeAccount.toUint8Array(),
-							fee: { e8s: 10000n } as Tokens,
-							memo: 0n,
-							from_subaccount: [],
-							created_at_time: [],
-							amount: { e8s: amount_e8s } as Tokens
-						} as TransferArgs;
-						status = await icpTransfer(args);
+						status = await icpTransfer(maybeAccount, amount_e8s);
 					} else {
-						if ($canisters.icpLedger.authenticatedActor) {
-							status = await icrcTransfer(icrcArgs, $canisters.icpLedger.authenticatedActor, 'ICP');
+						if ($selectedWallet === 'main') {
+							status = await icrcTransfer(maybeAccount, amount_e8s, $canisters.icpLedger.authenticatedActor, 'ICP');
 						} else {
-							status = { success: false, message: 'User is not authenticated.' };
+							status = await icrcLedgerWalletTransfer(maybeAccount, amount_e8s, $ledgerDevice?.icpLedger, 'ICP')
 						}
 					}
 					break;
@@ -92,14 +83,10 @@
 								'Transfer failed: nICP transfers require a principal. Please provide a valid principal.'
 						};
 					} else {
-						if ($canisters.nicpLedger.authenticatedActor) {
-							status = await icrcTransfer(
-								icrcArgs,
-								$canisters.nicpLedger.authenticatedActor,
-								'nICP'
-							);
+						if ($selectedWallet === 'main') {
+							status = await icrcTransfer(maybeAccount, amount_e8s, $canisters.nicpLedger.authenticatedActor, 'nICP');
 						} else {
-							status = { success: false, message: 'User is not authenticated.' };
+							status = await icrcLedgerWalletTransfer(maybeAccount, amount_e8s, $ledgerDevice?.nicpLedger, 'ICP')
 						}
 					}
 					break;
@@ -111,10 +98,10 @@
 								'Transfer failed: WTN transfers require a principal. Please provide a valid principal.'
 						};
 					} else {
-						if ($canisters.wtnLedger.authenticatedActor) {
-							status = await icrcTransfer(icrcArgs, $canisters.wtnLedger.authenticatedActor, 'WTN');
+						if ($selectedWallet === 'main') {
+							status = await icrcTransfer(maybeAccount, amount_e8s, $canisters.wtnLedger.authenticatedActor, 'WTN');
 						} else {
-							status = { success: false, message: 'User is not authenticated.' };
+							status = await icrcLedgerWalletTransfer(maybeAccount, amount_e8s, $ledgerDevice?.wtnLedger, 'ICP')
 						}
 					}
 					break;
@@ -133,30 +120,99 @@
 		inputAmount.reset();
 	}
 
-	async function icpTransfer(args: TransferArgs): Promise<ToastResult> {
-		if (!$canisters?.icpLedger.authenticatedActor || !$user)
-			return { success: false, message: 'User is not authenticated.' };
-
+	async function icpTransfer(
+		to_account: AccountIdentifier,
+		amount_e8s: bigint
+	): Promise<ToastResult> {
 		try {
-			const result = await $canisters?.icpLedger.authenticatedActor.transfer(args);
-			return handleTransferResult(result);
+			if ($selectedWallet === 'main') {
+				if (!$canisters?.icpLedger.authenticatedActor || !$user)
+					return { success: false, message: 'User is not authenticated.' };
+
+				const args = {
+					to: to_account.toUint8Array(),
+					fee: { e8s: 10000n } as Tokens,
+					memo: 0n,
+					from_subaccount: [],
+					created_at_time: [],
+					amount: { e8s: amount_e8s } as Tokens
+				} as TransferArgs;
+				const result = await $canisters?.icpLedger.authenticatedActor.transfer(args);
+				return handleTransferResult(result);
+			} else {
+				if (!$ledgerDevice) return { success: false, message: 'User is not authenticated.' };
+				const blockHeight = await $ledgerDevice.icpLedger.transfer({
+					to: to_account,
+					amount: amount_e8s
+				});
+				return {
+					success: true,
+					message: `Successful transfer at <a target='_blank' style="text-decoration: underline; color: var(--toast-text-color);" href=https://dashboard.internetcomputer.org/transaction/${blockHeight}>block index ${blockHeight}</a>.`
+				};
+			}
 		} catch (error) {
 			console.error('[icpTransfer] ', error);
-			return { success: false, message: 'Call failed. Please, try again.' };
+			return { success: false, message: 'Transfer failed. Please, try again.' };
+		}
+	}
+
+	async function icrcLedgerWalletTransfer(
+		to_account: Account,
+		amount_e8s: bigint,
+		ledger: IcrcLedgerCanister | LedgerCanister | undefined,
+		asset: 'nICP' | 'ICP' | 'WTN'
+	): Promise<ToastResult> {
+		try {
+			if (!ledger) return { success: false, message: 'User is not authenticated.' };
+
+			if (ledger instanceof LedgerCanister) {
+				const blockHeight = await ledger.icrc1Transfer({
+					to: to_account,
+					amount: amount_e8s,
+					fee: numberToBigintE8s(new Asset('ICP').getTransferFee())
+				});
+
+				return { success: true, message: `Successful transfer at <a target='_blank' style="text-decoration: underline; color: var(--toast-text-color);" href=${new Asset('ICP').getDashboardUrl()}${blockHeight}>block index ${blockHeight}</a>.`}
+
+			} else {
+				const blockHeight = await ledger.transfer({
+					to: to_account,
+					amount: amount_e8s,
+					fee: numberToBigintE8s(new Asset(asset).getTransferFee()),
+					created_at_time: BigInt(Date.now()) * BigInt(1e6)
+				});
+
+				return { success: true, message: `Successful transfer at <a target='_blank' style="text-decoration: underline; color: var(--toast-text-color);" href=${new Asset(asset).getDashboardUrl()}${blockHeight}>block index ${blockHeight}</a>.`}
+			}
+		} catch (error) {
+			console.error('[icrcLedgerWalletTransfer] ', error);
+			return { success: false, message: 'Transfer failed. Please, try again.' };
 		}
 	}
 
 	async function icrcTransfer(
-		args: TransferArg,
-		ledger: icrcLedgerInterface | icpLedgerInterface,
-		asset: 'ICP' | 'nICP' | 'WTN'
+		to_account: Account,
+		amount_e8s: bigint,
+		ledger: icrcLedgerInterface | icpLedgerInterface | undefined,
+		asset: 'nICP' | 'ICP' | 'WTN'
 	): Promise<ToastResult> {
 		try {
-			const transferResult = await ledger.icrc1_transfer(args);
+			if (!ledger) return { success: false, message: 'User is not authenticated.' };
+
+			const icrcArgs = {
+				to: to_account,
+				fee: [],
+				memo: [],
+				from_subaccount: [],
+				created_at_time: [],
+				amount: amount_e8s
+			} as TransferArg;
+
+			const transferResult = await ledger.icrc1_transfer(icrcArgs);
 			return handleIcrcTransferResult(transferResult, Asset.fromText(asset));
 		} catch (error) {
-			console.error('[icpTransfer] ', error);
-			return { success: false, message: 'Call failed. Please, try again.' };
+			console.error('[icrcTransfer] ', error);
+			return { success: false, message: 'Transfer failed. Please, try again.' };
 		}
 	}
 
