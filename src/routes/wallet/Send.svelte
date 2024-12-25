@@ -508,8 +508,8 @@
 	/* === Animation === */
 
 	.spinner {
-		width: 2em;
-		height: 2em;
+		width: 1em;
+		height: 1em;
 		border: 3px solid var(--main-button-text-color);
 		border-top-color: transparent;
 		border-radius: 50%;
