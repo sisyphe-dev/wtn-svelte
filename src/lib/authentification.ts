@@ -12,7 +12,14 @@ import type { _SERVICE as icpswapPoolInterface } from '../declarations/icpswap_p
 import { idlFactory as idlFactoryIcpswapPool } from '../declarations/icpswap_pool';
 import { Signer } from '@slide-computer/signer';
 import { PostMessageTransport } from '@slide-computer/signer-web';
-import { user, canisters, availableAccounts, signer, ledgerDevice } from './stores';
+import {
+	user,
+	canisters,
+	availableAccounts,
+	signer,
+	ledgerDevice,
+	identityProvider
+} from './stores';
 import { CanisterActor, Canisters, User } from './state';
 import { SignerAgent } from '@slide-computer/signer-agent';
 import { PlugTransport } from '@slide-computer/signer-transport-plug';
@@ -54,6 +61,7 @@ export async function connectWithInternetIdentity() {
 			});
 			canisters.set(await fetchActors(agent));
 			user.set(new User(identity.getPrincipal()));
+			identityProvider.set('ii');
 		} else {
 			await authClient.login({
 				maxTimeToLive: AUTH_MAX_TIME_TO_LIVE,
@@ -68,6 +76,7 @@ export async function connectWithInternetIdentity() {
 					});
 					canisters.set(await fetchActors(agent));
 					user.set(new User(identity.getPrincipal()));
+					identityProvider.set('ii');
 				},
 				onError: (error) => {
 					throw Error(error);
@@ -124,6 +133,8 @@ export async function connectWithPlug() {
 	} else {
 		await finalizePlugConnection(newSigner, accounts[0].owner);
 	}
+
+	identityProvider.set('plug');
 }
 
 export async function finalizePlugConnection(newSigner: Signer, userPrincipal: Principal) {
@@ -155,6 +166,7 @@ export async function connectWithTransport(rpc: typeof NFID_RPC) {
 
 		canisters.set(await fetchActors(signerAgent));
 		user.set(new User(userPrincipal));
+		identityProvider.set('nfid');
 	} catch (error) {
 		console.log(error);
 	}

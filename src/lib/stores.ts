@@ -27,6 +27,7 @@ export const availableAccounts = writable<{ owner: Principal; subaccount?: Array
 export const signer = writable<Signer | undefined>(undefined);
 export const selectedAsset = writable<Asset>(new Asset('ICP'));
 export const selectedWallet = writable<'ledger' | 'main'>('main');
+export const identityProvider = writable<'ii' | 'nfid' | 'plug' | undefined>(undefined);
 export const selectedWithdrawal = writable<WithdrawalDetails | undefined>(undefined);
 export const user = writable<User | undefined>(undefined);
 export const ledgerDevice = writable<LedgerDevice | undefined>(undefined);

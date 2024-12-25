@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { selectedWallet, user } from '$lib/stores';
+	import { selectedWallet, user, identityProvider } from '$lib/stores';
+	import { isMobile } from '$lib';
 
 	if (!$user) goto('/');
 
@@ -26,6 +27,18 @@
 		}
 	};
 
+	function identityProviderToImg(provider: 'ii' | 'plug' | 'nfid'): string {
+		console.log(provider);
+		if (provider == 'ii') {
+			return '/icon/astronaut.webp';
+		} else if (provider == 'plug') {
+			return '/icon/plug.png';
+		} else if (provider == 'nfid') {
+			return '/icon/nfid.webp';
+		}
+		return '';
+	}
+
 	onMount(() => {
 		isDeviceDetected();
 
@@ -39,7 +52,7 @@
 
 <div class="wallet-menu-container" in:fade={{ duration: 500 }}>
 	<div class="header-container">
-		<h1>{inMainWallet ? 'Main Wallet' : 'Ledger Wallet'}</h1>
+		<h1>Wallet</h1>
 		{#if isSwitchVisible}
 			<button
 				class="switch-btn"
@@ -51,6 +64,18 @@
 				<ArrowIcon direction="left" color="--main-color" />
 				<ArrowIcon direction="right" color="--main-color" />
 			</button>
+		{/if}
+		{#if identityProvider !== undefined}
+			<div class="ledger-container">
+				{#if !isMobile}
+					<button>
+						<p>use Ledger</p>
+						<img src="/icon/ledger.svg" alt="" />
+					</button>
+
+					<img src={identityProviderToImg($identityProvider)} alt="" />
+				{/if}
+			</div>
 		{/if}
 	</div>
 	{#if inMainWallet}
@@ -85,7 +110,25 @@
 		display: flex;
 		position: relative;
 		align-items: center;
-		justify-content: center;
+		/* justify-content: center; */
+		justify-content: space-between;
+	}
+
+	.header-container img {
+		width: 50px;
+		height: 50px;
+	}
+
+	.header-container button {
+		background-color: none;
+		display: flex;
+		flex-direction: row;
+	}
+
+	.ledger-container {
+		display: flex;
+		flex-direction: row;
+		gap: 0.5em;
 	}
 
 	/* === Components ==== */
