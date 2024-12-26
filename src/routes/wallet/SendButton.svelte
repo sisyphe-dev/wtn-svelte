@@ -6,7 +6,6 @@
 		inSendingMenu,
 		inReceivingMenu,
 		ledgerDevice,
-		selectedWallet
 	} from '$lib/stores';
 	import { BigNumber } from 'bignumber.js';
 	import QRCodeScannerIcon from '$lib/icons/QRCodeScannerIcon.svelte';
@@ -17,7 +16,7 @@
 	let balance: BigNumber | undefined;
 
 	const setBalance = () => {
-		if ($selectedWallet === 'ledger') {
+		if ($user?.account === 'ledger') {
 			balance = $ledgerDevice?.getBalance(asset);
 		} else {
 			balance = $user?.getBalance(asset);
@@ -85,7 +84,7 @@
 			</button>
 		{/if}
 	</div>
-	{#if asset === 'WTN' && $selectedWallet === 'main'}
+	{#if asset === 'WTN' && $user?.account !== 'ledger'}
 		<p class="airdrop-allocation">
 			{#if isMobile}
 				Airdrop:

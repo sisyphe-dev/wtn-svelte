@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { selectedAsset, inReceivingMenu, user, selectedWallet, ledgerDevice } from '$lib/stores';
+	import { selectedAsset, inReceivingMenu, user, ledgerDevice } from '$lib/stores';
 	import CopyIcon from '$lib/icons/CopyIcon.svelte';
 	import { fade, scale } from 'svelte/transition';
 	import { onMount } from 'svelte';
@@ -12,7 +12,7 @@
 	let circleVisible = false;
 
 	const setInfo = () => {
-		if ($selectedWallet === 'ledger') {
+		if ($user?.account === 'ledger') {
 			accountId = $ledgerDevice?.accountId;
 			principal = $ledgerDevice?.principal.toString();
 		} else {

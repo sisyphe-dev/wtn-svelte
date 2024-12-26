@@ -3,7 +3,6 @@
 	import {
 		inSendingMenu,
 		selectedAsset,
-		selectedWallet,
 		ledgerDevice,
 		user,
 		toasts,
@@ -39,7 +38,7 @@
 	let dialog: HTMLDialogElement;
 
 	function isValidAmount(amount: BigNumber): boolean | undefined {
-		if ($selectedWallet === 'main') {
+		if ($user?.account === 'main') {
 			return (
 				$user?.getBalance($selectedAsset.type).isGreaterThanOrEqualTo(amount) &&
 				amount.isGreaterThanOrEqualTo(BigNumber(1).dividedBy(E8S))
@@ -53,7 +52,7 @@
 	}
 
 	async function handleTransferRequest(amount: BigNumber, accountString: string) {
-		if (isSending || amount.isNaN() || !isValidAmount(amount) || !principal || !$canisters) return;
+		if (isSending || amount.isNaN() || !isValidAmount(amount) || !principal || !$canisters || !$user) return;
 		isSending = true;
 		const amount_e8s = numberToBigintE8s(amount);
 		const maybeAccount = getMaybeAccount(accountString);
@@ -69,7 +68,7 @@
 					if (maybeAccount instanceof AccountIdentifier) {
 						status = await icpTransfer(maybeAccount, amount_e8s);
 					} else {
-						if ($selectedWallet === 'main') {
+						if ($user?.account === 'main') {
 							status = await icrcTransfer(
 								maybeAccount,
 								amount_e8s,
@@ -94,7 +93,7 @@
 								'Transfer failed: nICP transfers require a principal. Please provide a valid principal.'
 						};
 					} else {
-						if ($selectedWallet === 'main') {
+						if ($user.account === 'main') {
 							status = await icrcTransfer(
 								maybeAccount,
 								amount_e8s,
@@ -119,7 +118,7 @@
 								'Transfer failed: WTN transfers require a principal. Please provide a valid principal.'
 						};
 					} else {
-						if ($selectedWallet === 'main') {
+						if ($user?.account === 'main') {
 							status = await icrcTransfer(
 								maybeAccount,
 								amount_e8s,
@@ -155,8 +154,9 @@
 		to_account: AccountIdentifier,
 		amount_e8s: bigint
 	): Promise<ToastResult> {
+		if (!$user) return { success: false, message: 'User is not authenticated.'};
 		try {
-			if ($selectedWallet === 'main') {
+			if ($user.account === 'main') {
 				if (!$canisters?.icpLedger.authenticatedActor || !$user)
 					return { success: false, message: 'User is not authenticated.' };
 
@@ -171,7 +171,7 @@
 				const result = await $canisters?.icpLedger.authenticatedActor.transfer(args);
 				return handleTransferResult(result);
 			} else {
-				if (!$ledgerDevice) return { success: false, message: 'User is not authenticated.' };
+				if (!$ledgerDevice) return { success: false, message: 'Device is not connected.' };
 				const blockHeight = await $ledgerDevice.icpLedger.transfer({
 					to: to_account,
 					amount: amount_e8s

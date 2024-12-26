@@ -1,5 +1,11 @@
 <script lang="ts">
-	import { isLogging, isBusy, availableAccounts, signer, toasts } from '$lib/stores';
+	import {
+		isLogging,
+		isBusy,
+		availableAccounts,
+		signer,
+		toasts,
+	} from '$lib/stores';
 	import {
 		DEV,
 		STAGING,
@@ -21,12 +27,12 @@
 
 	let dialog: HTMLDialogElement;
 
-	async function handleConnection(identityProvider: 'internetIdentity' | 'plug' | 'oisy' | 'nfid') {
+	async function handleConnection(wallet: 'internetIdentity' | 'plug' | 'oisy' | 'nfid') {
 		if ($isBusy) return;
 		isBusy.set(true);
 
 		try {
-			switch (identityProvider) {
+			switch (wallet) {
 				case 'internetIdentity':
 					await connectWithInternetIdentity();
 					break;

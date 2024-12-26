@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { selectedWallet, user, identityProvider } from '$lib/stores';
+	import { user, ledgerDevice, toasts } from '$lib/stores';
 	import { isMobile } from '$lib';
 
 	if (!$user) goto('/');
@@ -8,74 +8,59 @@
 	import Withdrawals from './Withdrawals.svelte';
 	import LedgerWallet from './LedgerWallet.svelte';
 	import MainWallet from './MainWallet.svelte';
-	import ArrowIcon from '$lib/icons/ArrowIcon.svelte';
 	import { fade } from 'svelte/transition';
-	import { LedgerIdentity } from '$lib/leger-wallet/identity';
-	import { onMount } from 'svelte';
+	import { connectWithHardwareWallet } from '$lib/authentification';
+	import { Toast } from '$lib/toast';
 
 	let inMainWallet = true;
-	let isSwitchVisible = false;
 
-	const isDeviceDetected = async () => {
-		try {
-			await LedgerIdentity.create();
-			isSwitchVisible = true;
-		} catch (_) {
-			isSwitchVisible = false;
-			inMainWallet = true;
-			selectedWallet.set('main');
-		}
-	};
+	function displayInstruction(): string {
+		if (!$user) return '';
 
-	function identityProviderToImg(provider: 'ii' | 'plug' | 'nfid'): string {
-		console.log(provider);
-		if (provider == 'ii') {
-			return '/icon/astronaut.webp';
-		} else if (provider == 'plug') {
-			return '/icon/plug.png';
-		} else if (provider == 'nfid') {
-			return '/icon/nfid.webp';
-		}
-		return '';
+		return ($user.account === 'ledger') ? `Back to ${$user.identityProvider}` : 'Use Ledger Nano';
 	}
 
-	onMount(() => {
-		isDeviceDetected();
+	function displayWalletName(): string {
+		if (!$user) return '';
 
-		const intervalId = setInterval(async () => {
-			await isDeviceDetected();
-		}, 5000);
+		if ($user.account === 'main') {
+			switch ($user.identityProvider) {
+				case 'Plug': return 'Plug';
+				case 'II': return 'Internet Identity';
+				case 'Nfid': return 'Nfid'
+			}
+		} 
+		return 'Ledger Nano'
+	}
 
-		return () => clearInterval(intervalId);
-	});
+	async function handleLedgerConnection() {
+		if (!$user) return;
+
+		try {
+			if (!$ledgerDevice) {
+				await connectWithHardwareWallet();
+			}
+			inMainWallet = !inMainWallet;
+			$user.account = inMainWallet ? 'main' : 'ledger';
+		} catch(e) {
+			console.error(e);
+			toasts.add(Toast.error('Failed to connect Ledger device.'))
+		}
+	}
 </script>
 
 <div class="wallet-menu-container" in:fade={{ duration: 500 }}>
+	{#key inMainWallet}
 	<div class="header-container">
-		<h1>Wallet</h1>
-		{#if isSwitchVisible}
+		<div class="wallet-info-container">
+			<h1>{displayWalletName()}</h1>
+		</div>
+		{#if !isMobile}
 			<button
-				class="switch-btn"
-				on:click={() => {
-					inMainWallet = !inMainWallet;
-					selectedWallet.set(inMainWallet ? 'main' : 'ledger');
-				}}
+				on:click={handleLedgerConnection}
 			>
-				<ArrowIcon direction="left" color="--main-color" />
-				<ArrowIcon direction="right" color="--main-color" />
+				<p>{displayInstruction()}</p>
 			</button>
-		{/if}
-		{#if identityProvider !== undefined}
-			<div class="ledger-container">
-				{#if !isMobile}
-					<button>
-						<p>use Ledger</p>
-						<img src="/icon/ledger.svg" alt="" />
-					</button>
-
-					<img src={identityProviderToImg($identityProvider)} alt="" />
-				{/if}
-			</div>
 		{/if}
 	</div>
 	{#if inMainWallet}
@@ -83,6 +68,7 @@
 	{:else}
 		<LedgerWallet />
 	{/if}
+	{/key}
 </div>
 <Withdrawals />
 
@@ -91,7 +77,16 @@
 	h1 {
 		margin: 0;
 		font-family: var(--secondary-font);
+		display: flex;
+		align-items: center;
+		gap: 0.5em;
 	}
+
+	 p {
+		display: flex;
+		align-items: center;
+		gap: 0.5em;
+	 }
 
 	/* === Layout === */
 	.wallet-menu-container {
@@ -108,35 +103,40 @@
 
 	.header-container {
 		display: flex;
-		position: relative;
 		align-items: center;
-		/* justify-content: center; */
 		justify-content: space-between;
 	}
 
-	.header-container img {
-		width: 50px;
-		height: 50px;
-	}
-
-	.header-container button {
-		background-color: none;
+	.wallet-info-container {
 		display: flex;
-		flex-direction: row;
-	}
-
-	.ledger-container {
-		display: flex;
-		flex-direction: row;
+		align-items: center;
 		gap: 0.5em;
 	}
 
 	/* === Components ==== */
-	.switch-btn {
-		background: none;
-		border: none;
+	.header-container button {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		gap: 1em;
+		background: var(--main-color);
+		color: var(--main-button-text-color);
+		min-width: 80px;
+		border-radius: 8px;
+		position: relative;
+		border: 2px solid black;
+		font-size: 14px;
+		box-shadow: 3px 3px 0 0 black;
+		padding: 0 1em 0 1em;
+		max-width: none;
+		height: 3em;
+		font-weight: bold;
 		cursor: pointer;
-		position: absolute;
-		right: 0;
+	}
+
+	.header-container button:hover {
+		transform: scale(0.95);
+		transition: all 0.3s;
+		box-shadow: 6px 6px 0 0 black;
 	}
 </style>

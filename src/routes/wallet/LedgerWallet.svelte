@@ -1,9 +1,7 @@
 <script lang="ts">
 	import { ledgerDevice } from '$lib/stores';
-	import { onMount } from 'svelte';
 	import { scale } from 'svelte/transition';
 	import CopyIcon from '$lib/icons/CopyIcon.svelte';
-	import { connectWithHardwareWallet } from '$lib/authentification';
 	import SendButton from './SendButton.svelte';
 
 	let isAnimating = false;
@@ -22,10 +20,6 @@
 			}, 500);
 		}
 	}
-
-	onMount(() => {
-		connectWithHardwareWallet();
-	});
 </script>
 
 <div class="address-container">

@@ -18,7 +18,6 @@ import {
 	availableAccounts,
 	signer,
 	ledgerDevice,
-	identityProvider
 } from './stores';
 import { CanisterActor, Canisters, User } from './state';
 import { SignerAgent } from '@slide-computer/signer-agent';
@@ -60,8 +59,7 @@ export async function connectWithInternetIdentity() {
 				host: HOST
 			});
 			canisters.set(await fetchActors(agent));
-			user.set(new User(identity.getPrincipal()));
-			identityProvider.set('ii');
+			user.set(new User(identity.getPrincipal(), 'II'));
 		} else {
 			await authClient.login({
 				maxTimeToLive: AUTH_MAX_TIME_TO_LIVE,
@@ -75,8 +73,7 @@ export async function connectWithInternetIdentity() {
 						host: HOST
 					});
 					canisters.set(await fetchActors(agent));
-					user.set(new User(identity.getPrincipal()));
-					identityProvider.set('ii');
+					user.set(new User(identity.getPrincipal(), 'II'));
 				},
 				onError: (error) => {
 					throw Error(error);
@@ -98,7 +95,7 @@ export async function tryConnectOnReload() {
 			host: HOST
 		});
 		canisters.set(await fetchActors(agent));
-		user.set(new User(identity.getPrincipal()));
+		user.set(new User(identity.getPrincipal(), 'II'));
 	} else {
 		canisters.set(await fetchActors());
 	}
@@ -133,8 +130,6 @@ export async function connectWithPlug() {
 	} else {
 		await finalizePlugConnection(newSigner, accounts[0].owner);
 	}
-
-	identityProvider.set('plug');
 }
 
 export async function finalizePlugConnection(newSigner: Signer, userPrincipal: Principal) {
@@ -144,7 +139,7 @@ export async function finalizePlugConnection(newSigner: Signer, userPrincipal: P
 	});
 
 	canisters.set(await fetchActors(signerAgent));
-	user.set(new User(userPrincipal));
+	user.set(new User(userPrincipal, 'Plug'));
 }
 
 export async function connectWithTransport(rpc: typeof NFID_RPC) {
@@ -165,8 +160,7 @@ export async function connectWithTransport(rpc: typeof NFID_RPC) {
 		});
 
 		canisters.set(await fetchActors(signerAgent));
-		user.set(new User(userPrincipal));
-		identityProvider.set('nfid');
+		user.set(new User(userPrincipal, 'Nfid'));
 	} catch (error) {
 		console.log(error);
 	}
@@ -230,7 +224,7 @@ export async function localSignIn() {
 				});
 
 				canisters.set(await fetchActors(agent));
-				user.set(new User(identity.getPrincipal()));
+				user.set(new User(identity.getPrincipal(), 'II'));
 			},
 			onError: (error) => {
 				throw new Error(error);
