@@ -17,7 +17,7 @@
 	function displayInstruction(): string {
 		if (!$user) return '';
 
-		return ($user.account === 'ledger') ? `Back to ${$user.identityProvider}` : 'Use Ledger Nano';
+		return $user.account === 'ledger' ? `Back to ${$user.identityProvider}` : 'Use Ledger Nano';
 	}
 
 	function displayWalletName(): string {
@@ -25,12 +25,15 @@
 
 		if ($user.account === 'main') {
 			switch ($user.identityProvider) {
-				case 'Plug': return 'Plug';
-				case 'II': return 'Internet Identity';
-				case 'Nfid': return 'Nfid'
+				case 'Plug':
+					return 'Plug';
+				case 'II':
+					return 'Internet Identity';
+				case 'Nfid':
+					return 'Nfid';
 			}
-		} 
-		return 'Ledger Nano'
+		}
+		return 'Ledger Nano';
 	}
 
 	async function handleLedgerConnection() {
@@ -42,32 +45,30 @@
 			}
 			inMainWallet = !inMainWallet;
 			$user.account = inMainWallet ? 'main' : 'ledger';
-		} catch(e) {
+		} catch (e) {
 			console.error(e);
-			toasts.add(Toast.error('Failed to connect Ledger device.'))
+			toasts.add(Toast.error('Failed to connect Ledger device.'));
 		}
 	}
 </script>
 
 <div class="wallet-menu-container" in:fade={{ duration: 500 }}>
 	{#key inMainWallet}
-	<div class="header-container">
-		<div class="wallet-info-container">
-			<h1>{displayWalletName()}</h1>
+		<div class="header-container">
+			<div class="wallet-info-container">
+				<h1>{displayWalletName()}</h1>
+			</div>
+			{#if !isMobile}
+				<button on:click={handleLedgerConnection}>
+					<p>{displayInstruction()}</p>
+				</button>
+			{/if}
 		</div>
-		{#if !isMobile}
-			<button
-				on:click={handleLedgerConnection}
-			>
-				<p>{displayInstruction()}</p>
-			</button>
+		{#if inMainWallet}
+			<MainWallet />
+		{:else}
+			<LedgerWallet />
 		{/if}
-	</div>
-	{#if inMainWallet}
-		<MainWallet />
-	{:else}
-		<LedgerWallet />
-	{/if}
 	{/key}
 </div>
 <Withdrawals />
@@ -82,11 +83,11 @@
 		gap: 0.5em;
 	}
 
-	 p {
+	p {
 		display: flex;
 		align-items: center;
 		gap: 0.5em;
-	 }
+	}
 
 	/* === Layout === */
 	.wallet-menu-container {

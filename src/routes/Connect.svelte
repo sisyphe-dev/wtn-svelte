@@ -1,11 +1,5 @@
 <script lang="ts">
-	import {
-		isLogging,
-		isBusy,
-		availableAccounts,
-		signer,
-		toasts,
-	} from '$lib/stores';
+	import { isLogging, isBusy, availableAccounts, signer, toasts } from '$lib/stores';
 	import {
 		DEV,
 		STAGING,

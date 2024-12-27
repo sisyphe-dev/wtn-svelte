@@ -1,12 +1,6 @@
 <script lang="ts">
 	import { Asset, displayUsFormat, isMobile } from '$lib';
-	import {
-		user,
-		selectedAsset,
-		inSendingMenu,
-		inReceivingMenu,
-		ledgerDevice,
-	} from '$lib/stores';
+	import { user, selectedAsset, inSendingMenu, inReceivingMenu, ledgerDevice } from '$lib/stores';
 	import { BigNumber } from 'bignumber.js';
 	import QRCodeScannerIcon from '$lib/icons/QRCodeScannerIcon.svelte';
 	import UpIcon from '$lib/icons/UpIcon.svelte';

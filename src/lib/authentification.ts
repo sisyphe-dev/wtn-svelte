@@ -12,13 +12,7 @@ import type { _SERVICE as icpswapPoolInterface } from '../declarations/icpswap_p
 import { idlFactory as idlFactoryIcpswapPool } from '../declarations/icpswap_pool';
 import { Signer } from '@slide-computer/signer';
 import { PostMessageTransport } from '@slide-computer/signer-web';
-import {
-	user,
-	canisters,
-	availableAccounts,
-	signer,
-	ledgerDevice,
-} from './stores';
+import { user, canisters, availableAccounts, signer, ledgerDevice } from './stores';
 import { CanisterActor, Canisters, User } from './state';
 import { SignerAgent } from '@slide-computer/signer-agent';
 import { PlugTransport } from '@slide-computer/signer-transport-plug';

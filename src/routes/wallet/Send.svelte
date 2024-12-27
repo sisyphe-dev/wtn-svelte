@@ -52,7 +52,15 @@
 	}
 
 	async function handleTransferRequest(amount: BigNumber, accountString: string) {
-		if (isSending || amount.isNaN() || !isValidAmount(amount) || !principal || !$canisters || !$user) return;
+		if (
+			isSending ||
+			amount.isNaN() ||
+			!isValidAmount(amount) ||
+			!principal ||
+			!$canisters ||
+			!$user
+		)
+			return;
 		isSending = true;
 		const amount_e8s = numberToBigintE8s(amount);
 		const maybeAccount = getMaybeAccount(accountString);
@@ -154,7 +162,7 @@
 		to_account: AccountIdentifier,
 		amount_e8s: bigint
 	): Promise<ToastResult> {
-		if (!$user) return { success: false, message: 'User is not authenticated.'};
+		if (!$user) return { success: false, message: 'User is not authenticated.' };
 		try {
 			if ($user.account === 'main') {
 				if (!$canisters?.icpLedger.authenticatedActor || !$user)
@@ -291,14 +299,26 @@
 		{/if}
 		<div>
 			<p>Destination</p>
-			<input type="text" placeholder="Address" title="send-destination" bind:value={principal} />
+			<div class="wallet-input">
+				<input type="text" placeholder="Address" title="send-destination" bind:value={principal} />
+				{#if $ledgerDevice}
+				<button
+					class="placeholder-btn"
+					on:click={() => {
+						principal = $ledgerDevice.principal.toString();
+					}}
+				>
+					{$user?.account === 'ledger' ? 'Main' : 'Ledger Nano'}
+				</button>
+				{/if}
+			</div>
 			{#if principal && !getMaybeAccount(principal)}
-				<span class="error"> Please enter a valid address. </span>
+				<span class="error"> Please enter a valid address.</span>
 			{/if}
 		</div>
 		<div>
 			<p>Amount</p>
-			<div class="amount-input">
+			<div class="wallet-input">
 				<input
 					title="send-amount"
 					type="text"
@@ -308,7 +328,7 @@
 					on:input={handleInputAmount}
 				/>
 				<button
-					class="max-btn"
+					class="placeholder-btn"
 					on:click={() => {
 						const fee = $selectedAsset.getTransferFee();
 						const amount =
@@ -385,16 +405,14 @@
 	}
 
 	input {
-		border: var(--input-border);
-		padding-left: 0.4em;
-		height: 3em;
-		font-size: 16px;
 		color: var(--stake-text-color);
-		background: var(--input-color);
+		height: 3em;
+		border: none;
+		font-size: 16px;
+		background: none;
 		outline: none;
-		margin-left: 1em;
-		width: 90%;
-		border-radius: 0.4em;
+		margin: 0 1em;
+		flex-grow: 1;
 	}
 
 	p {
@@ -444,19 +462,23 @@
 		color: red;
 		margin-left: 1em;
 	}
-	.max-btn {
-		position: absolute;
-		right: 8%;
+
+	.placeholder-btn {
+		text-align: right;
+		padding-right: 1em;
 		background: none;
 		color: var(--stake-text-color);
 		border: none;
 		cursor: pointer;
 	}
 
-	.amount-input {
-		position: relative;
+	.wallet-input {
 		display: flex;
 		align-items: center;
+		justify-content: space-between;
+		border: var(--input-border);
+		background: var(--input-color);
+		border-radius: 0.4em;
 	}
 
 	.balances {

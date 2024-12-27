@@ -19,7 +19,7 @@ export class User {
 	public principal: Principal;
 	public accountId: string;
 	public identityProvider: 'Plug' | 'II' | 'Nfid';
-	public account: 'main' | 'ledger'; 
+	public account: 'main' | 'ledger';
 	public icpBalanceE8s: bigint;
 	public nicpBalanceE8s: bigint;
 	public wtnBalanceE8s: bigint;
