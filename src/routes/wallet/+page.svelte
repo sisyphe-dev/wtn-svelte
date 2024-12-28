@@ -59,7 +59,7 @@
 				<h1>{displayWalletName()}</h1>
 			</div>
 			{#if !isMobile}
-				<button on:click={handleLedgerConnection}>
+				<button on:click={handleLedgerConnection} title="switch-ledger-btn">
 					<p>{displayInstruction()}</p>
 				</button>
 			{/if}

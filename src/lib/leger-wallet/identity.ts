@@ -147,6 +147,11 @@ export class LedgerIdentity extends SignIdentity {
 		}
 	}
 
+	// For tests only
+	public static createMockIdentity(mockIdentity: Secp256k1PublicKey): LedgerIdentity {
+		return new this(LEDGER_DEFAULT_DERIVE_PATH, mockIdentity);
+	}
+
 	public override getPublicKey(): Required<PublicKey> {
 		return this.publicKey;
 	}

@@ -20,6 +20,7 @@ import { Principal } from '@dfinity/principal';
 import { LedgerDevice, LedgerIdentity } from './leger-wallet/identity';
 import { IcrcLedgerCanister } from '@dfinity/ledger-icrc';
 import { LedgerCanister } from '@dfinity/ledger-icp';
+import { Secp256k1PublicKey } from './leger-wallet/secp256k1';
 
 // 1 hour in nanoseconds
 const AUTH_MAX_TIME_TO_LIVE = BigInt(60 * 60 * 1000 * 1000 * 1000);
@@ -35,7 +36,7 @@ const IDENTITY_PROVIDER = 'https://identity.ic0.app';
 export const NFID_RPC = 'https://nfid.one/rpc' as const;
 
 const CANISTER_ID_II = DEV ? 'iidmm-fiaaa-aaaaq-aadmq-cai' : 'rdmx6-jaaaa-aaaaa-aaadq-cai';
-const CANISTER_ID_WTN_LEDGER = 'jcmow-hyaaa-aaaaq-aadlq-cai';
+export const CANISTER_ID_WTN_LEDGER = 'jcmow-hyaaa-aaaaq-aadlq-cai';
 export const CANISTER_ID_ICP_LEDGER = 'ryjl3-tyaaa-aaaaa-aaaba-cai';
 export const CANISTER_ID_NICP_LEDGER = 'buwm7-7yaaa-aaaar-qagva-cai';
 export const CANISTER_ID_BOOMERANG = 'daijl-2yaaa-aaaar-qag3a-cai';
@@ -224,6 +225,84 @@ export async function localSignIn() {
 				throw new Error(error);
 			}
 		});
+	} catch (error) {
+		console.error(error);
+	}
+}
+
+export async function testSignIn() {
+	try {
+		const authClient = await AuthClient.create();
+
+		const identityProvider = `http://localhost:8080/?canisterId=${CANISTER_ID_II}`;
+		await authClient.login({
+			maxTimeToLive: AUTH_MAX_TIME_TO_LIVE,
+			allowPinAuthentication: true,
+			derivationOrigin: undefined,
+			identityProvider,
+			onSuccess: async () => {
+				const identity: Identity = authClient.getIdentity();
+				const agent = HttpAgent.createSync({
+					identity,
+					host: HOST
+				});
+
+				canisters.set(await fetchActors(agent));
+				user.set(new User(identity.getPrincipal(), 'II'));
+			},
+			onError: (error) => {
+				throw new Error(error);
+			}
+		});
+
+		const ARRAY_IDENTITY = [
+			4, 144, 222, 78, 183, 128, 41, 233, 81, 117, 37, 208, 169, 46, 222, 65, 160, 114, 39, 191,
+			184, 93, 226, 186, 191, 74, 231, 244, 73, 95, 10, 219, 137, 160, 240, 65, 34, 4, 36, 52, 69,
+			81, 91, 116, 228, 186, 129, 22, 25, 56, 104, 6, 207, 110, 194, 170, 51, 92, 62, 195, 223, 227,
+			72, 246, 109
+		];
+
+		const rawLedgerIdentity = new ArrayBuffer(65);
+		const view = new Uint8Array(rawLedgerIdentity);
+		view.set(ARRAY_IDENTITY);
+		const key = Secp256k1PublicKey.fromRaw(rawLedgerIdentity);
+		const ledgerIdentity = LedgerIdentity.createMockIdentity(key);
+
+		const ledgerAgent = HttpAgent.createSync({
+			identity: ledgerIdentity,
+			host: HOST
+		});
+
+		ledgerAgent.fetchRootKey().catch((err) => {
+			console.warn('Unable to fetch root key. Check to ensure that your local replica is running');
+			console.error(err);
+		});
+
+		const icpLedger = LedgerCanister.create({
+			agent: ledgerAgent,
+			canisterId: Principal.fromText(CANISTER_ID_ICP_LEDGER)
+		});
+
+		const nicpLedger = IcrcLedgerCanister.create({
+			agent: ledgerAgent,
+			canisterId: Principal.fromText(CANISTER_ID_NICP_LEDGER)
+		});
+
+		const wtnLedger = IcrcLedgerCanister.create({
+			agent: ledgerAgent,
+			canisterId: Principal.fromText(CANISTER_ID_WTN_LEDGER)
+		});
+
+		ledgerDevice.set(
+			new LedgerDevice({
+				principal: await ledgerAgent.getPrincipal(),
+				identity: ledgerIdentity,
+				agent: ledgerAgent,
+				icpLedger,
+				nicpLedger,
+				wtnLedger
+			})
+		);
 	} catch (error) {
 		console.error(error);
 	}

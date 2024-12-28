@@ -302,14 +302,15 @@
 			<div class="wallet-input">
 				<input type="text" placeholder="Address" title="send-destination" bind:value={principal} />
 				{#if $ledgerDevice}
-				<button
-					class="placeholder-btn"
-					on:click={() => {
-						principal = $ledgerDevice.principal.toString();
-					}}
-				>
-					{$user?.account === 'ledger' ? 'Main' : 'Ledger Nano'}
-				</button>
+					<button
+						class="placeholder-btn"
+						title="destination-placeholder"
+						on:click={() => {
+							principal = $ledgerDevice.principal.toString();
+						}}
+					>
+						{$user?.account === 'ledger' ? 'Main' : 'Ledger Nano'}
+					</button>
 				{/if}
 			</div>
 			{#if principal && !getMaybeAccount(principal)}
@@ -329,6 +330,7 @@
 				/>
 				<button
 					class="placeholder-btn"
+					title="max-placeholder"
 					on:click={() => {
 						const fee = $selectedAsset.getTransferFee();
 						const amount =

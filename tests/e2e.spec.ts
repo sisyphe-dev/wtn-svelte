@@ -76,8 +76,7 @@ testWithII('e2e test stake', async ({ page, iiPage }) => {
 	await walletInfo.click();
 
 	const accountId = await page
-		.locator('p[title="accountIdentifier-hex"]')
-		.evaluate((accountId) => accountId.textContent);
+		.locator('p[title="accountIdentifier-hex"]').textContent();
 
 	if (!accountId) throw new Error('No account id found.');
 
@@ -116,8 +115,7 @@ testWithII('e2e test unstake', async ({ page, iiPage }) => {
 	await expect(page.locator('.withdrawals-container')).not.toBeVisible();
 
 	const principal = await page
-		.locator('p[title="principal-user"]')
-		.evaluate((accountId) => accountId.textContent);
+		.locator('p[title="principal-user"]').textContent()
 
 	if (!principal) throw new Error('No account id found.');
 
@@ -160,14 +158,12 @@ testWithII('e2e test send', async ({ page, iiPage }) => {
 	await walletInfo.click();
 
 	const accountId = await page
-		.locator('p[title="accountIdentifier-hex"]')
-		.evaluate((accountId) => accountId.textContent);
+		.locator('p[title="accountIdentifier-hex"]').textContent();
 
 	if (!accountId) throw new Error('No account id found.');
 
 	const principal = await page
-		.locator('p[title="principal-user"]')
-		.evaluate((principal) => principal.textContent);
+		.locator('p[title="principal-user"]').textContent();
 
 	if (!principal) throw new Error('No principal found.');
 
@@ -199,7 +195,7 @@ testWithII('e2e test send', async ({ page, iiPage }) => {
 	await expect(icpBalance).toHaveText('12.99 ICP');
 
 	await page.locator('[title="send-btn-ICP"]').click();
-	await page.locator('.max-btn').click();
+	await page.locator('[title="max-placeholder"]').click();
 	const maxAmountSendIcp = parseFloat(
 		(await page
 			.locator('[title="send-amount"]')
@@ -218,7 +214,7 @@ testWithII('e2e test send', async ({ page, iiPage }) => {
 	await expect(nicpBalance).toHaveText('13.99 nICP');
 
 	await page.locator('[title="send-btn-nICP"]').click();
-	await page.locator('.max-btn').click();
+	await page.locator('[title="max-placeholder"]').click();
 	const maxAmountSendNicp = parseFloat(
 		(await page
 			.locator('[title="send-amount"]')
@@ -239,7 +235,7 @@ test('e2e test sns', async ({ page }) => {
 	const encodedAccountLocator = page.locator('.principal-container').locator('p');
 	expect(await encodedAccountLocator.evaluate((p) => p.textContent)).not.toBe('-/-');
 
-	const encodedAccount = await encodedAccountLocator.evaluate((p) => p.textContent);
+	const encodedAccount = await encodedAccountLocator.textContent();
 	if (!encodedAccount) throw new Error('Invalid encoded account');
 
 	await page.locator('[title="notifyIcpDeposit-btn"]').click();
@@ -272,8 +268,7 @@ testWithII('e2e test cancel withdrawal', async ({ page, iiPage }) => {
 	await expect(page.locator('.withdrawals-container')).not.toBeVisible();
 
 	const principal = await page
-		.locator('p[title="principal-user"]')
-		.evaluate((accountId) => accountId.textContent);
+		.locator('p[title="principal-user"]').textContent();
 
 	if (!principal) throw new Error('No account id found.');
 
@@ -310,4 +305,41 @@ testWithII('e2e test cancel withdrawal', async ({ page, iiPage }) => {
 	await page.locator('[title="test-withdrawal-0"]').click();
 	await page.locator('[title="test-cancel-confirmation"]').click();
 	expect(await isToastSuccess(page)).toBeTruthy();
+});
+
+testWithII('test ledger hardware wallet interaction', async ({ page, iiPage }) => {
+	await page.goto('/');
+
+	await page.locator('[title="connect-btn"]').click();
+
+	await iiPage.signInWithNewIdentity({ selector: '[title="ii-connect-btn"]' });
+
+	const walletInfo = page.locator('#wallet-info');
+	await expect(walletInfo).toBeVisible();
+
+	await walletInfo.click();
+
+	await page.locator('[title="send-btn-ICP"]').click();
+
+	const placeholder = page.locator('[title="destination-placeholder"]');
+	expect(await placeholder.textContent()).toBe('Ledger Nano');
+	await placeholder.click();
+	const destination =  await page.locator('[title="send-destination"]').evaluate((input) => (input as HTMLInputElement).value) ?? '';
+	
+	await page.locator('#abort-btn').click();
+	await page.locator('[title="switch-ledger-btn"]').click();
+
+	const principal = await page
+		.locator('p[title="principal-user"]').textContent();
+
+	const accountId = await page
+		.locator('p[title="accountIdentifier-hex"]').textContent();
+
+	expect(principal).toBe('abvgq-dnvkg-jzju2-ga7rm-qbs27-2qckd-5v5y6-uw2nz-a2klw-lnh3a-lae');
+	expect(destination).toBe(principal);
+	expect(accountId).toBe('90024352950321efafa6f85ac95699fd5f470490c251a1606021b3deaa55a389');
+
+	await page.locator('[title="send-btn-ICP"]').click();
+
+	expect(await placeholder.textContent()).toBe('Main');
 });

@@ -1,15 +1,21 @@
 import { HttpAgent } from '@dfinity/agent';
 import { Ed25519KeyIdentity } from '@dfinity/identity';
-import { fetchActors } from '$lib/authentification';
-import { canisters, user } from '$lib/stores';
-import { User, Canisters } from '$lib/state';
+import {
+	CANISTER_ID_ICP_LEDGER,
+	CANISTER_ID_NICP_LEDGER,
+	CANISTER_ID_WTN_LEDGER,
+	fetchActors,
+	HOST
+} from '$lib/authentification';
+import { canisters, ledgerDevice, user } from '$lib/stores';
+import { User } from '$lib/state';
 import { get } from 'svelte/store';
 import type {
 	TransferArgs,
 	Tokens,
 	TransferArg
 } from '../src/declarations/icp_ledger/icp_ledger.did';
-import { AccountIdentifier } from '@dfinity/ledger-icp';
+import { AccountIdentifier, LedgerCanister } from '@dfinity/ledger-icp';
 import { Page } from 'playwright';
 import { expect } from '@playwright/test';
 import { getMaybeAccount } from '$lib';
@@ -28,6 +34,7 @@ const parsedKey = JSON.stringify(key);
 export const mockSetup = async () => {
 	try {
 		const dummyIdentity = Ed25519KeyIdentity.fromJSON(parsedKey);
+
 		const agent = HttpAgent.createSync({ host: 'http://127.0.1:8080', identity: dummyIdentity });
 		agent.fetchRootKey().catch((err) => {
 			console.warn('Unable to fetch root key. Check to ensure that your local replica is running');
@@ -35,7 +42,7 @@ export const mockSetup = async () => {
 		});
 
 		canisters.set(await fetchActors(agent));
-		user.set(new User(dummyIdentity.getPrincipal()));
+		user.set(new User(dummyIdentity.getPrincipal(), 'II'));
 	} catch (error) {
 		console.error('Login failed:', error);
 	}

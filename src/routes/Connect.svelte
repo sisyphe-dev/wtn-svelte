@@ -6,6 +6,7 @@
 		connectWithInternetIdentity,
 		connectWithTransport,
 		connectWithPlug,
+		testSignIn,
 		localSignIn,
 		NFID_RPC,
 		//OISY_RPC,
@@ -139,9 +140,22 @@
 							await localSignIn();
 							dialog.close();
 						}}
-						title="ii-connect-btn"
 					>
 						<h2>Local Development</h2>
+					</button>
+				{/if}
+				{#if DEV}
+					<button
+						class="login-btn"
+						style:background-color="red"
+						on:click={async () => {
+							if ($isBusy) return;
+							await testSignIn();
+							dialog.close();
+						}}
+						title="ii-connect-btn"
+					>
+						<h2>Test Development</h2>
 					</button>
 				{/if}
 			</div>
