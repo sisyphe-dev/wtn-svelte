@@ -75,8 +75,7 @@ testWithII('e2e test stake', async ({ page, iiPage }) => {
 
 	await walletInfo.click();
 
-	const accountId = await page
-		.locator('p[title="accountIdentifier-hex"]').textContent();
+	const accountId = await page.locator('p[title="accountIdentifier-hex"]').textContent();
 
 	if (!accountId) throw new Error('No account id found.');
 
@@ -114,8 +113,7 @@ testWithII('e2e test unstake', async ({ page, iiPage }) => {
 	await walletInfo.click();
 	await expect(page.locator('.withdrawals-container')).not.toBeVisible();
 
-	const principal = await page
-		.locator('p[title="principal-user"]').textContent()
+	const principal = await page.locator('p[title="principal-user"]').textContent();
 
 	if (!principal) throw new Error('No account id found.');
 
@@ -157,13 +155,11 @@ testWithII('e2e test send', async ({ page, iiPage }) => {
 
 	await walletInfo.click();
 
-	const accountId = await page
-		.locator('p[title="accountIdentifier-hex"]').textContent();
+	const accountId = await page.locator('p[title="accountIdentifier-hex"]').textContent();
 
 	if (!accountId) throw new Error('No account id found.');
 
-	const principal = await page
-		.locator('p[title="principal-user"]').textContent();
+	const principal = await page.locator('p[title="principal-user"]').textContent();
 
 	if (!principal) throw new Error('No principal found.');
 
@@ -267,8 +263,7 @@ testWithII('e2e test cancel withdrawal', async ({ page, iiPage }) => {
 	await walletInfo.click();
 	await expect(page.locator('.withdrawals-container')).not.toBeVisible();
 
-	const principal = await page
-		.locator('p[title="principal-user"]').textContent();
+	const principal = await page.locator('p[title="principal-user"]').textContent();
 
 	if (!principal) throw new Error('No account id found.');
 
@@ -324,16 +319,17 @@ testWithII('test ledger hardware wallet interaction', async ({ page, iiPage }) =
 	const placeholder = page.locator('[title="destination-placeholder"]');
 	expect(await placeholder.textContent()).toBe('Ledger Nano');
 	await placeholder.click();
-	const destination =  await page.locator('[title="send-destination"]').evaluate((input) => (input as HTMLInputElement).value) ?? '';
-	
+	const destination =
+		(await page
+			.locator('[title="send-destination"]')
+			.evaluate((input) => (input as HTMLInputElement).value)) ?? '';
+
 	await page.locator('#abort-btn').click();
 	await page.locator('[title="switch-ledger-btn"]').click();
 
-	const principal = await page
-		.locator('p[title="principal-user"]').textContent();
+	const principal = await page.locator('p[title="principal-user"]').textContent();
 
-	const accountId = await page
-		.locator('p[title="accountIdentifier-hex"]').textContent();
+	const accountId = await page.locator('p[title="accountIdentifier-hex"]').textContent();
 
 	expect(principal).toBe('abvgq-dnvkg-jzju2-ga7rm-qbs27-2qckd-5v5y6-uw2nz-a2klw-lnh3a-lae');
 	expect(destination).toBe(principal);
