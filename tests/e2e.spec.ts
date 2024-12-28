@@ -1,7 +1,5 @@
 import { test, expect } from '@playwright/test';
 import { testWithII } from '@dfinity/internet-identity-playwright';
-import { user, canisters } from '$lib/stores';
-import { get } from 'svelte/store';
 import { mockSetup, transferICP, swap, isToastSuccess, transferNICP, send } from './utils';
 
 const VALID_PRINCIPAL = 'l72el-pt5ry-lmj66-3opyw-tl5xx-3wzfl-n3mja-dqirc-oxmqs-uxqe6-6qe';
@@ -10,10 +8,7 @@ const VALID_ACCOUNT =
 	'daijl-2yaaa-aaaar-qag3a-cai-clltauq.5f0e93000f4cbd9db8c36d27cad8b8a97706c0710154172029e54541e18fd180';
 
 test('Intermediary account should have balance', async () => {
-	await mockSetup();
-
-	const mockMintingAccount = get(user);
-	const mockCanisters = get(canisters);
+	const { mockCanisters, mockMintingAccount } = await mockSetup();
 
 	if (!(mockCanisters && mockMintingAccount))
 		throw new Error('Mock user or mock canisters are undefined.');

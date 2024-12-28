@@ -1,15 +1,7 @@
 import { HttpAgent } from '@dfinity/agent';
 import { Ed25519KeyIdentity } from '@dfinity/identity';
-import {
-	CANISTER_ID_ICP_LEDGER,
-	CANISTER_ID_NICP_LEDGER,
-	CANISTER_ID_WTN_LEDGER,
-	fetchActors,
-	HOST
-} from '$lib/authentification';
-import { canisters, ledgerDevice, user } from '$lib/stores';
+import { fetchActors } from '$lib/authentification';
 import { User } from '$lib/state';
-import { get } from 'svelte/store';
 import type {
 	TransferArgs,
 	Tokens,
@@ -32,26 +24,22 @@ const parsedKey = JSON.stringify(key);
 // Principal = syna7-6ipnd-myx4g-ia46u-nxwok-u5nrr-yxgpi-iang7-lvru2-i7n23-tqe
 
 export const mockSetup = async () => {
-	try {
-		const dummyIdentity = Ed25519KeyIdentity.fromJSON(parsedKey);
+	const dummyIdentity = Ed25519KeyIdentity.fromJSON(parsedKey);
 
-		const agent = HttpAgent.createSync({ host: 'http://127.0.1:8080', identity: dummyIdentity });
-		agent.fetchRootKey().catch((err) => {
-			console.warn('Unable to fetch root key. Check to ensure that your local replica is running');
-			console.error(err);
-		});
+	const agent = HttpAgent.createSync({ host: 'http://127.0.1:8080', identity: dummyIdentity });
+	agent.fetchRootKey().catch((err) => {
+		console.warn('Unable to fetch root key. Check to ensure that your local replica is running');
+		console.error(err);
+	});
 
-		canisters.set(await fetchActors(agent));
-		user.set(new User(dummyIdentity.getPrincipal(), 'II'));
-	} catch (error) {
-		console.error('Login failed:', error);
-	}
+	return {
+		mockCanisters: await fetchActors(agent),
+		mockMintingAccount: new User(dummyIdentity.getPrincipal(), 'II')
+	};
 };
 
 export async function transferICP(accountString: string) {
-	await mockSetup();
-	const mockMintingAccount = get(user);
-	const mockCanisters = get(canisters);
+	const { mockCanisters, mockMintingAccount } = await mockSetup();
 
 	if (!(mockCanisters && mockMintingAccount))
 		throw new Error('Mock user or mock canisters are undefined.');
@@ -86,9 +74,7 @@ export async function transferICP(accountString: string) {
 }
 
 export async function transferNICP(accountString: string) {
-	await mockSetup();
-	const mockMintingAccount = get(user);
-	const mockCanisters = get(canisters);
+	const { mockCanisters, mockMintingAccount } = await mockSetup();
 
 	if (!(mockCanisters && mockMintingAccount))
 		throw new Error('Mock user or mock canisters are undefined.');
