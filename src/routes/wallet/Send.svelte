@@ -1,5 +1,13 @@
 <script lang="ts">
-	import { displayUsFormat, numberToBigintE8s, Asset, E8S, getMaybeAccount } from '$lib';
+	import {
+		displayUsFormat,
+		numberToBigintE8s,
+		E8S,
+		getMaybeAccount,
+		assetToIconPath,
+		assetToTransferFee,
+		assetToDashboardUrl
+	} from '$lib';
 	import {
 		inSendingMenu,
 		selectedAsset,
@@ -40,12 +48,12 @@
 	function isValidAmount(amount: BigNumber): boolean | undefined {
 		if ($user?.account === 'main') {
 			return (
-				$user?.getBalance($selectedAsset.type).isGreaterThanOrEqualTo(amount) &&
+				$user?.getBalance($selectedAsset).isGreaterThanOrEqualTo(amount) &&
 				amount.isGreaterThanOrEqualTo(BigNumber(1).dividedBy(E8S))
 			);
 		} else {
 			return (
-				$ledgerDevice?.getBalance($selectedAsset.type).isGreaterThanOrEqualTo(amount) &&
+				$ledgerDevice?.getBalance($selectedAsset).isGreaterThanOrEqualTo(amount) &&
 				amount.isGreaterThanOrEqualTo(BigNumber(1).dividedBy(E8S))
 			);
 		}
@@ -71,7 +79,7 @@
 
 		try {
 			let status: ToastResult;
-			switch ($selectedAsset.type) {
+			switch ($selectedAsset) {
 				case 'ICP':
 					if (maybeAccount instanceof AccountIdentifier) {
 						status = await icpTransfer(maybeAccount, amount_e8s);
@@ -208,24 +216,24 @@
 				const blockHeight = await ledger.icrc1Transfer({
 					to: to_account,
 					amount: amount_e8s,
-					fee: numberToBigintE8s(new Asset('ICP').getTransferFee())
+					fee: numberToBigintE8s(assetToTransferFee(asset))
 				});
 
 				return {
 					success: true,
-					message: `Successful transfer at <a target='_blank' style="text-decoration: underline; color: var(--toast-text-color);" href=${new Asset('ICP').getDashboardUrl()}${blockHeight}>block index ${blockHeight}</a>.`
+					message: `Successful transfer at <a target='_blank' style="text-decoration: underline; color: var(--toast-text-color);" href=${assetToDashboardUrl('ICP')}${blockHeight}>block index ${blockHeight}</a>.`
 				};
 			} else {
 				const blockHeight = await ledger.transfer({
 					to: to_account,
 					amount: amount_e8s,
-					fee: numberToBigintE8s(new Asset(asset).getTransferFee()),
+					fee: numberToBigintE8s(assetToTransferFee(asset)),
 					created_at_time: BigInt(Date.now()) * BigInt(1e6)
 				});
 
 				return {
 					success: true,
-					message: `Successful transfer at <a target='_blank' style="text-decoration: underline; color: var(--toast-text-color);" href=${new Asset(asset).getDashboardUrl()}${blockHeight}>block index ${blockHeight}</a>.`
+					message: `Successful transfer at <a target='_blank' style="text-decoration: underline; color: var(--toast-text-color);" href=${assetToDashboardUrl(asset)}${blockHeight}>block index ${blockHeight}</a>.`
 				};
 			}
 		} catch (error) {
@@ -253,7 +261,7 @@
 			} as TransferArg;
 
 			const transferResult = await ledger.icrc1_transfer(icrcArgs);
-			return handleIcrcTransferResult(transferResult, Asset.fromText(asset));
+			return handleIcrcTransferResult(transferResult, asset);
 		} catch (error) {
 			console.error('[icrcTransfer] ', error);
 			return { success: false, message: 'Transfer failed. Please, try again.' };
@@ -275,8 +283,8 @@
 >
 	<div class="send-container" transition:fade={{ duration: 100 }}>
 		<div class="header-container">
-			<h2>Send {$selectedAsset.type}</h2>
-			<img alt="ICP logo" src={$selectedAsset.getIconPath()} width="50px" height="50px" />
+			<h2>Send {$selectedAsset}</h2>
+			<img alt="Asset logo" src={assetToIconPath($selectedAsset)} width="50px" height="50px" />
 		</div>
 		{#if $user}
 			<div>
@@ -284,12 +292,12 @@
 				<div style:display={'flex'}>
 					<div class="balances">
 						<span style:margin-left={'1em'}
-							>{displayUsFormat($user.getBalance($selectedAsset.type), 8)}
-							{$selectedAsset.type}</span
+							>{displayUsFormat($user.getBalance($selectedAsset), 8)}
+							{$selectedAsset}</span
 						>
 						<img
 							alt="{$selectedAsset} logo"
-							src={$selectedAsset.getIconPath()}
+							src={assetToIconPath($selectedAsset)}
 							width="20px"
 							height="20px"
 						/>
@@ -336,10 +344,10 @@
 					class="placeholder-btn"
 					title="max-placeholder"
 					on:click={() => {
-						const fee = $selectedAsset.getTransferFee();
+						const fee = assetToTransferFee($selectedAsset);
 						const amount =
-							$user && $user.getBalance($selectedAsset.type).isGreaterThanOrEqualTo(fee)
-								? $user.getBalance($selectedAsset.type).minus(fee)
+							$user && $user.getBalance($selectedAsset).isGreaterThanOrEqualTo(fee)
+								? $user.getBalance($selectedAsset).minus(fee)
 								: BigNumber(0);
 
 						inputAmount.change(amount.toNumber() && amount.toNumber() >= 0 ? amount.toNumber() : 0);
@@ -348,7 +356,7 @@
 					MAX
 				</button>
 			</div>
-			{#if !BigNumber($inputAmount).isNaN() && BigNumber($inputAmount).isGreaterThanOrEqualTo($user?.getBalance($selectedAsset.type) ?? BigNumber(0))}
+			{#if !BigNumber($inputAmount).isNaN() && BigNumber($inputAmount).isGreaterThanOrEqualTo($user?.getBalance($selectedAsset) ?? BigNumber(0))}
 				<span class="error"> Not enough treasury. </span>
 			{:else if !BigNumber($inputAmount).isNaN() && BigNumber($inputAmount).isLessThan(BigNumber(1).dividedBy(E8S))}
 				<span class="error">Minimum amount: 0.00000001</span>
@@ -357,8 +365,8 @@
 		<div>
 			<p>Transfer Fee</p>
 			<p style:padding-left="1em">
-				{$selectedAsset.getTransferFee()}
-				{$selectedAsset.type}
+				{assetToTransferFee($selectedAsset)}
+				{$selectedAsset}
 			</p>
 		</div>
 		<div class="button-container">

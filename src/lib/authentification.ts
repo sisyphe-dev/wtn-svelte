@@ -17,10 +17,10 @@ import { CanisterActor, Canisters, User } from './state';
 import { SignerAgent } from '@slide-computer/signer-agent';
 import { PlugTransport } from '@slide-computer/signer-transport-plug';
 import { Principal } from '@dfinity/principal';
-import { LedgerDevice, LedgerIdentity } from './leger-wallet/identity';
+import { LedgerDevice, LedgerIdentity } from './ledger-identity';
 import { IcrcLedgerCanister } from '@dfinity/ledger-icrc';
 import { LedgerCanister } from '@dfinity/ledger-icp';
-import { Secp256k1PublicKey } from './leger-wallet/secp256k1';
+import { Secp256k1PublicKey } from '@dfinity/identity-secp256k1';
 
 // 1 hour in nanoseconds
 const AUTH_MAX_TIME_TO_LIVE = BigInt(60 * 60 * 1000 * 1000 * 1000);

@@ -4,6 +4,7 @@
 	import { fade, scale } from 'svelte/transition';
 	import { onMount } from 'svelte';
 	import QrCreator from 'qr-creator';
+	import { assetToIconPath } from '$lib';
 
 	let dialog: HTMLDialogElement;
 	let accountId: string | undefined;
@@ -40,7 +41,7 @@
 
 		QrCreator.render(
 			{
-				text: `${$selectedAsset.type === 'ICP' ? accountId : principal}`,
+				text: `${$selectedAsset === 'ICP' ? accountId : principal}`,
 				radius: 0.0, // 0.0 to 0.5
 				ecLevel: 'H', // L, M, Q, H
 				fill: 'white',
@@ -60,15 +61,15 @@
 >
 	<div class="receive-container" transition:fade={{ duration: 100 }}>
 		<div class="header-container">
-			<h3>Receive {$selectedAsset.type}</h3>
-			<img alt="ICP logo" src={$selectedAsset.getIconPath()} width="50px" height="50px" />
+			<h3>Receive {$selectedAsset}</h3>
+			<img alt="ICP logo" src={assetToIconPath($selectedAsset)} width="50px" height="50px" />
 		</div>
 		<div class="qr-code-container">
 			<canvas id="qr-code" />
 			<img id="wtn-logo" src="/tokens/WTN.webp" width="70px" height="70px" alt="WTN logo." />
 		</div>
 		<div class="principal-container">
-			{#if $selectedAsset.type === 'ICP'}
+			{#if $selectedAsset === 'ICP'}
 				<p>{accountId ?? '-/-'}</p>
 				<button
 					class="copy-btn"

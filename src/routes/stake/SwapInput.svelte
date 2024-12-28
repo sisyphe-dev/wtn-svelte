@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { Asset } from '$lib';
+	import { assetToIconPath, assetToTransferFee } from '$lib';
 	import { inputAmount, user, handleInputAmount } from '$lib/stores';
 	import { fade } from 'svelte/transition';
 	import BigNumber from 'bignumber.js';
 
-	export let asset: Asset;
+	export let asset: 'ICP' | 'nICP' | 'WTN';
 </script>
 
 <div class="input-container" in:fade={{ duration: 500 }}>
@@ -20,18 +20,18 @@
 		class="max-btn"
 		on:click={() => {
 			const fee =
-				asset.type === 'ICP'
-					? BigNumber(2).multipliedBy(asset.getTransferFee())
-					: BigNumber(1).multipliedBy(asset.getTransferFee());
-			const maxAmount = $user?.getBalance(asset.type).minus(fee).toNumber() ?? 0;
+				asset === 'ICP'
+					? BigNumber(2).multipliedBy(assetToTransferFee(asset))
+					: BigNumber(1).multipliedBy(assetToTransferFee(asset));
+			const maxAmount = $user?.getBalance(asset).minus(fee).toNumber() ?? 0;
 			inputAmount.change(maxAmount && maxAmount >= 0 ? maxAmount : 0);
 		}}
 	>
 		<div class="max-btn-items">
-			<h2>{asset.type}</h2>
+			<h2>{asset}</h2>
 			<span>Max</span>
 		</div>
-		<img class="asset-logo" src={asset.getIconPath()} alt="ICP Icon" />
+		<img class="asset-logo" src={assetToIconPath(asset)} alt="ICP Icon" />
 	</button>
 </div>
 

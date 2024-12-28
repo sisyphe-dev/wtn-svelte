@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Asset, displayUsFormat, isMobile } from '$lib';
+	import { assetToIconPath, displayUsFormat, isMobile } from '$lib';
 	import { user, selectedAsset, inSendingMenu, inReceivingMenu, ledgerDevice } from '$lib/stores';
 	import { BigNumber } from 'bignumber.js';
 	import QRCodeScannerIcon from '$lib/icons/QRCodeScannerIcon.svelte';
@@ -34,7 +34,7 @@
 			{balance ? displayUsFormat(balance, 8) : '-/-'}
 			{asset}
 		</p>
-		<img alt="{asset} logo" src={new Asset(asset).getIconPath()} width="30px" height="30px" />
+		<img alt="{asset} logo" src={assetToIconPath(asset)} width="30px" height="30px" />
 	</div>
 	<div class="btns-container">
 		{#if isMobile}
@@ -42,7 +42,7 @@
 				class="mobile-action-btn"
 				on:click={() => {
 					inReceivingMenu.set(true);
-					selectedAsset.set(new Asset(asset));
+					selectedAsset.set(asset);
 				}}
 			>
 				<QRCodeScannerIcon color="--main-color" />
@@ -51,7 +51,7 @@
 				class="mobile-action-btn"
 				on:click={() => {
 					inSendingMenu.set(true);
-					selectedAsset.set(new Asset(asset));
+					selectedAsset.set(asset);
 				}}
 			>
 				<UpIcon />
@@ -61,7 +61,7 @@
 				class="action-btn"
 				on:click={() => {
 					inReceivingMenu.set(true);
-					selectedAsset.set(new Asset(asset));
+					selectedAsset.set(asset);
 				}}
 			>
 				Receive
@@ -71,7 +71,7 @@
 				title="send-btn-{asset}"
 				on:click={() => {
 					inSendingMenu.set(true);
-					selectedAsset.set(new Asset(asset));
+					selectedAsset.set(asset);
 				}}
 			>
 				Send

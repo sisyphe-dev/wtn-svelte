@@ -16,7 +16,7 @@
 		"execute": "ic-hardware-wallet"
 	},
 	"devDependencies": {
-		"@dfinity/identity-secp256k1": "^2.0.0",
+		"@dfinity/identity-secp256k1": "^2.2.0",
 		"@dfinity/internet-identity-playwright": "^0.0.2",
 		"@playwright/test": "^1.46.0",
 		"@sveltejs/adapter-static": "^2.0.3",

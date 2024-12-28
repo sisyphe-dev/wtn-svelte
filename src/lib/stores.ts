@@ -1,6 +1,6 @@
 import { writable } from 'svelte/store';
 import { type User, Canisters, WaterNeuronInfo, fetchIcpBalance, fetchNicpBalance } from './state';
-import { Asset, bigintE8sToNumber } from '$lib';
+import { bigintE8sToNumber } from '$lib';
 import { Toast } from './toast';
 import BigNumber from 'bignumber.js';
 import { get } from 'svelte/store';
@@ -8,7 +8,7 @@ import { Principal } from '@dfinity/principal';
 import { encodeIcrcAccount } from '@dfinity/ledger-icrc';
 import type { WithdrawalDetails } from '../declarations/water_neuron/water_neuron.did';
 import { Signer } from '@slide-computer/signer';
-import { LedgerDevice } from './leger-wallet/identity';
+import { LedgerDevice } from './ledger-identity';
 
 /* === Flags === */
 export const isLogging = writable<boolean>(false);
@@ -25,7 +25,7 @@ export const inSnsMenu = writable<boolean>(false);
 export const language = writable<'en' | 'es' | 'ja' | 'ru'>('en');
 export const availableAccounts = writable<{ owner: Principal; subaccount?: ArrayBuffer }[]>([]);
 export const signer = writable<Signer | undefined>(undefined);
-export const selectedAsset = writable<Asset>(new Asset('ICP'));
+export const selectedAsset = writable<'ICP' | 'nICP' | 'WTN'>('ICP');
 export const selectedWithdrawal = writable<WithdrawalDetails | undefined>(undefined);
 export const user = writable<User | undefined>(undefined);
 export const ledgerDevice = writable<LedgerDevice | undefined>(undefined);
