@@ -309,12 +309,14 @@ testWithII('test ledger hardware wallet interaction', async ({ page, iiPage }) =
 
 	await walletInfo.click();
 
+	const userPrincipal = await page.locator('p[title="principal-user"]').textContent();
+
 	await page.locator('[title="send-btn-ICP"]').click();
 
 	const placeholder = page.locator('[title="destination-placeholder"]');
 	expect(await placeholder.textContent()).toBe('Ledger Nano');
 	await placeholder.click();
-	const destination =
+	const ledgerDestination =
 		(await page
 			.locator('[title="send-destination"]')
 			.evaluate((input) => (input as HTMLInputElement).value)) ?? '';
@@ -323,14 +325,21 @@ testWithII('test ledger hardware wallet interaction', async ({ page, iiPage }) =
 	await page.locator('[title="switch-ledger-btn"]').click();
 
 	const principal = await page.locator('p[title="principal-user"]').textContent();
-
 	const accountId = await page.locator('p[title="accountIdentifier-hex"]').textContent();
 
 	expect(principal).toBe('abvgq-dnvkg-jzju2-ga7rm-qbs27-2qckd-5v5y6-uw2nz-a2klw-lnh3a-lae');
-	expect(destination).toBe(principal);
+	expect(ledgerDestination).toBe(principal);
 	expect(accountId).toBe('90024352950321efafa6f85ac95699fd5f470490c251a1606021b3deaa55a389');
 
+	await page.waitForTimeout(100);
 	await page.locator('[title="send-btn-ICP"]').click();
 
 	expect(await placeholder.textContent()).toBe('Main');
+	await placeholder.click();
+	const userDestination =
+		(await page
+			.locator('[title="send-destination"]')
+			.evaluate((input) => (input as HTMLInputElement).value)) ?? '';
+
+	expect(userPrincipal).toBe(userDestination);
 });

@@ -306,7 +306,11 @@
 						class="placeholder-btn"
 						title="destination-placeholder"
 						on:click={() => {
-							principal = $ledgerDevice.principal.toString();
+							if ($user?.account === 'ledger') {
+								principal = $user.principal.toString();
+							} else {
+								principal = $ledgerDevice.principal.toString();
+							}
 						}}
 					>
 						{$user?.account === 'ledger' ? 'Main' : 'Ledger Nano'}
