@@ -216,7 +216,8 @@
 				const blockHeight = await ledger.icrc1Transfer({
 					to: to_account,
 					amount: amount_e8s,
-					fee: numberToBigintE8s(assetToTransferFee(asset))
+					fee: numberToBigintE8s(assetToTransferFee(asset)),
+					createdAt: BigInt(Date.now()) * BigInt(1e6)
 				});
 
 				return {
