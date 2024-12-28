@@ -4,7 +4,7 @@
 	import { fade } from 'svelte/transition';
 	import BigNumber from 'bignumber.js';
 
-	export let asset: 'ICP' | 'nICP' | 'WTN';
+	export let asset: 'ICP' | 'nICP';
 </script>
 
 <div class="input-container" in:fade={{ duration: 500 }}>

@@ -1,6 +1,5 @@
 <script lang="ts">
 	import {
-		Asset,
 		displayUsFormat,
 		numberToBigintE8s,
 		bigintE8sToNumber,
@@ -206,7 +205,7 @@
 {/if}
 
 <div class="swap-container">
-	<SwapInput asset={Asset.fromText('nICP')} />
+	<SwapInput asset={'nICP'} />
 	<div class="paragraphs-container" in:fade={{ duration: 500 }}>
 		<span class="error">
 			{#if $inputAmount && isNaN(parseFloat($inputAmount))}

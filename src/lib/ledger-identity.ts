@@ -389,18 +389,15 @@ const checkSignature = ({
 	returnCode: LedgerError;
 	errorMessage?: string;
 }) => {
-	if (returnCode === LedgerError.NoErrors) return;
-
 	if (!signature) {
-		throw new Error(`Signature error (${returnCode}): ${errorMessage}`);
+		throw new Error(`Signature not provided (${returnCode}): ${errorMessage}`);
 	}
+
 	const { byteLength, length } = signature;
 
 	if (byteLength !== LEDGER_SIGNATURE_LENGTH) {
 		throw new Error(`Signature has length ${length} instead of ${LEDGER_SIGNATURE_LENGTH}.`);
 	}
-
-	throw new Error(`Signature error (${returnCode}): ${errorMessage}`);
 };
 
 export const createReadStatePaths = (requestId: RequestId): ArrayBuffer[][] => {
