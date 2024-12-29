@@ -45,9 +45,7 @@
 				}}
 			>
 				<h2>{section.title}</h2>
-				{#key toggledMap[i]}
-					<ArrowIcon isUp={toggledMap[i]} />
-				{/key}
+				<ArrowIcon isUp={toggledMap[i]} />
 			</button>
 
 			{#if toggledMap[i]}
