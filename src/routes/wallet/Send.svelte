@@ -172,8 +172,8 @@
 	): Promise<ToastResult> {
 		if (!$user) return { success: false, message: 'User is not authenticated.' };
 		try {
-			if ($user.account === 'main') {
-				if (!$canisters?.icpLedger.authenticatedActor || !$user)
+			if ($user?.account === 'main') {
+				if (!$canisters?.icpLedger.authenticatedActor)
 					return { success: false, message: 'User is not authenticated.' };
 
 				const args = {
@@ -210,7 +210,7 @@
 		asset: 'nICP' | 'ICP' | 'WTN'
 	): Promise<ToastResult> {
 		try {
-			if (!ledger) return { success: false, message: 'User is not authenticated.' };
+			if (!ledger) return { success: false, message: 'Device is not connected.' };
 
 			if (ledger instanceof LedgerCanister) {
 				const blockHeight = await ledger.icrc1Transfer({

@@ -1,19 +1,5 @@
 <script lang="ts">
-	export let direction: 'down' | 'up' | 'right' | 'left';
-	export let color: '--main-color' | '--svg-fill-color';
-
-	const getTransform = () => {
-		switch (direction) {
-			case 'down':
-				return 'rotate(180, 512, 512)';
-			case 'up':
-				return 'rotate(0, 512, 512)';
-			case 'right':
-				return 'rotate(90, 512, 512)';
-			case 'left':
-				return 'rotate(270, 512, 512)';
-		}
-	};
+	export let isUp: boolean;
 </script>
 
 <svg
@@ -26,7 +12,7 @@
 >
 	<path
 		d="M903.232 768l56.768-50.432L512 256l-448 461.568 56.768 50.432L512 364.928z"
-		fill={`var(${color})`}
-		transform={getTransform()}
+		fill="var(--svg-fill-color)"
+		transform={isUp ? 'rotate(0, 512, 512)' : 'rotate(180, 512, 512)'}
 	/>
 </svg>

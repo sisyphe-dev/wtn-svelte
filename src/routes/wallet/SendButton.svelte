@@ -9,7 +9,7 @@
 	export let asset: 'ICP' | 'nICP' | 'WTN';
 	let balance: BigNumber | undefined;
 
-	const setBalance = () => {
+	const fetchBalance = () => {
 		if ($user?.account === 'ledger') {
 			balance = $ledgerDevice?.getBalance(asset);
 		} else {
@@ -18,10 +18,10 @@
 	};
 
 	onMount(() => {
-		setBalance();
+		fetchBalance();
 
 		const intervalId = setInterval(async () => {
-			setBalance();
+			fetchBalance();
 		}, 5000);
 
 		return () => clearInterval(intervalId);

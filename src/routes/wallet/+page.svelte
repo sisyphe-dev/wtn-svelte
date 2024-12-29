@@ -16,13 +16,11 @@
 
 	function displayInstruction(): string {
 		if (!$user) return '';
-
 		return $user.account === 'ledger' ? `Back to ${$user.identityProvider}` : 'Use Ledger Nano';
 	}
 
 	function displayWalletName(): string {
 		if (!$user) return '';
-
 		if ($user.account === 'main') {
 			switch ($user.identityProvider) {
 				case 'Plug':

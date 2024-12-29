@@ -34,11 +34,6 @@ const LEDGER_SIGNATURE_LENGTH = 64;
 // Version published in October 2023. Includes all transactions supported in Candid
 export const ALL_CANDID_TXS_VERSION = '2.4.9';
 
-type ReadStateData = {
-	signature: Signature;
-	body: ReadStateRequest;
-};
-
 type RequestSignatures = {
 	callSignature: Signature;
 	readStateSignature: Signature;
@@ -51,7 +46,6 @@ interface LedgerHQTransportError {
 }
 
 export class LedgerDevice {
-	public agent: HttpAgent;
 	public identity: LedgerIdentity;
 	public principal: Principal;
 	public accountId: string;
@@ -61,12 +55,10 @@ export class LedgerDevice {
 	public icpBalanceE8s: bigint;
 	public nicpBalanceE8s: bigint;
 	public wtnBalanceE8s: bigint;
-	public wtnAllocationE8s: bigint;
 
 	constructor({
 		principal,
 		identity,
-		agent,
 		icpLedger,
 		nicpLedger,
 		wtnLedger
@@ -78,7 +70,6 @@ export class LedgerDevice {
 		nicpLedger: IcrcLedgerCanister;
 		wtnLedger: IcrcLedgerCanister;
 	}) {
-		this.agent = agent;
 		this.identity = identity;
 		this.principal = principal;
 		this.icpLedger = icpLedger;
@@ -88,7 +79,6 @@ export class LedgerDevice {
 		this.icpBalanceE8s = 0n;
 		this.nicpBalanceE8s = 0n;
 		this.wtnBalanceE8s = 0n;
-		this.wtnAllocationE8s = 0n;
 	}
 
 	icpBalance(): BigNumber {
@@ -101,10 +91,6 @@ export class LedgerDevice {
 
 	wtnBalance(): BigNumber {
 		return bigintE8sToNumber(this.wtnBalanceE8s);
-	}
-
-	wtnAllocation(): BigNumber {
-		return bigintE8sToNumber(this.wtnAllocationE8s);
 	}
 
 	getBalance(asset: 'ICP' | 'nICP' | 'WTN'): BigNumber {
@@ -275,7 +261,7 @@ export class LedgerIdentity extends SignIdentity {
 				this.derivePath,
 				Buffer.from(callBlob),
 				Buffer.from(readStateBlob),
-				0
+				0 // isNeuronStaking ? 1 : 0
 			);
 
 			return decodeUpdateSignatures(responseSign);
@@ -288,7 +274,11 @@ export class LedgerIdentity extends SignIdentity {
 		await this.raiseIfVersionIsDeprecated();
 
 		const callback = async (app: LedgerApp): Promise<Signature> => {
-			const responseSign: ResponseSign = await app.sign(this.derivePath, Buffer.from(blob), 0);
+			const responseSign: ResponseSign = await app.sign(
+				this.derivePath,
+				Buffer.from(blob),
+				0 // isNeuronStaking ? 1 : 0
+			);
 
 			return decodeSignature(responseSign);
 		};

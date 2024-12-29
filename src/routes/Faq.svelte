@@ -29,7 +29,7 @@
 		}
 	}
 
-	let toggledMap: boolean[] = getContent($language).map(() => {
+	let toggledMap = getContent($language).map(() => {
 		return false;
 	});
 </script>
@@ -46,7 +46,7 @@
 			>
 				<h2>{section.title}</h2>
 				{#key toggledMap[i]}
-					<ArrowIcon direction={toggledMap[i] ? 'up' : 'down'} color="--svg-fill-color" />
+					<ArrowIcon isUp={toggledMap[i]} />
 				{/key}
 			</button>
 

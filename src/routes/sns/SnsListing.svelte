@@ -34,7 +34,7 @@
 			<button on:click={() => inSnsMenu.set(true)}>
 				<span>{$sns.name}</span>
 				<div class="down-arrow">
-					<ArrowIcon direction="down" color="--svg-fill-color" />
+					<ArrowIcon isUp={false} />
 				</div>
 			</button>
 		</div>
