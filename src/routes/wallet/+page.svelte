@@ -11,41 +11,22 @@
 	import { fade } from 'svelte/transition';
 	import { connectWithHardwareWallet } from '$lib/authentification';
 	import { Toast } from '$lib/toast';
+	import SuccessIcon from '$lib/icons/SuccessIcon.svelte';
 
 	let inMainWallet = true;
 
-	function displayInstruction(): string {
-		if (!$user) return '';
-		return $user.account === 'ledger' ? `Back to ${$user.identityProvider}` : 'Use Ledger Nano';
-	}
-
-	function displayWalletName(): string {
-		if (!$user) return '';
-		if ($user.account === 'main') {
-			switch ($user.identityProvider) {
-				case 'Plug':
-					return 'Plug';
-				case 'II':
-					return 'Internet Identity';
-				case 'Nfid':
-					return 'Nfid';
-			}
-		}
-		return 'Ledger Nano';
-	}
-
-	async function handleLedgerConnection() {
+	async function handleWalletSelection(isMain: boolean) {
 		if (!$user) return;
 
 		try {
-			if (!$ledgerDevice) {
+			if (!$ledgerDevice && !isMain) {
 				await connectWithHardwareWallet();
 			}
-			inMainWallet = !inMainWallet;
+			inMainWallet = isMain;
 			$user.account = inMainWallet ? 'main' : 'ledger';
 		} catch (e) {
 			console.error(e);
-			toasts.add(Toast.error('Failed to connect Ledger device.'));
+			toasts.add(Toast.error('Ledger device not found.'));
 		}
 	}
 </script>
@@ -53,13 +34,28 @@
 <div class="wallet-menu-container" in:fade={{ duration: 500 }}>
 	{#key inMainWallet}
 		<div class="header-container">
-			<div class="wallet-info-container">
-				<h1>{displayWalletName()}</h1>
-			</div>
+			<h1 style:align-self="center">Wallet</h1>
 			{#if !isMobile}
-				<button on:click={handleLedgerConnection} title="switch-ledger-btn">
-					<p>{displayInstruction()}</p>
-				</button>
+				<div class="third-column-container">
+					<div class="switch-container">
+						<div class="btn-active-container">
+							<button on:click={() => handleWalletSelection(true)} title="switch-ledger-btn">
+								<p>Main</p>
+							</button>
+							{#if inMainWallet}
+								<SuccessIcon color="--title-color" />
+							{/if}
+						</div>
+						<div class="btn-active-container">
+							<button on:click={() => handleWalletSelection(false)} title="switch-ledger-btn">
+								<p>Ledger</p>
+							</button>
+							{#if !inMainWallet}
+								<SuccessIcon color="--title-color" />
+							{/if}
+						</div>
+					</div>
+				</div>
 			{/if}
 		</div>
 		{#if inMainWallet}
@@ -76,8 +72,8 @@
 	h1 {
 		margin: 0;
 		font-family: var(--secondary-font);
-		display: flex;
-		align-items: center;
+		grid-column: 2;
+		text-align: center;
 		gap: 0.5em;
 	}
 
@@ -85,6 +81,7 @@
 		display: flex;
 		align-items: center;
 		gap: 0.5em;
+		margin: 0.4em;
 	}
 
 	/* === Layout === */
@@ -101,15 +98,27 @@
 	}
 
 	.header-container {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+	}
+
+	.switch-container {
+		background: var(--switch-background-color);
+		border-radius: 8px;
+		padding: 0.2em 0.4em;
+		width: 5em;
+	}
+
+	.btn-active-container {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
 	}
 
-	.wallet-info-container {
+	.third-column-container {
 		display: flex;
-		align-items: center;
-		gap: 0.5em;
+		justify-content: end;
+		grid-column: 3;
 	}
 
 	/* === Components ==== */
@@ -117,25 +126,11 @@
 		display: flex;
 		justify-content: center;
 		align-items: center;
-		gap: 1em;
-		background: var(--main-color);
-		color: var(--main-button-text-color);
-		min-width: 80px;
-		border-radius: 8px;
-		position: relative;
-		border: 2px solid black;
-		font-size: 14px;
-		box-shadow: 3px 3px 0 0 black;
-		padding: 0 1em 0 1em;
-		max-width: none;
-		height: 3em;
+		border: none;
+		background: none;
+		color: var(--title-color);
 		font-weight: bold;
 		cursor: pointer;
-	}
-
-	.header-container button:hover {
-		transform: scale(0.95);
-		transition: all 0.3s;
-		box-shadow: 6px 6px 0 0 black;
+		padding: 0;
 	}
 </style>
