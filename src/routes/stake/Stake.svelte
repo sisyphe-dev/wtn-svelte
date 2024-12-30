@@ -1,11 +1,5 @@
 <script lang="ts">
-	import {
-		Asset,
-		computeRewards,
-		displayUsFormat,
-		numberToBigintE8s,
-		computeReceiveAmount
-	} from '$lib';
+	import { computeRewards, displayUsFormat, numberToBigintE8s, computeReceiveAmount } from '$lib';
 	import SwapInput from './SwapInput.svelte';
 	import { Toast } from '$lib/toast';
 	import ChangeIcon from '$lib/icons/ChangeIcon.svelte';
@@ -97,7 +91,7 @@
 </script>
 
 <div class="swap-container">
-	<SwapInput asset={Asset.fromText('ICP')} />
+	<SwapInput asset={'ICP'} />
 	<div class="paragraphs" in:fade={{ duration: 500 }}>
 		<span class="error">
 			{#if $inputAmount && isNaN(parseFloat($inputAmount))}

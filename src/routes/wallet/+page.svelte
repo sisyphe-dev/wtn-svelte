@@ -1,97 +1,87 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { user } from '$lib/stores';
+	import { user, ledgerDevice, toasts } from '$lib/stores';
+	import { isMobile } from '$lib';
 
 	if (!$user) goto('/');
 
 	import Withdrawals from './Withdrawals.svelte';
-	import { Asset } from '$lib';
-	import SendButton from './SendButton.svelte';
-	import { scale } from 'svelte/transition';
-	import CopyIcon from '$lib/icons/CopyIcon.svelte';
+	import LedgerWallet from './LedgerWallet.svelte';
+	import MainWallet from './MainWallet.svelte';
 	import { fade } from 'svelte/transition';
+	import { connectWithHardwareWallet } from '$lib/authentification';
+	import { Toast } from '$lib/toast';
+	import SuccessIcon from '$lib/icons/SuccessIcon.svelte';
 
-	let isAnimating = false;
-	let circleVisible = false;
-	let accountId = false;
+	let inMainWallet = true;
 
-	function handleAnimation() {
-		if (!isAnimating) {
-			isAnimating = true;
-			circleVisible = true;
-			setTimeout(() => {
-				circleVisible = false;
-				setTimeout(() => {
-					isAnimating = false;
-				}, 500);
-			}, 500);
+	async function handleWalletSelection(isMain: boolean) {
+		if (!$user) return;
+
+		try {
+			if (!$ledgerDevice && !isMain) {
+				await connectWithHardwareWallet();
+			}
+			inMainWallet = isMain;
+			$user.account = inMainWallet ? 'main' : 'ledger';
+		} catch (e) {
+			console.error(e);
+			toasts.add(Toast.error('Ledger device not found.'));
 		}
 	}
 </script>
 
 <div class="wallet-menu-container" in:fade={{ duration: 500 }}>
-	<h1>Wallet</h1>
-	<div class="address-container">
-		<h2>ICP Account Id</h2>
-		<div class="principal-container">
-			<p title="accountIdentifier-hex" style:max-width="82%">{$user?.accountId}</p>
-			<button
-				class="copy-btn"
-				on:click={() => {
-					accountId = true;
-					handleAnimation();
-					navigator.clipboard.writeText($user ? $user.accountId : '');
-				}}
-			>
-				<CopyIcon />
-				{#if circleVisible && accountId}
-					<div class="circle" transition:scale={{ duration: 500 }}></div>
-				{/if}
-			</button>
+	{#key inMainWallet}
+		<div class="header-container">
+			<h1 style:align-self="center">Wallet</h1>
+			{#if !isMobile}
+				<div class="third-column-container">
+					<div class="switch-container">
+						<div class="btn-active-container">
+							<button on:click={() => handleWalletSelection(true)} title="switch-main-btn">
+								<p>Main</p>
+							</button>
+							{#if inMainWallet}
+								<SuccessIcon color="--title-color" />
+							{/if}
+						</div>
+						<div class="btn-active-container">
+							<button on:click={() => handleWalletSelection(false)} title="switch-ledger-btn">
+								<p>Ledger</p>
+							</button>
+							{#if !inMainWallet}
+								<SuccessIcon color="--title-color" />
+							{/if}
+						</div>
+					</div>
+				</div>
+			{/if}
 		</div>
-		<SendButton asset={Asset.fromText('ICP')} />
-	</div>
-	<div class="address-container">
-		<h2>Principal Address</h2>
-		<div class="principal-container">
-			<p title="principal-user" style:max-width="80%">{$user?.principal}</p>
-			<button
-				class="copy-btn"
-				on:click={() => {
-					accountId = false;
-					handleAnimation();
-					navigator.clipboard.writeText($user ? $user.principal.toString() : '');
-				}}
-			>
-				<CopyIcon />
-				{#if circleVisible && !accountId}
-					<div class="circle" transition:scale={{ duration: 500 }}></div>
-				{/if}
-			</button>
-		</div>
-		<SendButton asset={Asset.fromText('nICP')} />
-		<SendButton asset={Asset.fromText('WTN')} />
-	</div>
+		{#if inMainWallet}
+			<MainWallet />
+		{:else}
+			<LedgerWallet />
+		{/if}
+	{/key}
 </div>
 <Withdrawals />
 
 <style>
 	/* === Base Styles === */
 	h1 {
+		margin: 0;
+		font-family: var(--secondary-font);
+		grid-column: 2;
 		text-align: center;
-		margin: 0;
-		font-family: var(--secondary-font);
-	}
-
-	h2 {
-		margin: 0;
-		margin-top: 1em;
-		font-family: var(--secondary-font);
+		gap: 0.5em;
 	}
 
 	p {
-		font-family: var(--secondary-font);
-		overflow-wrap: anywhere;
+		display: flex;
+		align-items: center;
+		gap: 0.5em;
+		margin: 0.4em;
 	}
 
 	/* === Layout === */
@@ -107,38 +97,40 @@
 		max-width: 80vw;
 	}
 
-	.principal-container {
-		margin-left: 1em;
-		display: flex;
-		align-items: center;
+	.header-container {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
 	}
 
-	.address-container {
-		gap: 1em;
+	.switch-container {
+		background: var(--switch-background-color);
+		border-radius: 8px;
+		padding: 0.2em 0.4em;
+		width: 5em;
+	}
+
+	.btn-active-container {
 		display: flex;
-		flex-direction: column;
+		align-items: center;
+		justify-content: space-between;
+	}
+
+	.third-column-container {
+		display: flex;
+		justify-content: end;
+		grid-column: 3;
 	}
 
 	/* === Components ==== */
-	.copy-btn {
-		background-color: transparent;
-		border: none;
-		cursor: pointer;
-		transition: all 0.3s ease;
+	.header-container button {
 		display: flex;
-		position: relative;
-	}
-
-	/* === Animation === */
-
-	.circle {
-		position: absolute;
-		border-radius: 50%;
-		background-color: rgb(37, 139, 255, 0.5);
-		width: 25px;
-		height: 25px;
-		top: 50%;
-		left: 50%;
-		transform: translate(-50%, -50%);
+		justify-content: center;
+		align-items: center;
+		border: none;
+		background: none;
+		color: var(--title-color);
+		font-weight: bold;
+		cursor: pointer;
+		padding: 0;
 	}
 </style>

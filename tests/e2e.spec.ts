@@ -1,7 +1,5 @@
 import { test, expect } from '@playwright/test';
 import { testWithII } from '@dfinity/internet-identity-playwright';
-import { user, canisters } from '$lib/stores';
-import { get } from 'svelte/store';
 import { mockSetup, transferICP, swap, isToastSuccess, transferNICP, send } from './utils';
 
 const VALID_PRINCIPAL = 'l72el-pt5ry-lmj66-3opyw-tl5xx-3wzfl-n3mja-dqirc-oxmqs-uxqe6-6qe';
@@ -10,10 +8,7 @@ const VALID_ACCOUNT =
 	'daijl-2yaaa-aaaar-qag3a-cai-clltauq.5f0e93000f4cbd9db8c36d27cad8b8a97706c0710154172029e54541e18fd180';
 
 test('Intermediary account should have balance', async () => {
-	await mockSetup();
-
-	const mockMintingAccount = get(user);
-	const mockCanisters = get(canisters);
+	const { mockCanisters, mockMintingAccount } = await mockSetup();
 
 	if (!(mockCanisters && mockMintingAccount))
 		throw new Error('Mock user or mock canisters are undefined.');
@@ -75,9 +70,7 @@ testWithII('e2e test stake', async ({ page, iiPage }) => {
 
 	await walletInfo.click();
 
-	const accountId = await page
-		.locator('p[title="accountIdentifier-hex"]')
-		.evaluate((accountId) => accountId.textContent);
+	const accountId = await page.locator('p[title="accountIdentifier-hex"]').textContent();
 
 	if (!accountId) throw new Error('No account id found.');
 
@@ -115,9 +108,7 @@ testWithII('e2e test unstake', async ({ page, iiPage }) => {
 	await walletInfo.click();
 	await expect(page.locator('.withdrawals-container')).not.toBeVisible();
 
-	const principal = await page
-		.locator('p[title="principal-user"]')
-		.evaluate((accountId) => accountId.textContent);
+	const principal = await page.locator('p[title="principal-user"]').textContent();
 
 	if (!principal) throw new Error('No account id found.');
 
@@ -159,15 +150,11 @@ testWithII('e2e test send', async ({ page, iiPage }) => {
 
 	await walletInfo.click();
 
-	const accountId = await page
-		.locator('p[title="accountIdentifier-hex"]')
-		.evaluate((accountId) => accountId.textContent);
+	const accountId = await page.locator('p[title="accountIdentifier-hex"]').textContent();
 
 	if (!accountId) throw new Error('No account id found.');
 
-	const principal = await page
-		.locator('p[title="principal-user"]')
-		.evaluate((principal) => principal.textContent);
+	const principal = await page.locator('p[title="principal-user"]').textContent();
 
 	if (!principal) throw new Error('No principal found.');
 
@@ -176,6 +163,7 @@ testWithII('e2e test send', async ({ page, iiPage }) => {
 
 	const icpBalance = walletInfo.locator('[title="icp-balance-nav"]');
 	const nicpBalance = walletInfo.locator('[title="nicp-balance-nav"]');
+
 	await expect(icpBalance).toHaveText('15 ICP');
 	await expect(nicpBalance).toHaveText('15 nICP');
 
@@ -198,7 +186,7 @@ testWithII('e2e test send', async ({ page, iiPage }) => {
 	await expect(icpBalance).toHaveText('12.99 ICP');
 
 	await page.locator('[title="send-btn-ICP"]').click();
-	await page.locator('.max-btn').click();
+	await page.locator('[title="max-placeholder"]').click();
 	const maxAmountSendIcp = parseFloat(
 		(await page
 			.locator('[title="send-amount"]')
@@ -217,7 +205,7 @@ testWithII('e2e test send', async ({ page, iiPage }) => {
 	await expect(nicpBalance).toHaveText('13.99 nICP');
 
 	await page.locator('[title="send-btn-nICP"]').click();
-	await page.locator('.max-btn').click();
+	await page.locator('[title="max-placeholder"]').click();
 	const maxAmountSendNicp = parseFloat(
 		(await page
 			.locator('[title="send-amount"]')
@@ -238,7 +226,7 @@ test('e2e test sns', async ({ page }) => {
 	const encodedAccountLocator = page.locator('.principal-container').locator('p');
 	expect(await encodedAccountLocator.evaluate((p) => p.textContent)).not.toBe('-/-');
 
-	const encodedAccount = await encodedAccountLocator.evaluate((p) => p.textContent);
+	const encodedAccount = await encodedAccountLocator.textContent();
 	if (!encodedAccount) throw new Error('Invalid encoded account');
 
 	await page.locator('[title="notifyIcpDeposit-btn"]').click();
@@ -270,9 +258,7 @@ testWithII('e2e test cancel withdrawal', async ({ page, iiPage }) => {
 	await walletInfo.click();
 	await expect(page.locator('.withdrawals-container')).not.toBeVisible();
 
-	const principal = await page
-		.locator('p[title="principal-user"]')
-		.evaluate((accountId) => accountId.textContent);
+	const principal = await page.locator('p[title="principal-user"]').textContent();
 
 	if (!principal) throw new Error('No account id found.');
 
@@ -309,4 +295,51 @@ testWithII('e2e test cancel withdrawal', async ({ page, iiPage }) => {
 	await page.locator('[title="test-withdrawal-0"]').click();
 	await page.locator('[title="test-cancel-confirmation"]').click();
 	expect(await isToastSuccess(page)).toBeTruthy();
+});
+
+testWithII('test ledger hardware wallet interaction', async ({ page, iiPage }) => {
+	await page.goto('/');
+
+	await page.locator('[title="connect-btn"]').click();
+
+	await iiPage.signInWithNewIdentity({ selector: '[title="ii-connect-btn"]' });
+
+	const walletInfo = page.locator('#wallet-info');
+	await expect(walletInfo).toBeVisible();
+
+	await walletInfo.click();
+
+	const userPrincipal = await page.locator('p[title="principal-user"]').textContent();
+
+	await page.locator('[title="send-btn-ICP"]').click();
+
+	const placeholder = page.locator('[title="destination-placeholder"]');
+	expect(await placeholder.textContent()).toBe('Ledger Nano');
+	await placeholder.click();
+	const ledgerDestination =
+		(await page
+			.locator('[title="send-destination"]')
+			.evaluate((input) => (input as HTMLInputElement).value)) ?? '';
+
+	await page.locator('#abort-btn').click();
+	await page.locator('[title="switch-ledger-btn"]').click();
+
+	const principal = await page.locator('p[title="principal-user"]').textContent();
+	const accountId = await page.locator('p[title="accountIdentifier-hex"]').textContent();
+
+	expect(principal).toBe('bqfvl-vwbmq-wjhyu-l24zd-mqeaw-or6ji-avorb-ozacl-wuj5j-tviiu-oae');
+	expect(ledgerDestination).toBe(principal);
+	expect(accountId).toBe('bc5e6a28697c5766dbd322f40105d3cb5a044a79070af91dabb675c643ce4722');
+
+	await page.waitForTimeout(100);
+	await page.locator('[title="send-btn-ICP"]').click();
+
+	expect(await placeholder.textContent()).toBe('Main');
+	await placeholder.click();
+	const userDestination =
+		(await page
+			.locator('[title="send-destination"]')
+			.evaluate((input) => (input as HTMLInputElement).value)) ?? '';
+
+	expect(userPrincipal).toBe(userDestination);
 });

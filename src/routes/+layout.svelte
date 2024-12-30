@@ -17,7 +17,8 @@
 		user,
 		canisters,
 		waterNeuronInfo,
-		handleSnsChange
+		handleSnsChange,
+		ledgerDevice
 	} from '$lib/stores';
 	import { onMount } from 'svelte';
 	import {
@@ -44,8 +45,24 @@
 				$user.principal,
 				$canisters.wtnLedger.anonymousActor
 			);
+
 			$user.wtnAllocationE8s =
 				(await fetchWtnAllocation($user.principal, $canisters.waterNeuron.anonymousActor)) ?? 0n;
+
+			if ($ledgerDevice) {
+				$ledgerDevice.icpBalanceE8s = await fetchIcpBalance(
+					$ledgerDevice.principal,
+					$canisters.icpLedger.anonymousActor
+				);
+				$ledgerDevice.nicpBalanceE8s = await fetchNicpBalance(
+					$ledgerDevice.principal,
+					$canisters.nicpLedger.anonymousActor
+				);
+				$ledgerDevice.wtnBalanceE8s = await fetchWtnBalance(
+					$ledgerDevice.principal,
+					$canisters.wtnLedger.anonymousActor
+				);
+			}
 		}
 	}
 
@@ -142,6 +159,8 @@
 		--page-background: #fcfffd;
 		--background-color: #fcfffd;
 		--background-color-transparent: #fefefede;
+		--switch-background-color: rgba(220, 220, 220, 0.49);
+
 		--qr-code-background: #283e95;
 
 		--input-color: #fcfffd;
@@ -168,6 +187,8 @@
 		--border-color: rgb(158 163 178);
 		--background-color: rgb(43, 51, 67);
 		--background-color-transparent: rgb(43, 51, 67, 0.9);
+		--switch-background-color: rgba(34, 38, 47, 0.6);
+
 		--input-color: rgb(39, 46, 60);
 		--text-color: rgb(181 181 181);
 

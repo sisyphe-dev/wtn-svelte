@@ -6,6 +6,7 @@
 		connectWithInternetIdentity,
 		connectWithTransport,
 		connectWithPlug,
+		testSignIn,
 		localSignIn,
 		NFID_RPC,
 		//OISY_RPC,
@@ -21,12 +22,12 @@
 
 	let dialog: HTMLDialogElement;
 
-	async function handleConnection(identityProvider: 'internetIdentity' | 'plug' | 'oisy' | 'nfid') {
+	async function handleConnection(wallet: 'internetIdentity' | 'plug' | 'oisy' | 'nfid') {
 		if ($isBusy) return;
 		isBusy.set(true);
 
 		try {
-			switch (identityProvider) {
+			switch (wallet) {
 				case 'internetIdentity':
 					await connectWithInternetIdentity();
 					break;
@@ -117,7 +118,7 @@
 			</div>
 			<div class="selection-container">
 				<button class="login-btn" on:click={() => handleConnection('internetIdentity')}>
-					<img src="/icon/astronaut.webp" width="50em" height="50em" alt="Dfinity Astronaut." />
+					<img src="/icon/astronaut.webp" width="40em" height="40em" alt="Dfinity Astronaut." />
 					<h2>Internet Identity</h2>
 				</button>
 				<button class="login-btn" on:click={() => handleConnection('nfid')}>
@@ -127,7 +128,7 @@
 					<img src="/icon/nfid.webp" width="auto" height="30em" alt="NFID Logo." />
 				</button>
 				<button class="login-btn" on:click={() => handleConnection('plug')}>
-					<img src="/icon/plug.png" width="50em" height="50em" alt="Plug Icon." />
+					<img src="/icon/plug.png" width="40em" height="40em" alt="Plug Icon." />
 					<h2>Plug Wallet</h2>
 				</button>
 				{#if DEV || STAGING}
@@ -139,9 +140,22 @@
 							await localSignIn();
 							dialog.close();
 						}}
-						title="ii-connect-btn"
 					>
 						<h2>Local Development</h2>
+					</button>
+				{/if}
+				{#if DEV}
+					<button
+						class="login-btn"
+						style:background-color="red"
+						on:click={async () => {
+							if ($isBusy) return;
+							await testSignIn();
+							dialog.close();
+						}}
+						title="ii-connect-btn"
+					>
+						<h2>Test Development</h2>
 					</button>
 				{/if}
 			</div>

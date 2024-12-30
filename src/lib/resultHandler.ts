@@ -4,7 +4,7 @@ import type {
 	AllowanceArgs,
 	Account,
 	ApproveArgs,
-	ApproveResult,
+	Result_2 as ApproveResult,
 	ApproveError
 } from '../declarations/icrc_ledger/icrc_ledger.did';
 import type {
@@ -24,7 +24,7 @@ import type {
 	Result_2 as SnsRetrieveNicpResult
 } from '../declarations/boomerang/boomerang.did';
 import type { Error as IcpswapError } from '$lib/../declarations/icpswap_pool/icpswap_pool.did';
-import { Asset, AssetType, bigintE8sToNumber, displayUsFormat } from '$lib';
+import { assetToDashboardUrl, bigintE8sToNumber, displayUsFormat } from '$lib';
 import type {
 	TransferResult,
 	Icrc1TransferResult,
@@ -436,13 +436,16 @@ export function handleTransferResult(result: TransferResult): ToastResult {
 	}
 }
 
-export function handleIcrcTransferResult(result: Icrc1TransferResult, asset: Asset): ToastResult {
+export function handleIcrcTransferResult(
+	result: Icrc1TransferResult,
+	asset: 'ICP' | 'nICP' | 'WTN'
+): ToastResult {
 	const key = Object.keys(result)[0] as keyof Icrc1TransferResult;
 
 	switch (key) {
 		case 'Ok':
-			switch (asset.type) {
-				case AssetType.nICP:
+			switch (asset) {
+				case 'nICP':
 					return {
 						success: true,
 						message: `Successful transfer at block index ${result[key]}.`
@@ -450,7 +453,7 @@ export function handleIcrcTransferResult(result: Icrc1TransferResult, asset: Ass
 				default:
 					return {
 						success: true,
-						message: `Successful transfer at <a target='_blank' style="text-decoration: underline; color: var(--toast-text-color);" href=${asset.getDashboardUrl()}${result[key]}>block index ${result[key]}</a>.`
+						message: `Successful transfer at <a target='_blank' style="text-decoration: underline; color: var(--toast-text-color);" href=${assetToDashboardUrl(asset)}${result[key]}>block index ${result[key]}</a>.`
 					};
 			}
 

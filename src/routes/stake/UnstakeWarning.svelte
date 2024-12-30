@@ -5,7 +5,7 @@
 	import type { ConversionArg } from '$lib/../declarations/water_neuron/water_neuron.did';
 	import type {
 		ApproveArgs,
-		ApproveResult,
+		Result_2 as ApproveResult,
 		Allowance,
 		AllowanceArgs,
 		Account

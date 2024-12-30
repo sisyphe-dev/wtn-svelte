@@ -8,6 +8,7 @@ import type {
 	NeuronId,
 	WithdrawalDetails
 } from '$lib/../declarations/water_neuron/water_neuron.did';
+import { DEV } from './authentification';
 
 export const E8S = BigNumber(10).pow(BigNumber(8));
 
@@ -48,74 +49,36 @@ export function bigintE8sToNumber(x: bigint): BigNumber {
 	return BigNumber(Number(x)).dividedBy(E8S);
 }
 
-export enum AssetType {
-	ICP,
-	nICP,
-	WTN
+export function assetToIconPath(asset: 'ICP' | 'nICP' | 'WTN'): string {
+	switch (asset) {
+		case 'ICP':
+			return '/tokens/icp.webp';
+		case 'nICP':
+			return '/tokens/nicp.webp';
+		case 'WTN':
+			return '/tokens/WTN.webp';
+	}
 }
 
-export class Asset {
-	public type: AssetType;
-
-	constructor(asset: AssetType) {
-		this.type = asset;
+export function assetToDashboardUrl(asset: 'ICP' | 'nICP' | 'WTN'): string {
+	switch (asset) {
+		case 'ICP':
+			return 'https://dashboard.internetcomputer.org/transaction/';
+		case 'nICP':
+			return '/wallet';
+		case 'WTN':
+			return 'https://dashboard.internetcomputer.org/sns/jmod6-4iaaa-aaaaq-aadkq-cai/transaction/';
 	}
+}
 
-	static fromText(symbol: 'WTN' | 'nICP' | 'ICP'): Asset {
-		switch (symbol) {
-			case 'WTN':
-				return new Asset(AssetType.WTN);
-			case 'nICP':
-				return new Asset(AssetType.nICP);
-			case 'ICP':
-				return new Asset(AssetType.ICP);
-		}
-	}
-
-	intoStr(): string {
-		switch (this.type) {
-			case AssetType.ICP:
-				return 'ICP';
-			case AssetType.nICP:
-				return 'nICP';
-			case AssetType.WTN:
-				return 'WTN';
-			default:
-				throw new Error('Unknown asset');
-		}
-	}
-
-	getIconPath(): string {
-		switch (this.type) {
-			case AssetType.ICP:
-				return '/tokens/icp.webp';
-			case AssetType.nICP:
-				return '/tokens/nicp.webp';
-			case AssetType.WTN:
-				return '/tokens/WTN.webp';
-		}
-	}
-
-	getDashboardUrl(): string {
-		switch (this.type) {
-			case AssetType.ICP:
-				return 'https://dashboard.internetcomputer.org/transaction/';
-			case AssetType.nICP:
-				return '/wallet';
-			case AssetType.WTN:
-				return 'https://dashboard.internetcomputer.org/sns/jmod6-4iaaa-aaaaq-aadkq-cai/transaction/';
-		}
-	}
-
-	getTransferFee(): BigNumber {
-		switch (this.type) {
-			case AssetType.ICP:
-				return BigNumber(0.0001);
-			case AssetType.nICP:
-				return BigNumber(0.0001);
-			case AssetType.WTN:
-				return BigNumber(0.01);
-		}
+export function assetToTransferFee(asset: 'ICP' | 'nICP' | 'WTN'): BigNumber {
+	switch (asset) {
+		case 'ICP':
+			return BigNumber(0.0001);
+		case 'nICP':
+			return BigNumber(0.0001);
+		case 'WTN':
+			return BigNumber(0.01);
 	}
 }
 
@@ -272,6 +235,9 @@ export function getMaybeAccount(accountString: string): Account | AccountIdentif
 			return { owner: icrcAccount.owner, subaccount: [] } as Account;
 		}
 	} catch (error) {
+		if (DEV) {
+			console.log(error);
+		}
 		return;
 	}
 }

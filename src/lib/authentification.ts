@@ -12,11 +12,15 @@ import type { _SERVICE as icpswapPoolInterface } from '../declarations/icpswap_p
 import { idlFactory as idlFactoryIcpswapPool } from '../declarations/icpswap_pool';
 import { Signer } from '@slide-computer/signer';
 import { PostMessageTransport } from '@slide-computer/signer-web';
-import { user, canisters, availableAccounts, signer } from './stores';
+import { user, canisters, availableAccounts, signer, ledgerDevice } from './stores';
 import { CanisterActor, Canisters, User } from './state';
 import { SignerAgent } from '@slide-computer/signer-agent';
 import { PlugTransport } from '@slide-computer/signer-transport-plug';
 import { Principal } from '@dfinity/principal';
+import { LedgerDevice, LedgerIdentity } from './ledger-identity';
+import { IcrcLedgerCanister } from '@dfinity/ledger-icrc';
+import { LedgerCanister } from '@dfinity/ledger-icp';
+import { Secp256k1PublicKey } from '@dfinity/identity-secp256k1';
 
 // 1 hour in nanoseconds
 const AUTH_MAX_TIME_TO_LIVE = BigInt(60 * 60 * 1000 * 1000 * 1000);
@@ -32,7 +36,7 @@ const IDENTITY_PROVIDER = 'https://identity.ic0.app';
 export const NFID_RPC = 'https://nfid.one/rpc' as const;
 
 const CANISTER_ID_II = DEV ? 'iidmm-fiaaa-aaaaq-aadmq-cai' : 'rdmx6-jaaaa-aaaaa-aaadq-cai';
-const CANISTER_ID_WTN_LEDGER = 'jcmow-hyaaa-aaaaq-aadlq-cai';
+export const CANISTER_ID_WTN_LEDGER = 'jcmow-hyaaa-aaaaq-aadlq-cai';
 export const CANISTER_ID_ICP_LEDGER = 'ryjl3-tyaaa-aaaaa-aaaba-cai';
 export const CANISTER_ID_NICP_LEDGER = 'buwm7-7yaaa-aaaar-qagva-cai';
 export const CANISTER_ID_BOOMERANG = 'daijl-2yaaa-aaaar-qag3a-cai';
@@ -157,6 +161,44 @@ export async function connectWithTransport(rpc: typeof NFID_RPC) {
 	}
 }
 
+export async function connectWithHardwareWallet() {
+	const ledgerIdentity = await LedgerIdentity.create();
+	const agent = HttpAgent.createSync({
+		host: HOST
+	});
+
+	const authenticatedAgent = HttpAgent.createSync({
+		identity: ledgerIdentity,
+		host: HOST
+	});
+
+	const icpLedger = LedgerCanister.create({
+		agent: authenticatedAgent,
+		canisterId: Principal.fromText(CANISTER_ID_ICP_LEDGER)
+	});
+
+	const nicpLedger = IcrcLedgerCanister.create({
+		agent: authenticatedAgent,
+		canisterId: Principal.fromText(CANISTER_ID_NICP_LEDGER)
+	});
+
+	const wtnLedger = IcrcLedgerCanister.create({
+		agent: authenticatedAgent,
+		canisterId: Principal.fromText(CANISTER_ID_WTN_LEDGER)
+	});
+
+	ledgerDevice.set(
+		new LedgerDevice({
+			principal: await authenticatedAgent.getPrincipal(),
+			identity: ledgerIdentity,
+			agent,
+			icpLedger,
+			nicpLedger,
+			wtnLedger
+		})
+	);
+}
+
 export async function localSignIn() {
 	try {
 		const authClient = await AuthClient.create();
@@ -188,12 +230,82 @@ export async function localSignIn() {
 	}
 }
 
+export async function testSignIn() {
+	try {
+		const authClient = await AuthClient.create();
+
+		const identityProvider = `http://localhost:8080/?canisterId=${CANISTER_ID_II}`;
+		await authClient.login({
+			maxTimeToLive: AUTH_MAX_TIME_TO_LIVE,
+			allowPinAuthentication: true,
+			derivationOrigin: undefined,
+			identityProvider,
+			onSuccess: async () => {
+				const identity: Identity = authClient.getIdentity();
+				const agent = HttpAgent.createSync({
+					identity,
+					host: HOST
+				});
+
+				canisters.set(await fetchActors(agent));
+				user.set(new User(identity.getPrincipal()));
+			},
+			onError: (error) => {
+				throw new Error(error);
+			}
+		});
+		const rawLedgerIdentity = new ArrayBuffer(65);
+		const view = new Uint8Array(rawLedgerIdentity);
+		view.set(Uint8Array.from('Test', (x) => x.charCodeAt(0)));
+		const key = Secp256k1PublicKey.fromRaw(rawLedgerIdentity);
+		const ledgerIdentity = LedgerIdentity.createMockIdentity(key);
+
+		const ledgerAgent = HttpAgent.createSync({
+			identity: ledgerIdentity,
+			host: HOST
+		});
+
+		ledgerAgent.fetchRootKey().catch((err) => {
+			console.warn('Unable to fetch root key. Check to ensure that your local replica is running');
+			console.error(err);
+		});
+
+		const icpLedger = LedgerCanister.create({
+			agent: ledgerAgent,
+			canisterId: Principal.fromText(CANISTER_ID_ICP_LEDGER)
+		});
+
+		const nicpLedger = IcrcLedgerCanister.create({
+			agent: ledgerAgent,
+			canisterId: Principal.fromText(CANISTER_ID_NICP_LEDGER)
+		});
+
+		const wtnLedger = IcrcLedgerCanister.create({
+			agent: ledgerAgent,
+			canisterId: Principal.fromText(CANISTER_ID_WTN_LEDGER)
+		});
+
+		ledgerDevice.set(
+			new LedgerDevice({
+				principal: await ledgerAgent.getPrincipal(),
+				identity: ledgerIdentity,
+				agent: ledgerAgent,
+				icpLedger,
+				nicpLedger,
+				wtnLedger
+			})
+		);
+	} catch (error) {
+		console.error(error);
+	}
+}
+
 export async function internetIdentityLogout() {
 	const autClient = await AuthClient.create();
 	await autClient.logout();
 }
 
-export function fetchActors<T extends Pick<Signer, 'callCanister'>>(
+export function fetchActors<T extends Pick<Signer, 'callCanister' | 'openChannel'>>(
 	authenticatedAgent?: HttpAgent | SignerAgent<T>,
 	isPlug = false
 ): Promise<Canisters> {

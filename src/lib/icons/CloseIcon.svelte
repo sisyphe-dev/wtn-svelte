@@ -4,8 +4,8 @@
 
 <svg
 	fill={'var(' + color + ')'}
-	height="20px"
-	width="20px"
+	height="15px"
+	width="15px"
 	version="1.1"
 	id="Layer_1"
 	xmlns="http://www.w3.org/2000/svg"
