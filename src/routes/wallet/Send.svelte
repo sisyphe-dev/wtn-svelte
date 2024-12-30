@@ -44,19 +44,21 @@
 	let principal: string;
 	let isSending = false;
 	let dialog: HTMLDialogElement;
+	let balance: BigNumber | undefined;
+
+	const fetchBalance = () => {
+		if ($user?.account === 'ledger') {
+			balance = $ledgerDevice?.getBalance($selectedAsset);
+		} else {
+			balance = $user?.getBalance($selectedAsset);
+		}
+	};
 
 	function isValidAmount(amount: BigNumber): boolean | undefined {
-		if ($user?.account === 'main') {
-			return (
-				$user?.getBalance($selectedAsset).isGreaterThanOrEqualTo(amount) &&
-				amount.isGreaterThanOrEqualTo(BigNumber(1).dividedBy(E8S))
-			);
-		} else {
-			return (
-				$ledgerDevice?.getBalance($selectedAsset).isGreaterThanOrEqualTo(amount) &&
-				amount.isGreaterThanOrEqualTo(BigNumber(1).dividedBy(E8S))
-			);
-		}
+		return (
+			balance?.isGreaterThanOrEqualTo(amount) &&
+			amount.isGreaterThanOrEqualTo(BigNumber(1).dividedBy(E8S))
+		);
 	}
 
 	async function handleTransferRequest(amount: BigNumber, accountString: string) {
@@ -272,6 +274,14 @@
 	onMount(() => {
 		dialog = document.getElementById('senderDialog') as HTMLDialogElement;
 		dialog.showModal();
+
+		fetchBalance();
+
+		const intervalId = setInterval(async () => {
+			fetchBalance();
+		}, 5000);
+
+		return () => clearInterval(intervalId);
 	});
 </script>
 
@@ -293,7 +303,7 @@
 				<div style:display={'flex'}>
 					<div class="balances">
 						<span style:margin-left={'1em'}
-							>{displayUsFormat($user.getBalance($selectedAsset), 8)}
+							>{balance ? displayUsFormat(balance, 8) : '-/-'}
 							{$selectedAsset}</span
 						>
 						<img
@@ -346,18 +356,14 @@
 					title="max-placeholder"
 					on:click={() => {
 						const fee = assetToTransferFee($selectedAsset);
-						const amount =
-							$user && $user.getBalance($selectedAsset).isGreaterThanOrEqualTo(fee)
-								? $user.getBalance($selectedAsset).minus(fee)
-								: BigNumber(0);
-
+						const amount = balance?.isGreaterThanOrEqualTo(fee) ? balance.minus(fee) : BigNumber(0);
 						inputAmount.change(amount.toNumber() && amount.toNumber() >= 0 ? amount.toNumber() : 0);
 					}}
 				>
 					MAX
 				</button>
 			</div>
-			{#if !BigNumber($inputAmount).isNaN() && BigNumber($inputAmount).isGreaterThanOrEqualTo($user?.getBalance($selectedAsset) ?? BigNumber(0))}
+			{#if !BigNumber($inputAmount).isNaN() && BigNumber($inputAmount).isGreaterThanOrEqualTo(balance ?? BigNumber(0))}
 				<span class="error"> Not enough treasury. </span>
 			{:else if !BigNumber($inputAmount).isNaN() && BigNumber($inputAmount).isLessThan(BigNumber(1).dividedBy(E8S))}
 				<span class="error">Minimum amount: 0.00000001</span>
