@@ -28,12 +28,12 @@
 		CANISTER_ID_ICPSWAP_POOL,
 		CANISTER_ID_NICP_LEDGER
 	} from '$lib/authentification';
-	import { Toast } from '$lib/toast';
 	import {
 		displayUsFormat,
 		numberToBigintE8s,
 		bigintE8sToNumber,
-		computeReceiveAmount
+		computeReceiveAmount, 
+		Toast
 	} from '$lib';
 
 	const DEFAULT_LEDGER_FEE = 10_000n;

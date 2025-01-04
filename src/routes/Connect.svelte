@@ -13,12 +13,11 @@
 		finalizePlugConnection
 	} from '$lib/authentification';
 	import { fade } from 'svelte/transition';
-	import { displayPrincipal } from '$lib';
+	import { displayPrincipal, Toast } from '$lib';
 	import { onMount } from 'svelte';
 	import CloseIcon from '$lib/icons/CloseIcon.svelte';
 	import { Signer } from '@slide-computer/signer';
 	import { Principal } from '@dfinity/principal';
-	import { Toast } from '$lib/toast';
 
 	let dialog: HTMLDialogElement;
 

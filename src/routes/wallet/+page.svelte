@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { user, ledgerDevice, toasts } from '$lib/stores';
-	import { isMobile } from '$lib';
+	import { isMobile, Toast } from '$lib';
 
 	if (!$user) goto('/');
 
@@ -10,7 +10,6 @@
 	import MainWallet from './MainWallet.svelte';
 	import { fade } from 'svelte/transition';
 	import { connectWithHardwareWallet } from '$lib/authentification';
-	import { Toast } from '$lib/toast';
 	import SuccessIcon from '$lib/icons/SuccessIcon.svelte';
 
 	let inMainWallet = true;

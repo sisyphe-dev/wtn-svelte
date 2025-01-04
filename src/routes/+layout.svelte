@@ -18,7 +18,8 @@
 		canisters,
 		waterNeuronInfo,
 		handleSnsChange,
-		ledgerDevice
+		ledgerDevice,
+		toasts
 	} from '$lib/stores';
 	import { onMount } from 'svelte';
 	import {
@@ -30,6 +31,7 @@
 	} from '$lib/state';
 	import { tryConnectOnReload } from '$lib/authentification';
 	import Toast from './Toast.svelte';
+	import { Toast as ToastMessage } from '$lib';
 
 	async function updateBalances() {
 		if ($canisters && $user) {
@@ -106,6 +108,7 @@
 {:else}
 	<div class="page-container">
 		<Navbar />
+		<button on:click={() => toasts.add(ToastMessage.success('Success'))}></button>
 		<div class="redirect-container">
 			<p><a href="/launchpad">Checkout Papaya SNS 🥭</a></p>
 		</div>

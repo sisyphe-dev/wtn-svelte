@@ -3,13 +3,13 @@
 		displayUsFormat,
 		numberToBigintE8s,
 		bigintE8sToNumber,
-		computeReceiveAmount
+		computeReceiveAmount,
+		Toast
 	} from '$lib';
 	import ChangeIcon from '$lib/icons/ChangeIcon.svelte';
 	import InfoIcon from '$lib/icons/InfoIcon.svelte';
 	import ErrorIcon from '$lib/icons/ErrorIcon.svelte';
 	import SwapInput from './SwapInput.svelte';
-	import { Toast } from '$lib/toast';
 	import {
 		inputAmount,
 		waterNeuronInfo,

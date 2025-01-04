@@ -7,10 +7,9 @@
 	import SuccessIcon from '$lib/icons/SuccessIcon.svelte';
 	import CopyIcon from '$lib/icons/CopyIcon.svelte';
 	import { afterUpdate, onMount } from 'svelte';
-	import { Toast } from '$lib/toast';
 	import { toasts, canisters, inQrDestination } from '$lib/stores';
 	import BigNumber from 'bignumber.js';
-	import { isMobile, displayUsFormat, bigintE8sToNumber } from '$lib';
+	import { isMobile, displayUsFormat, bigintE8sToNumber, Toast } from '$lib';
 	import QrCodeScannerIcon from '$lib/icons/QRCodeScannerIcon.svelte';
 	import { DEV, HOST } from '$lib/authentification';
 	import { fade } from 'svelte/transition';

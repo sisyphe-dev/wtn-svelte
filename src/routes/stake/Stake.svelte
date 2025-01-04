@@ -1,7 +1,6 @@
 <script lang="ts">
-	import { computeRewards, displayUsFormat, numberToBigintE8s, computeReceiveAmount } from '$lib';
+	import { computeRewards, displayUsFormat, numberToBigintE8s, computeReceiveAmount, Toast } from '$lib';
 	import SwapInput from './SwapInput.svelte';
-	import { Toast } from '$lib/toast';
 	import ChangeIcon from '$lib/icons/ChangeIcon.svelte';
 	import ErrorIcon from '$lib/icons/ErrorIcon.svelte';
 	import { inputAmount, waterNeuronInfo, canisters, user, toasts, isBusy } from '$lib/stores';

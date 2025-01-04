@@ -1,34 +1,39 @@
 <script>
-	import { ToastType } from '$lib/toast';
 	import { toasts } from '$lib/stores';
 	import { fade } from 'svelte/transition';
 	import { flip } from 'svelte/animate';
 	import ErrorIcon from '$lib/icons/ErrorIcon.svelte';
 	import CloseIcon from '$lib/icons/CloseIcon.svelte';
 	import SuccessIcon from '$lib/icons/SuccessIcon.svelte';
+	import WarningIcon from '$lib/icons/WarningIcon.svelte';
 </script>
 
 <div class="toasts-container">
 	{#each $toasts as toast (toast.id)}
 		<div class="toast-container" animate:flip transition:fade>
-			<div class="info-container">
-				<div class="info-icon">
-					{#if toast.type == ToastType.Success}
-						<SuccessIcon color="--main-button-text-color" />
-					{:else}
-						<ErrorIcon />
-					{/if}
+			<div class="toast-content-container">
+				<div class="info-container">
+					<div class="info-icon">
+						{#if toast.type === 'success'}
+							<SuccessIcon color="--main-button-text-color" />
+						{:else if toast.type === 'error'}
+							<ErrorIcon />
+						{:else}
+							<WarningIcon />
+						{/if}
+					</div>
+					<p title="toast-message">{@html toast.message}</p>
 				</div>
-				<p title="toast-message">{@html toast.message}</p>
+				<button
+					class="toast-close"
+					on:click={() => {
+						toasts.remove(toast.id);
+					}}
+				>
+					<CloseIcon color="--main-button-text-color" />
+				</button>
 			</div>
-			<button
-				class="toast-close"
-				on:click={() => {
-					toasts.remove(toast.id);
-				}}
-			>
-				<CloseIcon color="--main-button-text-color" />
-			</button>
+			<div class="elapsed-bar"></div>
 		</div>
 	{/each}
 </div>
@@ -55,6 +60,11 @@
 	}
 
 	.toast-container {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.toast-content-container {
 		background-color: var(--main-color);
 		box-shadow: 8px 8px 16px 0 rgba(0, 0, 0, 0.25);
 		display: flex;
@@ -64,6 +74,7 @@
 		width: 30em;
 		max-width: 90vw;
 		padding: 0 1%;
+		box-sizing: border-box;
 	}
 
 	.info-container {
@@ -71,6 +82,12 @@
 		align-items: center;
 		gap: 0.5em;
 		margin-right: 1em;
+	}
+
+	/* === Components === */
+	.info-icon {
+		display: flex;
+		align-items: center;
 	}
 
 	.toast-close {
@@ -82,9 +99,9 @@
 		padding: 0 var(--padding-0_5x);
 	}
 
-	/* === Components === */
-	.info-icon {
-		display: flex;
-		align-items: center;
+	.elapsed-bar {
+		background: white;
+		width: 100%;
+		height: 2px;
 	}
 </style>

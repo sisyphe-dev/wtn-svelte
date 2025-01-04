@@ -6,7 +6,8 @@
 		getMaybeAccount,
 		assetToIconPath,
 		assetToTransferFee,
-		assetToDashboardUrl
+		assetToDashboardUrl, 
+		Toast as ToastMessage
 	} from '$lib';
 	import {
 		inSendingMenu,
@@ -19,7 +20,6 @@
 		handleInputAmount
 	} from '$lib/stores';
 	import { onMount } from 'svelte';
-	import { Toast as ToastMessage } from '$lib/toast';
 	import BigNumber from 'bignumber.js';
 	import { AccountIdentifier, LedgerCanister } from '@dfinity/ledger-icp';
 	import {
