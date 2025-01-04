@@ -63,8 +63,8 @@ export class User {
 }
 
 const DAO_SHARE = BigNumber(0.1);
-const APY_6M = BigNumber(0.08);
-const APY_8Y = BigNumber(0.15);
+const APY_6M = BigNumber(0.076);
+const APY_8Y = BigNumber(0.142);
 
 export async function fetchWtnAllocation(
 	principal: Principal,
