@@ -101,8 +101,10 @@
 		<span class="error">
 			{#if $inputAmount && isNaN(parseFloat($inputAmount))}
 				<ErrorIcon /> Cannot read amount
-			{:else if $inputAmount && parseFloat($inputAmount) < 1}
+			{:else if parseFloat($inputAmount) < 1}
 				<ErrorIcon /> Minimum: 1 ICP
+			{:else if !BigNumber($inputAmount).isNaN() && BigNumber($inputAmount).isGreaterThanOrEqualTo($user?.icpBalance() ?? BigNumber(0))}
+				<ErrorIcon /> Not enough treasury.
 			{/if}
 		</span>
 		<p style:color="var(--important-text-color)">
@@ -209,7 +211,6 @@
 		font-family: var(--secondary-font);
 		flex-wrap: wrap;
 		max-width: 45%;
-		position: absolute;
 		font-size: 14px;
 	}
 

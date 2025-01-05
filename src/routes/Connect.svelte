@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { isLogging, isBusy, availableAccounts, signer, toasts } from '$lib/stores';
+	import { isBusy, availableAccounts, signer, toasts, isLogging } from '$lib/stores';
 	import {
 		DEV,
 		STAGING,
@@ -13,11 +13,12 @@
 		finalizePlugConnection
 	} from '$lib/authentification';
 	import { fade } from 'svelte/transition';
-	import { displayPrincipal, Toast } from '$lib';
+	import { displayPrincipal, Toast as ToastMessage } from '$lib';
 	import { onMount } from 'svelte';
 	import CloseIcon from '$lib/icons/CloseIcon.svelte';
 	import { Signer } from '@slide-computer/signer';
 	import { Principal } from '@dfinity/principal';
+	import Toast from './Toast.svelte';
 
 	let dialog: HTMLDialogElement;
 
@@ -41,12 +42,13 @@
 					break;
 			}
 		} catch (e) {
-			toasts.add(Toast.temporaryWarning('Connection failed. Please try again.'));
+			toasts.add(ToastMessage.temporaryWarning('Connection failed. Please try again.'));
 			console.log(e);
-			dialog.close();
+			availableAccounts.set([]);
+			signer.set(undefined);
+			isBusy.set(false);
 			return;
 		}
-
 		if ($availableAccounts.length === 0) {
 			dialog.close();
 		}
@@ -54,7 +56,7 @@
 
 	async function finalizeConnection(newSigner: Signer | undefined, userPrincipal: Principal) {
 		if (!newSigner) {
-			toasts.add(Toast.temporaryWarning('Connection with wallet failed.'));
+			toasts.add(ToastMessage.temporaryWarning('Connection with wallet failed.'));
 		} else {
 			try {
 				await finalizePlugConnection(newSigner, userPrincipal);
@@ -138,11 +140,14 @@
 							if ($isBusy) return;
 							try {
 								await localSignIn();
+								dialog.close();
 							} catch (e) {
-								toasts.add(Toast.temporaryWarning('Connection failed. Please try again.'));
+								toasts.add(ToastMessage.temporaryWarning('Connection failed. Please try again.'));
 								console.error(e);
+								availableAccounts.set([]);
+								signer.set(undefined);
+								isBusy.set(false);
 							}
-							dialog.close();
 						}}
 					>
 						<h2>Local Development</h2>
@@ -156,11 +161,14 @@
 							if ($isBusy) return;
 							try {
 								await testSignIn();
+								dialog.close();
 							} catch (e) {
-								toasts.add(Toast.temporaryWarning('Connection failed. Please try again.'));
+								toasts.add(ToastMessage.temporaryWarning('Connection failed. Please try again.'));
 								console.error(e);
+								availableAccounts.set([]);
+								signer.set(undefined);
+								isBusy.set(false);
 							}
-							dialog.close();
 						}}
 						title="ii-connect-btn"
 					>
@@ -170,6 +178,9 @@
 			</div>
 		{/if}
 	</div>
+	{#if $isLogging}
+		<Toast />
+	{/if}
 </dialog>
 
 <style>
@@ -203,6 +214,7 @@
 	dialog {
 		height: fit-content;
 		display: flex;
+		justify-content: center;
 		flex-wrap: wrap;
 		gap: 1em;
 		border: none;

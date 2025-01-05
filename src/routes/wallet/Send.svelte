@@ -40,6 +40,7 @@
 	import { fade } from 'svelte/transition';
 	import { IcrcLedgerCanister } from '@dfinity/ledger-icrc';
 	import Toast from '../Toast.svelte';
+	import ErrorIcon from '$lib/icons/ErrorIcon.svelte';
 
 	let principal: string;
 	let isSending = false;
@@ -337,7 +338,7 @@
 				{/if}
 			</div>
 			{#if principal && !getMaybeAccount(principal)}
-				<span class="error"> Please enter a valid address.</span>
+				<span class="error"> <ErrorIcon /> Please enter a valid address.</span>
 			{/if}
 		</div>
 		<div>
@@ -363,11 +364,13 @@
 					MAX
 				</button>
 			</div>
-			{#if !BigNumber($inputAmount).isNaN() && BigNumber($inputAmount).isGreaterThanOrEqualTo(balance ?? BigNumber(0))}
-				<span class="error"> Not enough treasury. </span>
-			{:else if !BigNumber($inputAmount).isNaN() && BigNumber($inputAmount).isLessThan(BigNumber(1).dividedBy(E8S))}
-				<span class="error">Minimum amount: 0.00000001</span>
-			{/if}
+			<span class="error">
+				{#if !BigNumber($inputAmount).isNaN() && BigNumber($inputAmount).isGreaterThanOrEqualTo(balance ?? BigNumber(0))}
+					<ErrorIcon /> Not enough treasury.
+				{:else if !BigNumber($inputAmount).isNaN() && BigNumber($inputAmount).isLessThan(BigNumber(1).dividedBy(E8S))}
+					<ErrorIcon /> Minimum amount: 0.00000001
+				{/if}
+			</span>
 		</div>
 		<div>
 			<p>Transfer Fee</p>
@@ -442,8 +445,6 @@
 
 	span {
 		font-family: var(--secondary-font);
-		display: flex;
-		align-items: center;
 	}
 
 	button {
@@ -480,8 +481,17 @@
 
 	/* === Componennts === */
 	.error {
-		color: red;
+		display: flex;
+		align-items: center;
+		color: var(--title-color);
+		gap: 0.2em;
 		margin-left: 1em;
+		margin-top: 4px;
+		font-size: 16px;
+		font-family: var(--secondary-font);
+		flex-wrap: wrap;
+		max-width: 45%;
+		font-size: 14px;
 	}
 
 	.placeholder-btn {
