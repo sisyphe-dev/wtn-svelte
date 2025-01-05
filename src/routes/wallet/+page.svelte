@@ -25,7 +25,7 @@
 			$user.account = inMainWallet ? 'main' : 'ledger';
 		} catch (e) {
 			console.error(e);
-			toasts.add(Toast.error('Ledger device not found.'));
+			toasts.add(Toast.temporaryWarning('Ledger device not found.'));
 		}
 	}
 </script>

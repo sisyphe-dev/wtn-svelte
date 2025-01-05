@@ -18,8 +18,7 @@
 		canisters,
 		waterNeuronInfo,
 		handleSnsChange,
-		ledgerDevice,
-		toasts
+		ledgerDevice
 	} from '$lib/stores';
 	import { onMount } from 'svelte';
 	import {
@@ -30,7 +29,6 @@
 		fetchWtnAllocation
 	} from '$lib/state';
 	import { tryConnectOnReload } from '$lib/authentification';
-	import { Toast as ToastMessage } from '$lib';
 	import Toast from './Toast.svelte';
 
 	async function updateBalances() {

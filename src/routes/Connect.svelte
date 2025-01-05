@@ -41,8 +41,8 @@
 					break;
 			}
 		} catch (e) {
-			toasts.add(Toast.error('Connection failed. Please try again.'));
-			console.error(e);
+			toasts.add(Toast.temporaryWarning('Connection failed. Please try again.'));
+			console.log(e);
 			dialog.close();
 			return;
 		}
@@ -54,7 +54,7 @@
 
 	async function finalizeConnection(newSigner: Signer | undefined, userPrincipal: Principal) {
 		if (!newSigner) {
-			toasts.add(Toast.error('Connection with wallet failed.'));
+			toasts.add(Toast.temporaryWarning('Connection with wallet failed.'));
 		} else {
 			try {
 				await finalizePlugConnection(newSigner, userPrincipal);
@@ -136,7 +136,12 @@
 						style:background-color="red"
 						on:click={async () => {
 							if ($isBusy) return;
-							await localSignIn();
+							try {
+								await localSignIn();
+							} catch (e) {
+								toasts.add(Toast.temporaryWarning('Connection failed. Please try again.'));
+								console.error(e);
+							}
 							dialog.close();
 						}}
 					>
@@ -149,7 +154,12 @@
 						style:background-color="red"
 						on:click={async () => {
 							if ($isBusy) return;
-							await testSignIn();
+							try {
+								await testSignIn();
+							} catch (e) {
+								toasts.add(Toast.temporaryWarning('Connection failed. Please try again.'));
+								console.error(e);
+							}
 							dialog.close();
 						}}
 						title="ii-connect-btn"

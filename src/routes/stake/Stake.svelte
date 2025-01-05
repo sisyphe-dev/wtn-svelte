@@ -65,10 +65,10 @@
 				}
 			} catch (error) {
 				console.log('[icpToNicp] error:', error);
-				toasts.add(Toast.error('Call was rejected.'));
+				toasts.add(Toast.temporaryError('Call was rejected.'));
 			}
 		} else {
-			toasts.add(Toast.error('Sorry, there are not enough funds in this account.'));
+			toasts.add(Toast.temporaryWarning('Sorry, there are not enough funds in this account.'));
 		}
 		isBusy.set(false);
 	}

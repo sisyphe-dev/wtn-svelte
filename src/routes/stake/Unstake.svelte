@@ -55,14 +55,14 @@
 
 			switch (key) {
 				case 'err':
-					toasts.add(Toast.error('Failed to fetch balances on ICPswap. Please retry.'));
+					toasts.add(Toast.temporaryError('Failed to fetch balances on ICPswap. Please retry.'));
 					break;
 				case 'ok':
 					const nicpBalanceE8s = result[key]['balance0'];
 					const icpBalanceE8s = result[key]['balance1'];
 
 					if (nicpBalanceE8s + icpBalanceE8s < 2n * DEFAULT_LEDGER_FEE) {
-						toasts.add(Toast.error('No funds to withdraw detected.'));
+						toasts.add(Toast.temporaryError('No funds to withdraw detected.'));
 					}
 
 					if (nicpBalanceE8s > DEFAULT_LEDGER_FEE) {
@@ -84,7 +84,9 @@
 								);
 								break;
 							case 'err':
-								toasts.add(Toast.error('Failed to withdraw nICP on ICPSwap. Please try again.'));
+								toasts.add(
+									Toast.temporaryError('Failed to withdraw nICP on ICPSwap. Please try again.')
+								);
 								break;
 						}
 					}
@@ -108,7 +110,9 @@
 								);
 								break;
 							case 'err':
-								toasts.add(Toast.error('Failed to withdraw ICP on ICPSwap. Please try again.'));
+								toasts.add(
+									Toast.temporaryError('Failed to withdraw ICP on ICPSwap. Please try again.')
+								);
 								break;
 						}
 					}

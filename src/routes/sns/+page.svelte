@@ -53,7 +53,7 @@
 			}
 		} catch (error) {
 			console.log(error);
-			toasts.add(Toast.error('Notify ICP deposit call failed, please retry.'));
+			toasts.add(Toast.temporaryError('Notify ICP deposit call failed, please retry.'));
 		}
 		isBusy.set(false);
 		isConfirmBusy = false;

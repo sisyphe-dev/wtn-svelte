@@ -44,19 +44,19 @@ export const CANISTER_ID_WATER_NEURON = 'tsbvt-pyaaa-aaaar-qafva-cai';
 export const CANISTER_ID_ICPSWAP_POOL = 'e5a7x-pqaaa-aaaag-qkcga-cai';
 
 export async function connectWithInternetIdentity() {
-	try {
-		const authClient = await AuthClient.create();
+	const authClient = await AuthClient.create();
 
-		if (await authClient.isAuthenticated()) {
-			const identity = authClient.getIdentity();
-			const agent = HttpAgent.createSync({
-				identity,
-				host: HOST
-			});
-			canisters.set(await fetchActors(agent));
-			user.set(new User(identity.getPrincipal()));
-		} else {
-			await authClient.login({
+	if (await authClient.isAuthenticated()) {
+		const identity = authClient.getIdentity();
+		const agent = HttpAgent.createSync({
+			identity,
+			host: HOST
+		});
+		canisters.set(await fetchActors(agent));
+		user.set(new User(identity.getPrincipal()));
+	} else {
+		return new Promise((resolve, reject) => {
+			authClient.login({
 				maxTimeToLive: AUTH_MAX_TIME_TO_LIVE,
 				allowPinAuthentication: true,
 				derivationOrigin: DAPP_DERIVATION_ORIGIN,
@@ -69,14 +69,13 @@ export async function connectWithInternetIdentity() {
 					});
 					canisters.set(await fetchActors(agent));
 					user.set(new User(identity.getPrincipal()));
+					resolve(null);
 				},
 				onError: (error) => {
-					throw Error(error);
+					reject(error);
 				}
 			});
-		}
-	} catch (error) {
-		console.error(error);
+		});
 	}
 }
 
@@ -138,27 +137,21 @@ export async function finalizePlugConnection(newSigner: Signer, userPrincipal: P
 }
 
 export async function connectWithTransport(rpc: typeof NFID_RPC) {
-	try {
-		const transport = new PostMessageTransport({
-			url: rpc
-		});
+	const transport = new PostMessageTransport({
+		url: rpc
+	});
 
-		const newSigner = new Signer({ transport });
+	const newSigner = new Signer({ transport });
 
-		console.log('The wallet set the following permission scope:', await newSigner.permissions());
+	const userPrincipal = (await newSigner.accounts())[0].owner;
 
-		const userPrincipal = (await newSigner.accounts())[0].owner;
+	const signerAgent = SignerAgent.createSync({
+		signer: newSigner,
+		account: userPrincipal
+	});
 
-		const signerAgent = SignerAgent.createSync({
-			signer: newSigner,
-			account: userPrincipal
-		});
-
-		canisters.set(await fetchActors(signerAgent));
-		user.set(new User(userPrincipal));
-	} catch (error) {
-		console.log(error);
-	}
+	canisters.set(await fetchActors(signerAgent));
+	user.set(new User(userPrincipal));
 }
 
 export async function connectWithHardwareWallet() {
@@ -200,13 +193,13 @@ export async function connectWithHardwareWallet() {
 }
 
 export async function localSignIn() {
-	try {
-		const authClient = await AuthClient.create();
+	const authClient = await AuthClient.create();
 
-		const identityProvider = DEV
-			? `http://localhost:8080/?canisterId=${CANISTER_ID_II}`
-			: IDENTITY_PROVIDER;
-		await authClient.login({
+	const identityProvider = DEV
+		? `http://localhost:8080/?canisterId=${CANISTER_ID_II}`
+		: IDENTITY_PROVIDER;
+	return new Promise((resolve, reject) => {
+		authClient.login({
 			maxTimeToLive: AUTH_MAX_TIME_TO_LIVE,
 			allowPinAuthentication: true,
 			derivationOrigin: undefined,
@@ -220,22 +213,21 @@ export async function localSignIn() {
 
 				canisters.set(await fetchActors(agent));
 				user.set(new User(identity.getPrincipal()));
+				resolve(null);
 			},
 			onError: (error) => {
-				throw new Error(error);
+				reject(error);
 			}
 		});
-	} catch (error) {
-		console.error(error);
-	}
+	});
 }
 
 export async function testSignIn() {
-	try {
-		const authClient = await AuthClient.create();
+	const authClient = await AuthClient.create();
 
-		const identityProvider = `http://localhost:8080/?canisterId=${CANISTER_ID_II}`;
-		await authClient.login({
+	const identityProvider = `http://localhost:8080/?canisterId=${CANISTER_ID_II}`;
+	return new Promise((resolve, reject) => {
+		authClient.login({
 			maxTimeToLive: AUTH_MAX_TIME_TO_LIVE,
 			allowPinAuthentication: true,
 			derivationOrigin: undefined,
@@ -249,55 +241,58 @@ export async function testSignIn() {
 
 				canisters.set(await fetchActors(agent));
 				user.set(new User(identity.getPrincipal()));
+
+				const rawLedgerIdentity = new ArrayBuffer(65);
+				const view = new Uint8Array(rawLedgerIdentity);
+				view.set(Uint8Array.from('Test', (x) => x.charCodeAt(0)));
+				const key = Secp256k1PublicKey.fromRaw(rawLedgerIdentity);
+				const ledgerIdentity = LedgerIdentity.createMockIdentity(key);
+
+				const ledgerAgent = HttpAgent.createSync({
+					identity: ledgerIdentity,
+					host: HOST
+				});
+
+				ledgerAgent.fetchRootKey().catch((err) => {
+					console.warn(
+						'Unable to fetch root key. Check to ensure that your local replica is running'
+					);
+					console.error(err);
+				});
+
+				const icpLedger = LedgerCanister.create({
+					agent: ledgerAgent,
+					canisterId: Principal.fromText(CANISTER_ID_ICP_LEDGER)
+				});
+
+				const nicpLedger = IcrcLedgerCanister.create({
+					agent: ledgerAgent,
+					canisterId: Principal.fromText(CANISTER_ID_NICP_LEDGER)
+				});
+
+				const wtnLedger = IcrcLedgerCanister.create({
+					agent: ledgerAgent,
+					canisterId: Principal.fromText(CANISTER_ID_WTN_LEDGER)
+				});
+
+				ledgerDevice.set(
+					new LedgerDevice({
+						principal: await ledgerAgent.getPrincipal(),
+						identity: ledgerIdentity,
+						agent: ledgerAgent,
+						icpLedger,
+						nicpLedger,
+						wtnLedger
+					})
+				);
+
+				resolve(null);
 			},
 			onError: (error) => {
-				throw new Error(error);
+				reject(error);
 			}
 		});
-		const rawLedgerIdentity = new ArrayBuffer(65);
-		const view = new Uint8Array(rawLedgerIdentity);
-		view.set(Uint8Array.from('Test', (x) => x.charCodeAt(0)));
-		const key = Secp256k1PublicKey.fromRaw(rawLedgerIdentity);
-		const ledgerIdentity = LedgerIdentity.createMockIdentity(key);
-
-		const ledgerAgent = HttpAgent.createSync({
-			identity: ledgerIdentity,
-			host: HOST
-		});
-
-		ledgerAgent.fetchRootKey().catch((err) => {
-			console.warn('Unable to fetch root key. Check to ensure that your local replica is running');
-			console.error(err);
-		});
-
-		const icpLedger = LedgerCanister.create({
-			agent: ledgerAgent,
-			canisterId: Principal.fromText(CANISTER_ID_ICP_LEDGER)
-		});
-
-		const nicpLedger = IcrcLedgerCanister.create({
-			agent: ledgerAgent,
-			canisterId: Principal.fromText(CANISTER_ID_NICP_LEDGER)
-		});
-
-		const wtnLedger = IcrcLedgerCanister.create({
-			agent: ledgerAgent,
-			canisterId: Principal.fromText(CANISTER_ID_WTN_LEDGER)
-		});
-
-		ledgerDevice.set(
-			new LedgerDevice({
-				principal: await ledgerAgent.getPrincipal(),
-				identity: ledgerIdentity,
-				agent: ledgerAgent,
-				icpLedger,
-				nicpLedger,
-				wtnLedger
-			})
-		);
-	} catch (error) {
-		console.error(error);
-	}
+	});
 }
 
 export async function internetIdentityLogout() {

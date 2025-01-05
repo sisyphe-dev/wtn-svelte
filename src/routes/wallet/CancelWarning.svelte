@@ -55,7 +55,7 @@
 			}
 		} catch (error) {
 			console.error(error);
-			toasts.add(Toast.error('Call was rejected.'));
+			toasts.add(Toast.temporaryError('Call was rejected.'));
 		}
 		isConfirmBusy = false;
 		dialog.close();

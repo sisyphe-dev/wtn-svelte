@@ -34,7 +34,7 @@ export const mockSetup = async () => {
 
 	return {
 		mockCanisters: await fetchActors(agent),
-		mockMintingAccount: new User(dummyIdentity.getPrincipal(), 'II')
+		mockMintingAccount: new User(dummyIdentity.getPrincipal())
 	};
 };
 

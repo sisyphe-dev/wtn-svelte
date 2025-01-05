@@ -162,7 +162,7 @@
 			}
 		} catch (error) {
 			console.error(error);
-			toasts.add(ToastMessage.error('Transfer failed. Try again.'));
+			toasts.add(ToastMessage.temporaryError('Transfer failed. Try again.'));
 		}
 		isSending = false;
 		inputAmount.reset();
