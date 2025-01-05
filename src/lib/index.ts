@@ -309,27 +309,43 @@ export class Toast {
 		this.isTemporary = isTemporary;
 	}
 
-	static success(message: string, isTemporary = false): Toast {
-		return new Toast({
-			message,
-			type: 'success',
-			isTemporary
-		});
-	}
-
-	static error(message: string, isTemporary = false): Toast {
+	static temporaryError(message: string): Toast {
 		return new Toast({
 			message,
 			type: 'error',
-			isTemporary
+			isTemporary: true
 		});
 	}
 
-	static warning(message: string, isTemporary = false): Toast {
+	static temporaryWarning(message: string): Toast {
 		return new Toast({
 			message,
 			type: 'warning',
-			isTemporary
+			isTemporary: true
+		});
+	}
+
+	static success(message: string): Toast {
+		return new Toast({
+			message,
+			type: 'success',
+			isTemporary: false
+		});
+	}
+
+	static error(message: string): Toast {
+		return new Toast({
+			message,
+			type: 'error',
+			isTemporary: false
+		});
+	}
+
+	static warning(message: string): Toast {
+		return new Toast({
+			message,
+			type: 'warning',
+			isTemporary: false
 		});
 	}
 }

@@ -10,7 +10,7 @@
 	import MainWallet from './MainWallet.svelte';
 	import { fade } from 'svelte/transition';
 	import { connectWithHardwareWallet } from '$lib/authentification';
-	import SuccessIcon from '$lib/icons/SuccessIcon.svelte';
+	import ConfirmIcon from '$lib/icons/ConfirmIcon.svelte';
 
 	let inMainWallet = true;
 
@@ -42,7 +42,7 @@
 								<p>Main</p>
 							</button>
 							{#if inMainWallet}
-								<SuccessIcon color="--title-color" />
+								<ConfirmIcon color="--title-color" />
 							{/if}
 						</div>
 						<div class="btn-active-container">
@@ -50,7 +50,7 @@
 								<p>Ledger</p>
 							</button>
 							{#if !inMainWallet}
-								<SuccessIcon color="--title-color" />
+								<ConfirmIcon color="--title-color" />
 							{/if}
 						</div>
 					</div>

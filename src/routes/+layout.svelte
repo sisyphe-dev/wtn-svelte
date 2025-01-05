@@ -108,7 +108,6 @@
 {:else}
 	<div class="page-container">
 		<Navbar />
-		<button on:click={() => toasts.add(ToastMessage.success('Success', 5000))}></button>
 		<div class="redirect-container">
 			<p><a href="/launchpad">Checkout Papaya SNS 🥭</a></p>
 		</div>

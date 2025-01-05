@@ -4,7 +4,7 @@
 	import { Principal } from '@dfinity/principal';
 	import type { _SERVICE as snsModuleInterface, Status } from './sns_module.did';
 	import { AccountIdentifier } from '@dfinity/ledger-icp';
-	import SuccessIcon from '$lib/icons/SuccessIcon.svelte';
+	import ConfirmIcon from '$lib/icons/ConfirmIcon.svelte';
 	import CopyIcon from '$lib/icons/CopyIcon.svelte';
 	import { afterUpdate, onMount } from 'svelte';
 	import { toasts, canisters, inQrDestination } from '$lib/stores';
@@ -391,7 +391,7 @@
 							{#if isNotAvailable}
 								<div class="spinner spinner-type-2"></div>
 							{:else}
-								<SuccessIcon color="--title-color" />
+								<ConfirmIcon color="--title-color" />
 							{/if}
 						</button>
 					</div>

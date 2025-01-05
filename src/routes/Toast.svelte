@@ -7,45 +7,49 @@
 	import SuccessIcon from '$lib/icons/SuccessIcon.svelte';
 	import WarningIcon from '$lib/icons/WarningIcon.svelte';
 	import { Toast, TOAST_LIFETIME_MS } from '$lib';
-	import { onDestroy } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 
 	let idToTimeLeft: { [key: number]: number } = {};
 	let idToIntervals: Map<number, NodeJS.Timeout> = new Map();
 	const REFRESH_RATE_MS = 10;
 
-	const unsubscribe = toasts.subscribe((value) => {
-		value.forEach((toast: Toast) => {
-			if (toast.isTemporary && !idToIntervals.has(toast.id)) {
-				idToTimeLeft[toast.id] = TOAST_LIFETIME_MS;
-				idToIntervals.set(
-					toast.id,
-					setInterval(() => {
-						if (idToTimeLeft[toast.id] > 0) {
-							idToTimeLeft[toast.id] -= REFRESH_RATE_MS;
-							handleElapsedBarWidth(toast.id);
-						} else {
-							toasts.remove(toast.id);
-							clearInterval(idToIntervals.get(toast.id));
-						}
-					}, REFRESH_RATE_MS)
-				);
-			}
+	function updateToasts() {
+		toasts.subscribe((value) => {
+			value.forEach((toast: Toast) => {
+				if (toast.isTemporary && !idToIntervals.has(toast.id)) {
+					idToTimeLeft[toast.id] = TOAST_LIFETIME_MS;
+					idToIntervals.set(
+						toast.id,
+						setInterval(() => {
+							if (idToTimeLeft[toast.id] > 0) {
+								idToTimeLeft[toast.id] -= REFRESH_RATE_MS;
+								handleElapsedBarWidth(toast.id);
+							} else {
+								toasts.remove(toast.id);
+								clearInterval(idToIntervals.get(toast.id));
+							}
+						}, REFRESH_RATE_MS)
+					);
+				}
+			});
 		});
+	}
+
+	onMount(() => {
+		updateToasts();
 	});
 
 	onDestroy(() => {
-		unsubscribe();
 		idToIntervals.forEach((interval) => clearInterval(interval));
 	});
 
 	function handleElapsedBarWidth(id: number) {
+		if (!idToIntervals.has(id)) return;
 		const toastContainer = document.getElementById('container') as HTMLDivElement;
 		const bar = document.getElementById(`elapsed-bar-${id}`) as HTMLDivElement;
 		if (!bar) return;
-		bar.style.width = (
-			(toastContainer.clientWidth * idToTimeLeft[id]) /
-			TOAST_LIFETIME_MS
-		).toString() + "px";
+		bar.style.width =
+			((toastContainer.clientWidth * idToTimeLeft[id]) / TOAST_LIFETIME_MS).toString() + 'px';
 	}
 </script>
 
@@ -56,7 +60,7 @@
 				<div class="info-container">
 					<div class="info-icon">
 						{#if toast.type === 'success'}
-							<SuccessIcon color="--main-button-text-color" />
+							<SuccessIcon />
 						{:else if toast.type === 'error'}
 							<ErrorIcon />
 						{:else}
@@ -130,6 +134,7 @@
 	.info-icon {
 		display: flex;
 		align-items: center;
+		margin-left: 1em;
 	}
 
 	.toast-close {
@@ -142,8 +147,7 @@
 	}
 
 	.elapsed-bar {
-		background: white;
-		width: 100%;
+		background: var(--main-button-text-color);
 		height: 2px;
 	}
 </style>
