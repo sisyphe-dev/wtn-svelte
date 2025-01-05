@@ -30,8 +30,8 @@
 		fetchWtnAllocation
 	} from '$lib/state';
 	import { tryConnectOnReload } from '$lib/authentification';
-	import Toast from './Toast.svelte';
 	import { Toast as ToastMessage } from '$lib';
+	import Toast from './Toast.svelte';
 
 	async function updateBalances() {
 		if ($canisters && $user) {
@@ -108,7 +108,7 @@
 {:else}
 	<div class="page-container">
 		<Navbar />
-		<button on:click={() => toasts.add(ToastMessage.success('Success'))}></button>
+		<button on:click={() => toasts.add(ToastMessage.success('Success', 5000))}></button>
 		<div class="redirect-container">
 			<p><a href="/launchpad">Checkout Papaya SNS 🥭</a></p>
 		</div>

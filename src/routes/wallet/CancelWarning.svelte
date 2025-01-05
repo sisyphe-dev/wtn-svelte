@@ -14,7 +14,7 @@
 		bigintE8sToNumber,
 		displayNeuronId,
 		isMobile,
-		getWarningError, 
+		getWarningError,
 		Toast
 	} from '$lib';
 	import { handleCancelWithdrawalResult } from '$lib/resultHandler';

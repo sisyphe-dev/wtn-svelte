@@ -15,7 +15,13 @@
 	import { handleSnsIcpDepositResult, handleSnsRetrieveNicpResult } from '$lib/resultHandler';
 	import { Principal } from '@dfinity/principal';
 	import BigNumber from 'bignumber.js';
-	import { displayUsFormat, isPrincipalValid, numberToBigintE8s, principalToHex, Toast } from '$lib';
+	import {
+		displayUsFormat,
+		isPrincipalValid,
+		numberToBigintE8s,
+		principalToHex,
+		Toast
+	} from '$lib';
 
 	let isConfirmBusy: boolean;
 	let isRetrieveBusy: boolean;

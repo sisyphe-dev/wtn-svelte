@@ -286,51 +286,50 @@ export async function getWarningError(withdrawal: WithdrawalDetails): Promise<st
 	}
 }
 
+export const TOAST_LIFETIME_MS = 5000;
 
 export class Toast {
 	public id: number;
 	public message: string;
 	public type: 'success' | 'error' | 'warning';
 	public isTemporary: boolean;
-	public timeLeft?: number;
 
 	constructor({
 		message,
 		type,
-		timeLeft
+		isTemporary
 	}: {
 		message: string;
 		type: 'success' | 'error' | 'warning';
-		timeLeft?: number;
+		isTemporary: boolean;
 	}) {
 		this.id = Date.now();
 		this.message = message;
 		this.type = type;
-		this.isTemporary = timeLeft !== undefined;
-		this.timeLeft = timeLeft;
+		this.isTemporary = isTemporary;
 	}
 
-	static success(message: string, lifetime?: number): Toast {
+	static success(message: string, isTemporary = false): Toast {
 		return new Toast({
 			message,
 			type: 'success',
-			timeLeft: lifetime
+			isTemporary
 		});
 	}
 
-	static error(message: string, lifetime?: number): Toast {
+	static error(message: string, isTemporary = false): Toast {
 		return new Toast({
 			message,
 			type: 'error',
-			timeLeft: lifetime
+			isTemporary
 		});
 	}
 
-	static warning(message: string, lifetime?: number): Toast {
+	static warning(message: string, isTemporary = false): Toast {
 		return new Toast({
 			message,
 			type: 'warning',
-			timeLeft: lifetime
+			isTemporary
 		});
 	}
 }

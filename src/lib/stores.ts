@@ -1,7 +1,6 @@
 import { writable } from 'svelte/store';
 import { type User, Canisters, WaterNeuronInfo, fetchIcpBalance, fetchNicpBalance } from './state';
-import { bigintE8sToNumber } from '$lib';
-import { Toast } from './toast';
+import { bigintE8sToNumber, Toast } from '$lib';
 import BigNumber from 'bignumber.js';
 import { get } from 'svelte/store';
 import { Principal } from '@dfinity/principal';
@@ -139,7 +138,7 @@ function createToasts() {
 	return {
 		subscribe,
 		add: (toast: Toast) => update((toasts: Toast[]) => [...toasts, toast]),
-		remove: (id: string) => update((toasts: Toast[]) => toasts.filter((toast) => toast.id !== id)),
+		remove: (id: number) => update((toasts: Toast[]) => toasts.filter((toast) => toast.id !== id)),
 		reset: () => set([])
 	};
 }

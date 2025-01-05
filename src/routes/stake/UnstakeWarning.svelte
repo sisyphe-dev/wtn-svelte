@@ -32,7 +32,7 @@
 		displayUsFormat,
 		numberToBigintE8s,
 		bigintE8sToNumber,
-		computeReceiveAmount, 
+		computeReceiveAmount,
 		Toast
 	} from '$lib';
 

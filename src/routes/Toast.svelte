@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import { toasts } from '$lib/stores';
 	import { fade } from 'svelte/transition';
 	import { flip } from 'svelte/animate';
@@ -6,11 +6,52 @@
 	import CloseIcon from '$lib/icons/CloseIcon.svelte';
 	import SuccessIcon from '$lib/icons/SuccessIcon.svelte';
 	import WarningIcon from '$lib/icons/WarningIcon.svelte';
+	import { Toast, TOAST_LIFETIME_MS } from '$lib';
+	import { onDestroy } from 'svelte';
+
+	let idToTimeLeft: { [key: number]: number } = {};
+	let idToIntervals: Map<number, NodeJS.Timeout> = new Map();
+	const REFRESH_RATE_MS = 10;
+
+	const unsubscribe = toasts.subscribe((value) => {
+		value.forEach((toast: Toast) => {
+			if (toast.isTemporary && !idToIntervals.has(toast.id)) {
+				idToTimeLeft[toast.id] = TOAST_LIFETIME_MS;
+				idToIntervals.set(
+					toast.id,
+					setInterval(() => {
+						if (idToTimeLeft[toast.id] > 0) {
+							idToTimeLeft[toast.id] -= REFRESH_RATE_MS;
+							handleElapsedBarWidth(toast.id);
+						} else {
+							toasts.remove(toast.id);
+							clearInterval(idToIntervals.get(toast.id));
+						}
+					}, REFRESH_RATE_MS)
+				);
+			}
+		});
+	});
+
+	onDestroy(() => {
+		unsubscribe();
+		idToIntervals.forEach((interval) => clearInterval(interval));
+	});
+
+	function handleElapsedBarWidth(id: number) {
+		const toastContainer = document.getElementById('container') as HTMLDivElement;
+		const bar = document.getElementById(`elapsed-bar-${id}`) as HTMLDivElement;
+		if (!bar) return;
+		bar.style.width = (
+			(toastContainer.clientWidth * idToTimeLeft[id]) /
+			TOAST_LIFETIME_MS
+		).toString() + "px";
+	}
 </script>
 
 <div class="toasts-container">
 	{#each $toasts as toast (toast.id)}
-		<div class="toast-container" animate:flip transition:fade>
+		<div id="container" class="toast-container" animate:flip transition:fade>
 			<div class="toast-content-container">
 				<div class="info-container">
 					<div class="info-icon">
@@ -33,7 +74,7 @@
 					<CloseIcon color="--main-button-text-color" />
 				</button>
 			</div>
-			<div class="elapsed-bar"></div>
+			<div id="elapsed-bar-{toast.id}" class="elapsed-bar"></div>
 		</div>
 	{/each}
 </div>
@@ -62,6 +103,7 @@
 	.toast-container {
 		display: flex;
 		flex-direction: column;
+		align-items: center;
 	}
 
 	.toast-content-container {

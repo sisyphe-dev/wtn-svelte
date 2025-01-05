@@ -6,7 +6,7 @@
 		getMaybeAccount,
 		assetToIconPath,
 		assetToTransferFee,
-		assetToDashboardUrl, 
+		assetToDashboardUrl,
 		Toast as ToastMessage
 	} from '$lib';
 	import {
@@ -38,8 +38,8 @@
 	} from '$lib/../declarations/icrc_ledger/icrc_ledger.did';
 	import type { _SERVICE as icpLedgerInterface } from '$lib/../declarations/icp_ledger/icp_ledger.did';
 	import { fade } from 'svelte/transition';
-	import Toast from '../Toast.svelte';
 	import { IcrcLedgerCanister } from '@dfinity/ledger-icrc';
+	import Toast from '../Toast.svelte';
 
 	let principal: string;
 	let isSending = false;
