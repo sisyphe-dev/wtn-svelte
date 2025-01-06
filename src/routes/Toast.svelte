@@ -78,7 +78,12 @@
 					<CloseIcon color="--main-button-text-color" />
 				</button>
 			</div>
-			<div id="elapsed-bar-{toast.id}" class="elapsed-bar"></div>
+			<div
+				id="elapsed-bar-{toast.id}"
+				class="elapsed-bar"
+				class:warning={toast.type === 'warning'}
+				class:error={toast.type === 'error'}
+			></div>
 		</div>
 	{/each}
 </div>
@@ -112,7 +117,7 @@
 
 	.toast-content-container {
 		background-color: var(--main-color);
-		box-shadow: 8px 8px 16px 0 rgba(0, 0, 0, 0.25);
+		box-shadow: 0px 6px 16px 2px #000000;
 		display: flex;
 		border-radius: 8px;
 		align-items: center;
@@ -149,5 +154,14 @@
 	.elapsed-bar {
 		background: var(--main-button-text-color);
 		height: 2px;
+	}
+
+	/* === Utilities === */
+	.warning {
+		background: #ff9900;
+	}
+
+	.error {
+		background: #d95454;
 	}
 </style>
