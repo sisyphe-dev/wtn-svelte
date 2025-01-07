@@ -137,9 +137,11 @@ export async function finalizePlugConnection(newSigner: Signer, userPrincipal: P
 }
 
 export async function connectWithTransport(rpc: typeof NFID_RPC) {
-	const transport = new PostMessageTransport({
-		url: rpc
-	});
+	try {
+		const transport = new PostMessageTransport({
+			url: rpc,
+			detectNonClickEstablishment: false
+		});
 
 	const newSigner = new Signer({ transport });
 
