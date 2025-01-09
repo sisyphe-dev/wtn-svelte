@@ -138,7 +138,7 @@ testWithII('e2e test unstake', async ({ page, iiPage }) => {
 	await expect(page.locator('.withdrawals-container')).toBeVisible();
 });
 
-testWithII('e2e test send', async ({ page, iiPage }) => {
+testWithII.only('e2e test send', async ({ page, iiPage }) => {
 	await page.goto('/');
 
 	await page.locator('[title="connect-btn"]').click();
@@ -166,15 +166,15 @@ testWithII('e2e test send', async ({ page, iiPage }) => {
 
 	await expect(icpBalance).toHaveText('15 ICP');
 	await expect(nicpBalance).toHaveText('15 nICP');
-
 	await page.locator('[title="send-btn-ICP"]').click();
+	await page.waitForTimeout(10000);
 
 	await send(page, 'aaa-aa', '10');
-	await expect(page.locator('span.error')).toBeVisible();
+	await expect(page.locator('[title="destination-error"]')).toBeVisible();
 	await send(page, ACCOUNT_ID, '0.000000009');
-	await expect(page.locator('span.error')).toBeVisible();
+	await expect(page.locator('[title="amount-error"]')).toBeVisible();
 	await send(page, ACCOUNT_ID, '16');
-	await expect(page.locator('span.error')).toBeVisible();
+	await expect(page.locator('[title="amount-error"]')).toBeVisible();
 
 	await send(page, ACCOUNT_ID, '1');
 	expect(await isToastSuccess(page)).toBeTruthy();

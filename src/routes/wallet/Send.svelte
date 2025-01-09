@@ -338,7 +338,9 @@
 				{/if}
 			</div>
 			{#if principal && !getMaybeAccount(principal)}
-				<span class="error"> <ErrorIcon /> Please enter a valid address.</span>
+				<span class="error" title="destination-error">
+					<ErrorIcon /> Please enter a valid address.</span
+				>
 			{/if}
 		</div>
 		<div>
@@ -364,7 +366,7 @@
 					MAX
 				</button>
 			</div>
-			<span class="error">
+			<span class="error" title="amount-error">
 				{#if !BigNumber($inputAmount).isNaN() && BigNumber($inputAmount).isGreaterThanOrEqualTo(balance ?? BigNumber(0))}
 					<ErrorIcon /> Not enough treasury.
 				{:else if !BigNumber($inputAmount).isNaN() && BigNumber($inputAmount).isLessThan(BigNumber(1).dividedBy(E8S))}
