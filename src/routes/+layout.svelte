@@ -113,7 +113,7 @@
 			<slot />
 		</div>
 		<Footer />
-		{#if !$inSendingMenu}
+		{#if !$inSendingMenu && !$isLogging}
 			<Toast />
 		{/if}
 	</div>

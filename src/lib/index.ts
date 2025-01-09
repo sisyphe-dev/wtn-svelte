@@ -285,3 +285,69 @@ export async function getWarningError(withdrawal: WithdrawalDetails): Promise<st
 			return 'Waiting for the withdrawal to split.';
 	}
 }
+
+export const TOAST_LIFETIME_MS = 5000;
+
+export class Toast {
+	public id: number;
+	public message: string;
+	public type: 'success' | 'error' | 'warning';
+	public isTemporary: boolean;
+	public timeLeft: number;
+
+	constructor({
+		message,
+		type,
+		isTemporary
+	}: {
+		message: string;
+		type: 'success' | 'error' | 'warning';
+		isTemporary: boolean;
+	}) {
+		this.id = Date.now();
+		this.message = message;
+		this.type = type;
+		this.isTemporary = isTemporary;
+		this.timeLeft = TOAST_LIFETIME_MS;
+	}
+
+	static temporaryError(message: string): Toast {
+		return new Toast({
+			message,
+			type: 'error',
+			isTemporary: true
+		});
+	}
+
+	static temporaryWarning(message: string): Toast {
+		return new Toast({
+			message,
+			type: 'warning',
+			isTemporary: true
+		});
+	}
+
+	static success(message: string): Toast {
+		return new Toast({
+			message,
+			type: 'success',
+			isTemporary: false
+		});
+	}
+
+	static error(message: string): Toast {
+		return new Toast({
+			message,
+			type: 'error',
+			isTemporary: false
+		});
+	}
+
+	static warning(message: string): Toast {
+		return new Toast({
+			message,
+			type: 'warning',
+			isTemporary: false
+		});
+	}
+}

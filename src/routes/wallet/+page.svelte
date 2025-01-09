@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { user, ledgerDevice, toasts } from '$lib/stores';
-	import { isMobile } from '$lib';
+	import { isMobile, Toast } from '$lib';
 
 	if (!$user) goto('/');
 
@@ -10,8 +10,7 @@
 	import MainWallet from './MainWallet.svelte';
 	import { fade } from 'svelte/transition';
 	import { connectWithHardwareWallet } from '$lib/authentification';
-	import { Toast } from '$lib/toast';
-	import SuccessIcon from '$lib/icons/SuccessIcon.svelte';
+	import ConfirmIcon from '$lib/icons/ConfirmIcon.svelte';
 
 	let inMainWallet = true;
 
@@ -26,7 +25,7 @@
 			$user.account = inMainWallet ? 'main' : 'ledger';
 		} catch (e) {
 			console.error(e);
-			toasts.add(Toast.error('Ledger device not found.'));
+			toasts.add(Toast.temporaryWarning('Ledger device not found.'));
 		}
 	}
 </script>
@@ -43,7 +42,7 @@
 								<p>Main</p>
 							</button>
 							{#if inMainWallet}
-								<SuccessIcon color="--title-color" />
+								<ConfirmIcon color="--title-color" />
 							{/if}
 						</div>
 						<div class="btn-active-container">
@@ -51,7 +50,7 @@
 								<p>Ledger</p>
 							</button>
 							{#if !inMainWallet}
-								<SuccessIcon color="--title-color" />
+								<ConfirmIcon color="--title-color" />
 							{/if}
 						</div>
 					</div>

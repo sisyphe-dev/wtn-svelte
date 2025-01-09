@@ -28,12 +28,12 @@
 		CANISTER_ID_ICPSWAP_POOL,
 		CANISTER_ID_NICP_LEDGER
 	} from '$lib/authentification';
-	import { Toast } from '$lib/toast';
 	import {
 		displayUsFormat,
 		numberToBigintE8s,
 		bigintE8sToNumber,
-		computeReceiveAmount
+		computeReceiveAmount,
+		Toast
 	} from '$lib';
 
 	const DEFAULT_LEDGER_FEE = 10_000n;
@@ -88,10 +88,10 @@
 				}
 			} catch (error) {
 				console.log('[nicpToIcp] error:', error);
-				toasts.add(Toast.error('Call was rejected.'));
+				toasts.add(Toast.temporaryError('Call was rejected.'));
 			}
 		} else {
-			toasts.add(Toast.error('Sorry, there are not enough funds in this account.'));
+			toasts.add(Toast.temporaryWarning('Sorry, there are not enough funds in this account.'));
 		}
 		isBusy.set(false);
 	}
@@ -130,7 +130,7 @@
 		if ('ok' in depositResult) {
 			return depositResult.ok;
 		} else {
-			toasts.add(Toast.error('Failed to deposit nICP on ICPSwap. Please try again.'));
+			toasts.add(Toast.temporaryError('Failed to deposit nICP on ICPSwap. Please try again.'));
 			throw new Error(`${handleIcpSwapError(depositResult.err)}`);
 		}
 	};
@@ -147,7 +147,7 @@
 		if ('ok' in swapResult) {
 			return swapResult.ok;
 		} else {
-			toasts.add(Toast.error('Failed swap. Please try again.'));
+			toasts.add(Toast.temporaryError('Failed swap. Please try again.'));
 			throw new Error(`${handleIcpSwapError(swapResult.err)}`);
 		}
 	};
@@ -165,7 +165,7 @@
 			const swapAmount = displayUsFormat(bigintE8sToNumber(withdrawResult.ok), 4);
 			toasts.add(Toast.success(`Successful swap, ${swapAmount} ICP received.`));
 		} else {
-			toasts.add(Toast.error('Failed to withdraw funds during swap. Please try again.'));
+			toasts.add(Toast.temporaryError('Failed to withdraw funds during swap. Please try again.'));
 			throw new Error(`${handleIcpSwapError(withdrawResult.err)}`);
 		}
 	};
@@ -218,7 +218,7 @@
 				console.log('[fastUnstake] error:', error);
 			}
 		} else {
-			toasts.add(Toast.error('Sorry, there are not enough funds in this account.'));
+			toasts.add(Toast.temporaryWarning('Sorry, there are not enough funds in this account.'));
 		}
 		isBusy.set(false);
 	}

@@ -1,7 +1,12 @@
 <script lang="ts">
-	import { computeRewards, displayUsFormat, numberToBigintE8s, computeReceiveAmount } from '$lib';
+	import {
+		computeRewards,
+		displayUsFormat,
+		numberToBigintE8s,
+		computeReceiveAmount,
+		Toast
+	} from '$lib';
 	import SwapInput from './SwapInput.svelte';
-	import { Toast } from '$lib/toast';
 	import ChangeIcon from '$lib/icons/ChangeIcon.svelte';
 	import ErrorIcon from '$lib/icons/ErrorIcon.svelte';
 	import { inputAmount, waterNeuronInfo, canisters, user, toasts, isBusy } from '$lib/stores';
@@ -60,10 +65,10 @@
 				}
 			} catch (error) {
 				console.log('[icpToNicp] error:', error);
-				toasts.add(Toast.error('Call was rejected.'));
+				toasts.add(Toast.temporaryError('Call was rejected.'));
 			}
 		} else {
-			toasts.add(Toast.error('Sorry, there are not enough funds in this account.'));
+			toasts.add(Toast.temporaryWarning('Sorry, there are not enough funds in this account.'));
 		}
 		isBusy.set(false);
 	}
@@ -96,8 +101,10 @@
 		<span class="error">
 			{#if $inputAmount && isNaN(parseFloat($inputAmount))}
 				<ErrorIcon /> Cannot read amount
-			{:else if $inputAmount && parseFloat($inputAmount) < 1}
+			{:else if parseFloat($inputAmount) < 1}
 				<ErrorIcon /> Minimum: 1 ICP
+			{:else if !BigNumber($inputAmount).isNaN() && BigNumber($inputAmount).isGreaterThanOrEqualTo($user?.icpBalance() ?? BigNumber(0))}
+				<ErrorIcon /> Not enough treasury.
 			{/if}
 		</span>
 		<p style:color="var(--important-text-color)">
@@ -204,7 +211,6 @@
 		font-family: var(--secondary-font);
 		flex-wrap: wrap;
 		max-width: 45%;
-		position: absolute;
 		font-size: 14px;
 	}
 

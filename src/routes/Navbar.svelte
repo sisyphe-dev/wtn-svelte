@@ -1,5 +1,5 @@
 <script>
-	import { isLogging, inMobileMenu, user } from '$lib/stores';
+	import { isLogging, inMobileMenu, user, ledgerDevice } from '$lib/stores';
 	import { displayUsFormat, displayPrincipal } from '$lib';
 	import { internetIdentityLogout } from '$lib/authentification';
 	import { ThemeToggle } from '@dfinity/gix-components';
@@ -44,6 +44,7 @@
 					on:click={async () => {
 						await internetIdentityLogout();
 						user.set(undefined);
+						ledgerDevice.set(undefined);
 						goto('/');
 					}}
 				>
