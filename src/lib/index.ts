@@ -293,6 +293,7 @@ export class Toast {
 	public message: string;
 	public type: 'success' | 'error' | 'warning';
 	public isTemporary: boolean;
+	public timeLeft: number;
 
 	constructor({
 		message,
@@ -307,6 +308,7 @@ export class Toast {
 		this.message = message;
 		this.type = type;
 		this.isTemporary = isTemporary;
+		this.timeLeft = TOAST_LIFETIME_MS;
 	}
 
 	static temporaryError(message: string): Toast {
