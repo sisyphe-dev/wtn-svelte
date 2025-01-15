@@ -54,7 +54,7 @@ export function assetToIconPath(asset: 'ICP' | 'nICP' | 'WTN'): string {
 		case 'ICP':
 			return '/tokens/icp.webp';
 		case 'nICP':
-			return '/tokens/nicp.webp';
+			return '/tokens/nicp.svg';
 		case 'WTN':
 			return '/tokens/WTN.webp';
 	}
