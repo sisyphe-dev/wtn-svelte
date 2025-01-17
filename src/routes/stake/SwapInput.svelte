@@ -31,7 +31,9 @@
 			<h2>{asset}</h2>
 			<span>Max</span>
 		</div>
-		<img class="asset-logo" src={assetToIconPath(asset)} alt="ICP Icon" />
+		<div class="logo-container">
+			<img class="asset-logo" src={assetToIconPath(asset)} alt="ICP Icon" />
+		</div>
 	</button>
 </div>
 
@@ -95,7 +97,17 @@
 	}
 
 	.asset-logo {
-		width: 3em;
+		width: 2em;
 		border-radius: 100%;
+	}
+
+	.logo-container {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background: var(--theme-background-asset-logo);
+		border-radius: 50%;
+		padding: 2px;
+		border: var(--theme-border-asset-logo);
 	}
 </style>

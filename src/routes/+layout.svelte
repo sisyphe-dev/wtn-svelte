@@ -173,6 +173,9 @@
 		--svg-fill-color: #000000;
 		--svg-opposite-color: #b3b3b3;
 		--sns-selected-button-color: rgb(107 180 249 / 50%);
+
+		--theme-background-asset-logo: none;
+		--theme-border-asset-logo: none;
 	}
 
 	:root[theme='dark'] {
@@ -198,6 +201,9 @@
 
 		--page-background: radial-gradient(farthest-corner circle at 0% 100%, #090a0d, #272f3d);
 		--sns-selected-button-color: #404f9987;
+		
+		--theme-background-asset-logo: #dadef2;
+		--theme-border-asset-logo: 2px solid #a3a5b0;
 	}
 
 	@font-face {
