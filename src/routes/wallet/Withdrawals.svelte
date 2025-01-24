@@ -115,7 +115,7 @@
 										? timesLeft[Number(details.request.neuron_id[0].id)]
 										: '-/-'}
 								{:else}
-									{renderStatus(details.status)}
+									{@html renderStatus(details.status)}
 								{/if}
 							</td>
 							<td>

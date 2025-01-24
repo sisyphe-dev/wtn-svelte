@@ -129,7 +129,7 @@ export function renderStatus(status: WithdrawalStatus): string {
 	switch (key) {
 		case 'ConversionDone':
 			return `<p>
-	  Conversion done at{" "}
+	  Conversion done at
 	  <a
 		target="_blank"
 		rel="noreferrer"

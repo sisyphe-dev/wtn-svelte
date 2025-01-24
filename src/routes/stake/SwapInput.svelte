@@ -51,6 +51,7 @@
 	}
 
 	input {
+		margin: 0 4px;
 		border: none;
 		padding-left: 0.4em;
 		height: 3em;
