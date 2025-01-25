@@ -17,7 +17,8 @@
 		toasts,
 		canisters,
 		inputAmount,
-		handleInputAmount
+		handleInputAmount,
+		showBalance
 	} from '$lib/stores';
 	import { onMount } from 'svelte';
 	import BigNumber from 'bignumber.js';
@@ -304,7 +305,7 @@
 				<div style:display={'flex'}>
 					<div class="balances">
 						<span style:margin-left={'1em'}
-							>{balance ? displayUsFormat(balance, 8) : '-/-'}
+							>{balance ? displayUsFormat(balance, 8, $showBalance) : '-/-'}
 							{$selectedAsset}</span
 						>
 						<img

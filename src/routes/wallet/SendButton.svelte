@@ -1,6 +1,13 @@
 <script lang="ts">
 	import { assetToIconPath, displayUsFormat, isMobile } from '$lib';
-	import { user, selectedAsset, inSendingMenu, inReceivingMenu, ledgerDevice } from '$lib/stores';
+	import {
+		user,
+		selectedAsset,
+		inSendingMenu,
+		inReceivingMenu,
+		ledgerDevice,
+		showBalance
+	} from '$lib/stores';
 	import { BigNumber } from 'bignumber.js';
 	import QRCodeScannerIcon from '$lib/icons/QRCodeScannerIcon.svelte';
 	import UpIcon from '$lib/icons/UpIcon.svelte';
@@ -31,7 +38,7 @@
 <div class="token-balance-container">
 	<div class="balance">
 		<p>
-			{balance ? displayUsFormat(balance, 8) : '-/-'}
+			{balance ? displayUsFormat(balance, 8, $showBalance) : '-/-'}
 			{asset}
 		</p>
 		<img alt="{asset} logo" src={assetToIconPath(asset)} width="30px" height="30px" />
@@ -86,7 +93,7 @@
 				Airdrop Allocation:
 			{/if}
 			{#if $user}
-				{displayUsFormat($user.wtnAllocation())}
+				{displayUsFormat($user.wtnAllocation(), 8, $showBalance)}
 			{:else}
 				-/-
 			{/if} WTN

@@ -131,7 +131,7 @@ test('Test truncated format for principal', () => {
 	const principal = Principal.fromText(
 		'l72el-pt5ry-lmj66-3opyw-tl5xx-3wzfl-n3mja-dqirc-oxmqs-uxqe6-6qe'
 	);
-	expect(displayPrincipal(principal)).toBe('l72el...6qe');
+	expect(displayPrincipal(principal, true)).toBe('l72el...6qe');
 });
 
 test('Should display the hex from the acccount identifier when the principal is valid.', () => {
@@ -163,7 +163,7 @@ test('check withdrawal status display', () => {
 	} as WithdrawalStatus;
 
 	expect(renderStatus(status)).toBe(`<p>
-	  Conversion done at{" "}
+	  Conversion done at
 	  <a
 		target="_blank"
 		rel="noreferrer"
