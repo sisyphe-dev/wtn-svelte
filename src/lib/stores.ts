@@ -19,6 +19,7 @@ export const inUnstakeWarningMenu = writable<boolean>(false);
 export const inMobileMenu = writable<boolean>(false);
 export const inQrDestination = writable<boolean>(false);
 export const inSnsMenu = writable<boolean>(false);
+export const showBalance = writable<boolean>(true);
 
 /* === Components === */
 export const language = writable<'en' | 'es' | 'ja' | 'ru'>('en');

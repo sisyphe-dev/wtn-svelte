@@ -1,11 +1,12 @@
 <script>
-	import { isLogging, inMobileMenu, user, ledgerDevice } from '$lib/stores';
+	import { isLogging, inMobileMenu, user, ledgerDevice, showBalance } from '$lib/stores';
 	import { displayUsFormat, displayPrincipal } from '$lib';
 	import { internetIdentityLogout } from '$lib/authentification';
 	import { ThemeToggle } from '@dfinity/gix-components';
 	import PowerOffIcon from '$lib/icons/PowerOffIcon.svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
+	import EyeIcon from '$lib/icons/EyeIcon.svelte';
 </script>
 
 <nav class:filter={$isLogging}>
@@ -17,6 +18,13 @@
 	</a>
 
 	<div class="right-container">
+		<button
+			on:click={() => {
+				showBalance.set(!$showBalance);
+			}}
+		>
+			<EyeIcon isClosed={$showBalance} />
+		</button>
 		<div class="theme-toggle">
 			<ThemeToggle />
 		</div>
@@ -34,9 +42,11 @@
 			{:else}
 				<a href="/wallet" class="wallet-btn" id="wallet-info">
 					<h2 style:font-weight={'bold'}>{displayPrincipal($user.principal)}</h2>
-					<p title="icp-balance-nav">{displayUsFormat($user.icpBalance(), 2)} ICP</p>
-					<p title="nicp-balance-nav">{displayUsFormat($user.nicpBalance(), 2)} nICP</p>
-					<p title="wtn-balance-nav">{displayUsFormat($user.wtnBalance(), 2)} WTN</p>
+					<p title="icp-balance-nav">{displayUsFormat($user.icpBalance(), 2, $showBalance)} ICP</p>
+					<p title="nicp-balance-nav">
+						{displayUsFormat($user.nicpBalance(), 2, $showBalance)} nICP
+					</p>
+					<p title="wtn-balance-nav">{displayUsFormat($user.wtnBalance(), 2, $showBalance)} WTN</p>
 				</a>
 				<button
 					id="disconnect-btn"
@@ -95,13 +105,18 @@
 		cursor: pointer;
 		border-radius: 0.3em;
 		transition: all 0.3s ease;
-		margin: 0 1em;
 		color: white;
 		font-weight: bold;
 	}
 
 	button:hover {
 		background-color: var(--input-color);
+	}
+
+	button {
+		display: flex;
+		align-items: center;
+		justify-content: center;
 	}
 
 	div {
@@ -122,6 +137,10 @@
 		margin: 0;
 		padding: 0;
 		font-size: 13px;
+	}
+
+	h2 {
+		margin: 0 0 4px 0;
 	}
 
 	h1 {

@@ -17,7 +17,8 @@ export function displayPrincipal(principal: Principal) {
 	return a[0] + '...' + a[a.length - 1];
 }
 
-export function displayUsFormat(value: BigNumber, decimals = 2): string {
+export function displayUsFormat(value: BigNumber, decimals = 2, showNumber = true): string {
+	if (!showNumber) return '******';
 	const factor = new BigNumber(10).pow(decimals);
 	const truncatedValue = value
 		.multipliedBy(factor)
