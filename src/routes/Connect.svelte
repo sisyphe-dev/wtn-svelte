@@ -100,7 +100,7 @@
 				{#each $availableAccounts as account}
 					<button class="login-btn" on:click={() => finalizeConnection($signer, account.owner)}>
 						<p>
-							{displayPrincipal(account.owner)}
+							{displayPrincipal(account.owner, true)}
 						</p>
 					</button>
 				{/each}

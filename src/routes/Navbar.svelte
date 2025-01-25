@@ -41,7 +41,7 @@
 				</button>
 			{:else}
 				<a href="/wallet" class="wallet-btn" id="wallet-info">
-					<h2 style:font-weight={'bold'}>{displayPrincipal($user.principal)}</h2>
+					<h2 style:font-weight={'bold'}>{displayPrincipal($user.principal, true)}</h2>
 					<p title="icp-balance-nav">{displayUsFormat($user.icpBalance(), 2, $showBalance)} ICP</p>
 					<p title="nicp-balance-nav">
 						{displayUsFormat($user.nicpBalance(), 2, $showBalance)} nICP

@@ -1,8 +1,9 @@
 <script lang="ts">
 	import CopyIcon from '$lib/icons/CopyIcon.svelte';
 	import { scale } from 'svelte/transition';
-	import { user } from '$lib/stores';
+	import { user, showBalance } from '$lib/stores';
 	import SendButton from './SendButton.svelte';
+	import { displayAccountId, displayPrincipal } from '$lib';
 
 	let isAnimating = false;
 	let circleVisible = false;
@@ -25,7 +26,7 @@
 <div class="address-container">
 	<h2>ICP Account Id</h2>
 	<div class="principal-container">
-		<p title="accountIdentifier-hex" style:max-width="82%">{$user?.accountId ?? '-/-'}</p>
+		<p title="accountIdentifier-hex" style:max-width="82%">{displayAccountId($user?.accountId, !$showBalance)}</p>
 		<button
 			class="copy-btn"
 			on:click={() => {
@@ -45,7 +46,7 @@
 <div class="address-container">
 	<h2>Principal Address</h2>
 	<div class="principal-container">
-		<p title="principal-user" style:max-width="80%">{$user?.principal ?? '-/-'}</p>
+		<p title="principal-user" style:max-width="80%">{displayPrincipal($user?.principal, !$showBalance)}</p>
 		<button
 			class="copy-btn"
 			on:click={() => {
