@@ -26,7 +26,9 @@
 <div class="address-container">
 	<h2>ICP Account Id</h2>
 	<div class="principal-container">
-		<p title="accountIdentifier-hex" style:max-width="82%">{displayAccountId($user?.accountId, !$showBalance)}</p>
+		<p title="accountIdentifier-hex" style:max-width="82%">
+			{displayAccountId($user?.accountId, !$showBalance)}
+		</p>
 		<button
 			class="copy-btn"
 			on:click={() => {
@@ -46,7 +48,9 @@
 <div class="address-container">
 	<h2>Principal Address</h2>
 	<div class="principal-container">
-		<p title="principal-user" style:max-width="80%">{displayPrincipal($user?.principal, !$showBalance)}</p>
+		<p title="principal-user" style:max-width="80%">
+			{displayPrincipal($user?.principal, !$showBalance)}
+		</p>
 		<button
 			class="copy-btn"
 			on:click={() => {

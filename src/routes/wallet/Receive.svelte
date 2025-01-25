@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { selectedAsset, inReceivingMenu, user, ledgerDevice } from '$lib/stores';
+	import { selectedAsset, inReceivingMenu, user, ledgerDevice, showBalance } from '$lib/stores';
 	import CopyIcon from '$lib/icons/CopyIcon.svelte';
 	import { fade, scale } from 'svelte/transition';
 	import { onMount } from 'svelte';
 	import QrCreator from 'qr-creator';
-	import { assetToIconPath } from '$lib';
+	import { assetToIconPath, displayAccountId, displayPrincipal } from '$lib';
 
 	let dialog: HTMLDialogElement;
 	let accountId: string | undefined;
@@ -70,7 +70,7 @@
 		</div>
 		<div class="principal-container">
 			{#if $selectedAsset === 'ICP'}
-				<p>{accountId ?? '-/-'}</p>
+				<p>{displayAccountId(accountId, !$showBalance)}</p>
 				<button
 					class="copy-btn"
 					on:click={() => {
@@ -84,7 +84,7 @@
 					{/if}
 				</button>
 			{:else}
-				<p>{principal ?? '-/-'}</p>
+				<p>{displayPrincipal(principal, !$showBalance)}</p>
 				<button
 					class="copy-btn"
 					on:click={() => {

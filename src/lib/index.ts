@@ -12,17 +12,21 @@ import { DEV } from './authentification';
 
 export const E8S = BigNumber(10).pow(BigNumber(8));
 
-export function displayPrincipal(principal: Principal | undefined, hide=false) {
+export function displayPrincipal(principal: Principal | string | undefined, hide = false) {
 	if (principal === undefined) return '-/-';
 	if (!hide) return principal.toString();
 	const a = principal.toString().split('-');
-	return a[0] + '...' + a[a.length - 1];
+	return a[0] + '******' + a[a.length - 1];
 }
 
-export function displayAccountId(accountIdHex: string | undefined, hide=false) {
+export function displayAccountId(accountIdHex: string | undefined, hide = false) {
 	if (accountIdHex === undefined) return '-/-';
 	if (!hide) return accountIdHex;
-	return accountIdHex.slice(0, 5) + '...' + accountIdHex.slice(accountIdHex.length-4, accountIdHex.length-1);
+	return (
+		accountIdHex.slice(0, 5) +
+		'******' +
+		accountIdHex.slice(accountIdHex.length - 4, accountIdHex.length - 1)
+	);
 }
 
 export function displayUsFormat(value: BigNumber, decimals = 2, showNumber = true): string {

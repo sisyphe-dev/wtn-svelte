@@ -1,12 +1,19 @@
-<script>
+<script lang="ts">
 	import { isLogging, inMobileMenu, user, ledgerDevice, showBalance } from '$lib/stores';
-	import { displayUsFormat, displayPrincipal } from '$lib';
+	import { displayUsFormat } from '$lib';
 	import { internetIdentityLogout } from '$lib/authentification';
 	import { ThemeToggle } from '@dfinity/gix-components';
 	import PowerOffIcon from '$lib/icons/PowerOffIcon.svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import EyeIcon from '$lib/icons/EyeIcon.svelte';
+	import { Principal } from '@dfinity/principal';
+
+	export function displayUserPrincipal(principal: Principal | undefined) {
+		if (principal === undefined) return '-/-';
+		const a = principal.toString().split('-');
+		return a[0] + '...' + a[a.length - 1];
+	}
 </script>
 
 <nav class:filter={$isLogging}>
@@ -41,7 +48,7 @@
 				</button>
 			{:else}
 				<a href="/wallet" class="wallet-btn" id="wallet-info">
-					<h2 style:font-weight={'bold'}>{displayPrincipal($user.principal, true)}</h2>
+					<h2 style:font-weight={'bold'}>{displayUserPrincipal($user.principal)}</h2>
 					<p title="icp-balance-nav">{displayUsFormat($user.icpBalance(), 2, $showBalance)} ICP</p>
 					<p title="nicp-balance-nav">
 						{displayUsFormat($user.nicpBalance(), 2, $showBalance)} nICP
