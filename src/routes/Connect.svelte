@@ -1,51 +1,54 @@
 <script lang="ts">
-	import { isLogging, isBusy, availableAccounts, signer, toasts } from '$lib/stores';
+	import { isBusy, availableAccounts, signer, toasts, isLogging } from '$lib/stores';
 	import {
 		DEV,
 		STAGING,
 		connectWithInternetIdentity,
 		connectWithTransport,
 		connectWithPlug,
+		testSignIn,
 		localSignIn,
 		NFID_RPC,
-		OISY_RPC,
+		//OISY_RPC,
 		finalizePlugConnection
 	} from '$lib/authentification';
 	import { fade } from 'svelte/transition';
-	import { isMobile, displayPrincipal } from '$lib';
+	import { displayPrincipal, Toast as ToastMessage } from '$lib';
 	import { onMount } from 'svelte';
 	import CloseIcon from '$lib/icons/CloseIcon.svelte';
 	import { Signer } from '@slide-computer/signer';
 	import { Principal } from '@dfinity/principal';
-	import { Toast } from '$lib/toast';
+	import Toast from './Toast.svelte';
 
 	let dialog: HTMLDialogElement;
 
-	async function handleConnection(identityProvider: 'internetIdentity' | 'plug' | 'oisy' | 'nfid') {
+	async function handleConnection(wallet: 'internetIdentity' | 'plug' | 'oisy' | 'nfid') {
 		if ($isBusy) return;
 		isBusy.set(true);
 
 		try {
-			switch (identityProvider) {
+			switch (wallet) {
 				case 'internetIdentity':
 					await connectWithInternetIdentity();
 					break;
 				case 'plug':
 					await connectWithPlug();
 					break;
-				case 'oisy':
-					await connectWithTransport(OISY_RPC);
-					break;
+				// case 'oisy':
+				// 	await connectWithTransport(OISY_RPC);
+				// 	break;
 				case 'nfid':
 					await connectWithTransport(NFID_RPC);
 					break;
 			}
 		} catch (e) {
-			console.error(e);
-			dialog.close();
+			toasts.add(ToastMessage.temporaryWarning('Connection failed. Please try again.'));
+			console.log(e);
+			availableAccounts.set([]);
+			signer.set(undefined);
+			isBusy.set(false);
 			return;
 		}
-
 		if ($availableAccounts.length === 0) {
 			dialog.close();
 		}
@@ -53,7 +56,7 @@
 
 	async function finalizeConnection(newSigner: Signer | undefined, userPrincipal: Principal) {
 		if (!newSigner) {
-			toasts.add(Toast.error('Connection with wallet failed.'));
+			toasts.add(ToastMessage.temporaryWarning('Connection with wallet failed.'));
 		} else {
 			try {
 				await finalizePlugConnection(newSigner, userPrincipal);
@@ -73,7 +76,6 @@
 <dialog
 	id="connectDialog"
 	in:fade={{ duration: 500 }}
-	class:mobile-size={isMobile}
 	on:close={() => {
 		isLogging.set(false);
 		availableAccounts.set([]);
@@ -98,7 +100,7 @@
 				{#each $availableAccounts as account}
 					<button class="login-btn" on:click={() => finalizeConnection($signer, account.owner)}>
 						<p>
-							{displayPrincipal(account.owner)}
+							{displayPrincipal(account.owner, true)}
 						</p>
 					</button>
 				{/each}
@@ -117,7 +119,7 @@
 			</div>
 			<div class="selection-container">
 				<button class="login-btn" on:click={() => handleConnection('internetIdentity')}>
-					<img src="/icon/astronaut.webp" width="50em" height="50em" alt="Dfinity Astronaut." />
+					<img src="/icon/astronaut.webp" width="40em" height="40em" alt="Dfinity Astronaut." />
 					<h2>Internet Identity</h2>
 				</button>
 				<button class="login-btn" on:click={() => handleConnection('nfid')}>
@@ -142,20 +144,49 @@
 						style:background-color="red"
 						on:click={async () => {
 							if ($isBusy) return;
-
-							isBusy.set(true);
-							await localSignIn();
-							isBusy.set(false);
-							dialog.close();
+							try {
+								await localSignIn();
+								dialog.close();
+							} catch (e) {
+								toasts.add(ToastMessage.temporaryWarning('Connection failed. Please try again.'));
+								console.error(e);
+								availableAccounts.set([]);
+								signer.set(undefined);
+								isBusy.set(false);
+							}
+						}}
+					>
+						<h2>Local Development</h2>
+					</button>
+				{/if}
+				{#if DEV}
+					<button
+						class="login-btn"
+						style:background-color="red"
+						on:click={async () => {
+							if ($isBusy) return;
+							try {
+								await testSignIn();
+								dialog.close();
+							} catch (e) {
+								toasts.add(ToastMessage.temporaryWarning('Connection failed. Please try again.'));
+								console.error(e);
+								availableAccounts.set([]);
+								signer.set(undefined);
+								isBusy.set(false);
+							}
 						}}
 						title="ii-connect-btn"
 					>
-						<h2>Local Development</h2>
+						<h2>Test Development</h2>
 					</button>
 				{/if}
 			</div>
 		{/if}
 	</div>
+	{#if $isLogging}
+		<Toast />
+	{/if}
 </dialog>
 
 <style>
@@ -189,6 +220,7 @@
 	dialog {
 		height: fit-content;
 		display: flex;
+		justify-content: center;
 		flex-wrap: wrap;
 		gap: 1em;
 		border: none;

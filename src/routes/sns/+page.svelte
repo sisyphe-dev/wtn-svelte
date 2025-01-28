@@ -12,11 +12,16 @@
 		inputAmount,
 		handleInputAmount
 	} from '$lib/stores';
-	import { Toast } from '$lib/toast';
 	import { handleSnsIcpDepositResult, handleSnsRetrieveNicpResult } from '$lib/resultHandler';
 	import { Principal } from '@dfinity/principal';
 	import BigNumber from 'bignumber.js';
-	import { displayUsFormat, isPrincipalValid, numberToBigintE8s, principalToHex } from '$lib';
+	import {
+		displayUsFormat,
+		isPrincipalValid,
+		numberToBigintE8s,
+		principalToHex,
+		Toast
+	} from '$lib';
 
 	let isConfirmBusy: boolean;
 	let isRetrieveBusy: boolean;
@@ -48,7 +53,7 @@
 			}
 		} catch (error) {
 			console.log(error);
-			toasts.add(Toast.error('Notify ICP deposit call failed, please retry.'));
+			toasts.add(Toast.temporaryError('Notify ICP deposit call failed, please retry.'));
 		}
 		isBusy.set(false);
 		isConfirmBusy = false;
@@ -77,17 +82,14 @@
 	}
 
 	let isAnimating = false;
-	let isCircleOwnerVisible = false;
-	let isCircleSubaccountVisible = false;
+	let isCircleVisible = false;
 
-	const handleAnimation = (target: 'owner' | 'subaccount') => {
+	const handleAnimation = () => {
 		if (!isAnimating) {
 			isAnimating = true;
-			isCircleOwnerVisible = target === 'owner';
-			isCircleSubaccountVisible = target === 'subaccount';
+			isCircleVisible = true;
 			setTimeout(() => {
-				isCircleOwnerVisible = false;
-				isCircleSubaccountVisible = false;
+				isCircleVisible = false;
 				setTimeout(() => {
 					isAnimating = false;
 				}, 500);
@@ -159,12 +161,12 @@
 						<button
 							class="copy-btn"
 							on:click={() => {
-								handleAnimation('subaccount');
+								handleAnimation();
 								navigator.clipboard.writeText($sns.encodedBoomerangAccount ?? '');
 							}}
 						>
 							<CopyIcon />
-							{#if isCircleSubaccountVisible}
+							{#if isCircleVisible}
 								<div class="circle" transition:scale={{ duration: 500 }}></div>
 							{/if}
 						</button>

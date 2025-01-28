@@ -1,21 +1,47 @@
 <script lang="ts">
-	import { AssetType, displayUsFormat, isMobile } from '$lib';
-	import { user, selectedAsset, inSendingMenu, inReceivingMenu } from '$lib/stores';
+	import { assetToIconPath, displayUsFormat, isMobile } from '$lib';
+	import {
+		user,
+		selectedAsset,
+		inSendingMenu,
+		inReceivingMenu,
+		ledgerDevice,
+		showBalance
+	} from '$lib/stores';
 	import { BigNumber } from 'bignumber.js';
-	import { fade } from 'svelte/transition';
 	import QRCodeScannerIcon from '$lib/icons/QRCodeScannerIcon.svelte';
 	import UpIcon from '$lib/icons/UpIcon.svelte';
+	import { onMount } from 'svelte';
 
-	export let asset;
+	export let asset: 'ICP' | 'nICP' | 'WTN';
+	let balance: BigNumber | undefined;
+
+	const fetchBalance = () => {
+		if ($user?.account === 'ledger') {
+			balance = $ledgerDevice?.getBalance(asset);
+		} else {
+			balance = $user?.getBalance(asset);
+		}
+	};
+
+	onMount(() => {
+		fetchBalance();
+
+		const intervalId = setInterval(async () => {
+			fetchBalance();
+		}, 5000);
+
+		return () => clearInterval(intervalId);
+	});
 </script>
 
-<div class="token-balance-container" in:fade={{ duration: 500 }}>
+<div class="token-balance-container">
 	<div class="balance">
 		<p>
-			{displayUsFormat($user ? $user.getBalance(asset.type) : BigNumber(0), 8)}
-			{asset.intoStr()}
+			{balance ? displayUsFormat(balance, 8, $showBalance) : '-/-'}
+			{asset}
 		</p>
-		<img alt="{asset.intoStr()} logo" src={asset.getIconPath()} width="30px" height="30px" />
+		<img alt="{asset} logo" src={assetToIconPath(asset)} width="30px" height="30px" />
 	</div>
 	<div class="btns-container">
 		{#if isMobile}
@@ -26,7 +52,7 @@
 					selectedAsset.set(asset);
 				}}
 			>
-				<QRCodeScannerIcon />
+				<QRCodeScannerIcon color="--main-color" />
 			</button>
 			<button
 				class="mobile-action-btn"
@@ -49,7 +75,7 @@
 			</button>
 			<button
 				class="action-btn"
-				title="send-btn-{asset.intoStr()}"
+				title="send-btn-{asset}"
 				on:click={() => {
 					inSendingMenu.set(true);
 					selectedAsset.set(asset);
@@ -59,7 +85,7 @@
 			</button>
 		{/if}
 	</div>
-	{#if asset.type === AssetType.WTN}
+	{#if asset === 'WTN' && $user?.account !== 'ledger'}
 		<p class="airdrop-allocation">
 			{#if isMobile}
 				Airdrop:
@@ -67,7 +93,7 @@
 				Airdrop Allocation:
 			{/if}
 			{#if $user}
-				{displayUsFormat($user.wtnAllocation())}
+				{displayUsFormat($user.wtnAllocation(), 8, $showBalance)}
 			{:else}
 				-/-
 			{/if} WTN

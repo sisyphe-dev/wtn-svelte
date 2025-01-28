@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { Asset } from '$lib';
+	import { assetToIconPath, assetToTransferFee } from '$lib';
 	import { inputAmount, user, handleInputAmount } from '$lib/stores';
 	import { fade } from 'svelte/transition';
 	import BigNumber from 'bignumber.js';
 
-	export let asset: Asset;
+	export let asset: 'ICP' | 'nICP';
 </script>
 
 <div class="input-container" in:fade={{ duration: 500 }}>
@@ -20,18 +20,20 @@
 		class="max-btn"
 		on:click={() => {
 			const fee =
-				asset.intoStr() === 'ICP'
-					? BigNumber(2).multipliedBy(asset.getTransferFee())
-					: BigNumber(1).multipliedBy(asset.getTransferFee());
-			const maxAmount = $user?.getBalance(asset.type).minus(fee).toNumber() ?? 0;
+				asset === 'ICP'
+					? BigNumber(2).multipliedBy(assetToTransferFee(asset))
+					: BigNumber(1).multipliedBy(assetToTransferFee(asset));
+			const maxAmount = $user?.getBalance(asset).minus(fee).toNumber() ?? 0;
 			inputAmount.change(maxAmount && maxAmount >= 0 ? maxAmount : 0);
 		}}
 	>
 		<div class="max-btn-items">
-			<h2>{asset.intoStr()}</h2>
+			<h2>{asset}</h2>
 			<span>Max</span>
 		</div>
-		<img class="asset-logo" src={asset.getIconPath()} alt="ICP Icon" />
+		<div class="logo-container">
+			<img class="asset-logo" src={assetToIconPath(asset)} alt="ICP Icon" />
+		</div>
 	</button>
 </div>
 
@@ -49,6 +51,7 @@
 	}
 
 	input {
+		margin: 0 4px;
 		border: none;
 		padding-left: 0.4em;
 		height: 3em;
@@ -95,7 +98,17 @@
 	}
 
 	.asset-logo {
-		width: 3em;
+		width: 2em;
 		border-radius: 100%;
+	}
+
+	.logo-container {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background: var(--theme-background-asset-logo);
+		border-radius: 50%;
+		padding: 2px;
+		border: var(--theme-border-asset-logo);
 	}
 </style>

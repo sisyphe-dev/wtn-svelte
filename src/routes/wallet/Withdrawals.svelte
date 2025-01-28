@@ -110,9 +110,13 @@
 								</a>
 							</td>
 							<td>
-								{renderStatus(details.status) === 'Waiting Dissolvement'
-									? timesLeft[Number(details.request.neuron_id[0]?.id)]
-									: renderStatus(details.status)}
+								{#if renderStatus(details.status) === 'Waiting Dissolvement'}
+									{details.request.neuron_id[0]
+										? timesLeft[Number(details.request.neuron_id[0].id)]
+										: '-/-'}
+								{:else}
+									{@html renderStatus(details.status)}
+								{/if}
 							</td>
 							<td>
 								{#if renderStatus(details.status) === 'Waiting Dissolvement' || renderStatus(details.status) === 'Waiting to Start Dissolving'}

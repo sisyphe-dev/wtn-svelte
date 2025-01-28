@@ -2,7 +2,7 @@
 	import { sns, inSnsMenu, handleSnsChange } from '$lib/stores';
 	import { isMobile } from '$lib';
 	import snsMetadata from './sns_metadata.json';
-	import DownArrowIcon from '$lib/icons/DownArrowIcon.svelte';
+	import ArrowIcon from '$lib/icons/ArrowIcon.svelte';
 </script>
 
 <div class="sns-selection-container">
@@ -34,7 +34,7 @@
 			<button on:click={() => inSnsMenu.set(true)}>
 				<span>{$sns.name}</span>
 				<div class="down-arrow">
-					<DownArrowIcon invert={false} />
+					<ArrowIcon isUp={false} />
 				</div>
 			</button>
 		</div>

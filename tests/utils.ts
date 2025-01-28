@@ -1,15 +1,13 @@
 import { HttpAgent } from '@dfinity/agent';
 import { Ed25519KeyIdentity } from '@dfinity/identity';
 import { fetchActors } from '$lib/authentification';
-import { canisters, user } from '$lib/stores';
-import { User, Canisters } from '$lib/state';
-import { get } from 'svelte/store';
+import { User } from '$lib/state';
 import type {
 	TransferArgs,
 	Tokens,
 	TransferArg
 } from '../src/declarations/icp_ledger/icp_ledger.did';
-import { AccountIdentifier } from '@dfinity/ledger-icp';
+import { AccountIdentifier, LedgerCanister } from '@dfinity/ledger-icp';
 import { Page } from 'playwright';
 import { expect } from '@playwright/test';
 import { getMaybeAccount } from '$lib';
@@ -26,25 +24,22 @@ const parsedKey = JSON.stringify(key);
 // Principal = syna7-6ipnd-myx4g-ia46u-nxwok-u5nrr-yxgpi-iang7-lvru2-i7n23-tqe
 
 export const mockSetup = async () => {
-	try {
-		const dummyIdentity = Ed25519KeyIdentity.fromJSON(parsedKey);
-		const agent = HttpAgent.createSync({ host: 'http://127.0.1:8080', identity: dummyIdentity });
-		agent.fetchRootKey().catch((err) => {
-			console.warn('Unable to fetch root key. Check to ensure that your local replica is running');
-			console.error(err);
-		});
+	const dummyIdentity = Ed25519KeyIdentity.fromJSON(parsedKey);
 
-		canisters.set(await fetchActors(agent));
-		user.set(new User(dummyIdentity.getPrincipal()));
-	} catch (error) {
-		console.error('Login failed:', error);
-	}
+	const agent = HttpAgent.createSync({ host: 'http://127.0.1:8080', identity: dummyIdentity });
+	agent.fetchRootKey().catch((err) => {
+		console.warn('Unable to fetch root key. Check to ensure that your local replica is running');
+		console.error(err);
+	});
+
+	return {
+		mockCanisters: await fetchActors(agent),
+		mockMintingAccount: new User(dummyIdentity.getPrincipal())
+	};
 };
 
 export async function transferICP(accountString: string) {
-	await mockSetup();
-	const mockMintingAccount = get(user);
-	const mockCanisters = get(canisters);
+	const { mockCanisters, mockMintingAccount } = await mockSetup();
 
 	if (!(mockCanisters && mockMintingAccount))
 		throw new Error('Mock user or mock canisters are undefined.');
@@ -79,9 +74,7 @@ export async function transferICP(accountString: string) {
 }
 
 export async function transferNICP(accountString: string) {
-	await mockSetup();
-	const mockMintingAccount = get(user);
-	const mockCanisters = get(canisters);
+	const { mockCanisters, mockMintingAccount } = await mockSetup();
 
 	if (!(mockCanisters && mockMintingAccount))
 		throw new Error('Mock user or mock canisters are undefined.');
@@ -103,9 +96,13 @@ export async function transferNICP(accountString: string) {
 	if (!result || Object.keys(result)[0] === 'Err') throw new Error('Failed to transfer balance');
 }
 
-export async function swap(page: Page, amount: number) {
+export async function swap(page: Page, amount: number, isUnstake?: boolean) {
 	await page.locator('[title="swap-input"]').fill(amount.toString());
 	await page.locator('[title="stake-unstake-btn"]').click();
+
+	if (isUnstake) {
+		await page.locator('[title="confirm-unstake-btn"]').click();
+	}
 }
 
 export async function isToastSuccess(page: Page) {

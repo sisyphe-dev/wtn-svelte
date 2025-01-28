@@ -1,4 +1,4 @@
-import { AssetType, bigintE8sToNumber } from '$lib';
+import { bigintE8sToNumber } from '$lib';
 import { AccountIdentifier, type Account, SubAccount } from '@dfinity/ledger-icp';
 import { Principal } from '@dfinity/principal';
 import BigNumber from 'bignumber.js';
@@ -18,6 +18,7 @@ import { IDL } from '@dfinity/candid';
 export class User {
 	public principal: Principal;
 	public accountId: string;
+	public account: 'main' | 'ledger';
 	public icpBalanceE8s: bigint;
 	public nicpBalanceE8s: bigint;
 	public wtnBalanceE8s: bigint;
@@ -25,6 +26,7 @@ export class User {
 
 	constructor(principal: Principal) {
 		this.principal = principal;
+		this.account = 'main';
 		this.accountId = AccountIdentifier.fromPrincipal({ principal }).toHex();
 		this.icpBalanceE8s = 0n;
 		this.nicpBalanceE8s = 0n;
@@ -48,21 +50,21 @@ export class User {
 		return bigintE8sToNumber(this.wtnAllocationE8s);
 	}
 
-	getBalance(asset: AssetType): BigNumber {
+	getBalance(asset: 'ICP' | 'WTN' | 'nICP'): BigNumber {
 		switch (asset) {
-			case AssetType.ICP:
+			case 'ICP':
 				return this.icpBalance();
-			case AssetType.nICP:
+			case 'nICP':
 				return this.nicpBalance();
-			case AssetType.WTN:
+			case 'WTN':
 				return this.wtnBalance();
 		}
 	}
 }
 
 const DAO_SHARE = BigNumber(0.1);
-const APY_6M = BigNumber(0.08);
-const APY_8Y = BigNumber(0.15);
+const APY_6M = BigNumber(0.076);
+const APY_8Y = BigNumber(0.142);
 
 export async function fetchWtnAllocation(
 	principal: Principal,
@@ -87,7 +89,7 @@ export class CanisterActor<canisterInterface> {
 		this._canisterId = canisterId;
 	}
 
-	setAuthenticatedActor<T extends Pick<Signer, 'callCanister'>>(
+	setAuthenticatedActor<T extends Pick<Signer, 'callCanister' | 'openChannel'>>(
 		authenticatedAgent: SignerAgent<T> | HttpAgent
 	) {
 		this.authenticatedActor = Actor.createActor(this._idl, {

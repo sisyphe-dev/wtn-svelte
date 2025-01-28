@@ -1,31 +1,34 @@
 import { writable } from 'svelte/store';
 import { type User, Canisters, WaterNeuronInfo, fetchIcpBalance, fetchNicpBalance } from './state';
-import { Asset, AssetType, bigintE8sToNumber } from '$lib';
-import { Toast } from './toast';
+import { bigintE8sToNumber, Toast } from '$lib';
 import BigNumber from 'bignumber.js';
 import { get } from 'svelte/store';
 import { Principal } from '@dfinity/principal';
 import { encodeIcrcAccount } from '@dfinity/ledger-icrc';
 import type { WithdrawalDetails } from '../declarations/water_neuron/water_neuron.did';
 import { Signer } from '@slide-computer/signer';
+import { LedgerDevice } from './ledger-identity';
 
 /* === Flags === */
 export const isLogging = writable<boolean>(false);
 export const isBusy = writable<boolean>(false);
-export const isConverting = writable<boolean>(false);
 export const inSendingMenu = writable<boolean>(false);
 export const inReceivingMenu = writable<boolean>(false);
 export const inCancelWarningMenu = writable<boolean>(false);
+export const inUnstakeWarningMenu = writable<boolean>(false);
 export const inMobileMenu = writable<boolean>(false);
+export const inQrDestination = writable<boolean>(false);
 export const inSnsMenu = writable<boolean>(false);
+export const showBalance = writable<boolean>(true);
 
 /* === Components === */
 export const language = writable<'en' | 'es' | 'ja' | 'ru'>('en');
 export const availableAccounts = writable<{ owner: Principal; subaccount?: ArrayBuffer }[]>([]);
 export const signer = writable<Signer | undefined>(undefined);
-export const selectedAsset = writable<Asset>(new Asset(AssetType.ICP));
+export const selectedAsset = writable<'ICP' | 'nICP' | 'WTN'>('ICP');
 export const selectedWithdrawal = writable<WithdrawalDetails | undefined>(undefined);
 export const user = writable<User | undefined>(undefined);
+export const ledgerDevice = writable<LedgerDevice | undefined>(undefined);
 export const canisters = writable<Canisters | undefined>(undefined);
 export const waterNeuronInfo = writable<WaterNeuronInfo | undefined>(undefined);
 
@@ -136,7 +139,7 @@ function createToasts() {
 	return {
 		subscribe,
 		add: (toast: Toast) => update((toasts: Toast[]) => [...toasts, toast]),
-		remove: (id: string) => update((toasts: Toast[]) => toasts.filter((toast) => toast.id !== id)),
+		remove: (id: number) => update((toasts: Toast[]) => toasts.filter((toast) => toast.id !== id)),
 		reset: () => set([])
 	};
 }

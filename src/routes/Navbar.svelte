@@ -1,10 +1,19 @@
-<script>
-	import { isLogging, inMobileMenu, user } from '$lib/stores';
-	import { displayUsFormat, displayPrincipal } from '$lib';
+<script lang="ts">
+	import { isLogging, inMobileMenu, user, ledgerDevice, showBalance } from '$lib/stores';
+	import { displayUsFormat } from '$lib';
 	import { internetIdentityLogout } from '$lib/authentification';
 	import { ThemeToggle } from '@dfinity/gix-components';
 	import PowerOffIcon from '$lib/icons/PowerOffIcon.svelte';
 	import { goto } from '$app/navigation';
+	import { page } from '$app/stores';
+	import EyeIcon from '$lib/icons/EyeIcon.svelte';
+	import { Principal } from '@dfinity/principal';
+
+	export function displayUserPrincipal(principal: Principal | undefined) {
+		if (principal === undefined) return '-/-';
+		const a = principal.toString().split('-');
+		return a[0] + '...' + a[a.length - 1];
+	}
 </script>
 
 <nav class:filter={$isLogging}>
@@ -16,54 +25,66 @@
 	</a>
 
 	<div class="right-container">
+		<button
+			on:click={() => {
+				showBalance.set(!$showBalance);
+			}}
+		>
+			<EyeIcon isClosed={$showBalance} />
+		</button>
 		<div class="theme-toggle">
 			<ThemeToggle />
 		</div>
-		{#if !$user}
-			<button
-				title="connect-btn"
-				class="smart"
-				on:click={() => {
-					isLogging.set(true);
-				}}
-			>
-				Connect
-			</button>
-		{:else}
-			<a href="/wallet" class="wallet-btn" id="wallet-info">
-				<h2 style:font-weight={'bold'}>{displayPrincipal($user.principal)}</h2>
-				<p title="icp-balance-nav">{displayUsFormat($user.icpBalance(), 2)} ICP</p>
-				<p title="nicp-balance-nav">{displayUsFormat($user.nicpBalance(), 2)} nICP</p>
-				<p title="wtn-balance-nav">{displayUsFormat($user.wtnBalance(), 2)} WTN</p>
-			</a>
-			<button
-				id="disconnect-btn"
-				class="wallet-action-btn"
-				on:click={async () => {
-					await internetIdentityLogout();
-					user.set(undefined);
-					goto('/');
-				}}
-			>
-				<PowerOffIcon />
-			</button>
-			<button
-				id="menu-btn"
-				class="wallet-action-btn"
-				on:click={() => {
-					inMobileMenu.set(true);
-				}}
-			>
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					height="24"
-					viewBox="0 -960 960 960"
-					width="24"
-					fill="var(--title-color)"
+		{#if !($page.url.pathname === '/launchpad/')}
+			{#if !$user}
+				<button
+					title="connect-btn"
+					class="smart"
+					on:click={() => {
+						isLogging.set(true);
+					}}
 				>
-					<path d="M120-240v-80h720v80H120Zm0-200v-80h720v80H120Zm0-200v-80h720v80H120Z"></path>
-				</svg>
-			</button>
+					Connect
+				</button>
+			{:else}
+				<a href="/wallet" class="wallet-btn" id="wallet-info">
+					<h2 style:font-weight={'bold'}>{displayUserPrincipal($user.principal)}</h2>
+					<p title="icp-balance-nav">{displayUsFormat($user.icpBalance(), 2, $showBalance)} ICP</p>
+					<p title="nicp-balance-nav">
+						{displayUsFormat($user.nicpBalance(), 2, $showBalance)} nICP
+					</p>
+					<p title="wtn-balance-nav">{displayUsFormat($user.wtnBalance(), 2, $showBalance)} WTN</p>
+				</a>
+				<button
+					id="disconnect-btn"
+					class="wallet-action-btn"
+					on:click={async () => {
+						await internetIdentityLogout();
+						user.set(undefined);
+						ledgerDevice.set(undefined);
+						goto('/');
+					}}
+				>
+					<PowerOffIcon />
+				</button>
+				<button
+					id="menu-btn"
+					class="wallet-action-btn"
+					on:click={() => {
+						inMobileMenu.set(true);
+					}}
+				>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						height="24"
+						viewBox="0 -960 960 960"
+						width="24"
+						fill="var(--title-color)"
+					>
+						<path d="M120-240v-80h720v80H120Zm0-200v-80h720v80H120Zm0-200v-80h720v80H120Z"></path>
+					</svg>
+				</button>
+			{/if}
 		{/if}
 	</div>
 </nav>
@@ -91,13 +112,18 @@
 		cursor: pointer;
 		border-radius: 0.3em;
 		transition: all 0.3s ease;
-		margin: 0 1em;
 		color: white;
 		font-weight: bold;
 	}
 
 	button:hover {
 		background-color: var(--input-color);
+	}
+
+	button {
+		display: flex;
+		align-items: center;
+		justify-content: center;
 	}
 
 	div {
@@ -118,6 +144,10 @@
 		margin: 0;
 		padding: 0;
 		font-size: 13px;
+	}
+
+	h2 {
+		margin: 0 0 4px 0;
 	}
 
 	h1 {
