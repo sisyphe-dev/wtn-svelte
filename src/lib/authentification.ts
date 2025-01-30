@@ -32,7 +32,7 @@ export const HOST = DEV ? 'http://127.0.1:8080' : 'https://ic0.app';
 const DAPP_DERIVATION_ORIGIN = 'https://n3i53-gyaaa-aaaam-acfaq-cai.icp0.io';
 const IDENTITY_PROVIDER = 'https://identity.ic0.app';
 
-// export const OISY_RPC = 'https://oisy.com/sign' as const;
+export const OISY_RPC = 'https://oisy.com/sign' as const;
 export const NFID_RPC = 'https://nfid.one/rpc' as const;
 
 const CANISTER_ID_II = DEV ? 'iidmm-fiaaa-aaaaq-aadmq-cai' : 'rdmx6-jaaaa-aaaaa-aaadq-cai';
@@ -136,7 +136,7 @@ export async function finalizePlugConnection(newSigner: Signer, userPrincipal: P
 	user.set(new User(userPrincipal));
 }
 
-export async function connectWithTransport(rpc: typeof NFID_RPC) {
+export async function connectWithTransport(rpc: typeof NFID_RPC | typeof OISY_RPC) {
 	const transport = new PostMessageTransport({
 		url: rpc,
 		detectNonClickEstablishment: false
