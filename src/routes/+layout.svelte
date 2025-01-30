@@ -106,9 +106,6 @@
 {:else}
 	<div class="page-container">
 		<Navbar />
-		<div class="redirect-container">
-			<p><a href="/launchpad">Checkout Papaya SNS 🥭</a></p>
-		</div>
 		<div class="content-container" class:filter={$inReceivingMenu || $inSendingMenu || $isLogging}>
 			<slot />
 		</div>
@@ -252,31 +249,6 @@
 			rgb(18, 69, 89),
 			#0f0f4d
 		); /* Match the background gradient */
-	}
-
-	.redirect-container {
-		display: flex;
-		color: var(--title-color);
-		align-items: center;
-		font-family: var(--secondary-font);
-		background: linear-gradient(135deg, #ffdab9, #ffb347);
-		width: fit-content;
-		padding: 1em;
-		height: fit-content;
-		border-radius: 10px;
-		display: flex;
-		align-self: center;
-	}
-
-	.redirect-container p {
-		margin: 0;
-		text-decoration: underline;
-		text-decoration-color: black;
-		font-size: 1.2em;
-	}
-
-	.redirect-container a {
-		color: black;
 	}
 
 	.content-container {
