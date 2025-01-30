@@ -9,7 +9,7 @@
 		testSignIn,
 		localSignIn,
 		NFID_RPC,
-		//OISY_RPC,
+		OISY_RPC,
 		finalizePlugConnection
 	} from '$lib/authentification';
 	import { fade } from 'svelte/transition';
@@ -34,9 +34,9 @@
 				case 'plug':
 					await connectWithPlug();
 					break;
-				// case 'oisy':
-				// 	await connectWithTransport(OISY_RPC);
-				// 	break;
+				case 'oisy':
+					await connectWithTransport(OISY_RPC);
+					break;
 				case 'nfid':
 					await connectWithTransport(NFID_RPC);
 					break;
@@ -128,12 +128,10 @@
 					<span>|</span>
 					<img src="/icon/nfid.webp" width="auto" height="30em" alt="NFID Logo." />
 				</button>
-				{#if !isMobile}
-					<button class="login-btn" on:click={() => handleConnection('plug')}>
-						<img src="/icon/plug.png" width="50em" height="50em" alt="Plug Icon." />
-						<h2>Plug Wallet</h2>
-					</button>
-				{/if}
+				<button class="login-btn" on:click={() => handleConnection('plug')}>
+					<img src="/icon/plug.png" width="50em" height="50em" alt="Plug Icon." />
+					<h2>Plug Wallet</h2>
+				</button>
 				<button class="login-btn" on:click={() => handleConnection('oisy')}>
 					<img src="/icon/oisy.webp" width="50em" height="50em" alt="Oisy Icon." />
 					<h2>Oisy Wallet</h2>
