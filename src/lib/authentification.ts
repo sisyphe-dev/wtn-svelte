@@ -139,7 +139,10 @@ export async function finalizePlugConnection(newSigner: Signer, userPrincipal: P
 export async function connectWithTransport(rpc: typeof NFID_RPC | typeof OISY_RPC) {
 	const transport = new PostMessageTransport({
 		url: rpc,
-		detectNonClickEstablishment: false
+		detectNonClickEstablishment: false, 
+		closeOnEstablishTimeout: true,
+		establishTimeout: 120000,
+		disconnectTimeout: 120000,
 	});
 
 	const newSigner = new Signer({ transport });

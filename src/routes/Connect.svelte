@@ -10,7 +10,10 @@
 		localSignIn,
 		NFID_RPC,
 		OISY_RPC,
-		finalizePlugConnection
+		finalizePlugConnection,
+
+		connectWithOisy
+
 	} from '$lib/authentification';
 	import { fade } from 'svelte/transition';
 	import { displayPrincipal, Toast as ToastMessage } from '$lib';
