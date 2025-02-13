@@ -10,7 +10,7 @@
 		testSignIn,
 		localSignIn,
 		NFID_RPC,
-		//OISY_RPC,
+		OISY_RPC,
 		finalizePlugConnection
 	} from '$lib/authentification';
 	import { fade } from 'svelte/transition';
@@ -20,6 +20,7 @@
 	import { Signer } from '@slide-computer/signer';
 	import { Principal } from '@dfinity/principal';
 	import Toast from './Toast.svelte';
+	import { user } from '$lib/stores';
 
 	let dialog: HTMLDialogElement;
 
@@ -35,9 +36,9 @@
 				case 'plug':
 					await connectWithPlug();
 					break;
-				// case 'oisy':
-				// 	await connectWithTransport(OISY_RPC);
-				// 	break;
+				case 'oisy':
+					await connectWithTransport(OISY_RPC);
+					break;
 				case 'nfid':
 					await connectWithTransport(NFID_RPC);
 					break;
@@ -46,7 +47,9 @@
 					break;
 			}
 		} catch (e) {
-			toasts.add(ToastMessage.temporaryWarning('Connection failed. Please try again.'));
+			if (!$user) {
+				toasts.add(ToastMessage.temporaryWarning('Connection failed. Please try again.'));
+			}
 			console.log(e);
 			availableAccounts.set([]);
 			signer.set(undefined);
@@ -123,18 +126,22 @@
 			</div>
 			<div class="selection-container">
 				<button class="login-btn" on:click={() => handleConnection('internetIdentity')}>
-					<img src="/icon/astronaut.webp" width="40em" height="40em" alt="Dfinity Astronaut." />
+					<img src="/icon/astronaut.webp" width="auto" height="40px" alt="Dfinity Astronaut." />
 					<h2>Internet Identity</h2>
 				</button>
 				<button class="login-btn" on:click={() => handleConnection('nfid')}>
-					<img src="/icon/google.svg" width="auto" height="40em" alt="Google Logo." />
+					<img src="/icon/google.svg" width="auto" height="40px" alt="Google Logo." />
 					<h2>Google</h2>
 					<span>|</span>
 					<img src="/icon/nfid.webp" width="auto" height="30em" alt="NFID Logo." />
 				</button>
 				<button class="login-btn" on:click={() => handleConnection('plug')}>
-					<img src="/icon/plug.png" width="40em" height="40em" alt="Plug Icon." />
+					<img src="/icon/plug.png" width="auto" height="40px" alt="Plug Icon." />
 					<h2>Plug Wallet</h2>
+				</button>
+				<button class="login-btn" on:click={() => handleConnection('oisy')}>
+					<img src="/icon/oisy.webp" width="auto" height="40px" alt="Oisy Icon." />
+					<h2>Oisy Wallet</h2>
 				</button>
 				<button class="login-btn" on:click={() => handleConnection('primevault')}>
 					<img src="/icon/primevault.png" width="50em" height="50em" alt="Primevault Icon." />
