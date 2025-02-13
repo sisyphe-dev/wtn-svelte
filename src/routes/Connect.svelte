@@ -10,7 +10,7 @@
 		localSignIn,
 		NFID_RPC,
 		OISY_RPC,
-		finalizePlugConnection,
+		finalizePlugConnection
 	} from '$lib/authentification';
 	import { fade } from 'svelte/transition';
 	import { displayPrincipal, Toast as ToastMessage } from '$lib';
@@ -19,6 +19,7 @@
 	import { Signer } from '@slide-computer/signer';
 	import { Principal } from '@dfinity/principal';
 	import Toast from './Toast.svelte';
+	import { user } from '$lib/stores';
 
 	let dialog: HTMLDialogElement;
 
@@ -42,7 +43,9 @@
 					break;
 			}
 		} catch (e) {
-			toasts.add(ToastMessage.temporaryWarning('Connection failed. Please try again.'));
+			if (!$user) {
+				toasts.add(ToastMessage.temporaryWarning('Connection failed. Please try again.'));
+			}
 			console.log(e);
 			availableAccounts.set([]);
 			signer.set(undefined);
