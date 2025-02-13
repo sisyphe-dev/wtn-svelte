@@ -1,5 +1,5 @@
 <script>
-	import { inMobileMenu, user } from '$lib/stores';
+	import { inMobileMenu, ledgerDevice, user } from '$lib/stores';
 	import { internetIdentityLogout } from '$lib/authentification';
 </script>
 
@@ -24,6 +24,7 @@
 					await internetIdentityLogout();
 
 					user.set(undefined);
+					ledgerDevice.set(undefined);
 					inMobileMenu.set(false);
 				}}>Disconnect</a
 			>

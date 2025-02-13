@@ -8,15 +8,29 @@ import type {
 	NeuronId,
 	WithdrawalDetails
 } from '$lib/../declarations/water_neuron/water_neuron.did';
+import { DEV } from './authentification';
 
 export const E8S = BigNumber(10).pow(BigNumber(8));
 
-export function displayPrincipal(principal: Principal) {
+export function displayPrincipal(principal: Principal | string | undefined, hide = false) {
+	if (principal === undefined) return '-/-';
+	if (!hide) return principal.toString();
 	const a = principal.toString().split('-');
-	return a[0] + '...' + a[a.length - 1];
+	return a[0] + '******' + a[a.length - 1];
 }
 
-export function displayUsFormat(value: BigNumber, decimals = 2): string {
+export function displayAccountId(accountIdHex: string | undefined, hide = false) {
+	if (accountIdHex === undefined) return '-/-';
+	if (!hide) return accountIdHex;
+	return (
+		accountIdHex.slice(0, 5) +
+		'******' +
+		accountIdHex.slice(accountIdHex.length - 4, accountIdHex.length - 1)
+	);
+}
+
+export function displayUsFormat(value: BigNumber, decimals = 2, showNumber = true): string {
+	if (!showNumber) return '******';
 	const factor = new BigNumber(10).pow(decimals);
 	const truncatedValue = value
 		.multipliedBy(factor)
@@ -48,74 +62,36 @@ export function bigintE8sToNumber(x: bigint): BigNumber {
 	return BigNumber(Number(x)).dividedBy(E8S);
 }
 
-export enum AssetType {
-	ICP,
-	nICP,
-	WTN
+export function assetToIconPath(asset: 'ICP' | 'nICP' | 'WTN'): string {
+	switch (asset) {
+		case 'ICP':
+			return '/tokens/icp.webp';
+		case 'nICP':
+			return '/tokens/nicp.png';
+		case 'WTN':
+			return '/tokens/WTN.webp';
+	}
 }
 
-export class Asset {
-	public type: AssetType;
-
-	constructor(asset: AssetType) {
-		this.type = asset;
+export function assetToDashboardUrl(asset: 'ICP' | 'nICP' | 'WTN'): string {
+	switch (asset) {
+		case 'ICP':
+			return 'https://dashboard.internetcomputer.org/transaction/';
+		case 'nICP':
+			return '/wallet';
+		case 'WTN':
+			return 'https://dashboard.internetcomputer.org/sns/jmod6-4iaaa-aaaaq-aadkq-cai/transaction/';
 	}
+}
 
-	static fromText(symbol: 'WTN' | 'nICP' | 'ICP'): Asset {
-		switch (symbol) {
-			case 'WTN':
-				return new Asset(AssetType.WTN);
-			case 'nICP':
-				return new Asset(AssetType.nICP);
-			case 'ICP':
-				return new Asset(AssetType.ICP);
-		}
-	}
-
-	intoStr(): string {
-		switch (this.type) {
-			case AssetType.ICP:
-				return 'ICP';
-			case AssetType.nICP:
-				return 'nICP';
-			case AssetType.WTN:
-				return 'WTN';
-			default:
-				throw new Error('Unknown asset');
-		}
-	}
-
-	getIconPath(): string {
-		switch (this.type) {
-			case AssetType.ICP:
-				return '/tokens/icp.webp';
-			case AssetType.nICP:
-				return '/tokens/nicp.webp';
-			case AssetType.WTN:
-				return '/tokens/WTN.webp';
-		}
-	}
-
-	getDashboardUrl(): string {
-		switch (this.type) {
-			case AssetType.ICP:
-				return 'https://dashboard.internetcomputer.org/transaction/';
-			case AssetType.nICP:
-				return '/wallet';
-			case AssetType.WTN:
-				return 'https://dashboard.internetcomputer.org/sns/jmod6-4iaaa-aaaaq-aadkq-cai/transaction/';
-		}
-	}
-
-	getTransferFee(): BigNumber {
-		switch (this.type) {
-			case AssetType.ICP:
-				return BigNumber(0.0001);
-			case AssetType.nICP:
-				return BigNumber(0.0001);
-			case AssetType.WTN:
-				return BigNumber(0.01);
-		}
+export function assetToTransferFee(asset: 'ICP' | 'nICP' | 'WTN'): BigNumber {
+	switch (asset) {
+		case 'ICP':
+			return BigNumber(0.0001);
+		case 'nICP':
+			return BigNumber(0.0001);
+		case 'WTN':
+			return BigNumber(0.01);
 	}
 }
 
@@ -166,7 +142,7 @@ export function renderStatus(status: WithdrawalStatus): string {
 	switch (key) {
 		case 'ConversionDone':
 			return `<p>
-	  Conversion done at{" "}
+	  Conversion done at
 	  <a
 		target="_blank"
 		rel="noreferrer"
@@ -272,6 +248,9 @@ export function getMaybeAccount(accountString: string): Account | AccountIdentif
 			return { owner: icrcAccount.owner, subaccount: [] } as Account;
 		}
 	} catch (error) {
+		if (DEV) {
+			console.log(error);
+		}
 		return;
 	}
 }
@@ -317,5 +296,71 @@ export async function getWarningError(withdrawal: WithdrawalDetails): Promise<st
 			return 'Withdrawal already cancelled.';
 		case 'WaitingToSplitNeuron':
 			return 'Waiting for the withdrawal to split.';
+	}
+}
+
+export const TOAST_LIFETIME_MS = 5000;
+
+export class Toast {
+	public id: number;
+	public message: string;
+	public type: 'success' | 'error' | 'warning';
+	public isTemporary: boolean;
+	public timeLeft: number;
+
+	constructor({
+		message,
+		type,
+		isTemporary
+	}: {
+		message: string;
+		type: 'success' | 'error' | 'warning';
+		isTemporary: boolean;
+	}) {
+		this.id = Date.now();
+		this.message = message;
+		this.type = type;
+		this.isTemporary = isTemporary;
+		this.timeLeft = TOAST_LIFETIME_MS;
+	}
+
+	static temporaryError(message: string): Toast {
+		return new Toast({
+			message,
+			type: 'error',
+			isTemporary: true
+		});
+	}
+
+	static temporaryWarning(message: string): Toast {
+		return new Toast({
+			message,
+			type: 'warning',
+			isTemporary: true
+		});
+	}
+
+	static success(message: string): Toast {
+		return new Toast({
+			message,
+			type: 'success',
+			isTemporary: false
+		});
+	}
+
+	static error(message: string): Toast {
+		return new Toast({
+			message,
+			type: 'error',
+			isTemporary: false
+		});
+	}
+
+	static warning(message: string): Toast {
+		return new Toast({
+			message,
+			type: 'warning',
+			isTemporary: false
+		});
 	}
 }

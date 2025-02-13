@@ -9,14 +9,13 @@
 		selectedWithdrawal
 	} from '$lib/stores';
 	import ChangeIcon from '$lib/icons/ChangeIcon.svelte';
-
-	import { Toast } from '$lib/toast';
 	import {
 		displayUsFormat,
 		bigintE8sToNumber,
 		displayNeuronId,
 		isMobile,
-		getWarningError
+		getWarningError,
+		Toast
 	} from '$lib';
 	import { handleCancelWithdrawalResult } from '$lib/resultHandler';
 
@@ -56,7 +55,7 @@
 			}
 		} catch (error) {
 			console.error(error);
-			toasts.add(Toast.error('Call was rejected.'));
+			toasts.add(Toast.temporaryError('Call was rejected.'));
 		}
 		isConfirmBusy = false;
 		dialog.close();

@@ -4,7 +4,7 @@ import type {
 	AllowanceArgs,
 	Account,
 	ApproveArgs,
-	ApproveResult,
+	Result_2 as ApproveResult,
 	ApproveError
 } from '../declarations/icrc_ledger/icrc_ledger.did';
 import type {
@@ -23,7 +23,8 @@ import type {
 	Result as SnsIcpDepositResult,
 	Result_2 as SnsRetrieveNicpResult
 } from '../declarations/boomerang/boomerang.did';
-import { Asset, AssetType, bigintE8sToNumber, displayUsFormat } from '$lib';
+import type { Error as IcpswapError } from '$lib/../declarations/icpswap_pool/icpswap_pool.did';
+import { assetToDashboardUrl, bigintE8sToNumber, displayUsFormat } from '$lib';
 import type {
 	TransferResult,
 	Icrc1TransferResult,
@@ -435,13 +436,16 @@ export function handleTransferResult(result: TransferResult): ToastResult {
 	}
 }
 
-export function handleIcrcTransferResult(result: Icrc1TransferResult, asset: Asset): ToastResult {
+export function handleIcrcTransferResult(
+	result: Icrc1TransferResult,
+	asset: 'ICP' | 'nICP' | 'WTN'
+): ToastResult {
 	const key = Object.keys(result)[0] as keyof Icrc1TransferResult;
 
 	switch (key) {
 		case 'Ok':
-			switch (asset.type) {
-				case AssetType.nICP:
+			switch (asset) {
+				case 'nICP':
 					return {
 						success: true,
 						message: `Successful transfer at block index ${result[key]}.`
@@ -449,7 +453,7 @@ export function handleIcrcTransferResult(result: Icrc1TransferResult, asset: Ass
 				default:
 					return {
 						success: true,
-						message: `Successful transfer at <a target='_blank' style="text-decoration: underline; color: var(--toast-text-color);" href=${asset.getDashboardUrl()}${result[key]}>block index ${result[key]}</a>.`
+						message: `Successful transfer at <a target='_blank' style="text-decoration: underline; color: var(--toast-text-color);" href=${assetToDashboardUrl(asset)}${result[key]}>block index ${result[key]}</a>.`
 					};
 			}
 
@@ -551,5 +555,23 @@ export function handleCancelWithdrawalResult(result: CancelResult): ToastResult 
 				success: false,
 				message: DEFAULT_ERROR_MESSAGE
 			};
+	}
+}
+
+export function handleIcpSwapError(error: IcpswapError): string {
+	const key = Object.keys(error)[0];
+	const message = Object.values(error)[0];
+
+	switch (key) {
+		case 'CommonError':
+			return 'CommonError.';
+		case 'InternalError':
+			return `InternalError: ${message}`;
+		case 'UnsupportedToken':
+			return `UnsupportedToken: ${message}`;
+		case 'InsufficientFunds':
+			return 'Insufficient Funds.';
+		default:
+			return 'Unknown Error.';
 	}
 }

@@ -17,7 +17,8 @@
 		user,
 		canisters,
 		waterNeuronInfo,
-		handleSnsChange
+		handleSnsChange,
+		ledgerDevice
 	} from '$lib/stores';
 	import { onMount } from 'svelte';
 	import {
@@ -44,8 +45,24 @@
 				$user.principal,
 				$canisters.wtnLedger.anonymousActor
 			);
+
 			$user.wtnAllocationE8s =
 				(await fetchWtnAllocation($user.principal, $canisters.waterNeuron.anonymousActor)) ?? 0n;
+
+			if ($ledgerDevice) {
+				$ledgerDevice.icpBalanceE8s = await fetchIcpBalance(
+					$ledgerDevice.principal,
+					$canisters.icpLedger.anonymousActor
+				);
+				$ledgerDevice.nicpBalanceE8s = await fetchNicpBalance(
+					$ledgerDevice.principal,
+					$canisters.nicpLedger.anonymousActor
+				);
+				$ledgerDevice.wtnBalanceE8s = await fetchWtnBalance(
+					$ledgerDevice.principal,
+					$canisters.wtnLedger.anonymousActor
+				);
+			}
 		}
 	}
 
@@ -89,14 +106,11 @@
 {:else}
 	<div class="page-container">
 		<Navbar />
-		<div class="redirect-container">
-			<p><a href="/launchpad">Join Papaya SNS 🥭</a></p>
-		</div>
 		<div class="content-container" class:filter={$inReceivingMenu || $inSendingMenu || $isLogging}>
 			<slot />
 		</div>
 		<Footer />
-		{#if !$inSendingMenu}
+		{#if !$inSendingMenu && !$isLogging}
 			<Toast />
 		{/if}
 	</div>
@@ -126,10 +140,14 @@
 		--padding-8x: calc(8 * var(--padding));
 		--card-background-contrast: var(--main-color);
 		--card-background: white;
+
+		--main-color: #4c66dc;
+		--main-color-disabled: #4c66dcbd;
+		--main-button-text-color: white;
+		--main-button-text-color-disabled: #fefefeb5;
 	}
 
 	:root[theme='light'] {
-		--main-color: #283e95;
 		--important-text-color: black;
 		--stake-text-color: black;
 
@@ -138,11 +156,11 @@
 		--page-background: #fcfffd;
 		--background-color: #fcfffd;
 		--background-color-transparent: #fefefede;
+		--switch-background-color: rgba(220, 220, 220, 0.49);
+
 		--qr-code-background: #283e95;
 
 		--input-color: #fcfffd;
-
-		--main-button-text-color: white;
 
 		--text-color: rgb(127 127 127);
 		--faq-color: black;
@@ -152,14 +170,15 @@
 		--svg-fill-color: #000000;
 		--svg-opposite-color: #b3b3b3;
 		--sns-selected-button-color: rgb(107 180 249 / 50%);
+
+		--theme-background-asset-logo: none;
+		--theme-border-asset-logo: none;
 	}
 
 	:root[theme='dark'] {
 		--svg-fill-color: #ffffff;
 		--svg-opposite-color: #7f7f7f;
 		--stake-text-color: white;
-
-		--main-color: #4c66dc;
 		--qr-code-background: none;
 
 		--main-button-text-color: #fcfffd;
@@ -168,6 +187,8 @@
 		--border-color: rgb(158 163 178);
 		--background-color: rgb(43, 51, 67);
 		--background-color-transparent: rgb(43, 51, 67, 0.9);
+		--switch-background-color: rgba(34, 38, 47, 0.6);
+
 		--input-color: rgb(39, 46, 60);
 		--text-color: rgb(181 181 181);
 
@@ -177,6 +198,9 @@
 
 		--page-background: radial-gradient(farthest-corner circle at 0% 100%, #090a0d, #272f3d);
 		--sns-selected-button-color: #404f9987;
+
+		--theme-background-asset-logo: #dadef2;
+		--theme-border-asset-logo: 2px solid #a3a5b0;
 	}
 
 	@font-face {
@@ -242,37 +266,6 @@
 		color: white;
 	}
 
-	.redirect-container {
-		display: flex;
-		color: var(--title-color);
-		align-items: center;
-		font-family: var(--secondary-font);
-		background: linear-gradient(135deg, #ffdab9, #ffb347);
-		width: fit-content;
-		padding: 1em;
-		height: fit-content;
-		border-radius: 10px;
-		display: flex;
-		align-self: center;
-	}
-
-	.redirect-container p {
-		margin: 0;
-		text-decoration: underline;
-		text-decoration-color: black;
-		font-size: 1.2em;
-	}
-
-	.redirect-container a {
-		color: black;
-	}
-
-	a {
-		text-decoration: none;
-		outline: none;
-		color: var(--title-color);
-		text-align: center;
-	}
 	/* === Utilities ===*/
 	.filter {
 		filter: blur(5px);
