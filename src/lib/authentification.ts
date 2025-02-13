@@ -15,7 +15,6 @@ import { PostMessageTransport } from '@slide-computer/signer-web';
 import { user, canisters, availableAccounts, signer, ledgerDevice } from './stores';
 import { CanisterActor, Canisters, User } from './state';
 import { SignerAgent } from '@slide-computer/signer-agent';
-import { PostMessageTransport } from '@slide-computer/signer-web';
 import { PlugTransport } from '@slide-computer/signer-transport-plug';
 import { BrowserExtensionTransport } from '@slide-computer/signer-extension';
 import { Principal } from '@dfinity/principal';
@@ -136,31 +135,6 @@ export async function finalizePlugConnection(newSigner: Signer, userPrincipal: P
 
 	canisters.set(await fetchActors(signerAgent));
 	user.set(new User(userPrincipal));
-}
-
-export async function connectWithExtension() {
-	try {
-		const transport = await BrowserExtensionTransport.findTransport({
-			uuid: 'ffa89547-7ee2-4c5a-9ed3-b5b1f05173ac'
-		});
-		console.log(transport);
-		
-		const newSigner = new Signer({ transport });
-
-		console.log('The wallet set the following permission scope:', await newSigner.permissions());
-
-		const userPrincipal = (await newSigner.accounts())[0].owner;
-
-		const signerAgent = SignerAgent.createSync({
-			signer: newSigner,
-			account: userPrincipal
-		});
-
-		canisters.set(await fetchActors(signerAgent));
-		user.set(new User(userPrincipal));
-	} catch (e) {
-		console.error(e);
-	}
 }
 
 export async function connectWithExtension() {
