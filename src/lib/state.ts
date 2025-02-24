@@ -200,7 +200,7 @@ export class WaterNeuronInfo {
 		const rewardTotal = reward6m + reward8y;
 		const share = 1 - DAO_SHARE;
 
-		return share * rewardTotal / neuron6mStake;
+		return (share * rewardTotal) / neuron6mStake;
 	}
 
 	stakersCount(): Number {

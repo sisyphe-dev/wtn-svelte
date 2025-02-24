@@ -8,9 +8,7 @@
 		assetToTransferFee,
 		assetToDashboardUrl,
 		Toast as ToastMessage,
-
 		bigintE8sToNumber
-
 	} from '$lib';
 	import {
 		inSendingMenu,
@@ -20,7 +18,7 @@
 		toasts,
 		canisters,
 		inputAmount,
-		handleInputAmount,
+		handleInputAmount
 	} from '$lib/stores';
 	import { onMount } from 'svelte';
 	import { AccountIdentifier, LedgerCanister } from '@dfinity/ledger-icp';
@@ -58,14 +56,7 @@
 	};
 
 	async function handleTransferRequest(amount: number, accountString: string) {
-		if (
-			isSending ||
-			isNaN(amount) ||
-			balance <= amount ||
-			!principal ||
-			!$canisters ||
-			!$user
-		)
+		if (isSending || isNaN(amount) || balance <= amount || !principal || !$canisters || !$user)
 			return;
 		isSending = true;
 		const amount_e8s = numberToBigintE8s(amount);
@@ -364,7 +355,7 @@
 			<span class="error" title="amount-error">
 				{#if !isNaN(parseFloat($inputAmount)) && parseFloat($inputAmount) > balance}
 					<ErrorIcon /> Not enough treasury.
-				{:else if !isNaN(parseFloat($inputAmount)) && parseFloat($inputAmount) < 1/bigintE8sToNumber(E8S)}
+				{:else if !isNaN(parseFloat($inputAmount)) && parseFloat($inputAmount) < 1 / bigintE8sToNumber(E8S)}
 					<ErrorIcon /> Minimum amount: 0.00000001
 				{/if}
 			</span>

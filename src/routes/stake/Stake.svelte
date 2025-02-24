@@ -122,7 +122,7 @@
 			</button>
 			{#if exchangeRate}
 				{#if invertExchangeRate}
-					1 nICP = {displayNumber(1/exchangeRate, 8)} ICP
+					1 nICP = {displayNumber(1 / exchangeRate, 8)} ICP
 				{:else}
 					1 ICP = {displayNumber(exchangeRate, 8)} nICP
 				{/if}

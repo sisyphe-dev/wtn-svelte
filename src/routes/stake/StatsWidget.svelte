@@ -52,7 +52,7 @@
 		<b>APY</b>
 		<b
 			>{#if apy}
-				{displayNumber(100 *apy, 1)}%
+				{displayNumber(100 * apy, 1)}%
 			{:else}
 				-/-
 			{/if}</b

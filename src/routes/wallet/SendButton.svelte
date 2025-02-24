@@ -1,12 +1,6 @@
 <script lang="ts">
 	import { assetToIconPath, displayNumber, isMobile } from '$lib';
-	import {
-		user,
-		selectedAsset,
-		inSendingMenu,
-		inReceivingMenu,
-		ledgerDevice,
-	} from '$lib/stores';
+	import { user, selectedAsset, inSendingMenu, inReceivingMenu, ledgerDevice } from '$lib/stores';
 	import QRCodeScannerIcon from '$lib/icons/QRCodeScannerIcon.svelte';
 	import UpIcon from '$lib/icons/UpIcon.svelte';
 	import { onMount } from 'svelte';
@@ -31,13 +25,13 @@
 		return () => clearInterval(intervalId);
 	});
 
-	if ($user) (fetchBalance());
+	if ($user) fetchBalance();
 </script>
 
 <div class="token-balance-container">
 	<div class="balance">
 		<p>
-			{balance !== undefined ? displayNumber(balance, 8): '-/-'}
+			{balance !== undefined ? displayNumber(balance, 8) : '-/-'}
 			{asset}
 		</p>
 		<img alt="{asset} logo" src={assetToIconPath(asset)} width="30px" height="30px" />

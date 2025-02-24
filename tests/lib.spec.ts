@@ -26,7 +26,6 @@ const VALID_ACCOUNT =
 const WRONG_ACCOUNT =
 	'daijl-2yaaa-aaaar-qag3a-cai-aaaaaaa.4de8758e1d99bd2d97a384af0ffed63403886967d21070e5241b602ebe39f243';
 
-
 test('numberToBigintE8s test', () => {
 	expect(numberToBigintE8s(1312.436)).toBe(131243600000n);
 	fc.assert(
@@ -69,10 +68,7 @@ test('computeRewards', () => {
 	expect(computeRewards(100_000, 1)).toEqual(4);
 	expect(totalThresholds).toBe(10_160_000);
 
-	const total = TIERS.reduce(
-		(acc, [threshold, amount]) => acc + threshold * amount,
-		0
-	);
+	const total = TIERS.reduce((acc, [threshold, amount]) => acc + threshold * amount, 0);
 	expect(total).toEqual(EXPECTED_INITIAL_BALANCE);
 });
 

@@ -163,7 +163,6 @@
 	const fetchData = async () => {
 		if ($waterNeuronInfo)
 			try {
-				
 			} catch (error) {
 				console.error('Error fetching data:', error);
 			}
@@ -199,7 +198,7 @@
 	$: if ($waterNeuronInfo) {
 		exchangeRate = $waterNeuronInfo.exchangeRate();
 		minimumWithdraw = 10 * exchangeRate;
-	};
+	}
 </script>
 
 {#if $inUnstakeWarningMenu}
@@ -214,7 +213,7 @@
 				<ErrorIcon /> Cannot read amount
 			{:else if !isFastUnstake && parseFloat($inputAmount) < minimumWithdraw}
 				<ErrorIcon /> Minimum: {displayNumber(minimumWithdraw, 4)} nICP
-				{:else if parseFloat($inputAmount) > ($user?.nicpBalance() ?? 0)}
+			{:else if parseFloat($inputAmount) > ($user?.nicpBalance() ?? 0)}
 				<ErrorIcon /> Not enough treasury.
 			{/if}
 		</span>
@@ -224,7 +223,7 @@
 			</button>
 			{#if exchangeRate !== undefined}
 				{#if !invertExchangeRate}
-					1 nICP = {displayNumber(1/exchangeRate, 8)} ICP
+					1 nICP = {displayNumber(1 / exchangeRate, 8)} ICP
 				{:else}
 					1 ICP = {displayNumber(exchangeRate, 8)} nICP
 				{/if}
