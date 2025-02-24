@@ -201,8 +201,8 @@
 				}
 
 				// 3. Swap
-				// Trade with 0.1 % max-slippage.
-				const amountOut = numberToBigintE8s(fastUnstakeAmount * 0.999);
+				// Trade with 2 % max-slippage.
+				const amountOut = numberToBigintE8s(fastUnstakeAmount * 0.98);
 				const amountToWithdrawE8s = await swapInFastUnstake(
 					amountIn.toString(),
 					amountOut.toString()
