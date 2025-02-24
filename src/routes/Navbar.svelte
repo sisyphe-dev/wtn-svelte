@@ -1,12 +1,11 @@
 <script lang="ts">
-	import { isLogging, inMobileMenu, user, ledgerDevice, showBalance } from '$lib/stores';
+	import { isLogging, inMobileMenu, user, ledgerDevice } from '$lib/stores';
 	import { displayNumber } from '$lib';
 	import { internetIdentityLogout } from '$lib/authentification';
 	import { ThemeToggle } from '@dfinity/gix-components';
 	import PowerOffIcon from '$lib/icons/PowerOffIcon.svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
-	import EyeIcon from '$lib/icons/EyeIcon.svelte';
 	import { Principal } from '@dfinity/principal';
 
 	export function displayUserPrincipal(principal: Principal | undefined) {
@@ -25,13 +24,6 @@
 	</a>
 
 	<div class="right-container">
-		<button
-			on:click={() => {
-				showBalance.set(!$showBalance);
-			}}
-		>
-			<EyeIcon isClosed={$showBalance} />
-		</button>
 		<div class="theme-toggle">
 			<ThemeToggle />
 		</div>
@@ -49,11 +41,11 @@
 			{:else}
 				<a href="/wallet" class="wallet-btn" id="wallet-info">
 					<h2 style:font-weight={'bold'}>{displayUserPrincipal($user.principal)}</h2>
-					<p title="icp-balance-nav">{displayNumber($user.icpBalance(), 2, $showBalance)} ICP</p>
+					<p title="icp-balance-nav">{displayNumber($user.icpBalance(), 2)} ICP</p>
 					<p title="nicp-balance-nav">
-						{displayNumber($user.nicpBalance(), 2, $showBalance)} nICP
+						{displayNumber($user.nicpBalance(), 2)} nICP
 					</p>
-					<p title="wtn-balance-nav">{displayNumber($user.wtnBalance(), 2, $showBalance)} WTN</p>
+					<p title="wtn-balance-nav">{displayNumber($user.wtnBalance(), 2)} WTN</p>
 				</a>
 				<button
 					id="disconnect-btn"

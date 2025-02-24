@@ -2,7 +2,6 @@ import { test, expect } from '@playwright/test';
 import {
 	LedgerError,
 	ResponseSignUpdateCall,
-	type ResponseAddress,
 	type ResponseSign
 } from '@zondax/ledger-icp';
 import { decodeSignature, decodeUpdateSignatures } from '$lib/ledger-identity';

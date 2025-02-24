@@ -6,21 +6,19 @@
 		inSendingMenu,
 		inReceivingMenu,
 		ledgerDevice,
-		showBalance
 	} from '$lib/stores';
-	import { BigNumber } from 'bignumber.js';
 	import QRCodeScannerIcon from '$lib/icons/QRCodeScannerIcon.svelte';
 	import UpIcon from '$lib/icons/UpIcon.svelte';
 	import { onMount } from 'svelte';
 
 	export let asset: 'ICP' | 'nICP' | 'WTN';
-	let balance: BigNumber | undefined;
+	let balance = 0;
 
 	const fetchBalance = () => {
 		if ($user?.account === 'ledger') {
-			balance = $ledgerDevice?.getBalance(asset);
+			balance = $ledgerDevice?.getBalance(asset) ?? 0;
 		} else {
-			balance = $user?.getBalance(asset);
+			balance = $user?.getBalance(asset) ?? 0;
 		}
 	};
 
@@ -38,7 +36,7 @@
 <div class="token-balance-container">
 	<div class="balance">
 		<p>
-			{balance ? displayNumber(balance, 8, $showBalance) : '-/-'}
+			{balance ? displayNumber(balance, 8) : '-/-'}
 			{asset}
 		</p>
 		<img alt="{asset} logo" src={assetToIconPath(asset)} width="30px" height="30px" />
@@ -93,7 +91,7 @@
 				Airdrop Allocation:
 			{/if}
 			{#if $user}
-				{displayNumber($user.wtnAllocation(), 8, $showBalance)}
+				{displayNumber($user.wtnAllocation(), 8)}
 			{:else}
 				-/-
 			{/if} WTN

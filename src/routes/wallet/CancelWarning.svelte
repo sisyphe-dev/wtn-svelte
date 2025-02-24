@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { BigNumber } from 'bignumber.js';
 	import { onMount } from 'svelte';
 	import {
 		inCancelWarningMenu,
@@ -21,16 +20,15 @@
 
 	let dialog: HTMLDialogElement;
 
-	let exchangeRate: BigNumber;
+	let exchangeRate: number;
 	let warningError: string | undefined;
 	let isConfirmBusy = false;
 	let invertExchangeRate = false;
 
-	const nicpAfterCancel = (icpDue: BigNumber) => {
-		const transactionFee = BigNumber(0.0001);
-		const mergedIcp = icpDue.minus(transactionFee.multipliedBy(2));
-		const nicpWithoutFee = mergedIcp.multipliedBy(exchangeRate);
-		return nicpWithoutFee.minus(nicpWithoutFee.dividedBy(200));
+	const nicpAfterCancel = (icpDue: number) => {
+		const mergedIcp = icpDue - 0.0002;
+		const nicpWithoutFee = mergedIcp * exchangeRate;
+		return nicpWithoutFee - nicpWithoutFee / 200;
 	};
 
 	const setWarning = async () => {
@@ -128,7 +126,7 @@
 				</button>
 				{#if exchangeRate}
 					{#if invertExchangeRate}
-						1 nICP = {displayNumber(BigNumber(1).dividedBy(exchangeRate), 8)} ICP
+						1 nICP = {displayNumber(1 / exchangeRate, 8)} ICP
 					{:else}
 						1 ICP = {displayNumber(exchangeRate, 8)} nICP
 					{/if}

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { assetToIconPath, assetToTransferFee } from '$lib';
+	import { assetToIconPath } from '$lib';
 	import { inputAmount, user, handleInputAmount } from '$lib/stores';
 	import { fade } from 'svelte/transition';
 
