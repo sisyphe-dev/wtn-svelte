@@ -77,9 +77,9 @@ test('computeRewards', () => {
 });
 
 test('Display US-format', () => {
-	expect(displayNumber(1000000.0123942, 4)).toBe("1'000'000.0124");
+	expect(displayNumber(1000000.0123942, 4)).toBe("1'000'000.0123");
 	expect(displayNumber(1_000.0123942, 8)).toBe("1'000.0123942");
-	expect(displayNumber(9.9992)).toBe('10');
+	expect(displayNumber(9.9992)).toBe('9.99');
 });
 
 test('Test truncated format for principal', () => {

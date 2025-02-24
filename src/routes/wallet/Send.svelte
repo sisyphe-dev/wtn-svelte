@@ -57,18 +57,11 @@
 		}
 	};
 
-	function isValidAmount(amount: number): boolean | undefined {
-		return (
-			balance > amount &&
-			amount > 1 / bigintE8sToNumber(E8S)
-		);
-	}
-
 	async function handleTransferRequest(amount: number, accountString: string) {
 		if (
 			isSending ||
 			isNaN(amount) ||
-			!isValidAmount(amount) ||
+			balance <= amount ||
 			!principal ||
 			!$canisters ||
 			!$user

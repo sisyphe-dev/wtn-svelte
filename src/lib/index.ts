@@ -19,11 +19,12 @@ export function displayPrincipal(principal: Principal | string | undefined) {
 }
 
 export function displayNumber(value: number, decimals = 2): string {
+	const result = Math.floor(value * 10**decimals) / 10**decimals;
 	return new Intl.NumberFormat('en-US', {
 		minimumFractionDigits: 0,
 		maximumFractionDigits: decimals
 	})
-		.format(Number(value.toFixed(decimals)))
+		.format(result)
 		.replace(/,/g, "'");
 }
 

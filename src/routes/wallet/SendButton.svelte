@@ -12,31 +12,32 @@
 	import { onMount } from 'svelte';
 
 	export let asset: 'ICP' | 'nICP' | 'WTN';
-	let balance = 0;
+	let balance: number | undefined = undefined;
 
 	const fetchBalance = () => {
-		if ($user?.account === 'ledger') {
+		if (!$user) return;
+		if ($user.account === 'ledger') {
 			balance = $ledgerDevice?.getBalance(asset) ?? 0;
 		} else {
-			balance = $user?.getBalance(asset) ?? 0;
+			balance = $user.getBalance(asset) ?? 0;
 		}
 	};
 
 	onMount(() => {
-		fetchBalance();
-
 		const intervalId = setInterval(async () => {
 			fetchBalance();
 		}, 5000);
 
 		return () => clearInterval(intervalId);
 	});
+
+	if ($user) (fetchBalance());
 </script>
 
 <div class="token-balance-container">
 	<div class="balance">
 		<p>
-			{balance ? displayNumber(balance, 8) : '-/-'}
+			{balance !== undefined ? displayNumber(balance, 8): '-/-'}
 			{asset}
 		</p>
 		<img alt="{asset} logo" src={assetToIconPath(asset)} width="30px" height="30px" />
