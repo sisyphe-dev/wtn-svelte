@@ -1,7 +1,7 @@
 <script lang="ts">
 	import {
 		computeRewards,
-		displayUsFormat,
+		displayNumber,
 		numberToBigintE8s,
 		computeReceiveAmount,
 		Toast
@@ -109,7 +109,7 @@
 		</span>
 		<p style:color="var(--important-text-color)">
 			{#if exchangeRate}
-				You will receive {displayUsFormat(
+				You will receive {displayNumber(
 					computeReceiveAmount(true, BigNumber($inputAmount), exchangeRate),
 					8
 				)} nICP
@@ -123,9 +123,9 @@
 			</button>
 			{#if exchangeRate}
 				{#if invertExchangeRate}
-					1 nICP = {displayUsFormat(BigNumber(1).dividedBy(exchangeRate), 8)} ICP
+					1 nICP = {displayNumber(BigNumber(1).dividedBy(exchangeRate), 8)} ICP
 				{:else}
-					1 ICP = {displayUsFormat(exchangeRate, 8)} nICP
+					1 ICP = {displayNumber(exchangeRate, 8)} nICP
 				{/if}
 			{:else}
 				-/-
@@ -135,7 +135,7 @@
 			<p style:margin-right={'2.5em'}>
 				Future WTN Airdrop:
 				{#if totalIcpDeposited && !BigNumber($inputAmount).isNaN()}
-					{displayUsFormat(computeRewards(totalIcpDeposited, BigNumber($inputAmount)), 3)}
+					{displayNumber(computeRewards(totalIcpDeposited, BigNumber($inputAmount)), 3)}
 				{:else}
 					-/-
 				{/if}

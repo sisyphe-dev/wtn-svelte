@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { waterNeuronInfo } from '$lib/stores';
-	import { displayUsFormat } from '$lib';
+	import { displayNumber } from '$lib';
 	import BigNumber from 'bignumber.js';
 	import { onMount, afterUpdate } from 'svelte';
 	import { fade } from 'svelte/transition';
@@ -49,7 +49,7 @@
 		<b>TVL</b>
 		<b>
 			{#if totalStaked}
-				{displayUsFormat(totalStaked, 0)} ICP
+				{displayNumber(totalStaked, 0)} ICP
 			{:else}
 				-/-
 			{/if}
@@ -59,7 +59,7 @@
 		<b>APY</b>
 		<b
 			>{#if apy}
-				{displayUsFormat(BigNumber(100).multipliedBy(apy), 1)}%
+				{displayNumber(BigNumber(100).multipliedBy(apy), 1)}%
 			{:else}
 				-/-
 			{/if}</b

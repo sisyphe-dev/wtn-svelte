@@ -10,7 +10,7 @@
 	} from '$lib/stores';
 	import ChangeIcon from '$lib/icons/ChangeIcon.svelte';
 	import {
-		displayUsFormat,
+		displayNumber,
 		bigintE8sToNumber,
 		displayNeuronId,
 		isMobile,
@@ -111,12 +111,12 @@
 					>
 				</p>
 				<p>
-					Stake: {displayUsFormat(bigintE8sToNumber($selectedWithdrawal.request.icp_due), 8)} ICP
+					Stake: {displayNumber(bigintE8sToNumber($selectedWithdrawal.request.icp_due), 8)} ICP
 				</p>
 			</div>
 			<p class="main-information" style:margin-bottom="1em">
 				You will receive {exchangeRate
-					? displayUsFormat(
+					? displayNumber(
 							nicpAfterCancel(bigintE8sToNumber($selectedWithdrawal.request.icp_due)),
 							8
 						)
@@ -128,9 +128,9 @@
 				</button>
 				{#if exchangeRate}
 					{#if invertExchangeRate}
-						1 nICP = {displayUsFormat(BigNumber(1).dividedBy(exchangeRate), 8)} ICP
+						1 nICP = {displayNumber(BigNumber(1).dividedBy(exchangeRate), 8)} ICP
 					{:else}
-						1 ICP = {displayUsFormat(exchangeRate, 8)} nICP
+						1 ICP = {displayNumber(exchangeRate, 8)} nICP
 					{/if}
 				{/if}
 			</p>

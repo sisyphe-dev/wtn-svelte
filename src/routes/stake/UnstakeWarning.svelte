@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { BigNumber } from 'bignumber.js';
 	import { onMount } from 'svelte';
 	import { inUnstakeWarningMenu, isBusy, inputAmount, user, canisters, toasts } from '$lib/stores';
 	import type { ConversionArg } from '$lib/../declarations/water_neuron/water_neuron.did';
@@ -29,7 +28,7 @@
 		CANISTER_ID_NICP_LEDGER
 	} from '$lib/authentification';
 	import {
-		displayUsFormat,
+		displayNumber,
 		numberToBigintE8s,
 		bigintE8sToNumber,
 		computeReceiveAmount,
@@ -39,9 +38,9 @@
 	const DEFAULT_LEDGER_FEE = 10_000n;
 
 	export let isFastUnstake: boolean;
-	export let fastUnstakeAmount: BigNumber;
-	export let minimumWithdraw: BigNumber;
-	export let exchangeRate: BigNumber;
+	export let fastUnstakeAmount: number;
+	export let minimumWithdraw: number;
+	export let exchangeRate: number;
 	let isUnstaking = false;
 	let dialog: HTMLDialogElement;
 
@@ -50,18 +49,18 @@
 		dialog.showModal();
 	});
 
-	async function nicpToIcp(amount: BigNumber) {
+	async function nicpToIcp(amount: number) {
 		if (
 			!$user ||
 			$isBusy ||
 			!$canisters?.nicpLedger.authenticatedActor ||
 			!$canisters?.waterNeuron.authenticatedActor ||
-			amount.isNaN() ||
-			amount.isLessThan(minimumWithdraw)
+			isNaN(amount) ||
+			amount < minimumWithdraw
 		)
 			return;
 		isBusy.set(true);
-		if ($user.nicpBalance().isGreaterThanOrEqualTo(amount) && amount.isGreaterThan(0)) {
+		if ($user.nicpBalance() > amount) {
 			try {
 				let amountE8s = numberToBigintE8s(amount);
 				const approval = await nicpTransferApproved(
@@ -162,7 +161,7 @@
 		} as WithdrawArgs);
 
 		if ('ok' in withdrawResult) {
-			const swapAmount = displayUsFormat(bigintE8sToNumber(withdrawResult.ok), 4);
+			const swapAmount = displayNumber(bigintE8sToNumber(withdrawResult.ok), 4);
 			toasts.add(Toast.success(`Successful swap, ${swapAmount} ICP received.`));
 		} else {
 			toasts.add(Toast.temporaryError('Failed to withdraw funds during swap. Please try again.'));
@@ -170,10 +169,11 @@
 		}
 	};
 
-	async function fastUnstake(amount: BigNumber) {
-		if (!$canisters || !$user || $isBusy || amount.isNaN() || !fastUnstakeAmount) return;
+	// Fees -> Approve: 0.0001 nICP; Deposit: 0.0001 nICP; Withdraw: 0.0001 ICP
+	async function fastUnstake(amount: number) {
+		if (!$canisters || !$user || $isBusy || isNaN(amount) || !fastUnstakeAmount) return;
 		isBusy.set(true);
-		if ($user.nicpBalance().isGreaterThanOrEqualTo(amount) && amount.isGreaterThan(0)) {
+		if ($user.nicpBalance() > amount && amount > 0) {
 			try {
 				let amountE8s = numberToBigintE8s(amount);
 				// 1. Approve
@@ -188,9 +188,9 @@
 						spender
 					} as AllowanceArgs);
 				const allowance = allowanceResult['allowance'];
-				if (numberToBigintE8s(amount) > allowance) {
-					await approveInFastUnstake(spender, amountE8s);
-					amountE8s -= DEFAULT_LEDGER_FEE;
+				if (numberToBigintE8s(amount) + 10_000n > allowance) {
+					// Approve an additional 0.0001 nICP to cover the deposit fee.
+					await approveInFastUnstake(spender, amountE8s + 10_000n);
 				}
 
 				// 2. Deposit
@@ -201,7 +201,8 @@
 				}
 
 				// 3. Swap
-				const amountOut = numberToBigintE8s(fastUnstakeAmount.multipliedBy(BigNumber(0.98)));
+				// Trade with 0.1 % max-slippage.
+				const amountOut = numberToBigintE8s(fastUnstakeAmount * 0.999);
 				const amountToWithdrawE8s = await swapInFastUnstake(
 					amountIn.toString(),
 					amountOut.toString()
@@ -239,17 +240,15 @@
 			<p>You are currently unstaking with the protocol.</p>
 		{/if}
 		<div class="sum-up-container">
-			<p>Convert {displayUsFormat(BigNumber($inputAmount), 8)} nICP</p>
+			<p>Convert {displayNumber(Number($inputAmount), 8)} nICP</p>
 			{#if isFastUnstake}
 				<p>
-					Receive {fastUnstakeAmount.toNumber() === 0
-						? '-/-'
-						: displayUsFormat(fastUnstakeAmount, 8)} ICP
+					Receive {fastUnstakeAmount === 0 ? '-/-' : displayNumber(fastUnstakeAmount, 8)} ICP
 				</p>
 			{:else}
 				<p>
-					Receive {displayUsFormat(
-						computeReceiveAmount(false, BigNumber($inputAmount), exchangeRate),
+					Receive {displayNumber(
+						computeReceiveAmount(false, Number($inputAmount), exchangeRate),
 						8
 					)} ICP
 				</p>
@@ -269,12 +268,12 @@
 				on:click={async () => {
 					if (isFastUnstake) {
 						isUnstaking = true;
-						await fastUnstake(BigNumber($inputAmount));
+						await fastUnstake(Number($inputAmount));
 						isUnstaking = false;
 						dialog.close();
 					} else {
 						isUnstaking = true;
-						await nicpToIcp(BigNumber($inputAmount));
+						await nicpToIcp(Number($inputAmount));
 						isUnstaking = false;
 						dialog.close();
 					}

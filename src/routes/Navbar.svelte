@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { isLogging, inMobileMenu, user, ledgerDevice, showBalance } from '$lib/stores';
-	import { displayUsFormat } from '$lib';
+	import { displayNumber } from '$lib';
 	import { internetIdentityLogout } from '$lib/authentification';
 	import { ThemeToggle } from '@dfinity/gix-components';
 	import PowerOffIcon from '$lib/icons/PowerOffIcon.svelte';
@@ -49,11 +49,11 @@
 			{:else}
 				<a href="/wallet" class="wallet-btn" id="wallet-info">
 					<h2 style:font-weight={'bold'}>{displayUserPrincipal($user.principal)}</h2>
-					<p title="icp-balance-nav">{displayUsFormat($user.icpBalance(), 2, $showBalance)} ICP</p>
+					<p title="icp-balance-nav">{displayNumber($user.icpBalance(), 2, $showBalance)} ICP</p>
 					<p title="nicp-balance-nav">
-						{displayUsFormat($user.nicpBalance(), 2, $showBalance)} nICP
+						{displayNumber($user.nicpBalance(), 2, $showBalance)} nICP
 					</p>
-					<p title="wtn-balance-nav">{displayUsFormat($user.wtnBalance(), 2, $showBalance)} WTN</p>
+					<p title="wtn-balance-nav">{displayNumber($user.wtnBalance(), 2, $showBalance)} WTN</p>
 				</a>
 				<button
 					id="disconnect-btn"

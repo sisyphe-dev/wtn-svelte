@@ -1,7 +1,6 @@
 import { bigintE8sToNumber } from '$lib';
 import { AccountIdentifier, type Account, SubAccount } from '@dfinity/ledger-icp';
 import { Principal } from '@dfinity/principal';
-import BigNumber from 'bignumber.js';
 import type { _SERVICE as icrcLedgerInterface } from '../declarations/icrc_ledger/icrc_ledger.did';
 import type { _SERVICE as icpLedgerInterface } from '../declarations/icp_ledger/icp_ledger.did';
 import type { _SERVICE as icpswapPoolInterface } from '../declarations/icpswap_pool/icpswap_pool.did';
@@ -34,23 +33,23 @@ export class User {
 		this.wtnAllocationE8s = 0n;
 	}
 
-	icpBalance(): BigNumber {
+	icpBalance(): number {
 		return bigintE8sToNumber(this.icpBalanceE8s);
 	}
 
-	nicpBalance(): BigNumber {
+	nicpBalance(): number {
 		return bigintE8sToNumber(this.nicpBalanceE8s);
 	}
 
-	wtnBalance(): BigNumber {
+	wtnBalance(): number {
 		return bigintE8sToNumber(this.wtnBalanceE8s);
 	}
 
-	wtnAllocation(): BigNumber {
+	wtnAllocation(): number {
 		return bigintE8sToNumber(this.wtnAllocationE8s);
 	}
 
-	getBalance(asset: 'ICP' | 'WTN' | 'nICP'): BigNumber {
+	getBalance(asset: 'ICP' | 'WTN' | 'nICP'): number {
 		switch (asset) {
 			case 'ICP':
 				return this.icpBalance();
@@ -62,9 +61,9 @@ export class User {
 	}
 }
 
-const DAO_SHARE = BigNumber(0.1);
-const APY_6M = BigNumber(0.076);
-const APY_8Y = BigNumber(0.142);
+const DAO_SHARE = 0.1;
+const APY_6M = 0.076;
+const APY_8Y = 0.142;
 
 export async function fetchWtnAllocation(
 	principal: Principal,
@@ -174,34 +173,34 @@ export class WaterNeuronInfo {
 		this.info = wtnCanisterInfo;
 	}
 
-	totalIcpDeposited(): BigNumber {
+	totalIcpDeposited(): number {
 		return bigintE8sToNumber(this.info.total_icp_deposited);
 	}
 
-	neuron8yStake(): BigNumber {
+	neuron8yStake(): number {
 		return bigintE8sToNumber(this.info.neuron_8y_stake_e8s);
 	}
 
-	neuron6mStake(): BigNumber {
+	neuron6mStake(): number {
 		return bigintE8sToNumber(this.info.neuron_6m_stake_e8s);
 	}
 
-	exchangeRate(): BigNumber {
+	exchangeRate(): number {
 		return bigintE8sToNumber(this.info.exchange_rate);
 	}
 
-	apy(): BigNumber {
+	apy(): number {
 		const neuron6mStake = this.neuron6mStake();
 		const neuron8yStake = this.neuron8yStake();
 
-		if (neuron6mStake.plus(neuron8yStake).isZero()) return BigNumber(0);
+		if (neuron6mStake + neuron8yStake === 0) return 0;
 
-		const amount6m = APY_6M.multipliedBy(neuron6mStake);
-		const amount8y = APY_8Y.multipliedBy(neuron8yStake);
-		const amountTotal = amount6m.plus(amount8y);
-		const share = BigNumber(1).minus(DAO_SHARE);
+		const reward6m = APY_6M * neuron6mStake;
+		const reward8y = APY_8Y * neuron8yStake;
+		const rewardTotal = reward6m + reward8y;
+		const share = 1 - DAO_SHARE;
 
-		return share.multipliedBy(amountTotal).multipliedBy(BigNumber(1)).dividedBy(neuron6mStake);
+		return share * rewardTotal / neuron6mStake;
 	}
 
 	stakersCount(): Number {

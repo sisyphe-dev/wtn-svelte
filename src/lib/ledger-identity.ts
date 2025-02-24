@@ -26,7 +26,6 @@ import {
 } from '@zondax/ledger-icp';
 import { AccountIdentifier, LedgerCanister } from '@dfinity/ledger-icp';
 import { bigintE8sToNumber } from '$lib';
-import BigNumber from 'bignumber.js';
 import { IcrcLedgerCanister } from '@dfinity/ledger-icrc';
 
 export const LEDGER_DEFAULT_DERIVE_PATH = `m/44'/223'/0'/0/0`;
@@ -81,19 +80,19 @@ export class LedgerDevice {
 		this.wtnBalanceE8s = 0n;
 	}
 
-	icpBalance(): BigNumber {
+	icpBalance(): number {
 		return bigintE8sToNumber(this.icpBalanceE8s);
 	}
 
-	nicpBalance(): BigNumber {
+	nicpBalance(): number {
 		return bigintE8sToNumber(this.nicpBalanceE8s);
 	}
 
-	wtnBalance(): BigNumber {
+	wtnBalance(): number {
 		return bigintE8sToNumber(this.wtnBalanceE8s);
 	}
 
-	getBalance(asset: 'ICP' | 'nICP' | 'WTN'): BigNumber {
+	getBalance(asset: 'ICP' | 'nICP' | 'WTN'): number {
 		switch (asset) {
 			case 'ICP':
 				return this.icpBalance();

@@ -7,7 +7,7 @@ import {
 	TIERS,
 	EXPECTED_INITIAL_BALANCE,
 	computeRewards,
-	displayUsFormat,
+	displayNumber,
 	displayPrincipal,
 	principalToHex,
 	isPrincipalValid,
@@ -121,10 +121,10 @@ test('computeRewards', () => {
 });
 
 test('Display US-format', () => {
-	expect(displayUsFormat(BigNumber(1_000_000.0123942), 4)).toBe("1'000'000.0123");
-	expect(displayUsFormat(BigNumber(1_000_000.018942), 4)).toBe("1'000'000.0189");
-	expect(displayUsFormat(BigNumber(1_000_000.0123942), 8)).toBe("1'000'000.0123942");
-	expect(displayUsFormat(BigNumber(9.9992))).toBe('9.99');
+	expect(displayNumber(BigNumber(1_000_000.0123942), 4)).toBe("1'000'000.0123");
+	expect(displayNumber(BigNumber(1_000_000.018942), 4)).toBe("1'000'000.0189");
+	expect(displayNumber(BigNumber(1_000_000.0123942), 8)).toBe("1'000'000.0123942");
+	expect(displayNumber(BigNumber(9.9992))).toBe('9.99');
 });
 
 test('Test truncated format for principal', () => {

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { assetToIconPath, displayUsFormat, isMobile } from '$lib';
+	import { assetToIconPath, displayNumber, isMobile } from '$lib';
 	import {
 		user,
 		selectedAsset,
@@ -38,7 +38,7 @@
 <div class="token-balance-container">
 	<div class="balance">
 		<p>
-			{balance ? displayUsFormat(balance, 8, $showBalance) : '-/-'}
+			{balance ? displayNumber(balance, 8, $showBalance) : '-/-'}
 			{asset}
 		</p>
 		<img alt="{asset} logo" src={assetToIconPath(asset)} width="30px" height="30px" />
@@ -93,7 +93,7 @@
 				Airdrop Allocation:
 			{/if}
 			{#if $user}
-				{displayUsFormat($user.wtnAllocation(), 8, $showBalance)}
+				{displayNumber($user.wtnAllocation(), 8, $showBalance)}
 			{:else}
 				-/-
 			{/if} WTN

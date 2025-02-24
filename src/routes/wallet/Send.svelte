@@ -1,6 +1,6 @@
 <script lang="ts">
 	import {
-		displayUsFormat,
+		displayNumber,
 		numberToBigintE8s,
 		E8S,
 		getMaybeAccount,
@@ -305,7 +305,7 @@
 				<div style:display={'flex'}>
 					<div class="balances">
 						<span style:margin-left={'1em'}
-							>{balance ? displayUsFormat(balance, 8, $showBalance) : '-/-'}
+							>{balance ? displayNumber(balance, 8, $showBalance) : '-/-'}
 							{$selectedAsset}</span
 						>
 						<img

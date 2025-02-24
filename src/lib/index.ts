@@ -1,5 +1,4 @@
 import { Principal } from '@dfinity/principal';
-import BigNumber from 'bignumber.js';
 import type { WithdrawalStatus } from '../declarations/water_neuron/water_neuron.did';
 import { AccountIdentifier } from '@dfinity/ledger-icp';
 import { decodeIcrcAccount } from '@dfinity/ledger-icrc';
@@ -10,56 +9,30 @@ import type {
 } from '$lib/../declarations/water_neuron/water_neuron.did';
 import { DEV } from './authentification';
 
-export const E8S = BigNumber(10).pow(BigNumber(8));
+export const E8S = 100_000_000n;
 
-export function displayPrincipal(principal: Principal | string | undefined, hide = false) {
+export function displayPrincipal(principal: Principal | string | undefined) {
 	if (principal === undefined) return '-/-';
-	if (!hide) return principal.toString();
+
 	const a = principal.toString().split('-');
-	return a[0] + '******' + a[a.length - 1];
+	return a[0] + '...' + a[a.length - 1];
 }
 
-export function displayAccountId(accountIdHex: string | undefined, hide = false) {
-	if (accountIdHex === undefined) return '-/-';
-	if (!hide) return accountIdHex;
-	return (
-		accountIdHex.slice(0, 5) +
-		'******' +
-		accountIdHex.slice(accountIdHex.length - 4, accountIdHex.length - 1)
-	);
-}
-
-export function displayUsFormat(value: BigNumber, decimals = 2, showNumber = true): string {
-	if (!showNumber) return '******';
-	const factor = new BigNumber(10).pow(decimals);
-	const truncatedValue = value
-		.multipliedBy(factor)
-		.integerValue(BigNumber.ROUND_DOWN)
-		.dividedBy(factor);
-
-	const converted = truncatedValue.toFixed(decimals);
-
+export function displayNumber(value: number, decimals = 2): string {
 	return new Intl.NumberFormat('en-US', {
 		minimumFractionDigits: 0,
 		maximumFractionDigits: decimals
 	})
-		.format(Number(converted))
+		.format(Number(value.toFixed(decimals)))
 		.replace(/,/g, "'");
 }
 
-export function numberWithPrecision(x: BigNumber, decimals: BigNumber): BigNumber {
-	const scaleFactor = BigNumber(10).pow(decimals);
-	const xScaled = BigNumber(x).multipliedBy(scaleFactor).integerValue(BigNumber.ROUND_FLOOR);
-	return BigNumber(xScaled ? xScaled : 0).dividedBy(scaleFactor);
+export function numberToBigintE8s(x: number): bigint {
+	return BigInt(Math.round(x * Number(E8S)));
 }
 
-export function numberToBigintE8s(x: BigNumber): bigint {
-	const xScaled = numberWithPrecision(x, BigNumber(8)).multipliedBy(E8S);
-	return BigInt(xScaled.toFixed(0));
-}
-
-export function bigintE8sToNumber(x: bigint): BigNumber {
-	return BigNumber(Number(x)).dividedBy(E8S);
+export function bigintE8sToNumber(x: bigint): number {
+	return Number(x) / Number(E8S);
 }
 
 export function assetToIconPath(asset: 'ICP' | 'nICP' | 'WTN'): string {
@@ -84,52 +57,50 @@ export function assetToDashboardUrl(asset: 'ICP' | 'nICP' | 'WTN'): string {
 	}
 }
 
-export function assetToTransferFee(asset: 'ICP' | 'nICP' | 'WTN'): BigNumber {
+export function assetToTransferFee(asset: 'ICP' | 'nICP' | 'WTN'): number {
 	switch (asset) {
 		case 'ICP':
-			return BigNumber(0.0001);
+			return 0.0001;
 		case 'nICP':
-			return BigNumber(0.0001);
+			return 0.0001;
 		case 'WTN':
-			return BigNumber(0.01);
+			return 0.01;
 	}
 }
 
-export const TIERS: [BigNumber, BigNumber][] = [
-	[BigNumber(80_000), BigNumber(8)],
-	[BigNumber(160_000), BigNumber(4)],
-	[BigNumber(320_000), BigNumber(2)],
-	[BigNumber(640_000), BigNumber(1)],
-	[BigNumber(1_280_000), BigNumber(0.5)],
-	[BigNumber(2_560_000), BigNumber(0.25)],
-	[BigNumber(5_120_000), BigNumber(0.125)]
+export const TIERS: [number, number][] = [
+	[80_000, 8],
+	[160_000, 4],
+	[320_000, 2],
+	[640_000, 1],
+	[1_280_000, 0.5],
+	[2_560_000, 0.25],
+	[5_120_000, 0.125]
 ];
 
-export const EXPECTED_INITIAL_BALANCE: BigNumber = BigNumber(4_480_000);
+export const EXPECTED_INITIAL_BALANCE = 4_480_000;
 
-export function computeRewards(alreadyDistributed: BigNumber, converting: BigNumber): BigNumber {
-	let totalRewards = BigNumber(0);
-	let amountToDistribute = BigNumber(converting);
-	let cumulativeAmount = BigNumber(alreadyDistributed);
+export function computeRewards(alreadyDistributed: number, converting: number): number {
+	let totalRewards = 0;
+	let amountToDistribute = converting;
+	let cumulativeAmount = alreadyDistributed;
 
 	for (const [threshold, rate] of TIERS) {
-		const nicpThreshold = BigNumber(threshold);
-		const allocationRate = BigNumber(rate);
-		if (cumulativeAmount.comparedTo(nicpThreshold) === 1) {
-			cumulativeAmount = cumulativeAmount.minus(nicpThreshold);
+		const nicpThreshold = threshold;
+		const allocationRate = rate;
+		if (cumulativeAmount > nicpThreshold) {
+			cumulativeAmount = cumulativeAmount - nicpThreshold;
 			continue;
 		}
-		const tierAvailable = nicpThreshold.minus(cumulativeAmount);
-		cumulativeAmount = BigNumber(0);
-		const amountInThisTier = BigNumber(
-			Math.min(amountToDistribute.toNumber(), tierAvailable.toNumber())
-		);
+		const tierAvailable = nicpThreshold - cumulativeAmount;
+		cumulativeAmount = 0;
+		const amountInThisTier = Math.min(amountToDistribute, tierAvailable);
 
-		totalRewards = totalRewards.plus(amountInThisTier.multipliedBy(allocationRate));
+		totalRewards += amountInThisTier * allocationRate;
 
-		amountToDistribute = amountToDistribute.minus(amountInThisTier);
+		amountToDistribute -= amountInThisTier;
 
-		if (amountToDistribute.comparedTo(BigNumber(0)) === 0) {
+		if (amountToDistribute === 0) {
 			break;
 		}
 	}
@@ -255,21 +226,17 @@ export function getMaybeAccount(accountString: string): Account | AccountIdentif
 	}
 }
 
-export function computeReceiveAmount(
-	stake: boolean,
-	value: BigNumber,
-	exchangeRate: BigNumber
-): BigNumber {
-	if (value.isNaN()) return BigNumber(0);
+export function computeReceiveAmount(stake: boolean, value: number, exchangeRate: number): number {
+	if (isNaN(value)) return 0;
 
 	if (exchangeRate) {
 		if (stake) {
-			return value.multipliedBy(exchangeRate);
+			return value * exchangeRate;
 		} else {
-			return value.dividedBy(exchangeRate);
+			return value / exchangeRate;
 		}
 	} else {
-		return BigNumber(0);
+		return 0;
 	}
 }
 
