@@ -250,7 +250,7 @@
 				>
 					<InfoIcon />
 					<p style:display={showImmediateHelp ? 'flex' : 'none'} class="help-content">
-						Immediate unstake via ICPSwap, traded at the current price with a 2% max-slippage.
+						Immediate unstake via ICPSwap, traded at the current price with a 0.1% max-slippage.
 					</p>
 				</button>
 			</div>
