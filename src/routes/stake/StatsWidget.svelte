@@ -31,7 +31,7 @@
 		getLedgerBalanceStoreEntries();
 	});
 
-	if ($waterNeuronInfo) {
+	$: if ($waterNeuronInfo) {
 		apy = $waterNeuronInfo.apy();
 		totalStaked = $waterNeuronInfo.neuron8yStake() + $waterNeuronInfo.neuron6mStake();
 	}
