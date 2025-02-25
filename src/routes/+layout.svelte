@@ -150,7 +150,7 @@
 	:root[theme='light'] {
 		--important-text-color: black;
 		--stake-text-color: black;
-		--box-shadow: #7c7c7c 0px 8px 16px;
+		--box-shadow: #7c7c7c63 0px 8px 16px;
 
 
 		--title-color: black;
