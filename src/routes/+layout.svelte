@@ -182,7 +182,7 @@
 		--svg-opposite-color: #7f7f7f;
 		--stake-text-color: white;
 		--qr-code-background: none;
-		--box-shadow: black 0px 8px 16px;
+		--box-shadow: #00000061 0px 8px 16px;
 
 
 		--main-button-text-color: #fcfffd;
