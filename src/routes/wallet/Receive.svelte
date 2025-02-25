@@ -4,7 +4,7 @@
 	import { fade, scale } from 'svelte/transition';
 	import { onMount } from 'svelte';
 	import QrCreator from 'qr-creator';
-	import { assetToIconPath, displayPrincipal } from '$lib';
+	import { assetToIconPath } from '$lib';
 
 	let dialog: HTMLDialogElement;
 	let accountId: string | undefined;
@@ -84,7 +84,7 @@
 					{/if}
 				</button>
 			{:else}
-				<p>{displayPrincipal(principal)}</p>
+				<p>{principal}</p>
 				<button
 					class="copy-btn"
 					on:click={() => {
