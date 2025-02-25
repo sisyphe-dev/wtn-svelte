@@ -202,7 +202,7 @@
 		color: var(--stake-text-color);
 		padding: 1.5em;
 		border-radius: 15px;
-		border: var(--input-border);
+		box-shadow: var(--box-shadow);
 	}
 
 	.toggle-container {

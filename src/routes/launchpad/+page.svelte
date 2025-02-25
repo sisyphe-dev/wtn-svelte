@@ -95,7 +95,7 @@
 		if (!selector || !currentBar || !minCommitment) return;
 
 		const barWidth = totalBar.offsetWidth;
-		const ratio = bigintE8sToNumber(status.total_icp_deposited).toNumber() / 23_295_621;
+		const ratio = bigintE8sToNumber(status.total_icp_deposited) / 23_295_621;
 		const previousSnsCheckpoint = (3 * barWidth) / 4;
 		const previousSnsCheckRatio = 0.01526;
 		snsRatio = ratio;
@@ -284,12 +284,12 @@
 			<div class="parameter">
 				<span style="color: #4d79ff">Current SNS</span>
 				<span style="color: #4d79ff"
-					>{snsRatio === 0 ? 0 : displayNumber(BigNumber(1 / snsRatio))} WTN/ICP</span
+					>{snsRatio === 0 ? 0 : displayNumber(1 / snsRatio)} WTN/ICP</span
 				>
 			</div>
 			<div class="parameter">
 				<span style="color: #faa123">Previous SNS</span>
-				<span style="color: #faa123">{displayNumber(BigNumber(65.5))} WTN/ICP</span>
+				<span style="color: #faa123">{displayNumber(65.5)} WTN/ICP</span>
 			</div>
 			<div class="parameter">
 				<span>{displaySnsTimeLeft(Number(status.time_left))}</span>

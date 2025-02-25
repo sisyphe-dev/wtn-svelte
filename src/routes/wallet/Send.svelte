@@ -450,7 +450,7 @@
 		color: var(--stake-text-color);
 		padding: 2em;
 		border-radius: 15px;
-		border: var(--input-border);
+		box-shadow: var(--box-shadow);
 	}
 
 	.header-container {

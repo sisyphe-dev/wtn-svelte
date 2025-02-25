@@ -189,7 +189,7 @@
 					<a
 						class="action-btn"
 						href="https://proposals.network/submit?g={$sns.principal}&action=TransferSnsTreasuryFunds&destination={$sns.encodedBoomerangAccount}&amount={numberToBigintE8s(
-							BigNumber($inputAmount)
+							Number($inputAmount)
 						)}"
 						target="blank"
 					>
@@ -279,7 +279,7 @@
 	/* === Layout === */
 	.sns-stake-container {
 		background-color: var(--background-color);
-		border: var(--input-border);
+		box-shadow: var(--box-shadow);
 		border-radius: 10px;
 		display: flex;
 		height: 44em;
@@ -292,8 +292,7 @@
 		flex-direction: column;
 		width: 80%;
 		align-items: start;
-		justify-content: start;
-		gap: 2em;
+		justify-content: space-evenly;
 		padding: 3em;
 	}
 

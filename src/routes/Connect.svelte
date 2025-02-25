@@ -100,7 +100,7 @@
 				{#each $availableAccounts as account}
 					<button class="login-btn" on:click={() => finalizeConnection($signer, account.owner)}>
 						<p>
-							{displayPrincipal(account.owner, true)}
+							{displayPrincipal(account.owner)}
 						</p>
 					</button>
 				{/each}
@@ -232,7 +232,7 @@
 		background: var(--background-color);
 		padding: 2em;
 		border-radius: 15px;
-		border: var(--input-border);
+		box-shadow: var(--box-shadow);
 	}
 
 	.header-container {
