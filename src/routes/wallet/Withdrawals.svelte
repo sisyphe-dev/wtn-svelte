@@ -1,7 +1,7 @@
 <script lang="ts">
 	import {
 		bigintE8sToNumber,
-		displayUsFormat,
+		displayNumber,
 		renderStatus,
 		displayTimeLeft,
 		fetchNeuronCreationTimestamp,
@@ -98,7 +98,7 @@
 				{#each Object.values(activeWithdrawalRequests).concat(Object.values(cancelledWithdrawalRequests)) as details, index}
 					{#if isMobile}
 						<tr>
-							<td>{displayUsFormat(bigintE8sToNumber(details.request.icp_due))}</td>
+							<td>{displayNumber(bigintE8sToNumber(details.request.icp_due))}</td>
 							<td>
 								<a
 									target="_blank"
@@ -135,8 +135,8 @@
 						</tr>
 					{:else}
 						<tr>
-							<td>{displayUsFormat(bigintE8sToNumber(details.request.nicp_burned))}</td>
-							<td>{displayUsFormat(bigintE8sToNumber(details.request.icp_due))}</td>
+							<td>{displayNumber(bigintE8sToNumber(details.request.nicp_burned))}</td>
+							<td>{displayNumber(bigintE8sToNumber(details.request.icp_due))}</td>
 							<td>
 								<a
 									target="_blank"

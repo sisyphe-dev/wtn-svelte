@@ -1,7 +1,7 @@
 <script lang="ts">
 	import {
 		computeRewards,
-		displayUsFormat,
+		displayNumber,
 		numberToBigintE8s,
 		computeReceiveAmount,
 		Toast
@@ -10,7 +10,6 @@
 	import ChangeIcon from '$lib/icons/ChangeIcon.svelte';
 	import ErrorIcon from '$lib/icons/ErrorIcon.svelte';
 	import { inputAmount, waterNeuronInfo, canisters, user, toasts, isBusy } from '$lib/stores';
-	import BigNumber from 'bignumber.js';
 	import {
 		icpTransferApproved,
 		handleStakeResult,
@@ -22,23 +21,23 @@
 	import { fade } from 'svelte/transition';
 
 	let invertExchangeRate = false;
-	let exchangeRate: BigNumber;
-	let totalIcpDeposited: BigNumber;
+	let exchangeRate: number;
+	let totalIcpDeposited: number;
 	let isStaking = false;
 
-	async function icpToNicp(amount: BigNumber) {
+	async function icpToNicp(amount: number) {
 		if (
 			!$user ||
 			!$canisters?.waterNeuron.authenticatedActor ||
 			!$canisters?.icpLedger.authenticatedActor ||
-			amount.isNaN() ||
-			amount.isLessThan(BigNumber(1)) ||
+			isNaN(amount) ||
+			amount < 1 ||
 			$isBusy
 		)
 			return;
 		isBusy.set(true);
 
-		if ($user.icpBalance().isGreaterThanOrEqualTo(amount) && amount.isGreaterThan(0)) {
+		if ($user.icpBalance() > amount) {
 			try {
 				let amountE8s = numberToBigintE8s(amount);
 				const approval = await icpTransferApproved(
@@ -103,14 +102,14 @@
 				<ErrorIcon /> Cannot read amount
 			{:else if parseFloat($inputAmount) < 1}
 				<ErrorIcon /> Minimum: 1 ICP
-			{:else if !BigNumber($inputAmount).isNaN() && BigNumber($inputAmount).isGreaterThanOrEqualTo($user?.icpBalance() ?? BigNumber(0))}
+			{:else if !isNaN(parseFloat($inputAmount)) && parseFloat($inputAmount) > ($user?.icpBalance() ?? 0)}
 				<ErrorIcon /> Not enough treasury.
 			{/if}
 		</span>
 		<p style:color="var(--important-text-color)">
 			{#if exchangeRate}
-				You will receive {displayUsFormat(
-					computeReceiveAmount(true, BigNumber($inputAmount), exchangeRate),
+				You will receive {displayNumber(
+					computeReceiveAmount(true, parseFloat($inputAmount), exchangeRate),
 					8
 				)} nICP
 			{:else}
@@ -123,9 +122,9 @@
 			</button>
 			{#if exchangeRate}
 				{#if invertExchangeRate}
-					1 nICP = {displayUsFormat(BigNumber(1).dividedBy(exchangeRate), 8)} ICP
+					1 nICP = {displayNumber(1 / exchangeRate, 8)} ICP
 				{:else}
-					1 ICP = {displayUsFormat(exchangeRate, 8)} nICP
+					1 ICP = {displayNumber(exchangeRate, 8)} nICP
 				{/if}
 			{:else}
 				-/-
@@ -134,8 +133,8 @@
 		<div class="reward">
 			<p style:margin-right={'2.5em'}>
 				Future WTN Airdrop:
-				{#if totalIcpDeposited && !BigNumber($inputAmount).isNaN()}
-					{displayUsFormat(computeRewards(totalIcpDeposited, BigNumber($inputAmount)), 3)}
+				{#if totalIcpDeposited && isNaN(parseFloat($inputAmount))}
+					{displayNumber(computeRewards(totalIcpDeposited, parseFloat($inputAmount)), 4)}
 				{:else}
 					-/-
 				{/if}
@@ -147,7 +146,7 @@
 		class="swap-btn"
 		on:click={async () => {
 			isStaking = true;
-			await icpToNicp(BigNumber($inputAmount));
+			await icpToNicp(parseFloat($inputAmount));
 			isStaking = false;
 		}}
 		title="stake-unstake-btn"

@@ -22,7 +22,6 @@
 		"@sveltejs/kit": "^1.30.4",
 		"@sveltejs/vite-plugin-svelte": "^2.4.2",
 		"@types/node": "^20.14.10",
-		"bignumber.js": "^9.1.2",
 		"buffer": "^6.0.3",
 		"dotenv": "^16.4.5",
 		"events": "^3.3.0",

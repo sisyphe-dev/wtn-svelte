@@ -1,6 +1,6 @@
 <script lang="ts">
 	import {
-		displayUsFormat,
+		displayNumber,
 		numberToBigintE8s,
 		bigintE8sToNumber,
 		computeReceiveAmount,
@@ -19,7 +19,6 @@
 		isBusy,
 		inUnstakeWarningMenu
 	} from '$lib/stores';
-	import BigNumber from 'bignumber.js';
 	import { DEFAULT_ERROR_MESSAGE } from '$lib/resultHandler';
 	import { CANISTER_ID_ICP_LEDGER, CANISTER_ID_NICP_LEDGER } from '$lib/authentification';
 	import type {
@@ -35,9 +34,9 @@
 	let invertExchangeRate = false;
 	let isFastUnstake = false;
 	let isUnstaking = false;
-	let exchangeRate: BigNumber;
-	let minimumWithdraw: BigNumber;
-	let fastUnstakeAmount = BigNumber(0);
+	let exchangeRate: number;
+	let minimumWithdraw: number;
+	let fastUnstakeAmount = 0;
 	let timeoutId: NodeJS.Timeout | null = null;
 	let showFailedHelp = false;
 	let showImmediateHelp = false;
@@ -75,7 +74,7 @@
 						const key = Object.keys(withdrawNicpResult)[0] as keyof IcpSwapResult;
 						switch (key) {
 							case 'ok':
-								const withdrawNicpAmount = displayUsFormat(
+								const withdrawNicpAmount = displayNumber(
 									bigintE8sToNumber(withdrawNicpResult[key]),
 									4
 								);
@@ -101,7 +100,7 @@
 						const key = Object.keys(withdrawIcpResult)[0] as keyof IcpSwapResult;
 						switch (key) {
 							case 'ok':
-								const withdrawIcpAmount = displayUsFormat(
+								const withdrawIcpAmount = displayNumber(
 									bigintE8sToNumber(withdrawIcpResult[key]),
 									4
 								);
@@ -128,11 +127,11 @@
 		if (!$canisters) return;
 
 		try {
-			const amount = BigNumber($inputAmount);
-			if (amount.isNaN()) return BigNumber(0);
+			const amount = Number($inputAmount);
+			if (isNaN(amount)) return 0;
 
 			const amountIn = numberToBigintE8s(amount);
-			const amountOut = amountIn - numberToBigintE8s(amount.multipliedBy(BigNumber(0.02)));
+			const amountOut = 0;
 
 			const result = await $canisters.icpswapPool.anonymousActor.quote({
 				amountIn: amountIn.toString(),
@@ -146,30 +145,24 @@
 					fastUnstakeAmount = bigintE8sToNumber((result as { ok: bigint }).ok);
 					break;
 				case 'err':
-					fastUnstakeAmount = BigNumber(0);
+					fastUnstakeAmount = 0;
 					break;
 			}
 		} catch (error) {
 			console.log(error);
-			fastUnstakeAmount = BigNumber(0);
+			fastUnstakeAmount = 0;
 		}
 	};
 
 	function unstakeAvailable(): boolean {
-		return (
-			$inputAmount !== '' &&
-			((isFastUnstake && fastUnstakeAmount.toNumber() > 0) ||
-				(!isFastUnstake &&
-					minimumWithdraw &&
-					parseFloat($inputAmount) >= minimumWithdraw.toNumber()))
-		);
+		const amount = parseFloat($inputAmount);
+		const minimumAmount = isFastUnstake ? 0 : minimumWithdraw;
+		return !isNaN(amount) && amount >= minimumAmount;
 	}
 
 	const fetchData = async () => {
 		if ($waterNeuronInfo)
 			try {
-				exchangeRate = $waterNeuronInfo.exchangeRate();
-				minimumWithdraw = BigNumber(10).multipliedBy(exchangeRate);
 			} catch (error) {
 				console.error('Error fetching data:', error);
 			}
@@ -202,6 +195,10 @@
 	};
 
 	$: $inputAmount, triggerTimeout();
+	$: if ($waterNeuronInfo) {
+		exchangeRate = $waterNeuronInfo.exchangeRate();
+		minimumWithdraw = 10 * exchangeRate;
+	}
 </script>
 
 {#if $inUnstakeWarningMenu}
@@ -214,9 +211,9 @@
 		<span class="error">
 			{#if $inputAmount && isNaN(parseFloat($inputAmount))}
 				<ErrorIcon /> Cannot read amount
-			{:else if !isFastUnstake && $inputAmount && minimumWithdraw && parseFloat($inputAmount) < minimumWithdraw.toNumber()}
-				<ErrorIcon /> Minimum: {displayUsFormat(minimumWithdraw, 4)} nICP
-			{:else if !BigNumber($inputAmount).isNaN() && BigNumber($inputAmount).isGreaterThanOrEqualTo($user?.nicpBalance() ?? BigNumber(0))}
+			{:else if !isFastUnstake && parseFloat($inputAmount) < minimumWithdraw}
+				<ErrorIcon /> Minimum: {displayNumber(minimumWithdraw, 4)} nICP
+			{:else if parseFloat($inputAmount) > ($user?.nicpBalance() ?? 0)}
 				<ErrorIcon /> Not enough treasury.
 			{/if}
 		</span>
@@ -224,11 +221,11 @@
 			<button class="change-btn" on:click={() => (invertExchangeRate = !invertExchangeRate)}>
 				<ChangeIcon />
 			</button>
-			{#if exchangeRate}
+			{#if exchangeRate !== undefined}
 				{#if !invertExchangeRate}
-					1 nICP = {displayUsFormat(BigNumber(1).dividedBy(exchangeRate), 8)} ICP
+					1 nICP = {displayNumber(1 / exchangeRate, 8)} ICP
 				{:else}
-					1 ICP = {displayUsFormat(exchangeRate, 8)} nICP
+					1 ICP = {displayNumber(exchangeRate, 8)} nICP
 				{/if}
 			{:else}
 				-/-
@@ -258,8 +255,8 @@
 				</button>
 			</div>
 			<p>
-				{#if fastUnstakeAmount.isGreaterThanOrEqualTo(0.0002)}
-					Receive {displayUsFormat(fastUnstakeAmount.minus(BigNumber(0.0002)), 8)} ICP
+				{#if fastUnstakeAmount >= 0.0002}
+					Receive {displayNumber(fastUnstakeAmount - 0.0002, 8)} ICP
 				{:else}
 					Receive -/- ICP
 				{/if}
@@ -305,8 +302,8 @@
 			</div>
 			<p>
 				{#if exchangeRate}
-					Receive {displayUsFormat(
-						computeReceiveAmount(false, BigNumber($inputAmount), exchangeRate),
+					Receive {displayNumber(
+						computeReceiveAmount(false, parseFloat($inputAmount), exchangeRate),
 						8
 					)} ICP
 				{:else}

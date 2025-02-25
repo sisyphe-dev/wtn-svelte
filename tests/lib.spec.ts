@@ -1,13 +1,12 @@
 import { test, expect } from '@playwright/test';
 import * as fc from 'fast-check';
 import {
-	numberWithPrecision,
 	numberToBigintE8s,
 	bigintE8sToNumber,
 	TIERS,
 	EXPECTED_INITIAL_BALANCE,
 	computeRewards,
-	displayUsFormat,
+	displayNumber,
 	displayPrincipal,
 	principalToHex,
 	isPrincipalValid,
@@ -15,11 +14,10 @@ import {
 	renderStatus,
 	getMaybeAccount
 } from '$lib';
-import BigNumber from 'bignumber.js';
 import { Principal } from '@dfinity/principal';
 import type { WithdrawalStatus, NeuronId } from '../src/declarations/water_neuron/water_neuron.did';
 
-const EPSILON = BigNumber(0.00000001);
+const EPSILON = 0.00000001;
 const VALID_PRINCIPAL = 'l72el-pt5ry-lmj66-3opyw-tl5xx-3wzfl-n3mja-dqirc-oxmqs-uxqe6-6qe';
 const WRONG_PRINCIPAL = 'aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaa-aaa';
 const ACCOUNT_ID = 'e73a99617af2a8dbfe9b75e463e83a905e30aa50250972ad19c21922c22b2a2a';
@@ -28,51 +26,8 @@ const VALID_ACCOUNT =
 const WRONG_ACCOUNT =
 	'daijl-2yaaa-aaaar-qag3a-cai-aaaaaaa.4de8758e1d99bd2d97a384af0ffed63403886967d21070e5241b602ebe39f243';
 
-test('numberWithPrecision test', () => {
-	expect(numberWithPrecision(BigNumber(12.436), BigNumber(2)).eq(BigNumber(12.43))).toBeTruthy();
-	expect(
-		numberWithPrecision(BigNumber(1312.436), BigNumber(8)).eq(BigNumber(1312.436))
-	).toBeTruthy();
-
-	fc.assert(
-		fc.property(
-			fc.tuple(
-				fc.integer({ min: 0, max: 10 }),
-				fc.float({ min: 0, max: 1_000_000_000, noNaN: true })
-			),
-			([n, x]) => {
-				const ref = BigNumber(x);
-				const greater = BigNumber(x).plus(EPSILON);
-				const decimals = BigNumber(n);
-				const greaterThan = numberWithPrecision(greater, decimals).isGreaterThanOrEqualTo(
-					numberWithPrecision(ref, decimals)
-				);
-				expect(greaterThan).toBeTruthy();
-			}
-		)
-	);
-
-	fc.assert(
-		fc.property(
-			fc.tuple(
-				fc.integer({ min: 0, max: 1_000_000_000 }),
-				fc.float({ min: 0, max: Math.fround(EPSILON.toNumber()), noNaN: true })
-			),
-			([n, x]) => {
-				const ref = BigNumber(n).plus(BigNumber(x));
-				const greater = ref.plus(EPSILON);
-				expect(
-					numberWithPrecision(greater, BigNumber(8)).isGreaterThan(
-						numberWithPrecision(ref, BigNumber(8))
-					)
-				).toBeTruthy();
-			}
-		)
-	);
-});
-
 test('numberToBigintE8s test', () => {
-	expect(numberToBigintE8s(BigNumber(1312.436))).toBe(BigInt(131243600000));
+	expect(numberToBigintE8s(1312.436)).toBe(131243600000n);
 	fc.assert(
 		fc.property(
 			fc.tuple(
@@ -80,10 +35,10 @@ test('numberToBigintE8s test', () => {
 				fc.float({ min: 0, max: 1, noNaN: true })
 			),
 			([n, x]) => {
-				const ref = BigNumber(n);
-				const greater = ref.plus(BigNumber(x));
+				const ref = n;
+				const greater = ref + x;
 
-				if (x < EPSILON.toNumber()) {
+				if (x < EPSILON) {
 					expect(numberToBigintE8s(greater)).toEqual(numberToBigintE8s(ref));
 				} else {
 					expect(numberToBigintE8s(greater)).toBeGreaterThan(numberToBigintE8s(ref));
@@ -94,44 +49,40 @@ test('numberToBigintE8s test', () => {
 });
 
 test('bigintE8sToNumber test', () => {
-	expect(bigintE8sToNumber(131243600000n).eq(BigNumber(1312.436))).toBeTruthy();
+	expect(bigintE8sToNumber(131243600000n)).toEqual(1312.436);
 
 	fc.assert(
 		fc.property(fc.integer({ min: 0, max: 1_000_000_000_000_000 }), (n) => {
 			const ref = BigInt(n);
 			const greater = ref + 1n;
-			expect(bigintE8sToNumber(greater).isGreaterThan(bigintE8sToNumber(ref))).toBeTruthy();
+			expect(bigintE8sToNumber(greater) > bigintE8sToNumber(ref)).toBeTruthy();
 		})
 	);
 });
 
 test('computeRewards', () => {
-	const totalThresholds = TIERS.reduce((acc, [threshold, _]) => acc + threshold.toNumber(), 0);
-	expect(computeRewards(BigNumber(20_000), BigNumber(100)).eq(BigNumber(800))).toBeTruthy();
-	expect(computeRewards(BigNumber(0), BigNumber(10)).eq(BigNumber(80))).toBeTruthy();
-	expect(computeRewards(BigNumber(totalThresholds), BigNumber(10)).isZero()).toBeTruthy();
-	expect(computeRewards(BigNumber(100_000), BigNumber(1)).eq(BigNumber(4))).toBeTruthy();
+	const totalThresholds = TIERS.reduce((acc, [threshold, _]) => acc + threshold, 0);
+	expect(computeRewards(20_000, 100)).toEqual(800);
+	expect(computeRewards(0, 10)).toEqual(80);
+	expect(computeRewards(totalThresholds, 10)).toEqual(0);
+	expect(computeRewards(100_000, 1)).toEqual(4);
 	expect(totalThresholds).toBe(10_160_000);
 
-	const total = TIERS.reduce(
-		(acc, [threshold, amount]) => acc + threshold.toNumber() * amount.toNumber(),
-		0
-	);
-	expect(BigNumber(total).eq(EXPECTED_INITIAL_BALANCE)).toBeTruthy();
+	const total = TIERS.reduce((acc, [threshold, amount]) => acc + threshold * amount, 0);
+	expect(total).toEqual(EXPECTED_INITIAL_BALANCE);
 });
 
 test('Display US-format', () => {
-	expect(displayUsFormat(BigNumber(1_000_000.0123942), 4)).toBe("1'000'000.0123");
-	expect(displayUsFormat(BigNumber(1_000_000.018942), 4)).toBe("1'000'000.0189");
-	expect(displayUsFormat(BigNumber(1_000_000.0123942), 8)).toBe("1'000'000.0123942");
-	expect(displayUsFormat(BigNumber(9.9992))).toBe('9.99');
+	expect(displayNumber(1000000.0123942, 4)).toBe("1'000'000.0123");
+	expect(displayNumber(1_000.0123942, 8)).toBe("1'000.0123942");
+	expect(displayNumber(9.9992)).toBe('9.99');
 });
 
 test('Test truncated format for principal', () => {
 	const principal = Principal.fromText(
 		'l72el-pt5ry-lmj66-3opyw-tl5xx-3wzfl-n3mja-dqirc-oxmqs-uxqe6-6qe'
 	);
-	expect(displayPrincipal(principal, true)).toBe('l72el...6qe');
+	expect(displayPrincipal(principal)).toBe('l72el...6qe');
 });
 
 test('Should display the hex from the acccount identifier when the principal is valid.', () => {

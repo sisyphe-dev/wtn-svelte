@@ -1,13 +1,12 @@
 <script lang="ts">
 	import { waterNeuronInfo } from '$lib/stores';
-	import { displayUsFormat } from '$lib';
-	import BigNumber from 'bignumber.js';
-	import { onMount, afterUpdate } from 'svelte';
+	import { displayNumber } from '$lib';
+	import { onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
 
-	let totalStaked: BigNumber;
-	let apy: BigNumber;
-	let stakersCount: Number;
+	let totalStaked: number;
+	let apy: number;
+	let stakersCount: number;
 
 	async function getLedgerBalanceStoreEntries() {
 		try {
@@ -28,20 +27,14 @@
 		}
 	}
 
-	afterUpdate(() => {
-		if ($waterNeuronInfo) {
-			try {
-				apy = $waterNeuronInfo.apy();
-				totalStaked = $waterNeuronInfo.neuron8yStake().plus($waterNeuronInfo.neuron6mStake());
-			} catch (error) {
-				console.error('Error fetching data:', error);
-			}
-		}
-	});
-
 	onMount(() => {
 		getLedgerBalanceStoreEntries();
 	});
+
+	$: if ($waterNeuronInfo) {
+		apy = $waterNeuronInfo.apy();
+		totalStaked = $waterNeuronInfo.neuron8yStake() + $waterNeuronInfo.neuron6mStake();
+	}
 </script>
 
 <div class="stat-widget-container" in:fade={{ duration: 500 }}>
@@ -49,7 +42,7 @@
 		<b>TVL</b>
 		<b>
 			{#if totalStaked}
-				{displayUsFormat(totalStaked, 0)} ICP
+				{displayNumber(totalStaked, 0)} ICP
 			{:else}
 				-/-
 			{/if}
@@ -59,7 +52,7 @@
 		<b>APY</b>
 		<b
 			>{#if apy}
-				{displayUsFormat(BigNumber(100).multipliedBy(apy), 1)}%
+				{displayNumber(100 * apy, 1)}%
 			{:else}
 				-/-
 			{/if}</b

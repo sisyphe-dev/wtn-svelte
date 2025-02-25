@@ -1,9 +1,8 @@
 <script lang="ts">
-	import { ledgerDevice, showBalance } from '$lib/stores';
+	import { ledgerDevice } from '$lib/stores';
 	import { scale } from 'svelte/transition';
 	import CopyIcon from '$lib/icons/CopyIcon.svelte';
 	import SendButton from './SendButton.svelte';
-	import { displayAccountId, displayPrincipal } from '$lib';
 
 	let isAnimating = false;
 	let circleVisible = false;
@@ -27,7 +26,7 @@
 	<h2>ICP Account Id</h2>
 	<div class="principal-container">
 		<p title="accountIdentifier-hex" style:max-width="82%">
-			{displayAccountId($ledgerDevice?.accountId, !$showBalance)}
+			{$ledgerDevice?.accountId}
 		</p>
 		<button
 			class="copy-btn"
@@ -49,7 +48,7 @@
 	<h2>Principal Address</h2>
 	<div class="principal-container">
 		<p title="principal-user" style:max-width="80%">
-			{displayPrincipal($ledgerDevice?.principal, !$showBalance)}
+			{$ledgerDevice?.principal}
 		</p>
 		<button
 			class="copy-btn"

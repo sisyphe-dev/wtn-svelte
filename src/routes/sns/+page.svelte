@@ -15,13 +15,7 @@
 	import { handleSnsIcpDepositResult, handleSnsRetrieveNicpResult } from '$lib/resultHandler';
 	import { Principal } from '@dfinity/principal';
 	import BigNumber from 'bignumber.js';
-	import {
-		displayUsFormat,
-		isPrincipalValid,
-		numberToBigintE8s,
-		principalToHex,
-		Toast
-	} from '$lib';
+	import { displayNumber, isPrincipalValid, numberToBigintE8s, principalToHex, Toast } from '$lib';
 
 	let isConfirmBusy: boolean;
 	let isRetrieveBusy: boolean;
@@ -129,13 +123,13 @@
 								href="https://dashboard.internetcomputer.org/account/{principalToHex(
 									$sns.principal
 								)}"
-								class="balance dashboard">{displayUsFormat($sns.icpBalance)} ICP</a
+								class="balance dashboard">{displayNumber($sns.icpBalance)} ICP</a
 							>
 						{:else}
 							<span class="balance">-/- ICP</span>
 						{/if}
 						{#if $sns.nicpBalance}
-							<span class="balance">{displayUsFormat($sns.nicpBalance)} nICP</span>
+							<span class="balance">{displayNumber($sns.nicpBalance)} nICP</span>
 						{:else}
 							<span class="balance">-/- nICP</span>
 						{/if}

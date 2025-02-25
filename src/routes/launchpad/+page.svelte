@@ -9,7 +9,7 @@
 	import { afterUpdate, onMount } from 'svelte';
 	import { toasts, canisters, inQrDestination } from '$lib/stores';
 	import BigNumber from 'bignumber.js';
-	import { isMobile, displayUsFormat, bigintE8sToNumber, Toast } from '$lib';
+	import { isMobile, displayNumber, bigintE8sToNumber, Toast } from '$lib';
 	import QrCodeScannerIcon from '$lib/icons/QRCodeScannerIcon.svelte';
 	import { DEV, HOST } from '$lib/authentification';
 	import { fade } from 'svelte/transition';
@@ -270,7 +270,7 @@
 				<div class="overall-commitment">
 					<div class="parameter">
 						<span>Overall Commitment</span>
-						<span>{displayUsFormat(bigintE8sToNumber(status.total_icp_deposited))} ICP</span>
+						<span>{displayNumber(bigintE8sToNumber(status.total_icp_deposited))} ICP</span>
 					</div>
 					<div class="progress-bar">
 						<div bind:this={selector} class="triangle-down"></div>
@@ -284,12 +284,12 @@
 			<div class="parameter">
 				<span style="color: #4d79ff">Current SNS</span>
 				<span style="color: #4d79ff"
-					>{snsRatio === 0 ? 0 : displayUsFormat(BigNumber(1 / snsRatio))} WTN/ICP</span
+					>{snsRatio === 0 ? 0 : displayNumber(BigNumber(1 / snsRatio))} WTN/ICP</span
 				>
 			</div>
 			<div class="parameter">
 				<span style="color: #faa123">Previous SNS</span>
-				<span style="color: #faa123">{displayUsFormat(BigNumber(65.5))} WTN/ICP</span>
+				<span style="color: #faa123">{displayNumber(BigNumber(65.5))} WTN/ICP</span>
 			</div>
 			<div class="parameter">
 				<span>{displaySnsTimeLeft(Number(status.time_left))}</span>
@@ -328,7 +328,7 @@
 						<span>ICP available for commit: </span>
 						<span style="margin-left: 10px;" id="destination-icp-balance">
 							{#if balance !== undefined}
-								{displayUsFormat(bigintE8sToNumber(balance))} ICP
+								{displayNumber(bigintE8sToNumber(balance))} ICP
 							{:else}
 								-/- ICP
 							{/if}
@@ -338,7 +338,7 @@
 						<span>ICP deposited in the SNS: </span>
 						<span style="margin-left: 10px;" id="destination-icp-balance">
 							{#if icpDepositedSns !== undefined}
-								{displayUsFormat(bigintE8sToNumber(icpDepositedSns))} ICP
+								{displayNumber(bigintE8sToNumber(icpDepositedSns))} ICP
 							{:else}
 								-/- ICP
 							{/if}
@@ -357,7 +357,7 @@
 						<span>You have successfully deposited</span>
 						<span style="margin-left: 0.5em;" id="destination-icp-balance">
 							{#if icpDepositedSns !== undefined}
-								{displayUsFormat(bigintE8sToNumber(icpDepositedSns))} ICP.
+								{displayNumber(bigintE8sToNumber(icpDepositedSns))} ICP.
 							{:else}
 								-/- ICP.
 							{/if}
@@ -367,7 +367,7 @@
 						<span>Claimable:</span>
 						<span style="margin-left: 0.5em;" id="destination-icp-balance">
 							{#if wtnClaimable !== undefined}
-								{displayUsFormat(bigintE8sToNumber(wtnClaimable))} WTN
+								{displayNumber(bigintE8sToNumber(wtnClaimable))} WTN
 							{:else}
 								-/- WTN.
 							{/if}

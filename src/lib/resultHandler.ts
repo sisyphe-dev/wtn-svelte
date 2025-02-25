@@ -24,7 +24,7 @@ import type {
 	Result_2 as SnsRetrieveNicpResult
 } from '../declarations/boomerang/boomerang.did';
 import type { Error as IcpswapError } from '$lib/../declarations/icpswap_pool/icpswap_pool.did';
-import { assetToDashboardUrl, bigintE8sToNumber, displayUsFormat } from '$lib';
+import { assetToDashboardUrl, bigintE8sToNumber, displayNumber } from '$lib';
 import type {
 	TransferResult,
 	Icrc1TransferResult,
@@ -57,7 +57,7 @@ function handleApproveError(error: ApproveError): ToastResult {
 		case 'AllowanceChanged':
 			return {
 				success: false,
-				message: `Insufficient allowance: ${displayUsFormat(bigintE8sToNumber(error[key]['current_allowance']))}`
+				message: `Insufficient allowance: ${displayNumber(bigintE8sToNumber(error[key]['current_allowance']))}`
 			};
 
 		case 'Expired':
@@ -75,7 +75,7 @@ function handleApproveError(error: ApproveError): ToastResult {
 		case 'BadFee':
 			return {
 				success: false,
-				message: `Bad fee, expected: ${displayUsFormat(bigintE8sToNumber(error[key]['expected_fee']))}`
+				message: `Bad fee, expected: ${displayNumber(bigintE8sToNumber(error[key]['expected_fee']))}`
 			};
 
 		case 'CreatedInFuture':
@@ -90,7 +90,7 @@ function handleApproveError(error: ApproveError): ToastResult {
 		case 'InsufficientFunds':
 			return {
 				success: false,
-				message: `Insufficient funds, balance: ${displayUsFormat(bigintE8sToNumber(error[key]['balance']))}`
+				message: `Insufficient funds, balance: ${displayNumber(bigintE8sToNumber(error[key]['balance']))}`
 			};
 
 		default:
@@ -139,7 +139,7 @@ export async function nicpTransferApproved(
 				created_at_time: [],
 				expires_at: [expiryDate],
 				expected_allowance: [],
-				amount: amount * BigInt(3)
+				amount: amount + 10_000n
 			} as ApproveArgs);
 			return handleApproveResult(approveResult);
 		} catch (error) {
@@ -176,7 +176,7 @@ export async function icpTransferApproved(
 				created_at_time: [],
 				expires_at: [expiryDate],
 				expected_allowance: [],
-				amount: amount * BigInt(3)
+				amount: amount * 10_000n
 			} as ApproveArgs);
 			return handleApproveResult(approveResult);
 		} catch (error) {
@@ -202,7 +202,7 @@ function handleTransferError(error: TransferError) {
 		case 'BadBurn':
 			return {
 				success: false,
-				message: `Bad burn. Minimum burn amount: ${displayUsFormat(bigintE8sToNumber(error[key]['min_burn_amount']))}`
+				message: `Bad burn. Minimum burn amount: ${displayNumber(bigintE8sToNumber(error[key]['min_burn_amount']))}`
 			};
 
 		case 'Duplicate':
@@ -214,7 +214,7 @@ function handleTransferError(error: TransferError) {
 		case 'BadFee':
 			return {
 				success: false,
-				message: `Bad fee, expected ${displayUsFormat(bigintE8sToNumber(error[key]['expected_fee']))}`
+				message: `Bad fee, expected ${displayNumber(bigintE8sToNumber(error[key]['expected_fee']))}`
 			};
 
 		case 'CreatedInFuture':
@@ -229,7 +229,7 @@ function handleTransferError(error: TransferError) {
 		case 'InsufficientFunds':
 			return {
 				success: false,
-				message: `Insufficient funds, current balance: ${displayUsFormat(bigintE8sToNumber(error[key]['balance']))}`
+				message: `Insufficient funds, current balance: ${displayNumber(bigintE8sToNumber(error[key]['balance']))}`
 			};
 
 		default:
@@ -253,13 +253,13 @@ function handleTransferFromError(error: TransferFromError) {
 		case 'InsufficientAllowance':
 			return {
 				success: false,
-				message: `Insufficient allowance: ${displayUsFormat(bigintE8sToNumber(error[key]['allowance']))}`
+				message: `Insufficient allowance: ${displayNumber(bigintE8sToNumber(error[key]['allowance']))}`
 			};
 
 		case 'BadBurn':
 			return {
 				success: false,
-				message: `Bad burn, minimum burn amount: ${displayUsFormat(bigintE8sToNumber(error[key]['min_burn_amount']))}`
+				message: `Bad burn, minimum burn amount: ${displayNumber(bigintE8sToNumber(error[key]['min_burn_amount']))}`
 			};
 
 		case 'Duplicate':
@@ -271,7 +271,7 @@ function handleTransferFromError(error: TransferFromError) {
 		case 'BadFee':
 			return {
 				success: false,
-				message: `Bad fee, expected: ${displayUsFormat(bigintE8sToNumber(error[key]['expected_fee']))}`
+				message: `Bad fee, expected: ${displayNumber(bigintE8sToNumber(error[key]['expected_fee']))}`
 			};
 
 		case 'CreatedInFuture':
@@ -286,7 +286,7 @@ function handleTransferFromError(error: TransferFromError) {
 		case 'InsufficientFunds':
 			return {
 				success: false,
-				message: `Insufficient funds, balance: ${displayUsFormat(bigintE8sToNumber(error[key]['balance']))}`
+				message: `Insufficient funds, balance: ${displayNumber(bigintE8sToNumber(error[key]['balance']))}`
 			};
 
 		default:
@@ -307,7 +307,7 @@ function handleConversionError(error: ConversionError): ToastResult {
 		case 'AmountTooLow':
 			return {
 				success: false,
-				message: `Amount too low. Should be greater than ${displayUsFormat(bigintE8sToNumber(error[errorKey]['minimum_amount_e8s']))}`
+				message: `Amount too low. Should be greater than ${displayNumber(bigintE8sToNumber(error[errorKey]['minimum_amount_e8s']))}`
 			};
 
 		case 'TransferFromError':
