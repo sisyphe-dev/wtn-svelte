@@ -86,7 +86,7 @@
 	/* === Layout === */
 	.wallet-menu-container {
 		background-color: var(--background-color);
-		border: var(--input-border);
+		box-shadow: var(--box-shadow);
 		border-radius: 10px;
 		color: var(--stake-text-color);
 		padding: 2em;

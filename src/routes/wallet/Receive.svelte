@@ -172,7 +172,7 @@
 		padding: 2em;
 		margin: 0.3em;
 		border-radius: 15px;
-		border: var(--input-border);
+		box-shadow: var(--box-shadow);
 		gap: 1em;
 		height: fit-content;
 		overflow-x: hidden;

@@ -150,6 +150,8 @@
 	:root[theme='light'] {
 		--important-text-color: black;
 		--stake-text-color: black;
+		--box-shadow: #7c7c7c63 0px 8px 16px;
+
 
 		--title-color: black;
 		--border-color: #454545;
@@ -180,6 +182,8 @@
 		--svg-opposite-color: #7f7f7f;
 		--stake-text-color: white;
 		--qr-code-background: none;
+		--box-shadow: #00000061 0px 8px 16px;
+
 
 		--main-button-text-color: #fcfffd;
 		--title-color: white;

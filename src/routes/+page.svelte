@@ -53,9 +53,10 @@
 		display: flex;
 		justify-content: start;
 		flex-direction: column;
-		box-shadow: rgba(41, 49, 71, 0.1) 0px 8px 16px;
 		width: 30em;
-		max-width: 99vw;
+		max-width: 95vw;
+		box-shadow: var(--box-shadow);
+		border-radius: 10px;
 	}
 
 	.header-container {
@@ -79,9 +80,6 @@
 
 	/* === Utilities === */
 	.selected {
-		border-left: var(--input-border);
-		border-top: var(--input-border);
-		border-right: var(--input-border);
 		background-color: var(--background-color);
 	}
 
@@ -89,7 +87,6 @@
 		border-left: 1px solid #5d6b77;
 		border-top: 1px solid #5d6b77;
 		border-right: 1px solid #5d6b77;
-		border-bottom: var(--input-border);
 		background-color: var(--unselected-header-color);
 		color: var(--unselected-header-text-color);
 		cursor: pointer;
