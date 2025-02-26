@@ -450,6 +450,7 @@
 	}
 
 	.help-content {
+		position: absolute;
 		background: var(--background-color);
 		color: var(--text-color);
 		text-align: left;
