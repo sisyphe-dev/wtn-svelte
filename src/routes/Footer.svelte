@@ -23,21 +23,21 @@
 		</div>
 	{/if}
 	<div class="right-container">
+		<a href="https://docs.waterneuron.fi/" rel="noreferrer" target="_blank">
+			<GitBookIcon />
+		</a>
 		<a
-			href="https://oc.app/community/3fudd-diaaa-aaaar-bgmca-cai/channel/154489341794150690442253978518193726806"
-			rel="noreferrer"
-			target="_blank"
-		>
-			<OpenChatIcon />
+		href="https://oc.app/community/3fudd-diaaa-aaaar-bgmca-cai/channel/154489341794150690442253978518193726806"
+		rel="noreferrer"
+		target="_blank"
+	>
+		<OpenChatIcon />
+	</a>
+		<a href="https://twitter.com/WaterNeuron" target="_blank" rel="noreferrer" style="width: 20px; height: 20px">
+			<TwitterIcon />
 		</a>
 		<a href="https://github.com/WaterNeuron" target="_blank" rel="noreferrer">
 			<GithubIcon />
-		</a>
-		<a href="https://twitter.com/WaterNeuron" target="_blank" rel="noreferrer">
-			<TwitterIcon />
-		</a>
-		<a href="https://docs.waterneuron.fi/" rel="noreferrer" target="_blank">
-			<GitBookIcon />
 		</a>
 		<a href="https://t.me/waterneuron" rel="noreferrer" target="_blank">
 			<TelegramIcon />
@@ -58,7 +58,11 @@
 	}
 
 	a {
-		align-content: center;
+		align-content: end;
+		text-decoration: none;
+		color: var(--text-color);
+		font-family: CircularXX, sans-serif;
+		font-size: 0.85em;
 	}
 
 	/* === Layout === */
@@ -66,18 +70,20 @@
 		display: flex;
 		gap: 1em;
 		margin-left: auto;
+		display: flex;
+		align-items: center;
+	}
+
+	.right-container a {
+		width: 25px;
+		height: 25px;
+	
 	}
 
 	.left-container {
 		display: flex;
 		gap: 1em;
-	}
-
-	.left-container a {
-		text-decoration: none;
-		color: var(--text-color);
-		font-family: CircularXX, sans-serif;
-		font-size: 0.85em;
+		align-items: end;
 	}
 
 	.left-container a:hover {
