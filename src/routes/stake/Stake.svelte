@@ -103,7 +103,7 @@
 			{:else if parseFloat($inputAmount) < 1}
 				<ErrorIcon /> Minimum: 1 ICP
 			{:else if !isNaN(parseFloat($inputAmount)) && parseFloat($inputAmount) > ($user?.icpBalance() ?? 0)}
-				<ErrorIcon /> Not enough treasury.
+				<ErrorIcon /> You don't have enough funds to complete the transaction.
 			{/if}
 		</span>
 		<p style:color="var(--important-text-color)">
@@ -130,17 +130,19 @@
 				-/-
 			{/if}
 		</p>
-		<div class="reward">
-			<p style:margin-right={'2.5em'}>
-				Future WTN Airdrop:
-				{#if totalIcpDeposited && isNaN(parseFloat($inputAmount))}
-					{displayNumber(computeRewards(totalIcpDeposited, parseFloat($inputAmount)), 4)}
-				{:else}
-					-/-
-				{/if}
-			</p>
-			<img src="/tokens/WTN.webp" width="30em" height="30em" alt="WTN logo" class="wtn-logo" />
-		</div>
+		<a class="reward" href="https://docs.waterneuron.fi/wtn/airdrop" target="_blank">
+			<div class="reward">
+				<p style:margin-right={'2.5em'}>
+					Future WTN Airdrop:
+					{#if totalIcpDeposited && isNaN(parseFloat($inputAmount))}
+						{displayNumber(computeRewards(totalIcpDeposited, parseFloat($inputAmount)), 4)}
+					{:else}
+						-/-
+					{/if}
+				</p>
+				<img src="/tokens/WTN.webp" width="30em" height="30em" alt="WTN logo" class="wtn-logo" />
+			</div>
+		</a>
 	</div>
 	<button
 		class="swap-btn"
@@ -200,13 +202,12 @@
 	.error {
 		display: flex;
 		align-items: center;
-		color: var(--title-color);
+		color: var(--text-color);
 		gap: 0.2em;
 		margin-left: 1em;
 		font-size: 16px;
 		font-family: var(--secondary-font);
 		flex-wrap: wrap;
-		max-width: 45%;
 		font-size: 14px;
 	}
 
@@ -232,6 +233,8 @@
 		align-items: center;
 		justify-content: flex-end;
 		position: relative;
+		text-decoration: underline;
+		text-decoration-color: var(--text-color);
 	}
 
 	.swap-btn {
@@ -239,14 +242,13 @@
 		min-width: 80px;
 		max-width: fit-content;
 		position: relative;
-		border: 2px solid black;
+		border: 1px solid black;
 		border-radius: 8px;
 		font-size: 16px;
 		font-weight: bold;
-		box-shadow: 3px 3px 0 0 black;
 		padding: 0 1em 0 1em;
 		max-width: none;
-		height: 4em;
+		height: 3em;
 		cursor: pointer;
 		display: flex;
 		justify-content: center;

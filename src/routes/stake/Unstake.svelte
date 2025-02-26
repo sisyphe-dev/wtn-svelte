@@ -207,31 +207,29 @@
 
 <div class="swap-container">
 	<SwapInput asset={'nICP'} />
-	<div class="paragraphs-container" in:fade={{ duration: 500 }}>
-		<span class="error">
-			{#if $inputAmount && isNaN(parseFloat($inputAmount))}
-				<ErrorIcon /> Cannot read amount
-			{:else if !isFastUnstake && parseFloat($inputAmount) < minimumWithdraw}
-				<ErrorIcon /> Minimum: {displayNumber(minimumWithdraw, 4)} nICP
-			{:else if parseFloat($inputAmount) > ($user?.nicpBalance() ?? 0)}
-				<ErrorIcon /> Not enough treasury.
-			{/if}
-		</span>
-		<p style:padding-right="0.4em">
-			<button class="change-btn" on:click={() => (invertExchangeRate = !invertExchangeRate)}>
-				<ChangeIcon />
-			</button>
-			{#if exchangeRate !== undefined}
-				{#if !invertExchangeRate}
-					1 nICP = {displayNumber(1 / exchangeRate, 8)} ICP
-				{:else}
-					1 ICP = {displayNumber(exchangeRate, 8)} nICP
-				{/if}
+	<span class="error">
+		{#if $inputAmount && isNaN(parseFloat($inputAmount))}
+			<ErrorIcon /> Cannot read amount
+		{:else if !isFastUnstake && parseFloat($inputAmount) < minimumWithdraw}
+			<ErrorIcon /> Minimum: {displayNumber(minimumWithdraw, 4)} nICP
+		{:else if parseFloat($inputAmount) > ($user?.nicpBalance() ?? 0)}
+			<ErrorIcon /> You don't have enough funds to complete the transaction.
+		{/if}
+	</span>
+	<p style:padding-right="0.4em">
+		<button class="change-btn" on:click={() => (invertExchangeRate = !invertExchangeRate)}>
+			<ChangeIcon />
+		</button>
+		{#if exchangeRate !== undefined}
+			{#if !invertExchangeRate}
+				1 nICP = {displayNumber(1 / exchangeRate, 8)} ICP
 			{:else}
-				-/-
+				1 ICP = {displayNumber(exchangeRate, 8)} nICP
 			{/if}
-		</p>
-	</div>
+		{:else}
+			-/-
+		{/if}
+	</p>
 	<div class="unstake-selection-container">
 		<button
 			class="unstake-container"
@@ -370,15 +368,8 @@
 		gap: 1em;
 	}
 
-	.paragraphs-container {
-		display: flex;
-		justify-content: space-between;
-		width: 100%;
-	}
-
 	.unstake-selection-container {
 		display: flex;
-		border: var(--input-border);
 		border-radius: 8px;
 		padding: 1em;
 	}
@@ -412,10 +403,8 @@
 
 	.main-btn {
 		background: var(--main-color);
-		position: relative;
-		border: 2px solid black;
+		border: 1px solid black;
 		border-radius: 8px;
-		box-shadow: 3px 3px 0 0 black;
 		cursor: pointer;
 		display: flex;
 		justify-content: center;
@@ -433,19 +422,18 @@
 		padding: 0 1em 0 1em;
 		font-weight: bold;
 		font-size: 16px;
-		height: 4em;
+		height: 3em;
 	}
 
 	.error {
 		display: flex;
 		align-items: center;
-		color: var(--title-color);
+		color: var(--text-color);
 		gap: 0.2em;
 		margin-left: 1em;
 		font-size: 16px;
 		font-family: var(--secondary-font);
 		flex-wrap: wrap;
-		max-width: 45%;
 		font-size: 14px;
 	}
 
@@ -468,7 +456,6 @@
 		padding: 1em;
 		border-radius: 8px;
 		width: 200px;
-		position: absolute;
 		bottom: 2em;
 		left: 50%;
 		transform: translate(-50%, 0);
@@ -492,12 +479,12 @@
 
 	/* === Utilities === */
 	.selected {
-		background-color: var(--unstake-selection-color);
+		border: var(--select-unstake-speed);
 		color: var(--title-color);
 	}
 
 	.not-selected {
-		background-color: var(--background-color);
+		border: 1px solid transparent;
 		cursor: pointer;
 	}
 

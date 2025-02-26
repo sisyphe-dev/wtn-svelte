@@ -354,7 +354,7 @@
 			</div>
 			<span class="error" title="amount-error">
 				{#if !isNaN(parseFloat($inputAmount)) && parseFloat($inputAmount) > balance}
-					<ErrorIcon /> Not enough treasury.
+					<ErrorIcon /> You don't have enough funds to complete the transaction.
 				{:else if !isNaN(parseFloat($inputAmount)) && parseFloat($inputAmount) <= 0.0001}
 					<ErrorIcon /> Minimum amount: 0.00000001
 				{/if}
@@ -450,7 +450,7 @@
 		color: var(--stake-text-color);
 		padding: 2em;
 		border-radius: 15px;
-		box-shadow: var(--box-shadow);
+		border: var(--main-container-border);
 	}
 
 	.header-container {
@@ -471,14 +471,13 @@
 	.error {
 		display: flex;
 		align-items: center;
-		color: var(--title-color);
+		color: var(--text-color);
 		gap: 0.2em;
 		margin-left: 1em;
 		margin-top: 4px;
 		font-size: 16px;
 		font-family: var(--secondary-font);
 		flex-wrap: wrap;
-		max-width: 45%;
 		font-size: 14px;
 	}
 
@@ -532,7 +531,7 @@
 
 	#abort-btn {
 		background: var(--main-button-text-color);
-		color: var(--main-color);
+		color: black;
 	}
 
 	#continue-btn {

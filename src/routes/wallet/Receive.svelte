@@ -172,7 +172,7 @@
 		padding: 2em;
 		margin: 0.3em;
 		border-radius: 15px;
-		box-shadow: var(--box-shadow);
+		border: var(--main-container-border);
 		gap: 1em;
 		height: fit-content;
 		overflow-x: hidden;
