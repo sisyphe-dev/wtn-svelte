@@ -144,9 +144,8 @@
 		min-width: 80px;
 		border-radius: 8px;
 		position: relative;
-		border: 2px solid black;
+		border: 1px solid black;
 		font-size: 14px;
-		box-shadow: 3px 3px 0 0 black;
 		padding: 0 1em 0 1em;
 		max-width: none;
 		height: 3em;
@@ -155,7 +154,7 @@
 		justify-content: center;
 		align-items: center;
 		cursor: pointer;
-		margin-right: 1em;
+		margin-right: 0.5em;
 	}
 
 	.action-btn:hover {

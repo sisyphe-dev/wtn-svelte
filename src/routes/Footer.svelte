@@ -48,8 +48,6 @@
 	}
 
 	img {
-		height: 30px;
-		width: 30px;
 		align-content: center;
 		justify-content: center;
 	}
@@ -80,8 +78,8 @@
 
 	/* === Component === */
 	#wtn-icon {
-		height: 4em;
-		width: 4em;
+		height: 2em;
+		width: 2em;
 		position: absolute;
 		bottom: 20px;
 	}

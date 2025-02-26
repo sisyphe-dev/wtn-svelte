@@ -450,7 +450,7 @@
 		color: var(--stake-text-color);
 		padding: 2em;
 		border-radius: 15px;
-		box-shadow: var(--box-shadow);
+		border: var(--main-container-border);
 	}
 
 	.header-container {
@@ -532,7 +532,7 @@
 
 	#abort-btn {
 		background: var(--main-button-text-color);
-		color: var(--main-color);
+		color: black;
 	}
 
 	#continue-btn {

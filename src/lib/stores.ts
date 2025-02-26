@@ -20,7 +20,7 @@ export const inQrDestination = writable<boolean>(false);
 export const inSnsMenu = writable<boolean>(false);
 
 /* === Components === */
-export const language = writable<'en' | 'es' | 'ja' | 'ru'>('en');
+export const language = writable<'en' | 'es' | 'ja' | 'ru' | 'cn'>('en');
 export const availableAccounts = writable<{ owner: Principal; subaccount?: ArrayBuffer }[]>([]);
 export const signer = writable<Signer | undefined>(undefined);
 export const selectedAsset = writable<'ICP' | 'nICP' | 'WTN'>('ICP');

@@ -378,7 +378,6 @@
 
 	.unstake-selection-container {
 		display: flex;
-		border: var(--input-border);
 		border-radius: 8px;
 		padding: 1em;
 	}
@@ -413,9 +412,8 @@
 	.main-btn {
 		background: var(--main-color);
 		position: relative;
-		border: 2px solid black;
+		border: 1px solid black;
 		border-radius: 8px;
-		box-shadow: 3px 3px 0 0 black;
 		cursor: pointer;
 		display: flex;
 		justify-content: center;
@@ -492,12 +490,12 @@
 
 	/* === Utilities === */
 	.selected {
-		background-color: var(--unstake-selection-color);
+		border: var(--select-unstake-speed);
 		color: var(--title-color);
 	}
 
 	.not-selected {
-		background-color: var(--background-color);
+		border: 1px solid transparent;
 		cursor: pointer;
 	}
 

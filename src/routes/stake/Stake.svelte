@@ -130,17 +130,19 @@
 				-/-
 			{/if}
 		</p>
-		<div class="reward">
-			<p style:margin-right={'2.5em'}>
-				Future WTN Airdrop:
-				{#if totalIcpDeposited && isNaN(parseFloat($inputAmount))}
-					{displayNumber(computeRewards(totalIcpDeposited, parseFloat($inputAmount)), 4)}
-				{:else}
-					-/-
-				{/if}
-			</p>
-			<img src="/tokens/WTN.webp" width="30em" height="30em" alt="WTN logo" class="wtn-logo" />
-		</div>
+		<a class="reward" href="https://docs.waterneuron.fi/wtn/airdrop" target="_blank">
+			<div class="reward">
+				<p style:margin-right={'2.5em'}>
+					Future WTN Airdrop:
+					{#if totalIcpDeposited && isNaN(parseFloat($inputAmount))}
+						{displayNumber(computeRewards(totalIcpDeposited, parseFloat($inputAmount)), 4)}
+					{:else}
+						-/-
+					{/if}
+				</p>
+				<img src="/tokens/WTN.webp" width="30em" height="30em" alt="WTN logo" class="wtn-logo" />
+			</div>
+		</a>
 	</div>
 	<button
 		class="swap-btn"
@@ -232,6 +234,8 @@
 		align-items: center;
 		justify-content: flex-end;
 		position: relative;
+		text-decoration: underline;
+		text-decoration-color: var(--text-color);
 	}
 
 	.swap-btn {
@@ -239,11 +243,10 @@
 		min-width: 80px;
 		max-width: fit-content;
 		position: relative;
-		border: 2px solid black;
+		border: 1px solid black;
 		border-radius: 8px;
 		font-size: 16px;
 		font-weight: bold;
-		box-shadow: 3px 3px 0 0 black;
 		padding: 0 1em 0 1em;
 		max-width: none;
 		height: 4em;
