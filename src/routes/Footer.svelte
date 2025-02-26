@@ -49,7 +49,7 @@
 	/* === Base Styles === */
 	footer {
 		display: flex;
- 		justify-content: space-between;
+		justify-content: space-between;
 		color: var(--text-color);
 		height: fit-content;
 		width: 100%;
