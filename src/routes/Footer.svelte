@@ -24,23 +24,22 @@
 	{/if}
 	<div class="central-container">
 		<a
-			class="item--1"
 			href="https://oc.app/community/3fudd-diaaa-aaaar-bgmca-cai/channel/154489341794150690442253978518193726806"
 			rel="noreferrer"
 			target="_blank"
 		>
 			<OpenChatIcon />
 		</a>
-		<a class="item--5" href="https://github.com/WaterNeuron" target="_blank" rel="noreferrer">
+		<a href="https://github.com/WaterNeuron" target="_blank" rel="noreferrer">
 			<GithubIcon />
 		</a>
-		<a class="item--3" href="https://twitter.com/WaterNeuron" target="_blank" rel="noreferrer">
+		<a href="https://twitter.com/WaterNeuron" target="_blank" rel="noreferrer">
 			<TwitterIcon />
 		</a>
-		<a class="item--4" href="https://docs.waterneuron.fi/" rel="noreferrer" target="_blank">
+		<a href="https://docs.waterneuron.fi/" rel="noreferrer" target="_blank">
 			<GitBookIcon />
 		</a>
-		<a class="item--2" href="https://t.me/waterneuron" rel="noreferrer" target="_blank">
+		<a href="https://t.me/waterneuron" rel="noreferrer" target="_blank">
 			<TelegramIcon />
 		</a>
 	</div>
@@ -54,7 +53,10 @@
 		height: fit-content;
 		width: 100%;
 		justify-content: space-between;
-		margin-bottom: 2vh;
+		gap: 0.2em;
+		align-items: center;
+		box-sizing: border-box;
+		padding: 1em;
 	}
 
 	a {
