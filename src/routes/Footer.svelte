@@ -4,12 +4,25 @@
 	import TelegramIcon from '$lib/icons/TelegramIcon.svelte';
 	import TwitterIcon from '$lib/icons/TwitterIcon.svelte';
 	import GitBookIcon from '$lib/icons/GitBookIcon.svelte';
+	import { isMobile } from '$lib';
 	import GithubIcon from '$lib/icons/GithubIcon.svelte';
 </script>
 
 <footer class:filter={$isLogging}>
+	{#if !isMobile}
+		<div class="left-container">
+			<a href="https://docs.waterneuron.fi/" target="_blank" rel="noreferrer"> Documentation </a>
+			<a href="https://wtn.ic.app/" target="_blank" rel="noreferrer"> WTN Calculator </a>
+			<a
+				href="https://docs.google.com/spreadsheets/d/1Y8JXo8xOB786usk8BaWPPcBJB7oFR0HWvA5y8kcfRqU/edit?gid=746571094#gid=746571094"
+				target="_blank"
+				rel="noreferrer"
+			>
+				Spreadsheet
+			</a>
+		</div>
+	{/if}
 	<div class="central-container">
-		<img alt="WTN icon" src="/tokens/WTN.webp" id="wtn-icon" />
 		<a
 			class="item--1"
 			href="https://oc.app/community/3fudd-diaaa-aaaar-bgmca-cai/channel/154489341794150690442253978518193726806"
@@ -30,7 +43,6 @@
 		<a class="item--2" href="https://t.me/waterneuron" rel="noreferrer" target="_blank">
 			<TelegramIcon />
 		</a>
-		<p>WaterNeuron</p>
 	</div>
 </footer>
 
@@ -38,84 +50,45 @@
 	/* === Base Styles === */
 	footer {
 		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
 		color: var(--text-color);
 		height: fit-content;
 		width: 100%;
+		justify-content: space-between;
 		margin-bottom: 2vh;
 	}
 
-	img {
-		align-content: center;
-		justify-content: center;
-	}
-
-	p {
-		width: fit-content;
-		position: absolute;
-		bottom: -1em;
-		font-family: var(--main-font);
-	}
-
 	a {
-		position: absolute;
-		top: 100%;
-		left: 50;
-		transform: translate(-50%, -50%);
+		align-content: center;
 	}
 
 	/* === Layout === */
 	.central-container {
 		display: flex;
-		justify-content: center;
-		align-items: center;
-		position: relative;
-		height: 7em;
-		width: 10em;
+		gap: 1em;
+		align-self: flex-end;
+		padding-right: 1em;
 	}
 
-	/* === Component === */
-	#wtn-icon {
-		height: 2em;
-		width: 2em;
-		position: absolute;
-		bottom: 20px;
+	.left-container {
+		display: flex;
+		align-self: center;
+		padding-left: 1em;
+		gap: 1em;
+	}
+
+	.left-container a {
+		text-decoration: none;
+		color: var(--text-color);
+		font-family: CircularXX, sans-serif;
+		font-size: 0.85em;
+	}
+
+	.left-container a:hover {
+		text-decoration: underline;
 	}
 
 	/* === Utillities === */
 	.filter {
 		filter: blur(5px);
-	}
-
-	.item--1 {
-		top: 35%;
-		left: 8%;
-		transform: translate(-50%, -50%);
-	}
-
-	.item--2 {
-		top: 10%;
-		left: 23%;
-		transform: translate(-50%, -50%);
-	}
-
-	.item--3 {
-		top: 0%;
-		left: 50%;
-		transform: translate(-50%, -50%);
-	}
-
-	.item--4 {
-		top: 10%;
-		right: 23%;
-		transform: translate(50%, -50%);
-	}
-
-	.item--5 {
-		top: 35%;
-		right: 8%;
-		transform: translate(50%, -50%);
 	}
 </style>

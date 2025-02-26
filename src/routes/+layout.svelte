@@ -180,7 +180,7 @@
 	}
 
 	:root[theme='dark'] {
-		--svg-fill-color: #ffffff;
+		--svg-fill-color: #a7a7a7;
 		--svg-opposite-color: #7f7f7f;
 		--stake-text-color: white;
 		--qr-code-background: none;
@@ -270,7 +270,7 @@
 		width: 100%;
 		gap: 3em;
 		padding-top: 2em;
-		margin-bottom: 4em;
+		margin-bottom: 5dvh;
 		color: white;
 	}
 
