@@ -134,7 +134,7 @@
 			<div class="reward">
 				<p style:margin-right={'2.5em'}>
 					Future WTN Airdrop:
-					{#if totalIcpDeposited && isNaN(parseFloat($inputAmount))}
+					{#if totalIcpDeposited && !isNaN(parseFloat($inputAmount))}
 						{displayNumber(computeRewards(totalIcpDeposited, parseFloat($inputAmount)), 4)}
 					{:else}
 						-/-
