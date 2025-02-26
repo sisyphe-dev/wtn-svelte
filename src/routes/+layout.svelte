@@ -154,7 +154,7 @@
 
 		--title-color: black;
 		--border-color: #454545;
-		--page-background: #fcfffd;
+		--page-background: rgb(241, 241, 243);
 		--background-color: #fcfffd;
 		--background-color-transparent: #fefefede;
 		--switch-background-color: rgba(220, 220, 220, 0.49);
@@ -174,6 +174,8 @@
 
 		--theme-background-asset-logo: none;
 		--theme-border-asset-logo: none;
+
+		--main-container-border: 1px solid rgb(234, 235, 239);
 	}
 
 	:root[theme='dark'] {
@@ -203,6 +205,8 @@
 
 		--theme-background-asset-logo: #dadef2;
 		--theme-border-asset-logo: 2px solid #a3a5b0;
+
+		--main-container-border: 1px solid rgba(235, 235, 239, 0.08);
 	}
 
 	@font-face {

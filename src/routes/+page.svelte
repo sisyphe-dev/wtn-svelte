@@ -52,10 +52,10 @@
 	.main-container {
 		display: flex;
 		justify-content: start;
-		border: var(--border-size) solid var(--border-color);
 		flex-direction: column;
 		width: 30em;
 		max-width: 95vw;
+		border: var(--main-container-border);
 		border-radius: 10px;
 	}
 
