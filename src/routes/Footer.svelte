@@ -22,7 +22,7 @@
 			</a>
 		</div>
 	{/if}
-	<div class="central-container">
+	<div class="right-container">
 		<a
 			href="https://oc.app/community/3fudd-diaaa-aaaar-bgmca-cai/channel/154489341794150690442253978518193726806"
 			rel="noreferrer"
@@ -49,12 +49,10 @@
 	/* === Base Styles === */
 	footer {
 		display: flex;
+ 		justify-content: space-between;
 		color: var(--text-color);
 		height: fit-content;
 		width: 100%;
-		justify-content: space-between;
-		gap: 0.2em;
-		align-items: center;
 		box-sizing: border-box;
 		padding: 1em;
 	}
@@ -64,17 +62,14 @@
 	}
 
 	/* === Layout === */
-	.central-container {
+	.right-container {
 		display: flex;
 		gap: 1em;
-		align-self: flex-end;
-		padding-right: 1em;
+		margin-left: auto;
 	}
 
 	.left-container {
 		display: flex;
-		align-self: center;
-		padding-left: 1em;
 		gap: 1em;
 	}
 
