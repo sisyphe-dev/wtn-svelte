@@ -495,7 +495,7 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		border: var(--input-border);
+		border: var(--main-container-border);
 		background: var(--input-color);
 		border-radius: 0.4em;
 	}
