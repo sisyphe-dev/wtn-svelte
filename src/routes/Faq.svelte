@@ -3,6 +3,7 @@
 	import es from './lang/es.json';
 	import ru from './lang/ru.json';
 	import ja from './lang/ja.json';
+	import cn from './lang/cn.json';
 	import { language } from '$lib/stores';
 	import { fade, slide } from 'svelte/transition';
 	import ArrowIcon from '$lib/icons/ArrowIcon.svelte';
@@ -11,7 +12,8 @@
 		en: en,
 		es: es,
 		ru: ru,
-		ja: ja
+		ja: ja,
+		cn: cn
 	};
 
 	function getContent(language: string) {
@@ -24,6 +26,8 @@
 				return data.ru.sections;
 			case 'ja':
 				return data.ja.sections;
+			case 'cn':
+				return data.cn.sections;
 			default:
 				return [];
 		}
@@ -75,6 +79,13 @@
 		class:language-active={$language === 'ru'}
 	>
 		ru
+	</button>
+	<button
+		on:click={() => language.set('cn')}
+		class="lang-btn"
+		class:language-active={$language === 'cn'}
+	>
+		cn
 	</button>
 	<button
 		on:click={() => language.set('ja')}
@@ -135,7 +146,7 @@
 	.lang-btn {
 		background: none;
 		border: none;
-		color: white;
+		color: var(--text-color);
 		cursor: pointer;
 	}
 	/* === Layout === */

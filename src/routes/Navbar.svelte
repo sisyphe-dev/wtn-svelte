@@ -93,7 +93,7 @@
 		justify-content: space-between;
 		color: white;
 		height: fit-content;
-		padding: 0 2vw;
+		padding: 0 2.5vw;
 		margin-top: 2vh;
 	}
 
@@ -256,8 +256,8 @@
 		}
 
 		img {
-			height: 5em;
-			width: 5em;
+			height: 50px;
+			width: 50px;
 		}
 
 		.right-container {
