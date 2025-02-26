@@ -431,7 +431,7 @@
 		padding: 0 1em 0 1em;
 		font-weight: bold;
 		font-size: 16px;
-		height: 4em;
+		height: 3em;
 	}
 
 	.error {

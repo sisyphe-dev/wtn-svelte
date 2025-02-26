@@ -249,7 +249,7 @@
 		font-weight: bold;
 		padding: 0 1em 0 1em;
 		max-width: none;
-		height: 4em;
+		height: 3em;
 		cursor: pointer;
 		display: flex;
 		justify-content: center;
