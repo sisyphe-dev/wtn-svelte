@@ -55,7 +55,7 @@
 		flex-direction: column;
 		width: 30em;
 		max-width: 95vw;
-		box-shadow: var(--box-shadow);
+		border: var(--main-container-border);
 		border-radius: 10px;
 	}
 

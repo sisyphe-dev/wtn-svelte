@@ -74,8 +74,8 @@
 	/* === Layout === */
 	.stat-widget-container {
 		background: var(--background-color);
-		border: var(--border-size) solid var(--border-color);
 		color: var(--stake-text-color);
+		border: var(--main-container-border);
 		padding: 1em;
 		padding-left: 2em;
 		padding-right: 2em;
