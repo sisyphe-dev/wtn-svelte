@@ -214,7 +214,7 @@
 			{:else if !isFastUnstake && parseFloat($inputAmount) < minimumWithdraw}
 				<ErrorIcon /> Minimum: {displayNumber(minimumWithdraw, 4)} nICP
 			{:else if parseFloat($inputAmount) > ($user?.nicpBalance() ?? 0)}
-				<ErrorIcon /> Not enough treasury.
+				<ErrorIcon /> You don't have enough funds to complete the transaction.
 			{/if}
 		</span>
 		<p style:padding-right="0.4em">

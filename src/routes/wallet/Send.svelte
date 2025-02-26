@@ -354,7 +354,7 @@
 			</div>
 			<span class="error" title="amount-error">
 				{#if !isNaN(parseFloat($inputAmount)) && parseFloat($inputAmount) > balance}
-					<ErrorIcon /> Not enough treasury.
+					<ErrorIcon /> You don't have enough funds to complete the transaction.
 				{:else if !isNaN(parseFloat($inputAmount)) && parseFloat($inputAmount) <= 0.0001}
 					<ErrorIcon /> Minimum amount: 0.00000001
 				{/if}

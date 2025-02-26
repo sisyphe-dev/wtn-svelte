@@ -103,7 +103,7 @@
 			{:else if parseFloat($inputAmount) < 1}
 				<ErrorIcon /> Minimum: 1 ICP
 			{:else if !isNaN(parseFloat($inputAmount)) && parseFloat($inputAmount) > ($user?.icpBalance() ?? 0)}
-				<ErrorIcon /> Not enough treasury.
+				<ErrorIcon /> You don't have enough funds to complete the transaction.
 			{/if}
 		</span>
 		<p style:color="var(--important-text-color)">
