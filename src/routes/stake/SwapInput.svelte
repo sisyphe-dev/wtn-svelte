@@ -71,7 +71,7 @@
 		border-radius: 1em;
 		padding: 0 0.5em;
 		background: var(--input-color);
-		border: var(--input-border);
+		border: var(--main-container-border);
 	}
 
 	/* === Components === */
