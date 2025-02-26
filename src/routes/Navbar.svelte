@@ -17,7 +17,7 @@
 
 <nav class:filter={$isLogging}>
 	<a href="/" class="menu-selection-container" title="home-btn">
-		<img src="/tokens/WTN.webp" width="75em" height="75em" alt="WTN logo" />
+		<img src="/tokens/WTN.webp" width="50em" height="50em" alt="WTN logo" />
 		<div class="wave-title">
 			<h1 id="static-header">WaterNeuron</h1>
 		</div>
@@ -161,7 +161,7 @@
 	}
 
 	.menu-selection-container h1 {
-		font-size: 2em;
+		font-size: 1.5em;
 		cursor: pointer;
 		font-family: var(--main-font);
 		position: absolute;
