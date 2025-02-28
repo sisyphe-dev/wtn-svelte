@@ -40,37 +40,41 @@
 <div class="stat-widget-container" in:fade={{ duration: 500 }}>
 	<div class="stat-item">
 		<b>TVL</b>
-		<b>
+		<p>
 			{#if totalStaked}
 				{displayNumber(totalStaked, 0)} ICP
 			{:else}
 				-/-
 			{/if}
-		</b>
+		</p>
 	</div>
 	<div class="stat-item">
 		<b>APY</b>
-		<b
-			>{#if apy}
+		<p>
+			{#if apy}
 				{displayNumber(100 * apy, 1)}%
 			{:else}
 				-/-
-			{/if}</b
-		>
+			{/if}
+		</p>
 	</div>
 	<div class="stat-item">
 		<b>Holders</b>
-		<b>
+		<p>
 			{#if stakersCount || stakersCount === 0}
 				{stakersCount}
 			{:else}
 				-/-
 			{/if}
-		</b>
+		</p>
 	</div>
 </div>
 
 <style>
+	p {
+		margin: 0;
+	}
+
 	/* === Layout === */
 	.stat-widget-container {
 		background: var(--background-color);

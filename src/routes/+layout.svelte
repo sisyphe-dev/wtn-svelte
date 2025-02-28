@@ -168,14 +168,14 @@
 
 		--unstake-selection-color: #283e9521;
 
-		--svg-fill-color: #000000;
+		--svg-fill-color: #a7a7a7;
 		--svg-opposite-color: #b3b3b3;
 		--sns-selected-button-color: rgb(107 180 249 / 50%);
 
 		--theme-background-asset-logo: none;
 		--theme-border-asset-logo: none;
 
-		--main-container-border: 1px solid rgb(234, 235, 239);
+		--main-container-border: 1px solid rgb(193 193 193);
 		--select-unstake-speed: 1px solid black;
 	}
 

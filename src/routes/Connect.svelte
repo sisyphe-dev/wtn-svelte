@@ -200,6 +200,7 @@
 	h2 {
 		color: var(--main-button-text-color);
 		font-family: var(--secondary-font);
+		font-size: 1.2em;
 	}
 
 	span {
@@ -231,8 +232,8 @@
 		gap: 1em;
 		background: var(--background-color);
 		padding: 2em;
+		border: var(--main-container-border);
 		border-radius: 15px;
-		box-shadow: var(--box-shadow);
 	}
 
 	.header-container {
@@ -253,7 +254,7 @@
 	.login-btn {
 		gap: 0.3em;
 		border-radius: 8px;
-		border: 2px solid black;
+		border: 1px solid black;
 		box-shadow: 3px 3px 0 0 black;
 		width: auto;
 		height: 5em;
