@@ -207,15 +207,19 @@
 
 <div class="swap-container">
 	<SwapInput asset={'nICP'} />
-	<span class="error">
-		{#if $inputAmount && isNaN(parseFloat($inputAmount))}
+	{#if $inputAmount && isNaN(parseFloat($inputAmount))}
+		<span class="error">
 			<ErrorIcon /> Cannot read amount
-		{:else if !isFastUnstake && parseFloat($inputAmount) < minimumWithdraw}
+		</span>
+	{:else if !isFastUnstake && parseFloat($inputAmount) < minimumWithdraw}
+		<span class="error">
 			<ErrorIcon /> Minimum: {displayNumber(minimumWithdraw, 4)} nICP
-		{:else if parseFloat($inputAmount) > ($user?.nicpBalance() ?? 0)}
+		</span>
+	{:else if parseFloat($inputAmount) > ($user?.nicpBalance() ?? 0)}
+		<span class="error">
 			<ErrorIcon /> You don't have enough funds to complete the transaction.
-		{/if}
-	</span>
+		</span>
+	{/if}
 	<p style:padding-right="0.4em">
 		<button class="change-btn" on:click={() => (invertExchangeRate = !invertExchangeRate)}>
 			<ChangeIcon />
