@@ -48,6 +48,11 @@
 <Faq />
 
 <style>
+	h2 {
+		font-weight: 800;
+		font-family: var(--main-font);
+		letter-spacing: -0.11em;
+	}
 	/* === Layout === */
 	.main-container {
 		display: flex;

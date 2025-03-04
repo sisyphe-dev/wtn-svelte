@@ -71,6 +71,11 @@
 </div>
 
 <style>
+	b {
+		font-weight: 800;
+		letter-spacing: -0.05em;
+	}
+
 	p {
 		margin: 0;
 	}

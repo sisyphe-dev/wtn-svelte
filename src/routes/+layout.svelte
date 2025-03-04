@@ -213,7 +213,7 @@
 
 	@font-face {
 		font-family: 'Akrobat-black';
-		src: url('/Akrobat-Black.ttf') format('truetype');
+		src: url('/FliegeMonoVF.ttf') format('truetype');
 		font-weight: normal;
 		font-style: normal;
 	}

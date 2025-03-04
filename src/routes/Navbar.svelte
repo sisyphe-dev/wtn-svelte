@@ -19,7 +19,7 @@
 	<a href="/" class="menu-selection-container" title="home-btn">
 		<img src="/tokens/WTN.webp" width="50em" height="50em" alt="WTN logo" />
 		<div class="wave-title">
-			<h1 id="static-header">WaterNeuron</h1>
+			<h1>WaterNeuron</h1>
 		</div>
 	</a>
 
@@ -144,6 +144,9 @@
 
 	h1 {
 		color: var(--title-color);
+		font-weight: 800;
+		font-family: var(--main-font);
+		letter-spacing: -0.11em;
 	}
 
 	p {
