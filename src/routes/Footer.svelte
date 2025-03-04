@@ -27,13 +27,18 @@
 			<GitBookIcon />
 		</a>
 		<a
-		href="https://oc.app/community/3fudd-diaaa-aaaar-bgmca-cai/channel/154489341794150690442253978518193726806"
-		rel="noreferrer"
-		target="_blank"
-	>
-		<OpenChatIcon />
-	</a>
-		<a href="https://twitter.com/WaterNeuron" target="_blank" rel="noreferrer" style="width: 20px; height: 20px">
+			href="https://oc.app/community/3fudd-diaaa-aaaar-bgmca-cai/channel/154489341794150690442253978518193726806"
+			rel="noreferrer"
+			target="_blank"
+		>
+			<OpenChatIcon />
+		</a>
+		<a
+			href="https://twitter.com/WaterNeuron"
+			target="_blank"
+			rel="noreferrer"
+			style="width: 20px; height: 20px"
+		>
 			<TwitterIcon />
 		</a>
 		<a href="https://github.com/WaterNeuron" target="_blank" rel="noreferrer">
@@ -77,7 +82,6 @@
 	.right-container a {
 		width: 25px;
 		height: 25px;
-	
 	}
 
 	.left-container {

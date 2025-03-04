@@ -22,14 +22,14 @@
 			inputAmount.change(maxAmount && maxAmount >= 0 ? maxAmount : 0);
 		}}
 	>
-		<div class="max-btn-items">
-			<h2>{asset}</h2>
-			<span>Max</span>
-		</div>
-		<div class="logo-container">
-			<img class="asset-logo" src={assetToIconPath(asset)} alt="ICP Icon" />
-		</div>
+		MAX
 	</button>
+	<div class="max-btn-items">
+		<h2>{asset}</h2>
+	</div>
+	<div class="logo-container">
+		<img class="asset-logo" src={assetToIconPath(asset)} alt="ICP Icon" />
+	</div>
 </div>
 
 <style>
@@ -37,12 +37,9 @@
 	h2 {
 		color: var(--stake-text-color);
 		margin: 0;
-	}
-
-	span {
-		color: var(--stake-text-color);
-		text-decoration: underline;
-		font-size: 12px;
+		font-family: Arial;
+		font-weight: 400;
+		font-size: 18px;
 	}
 
 	input {
@@ -72,6 +69,7 @@
 		padding: 0 0.5em;
 		background: var(--input-color);
 		border: var(--main-container-border);
+		gap: 8px;
 	}
 
 	/* === Components === */
@@ -81,10 +79,12 @@
 		border: none;
 		flex-direction: row-reverse;
 		align-items: center;
-		padding: 1em;
+		padding: 8px;
 		background: none;
-		gap: 1em;
 		cursor: pointer;
+		border: var(--main-container-border);
+		border-radius: 10px;
+		color: var(--text-color);
 	}
 
 	.max-btn-items {

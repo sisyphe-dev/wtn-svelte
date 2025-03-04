@@ -7,6 +7,7 @@
 	import { language } from '$lib/stores';
 	import { fade, slide } from 'svelte/transition';
 	import ArrowIcon from '$lib/icons/ArrowIcon.svelte';
+	import { onMount } from 'svelte';
 
 	const data = {
 		en: en,
@@ -36,6 +37,10 @@
 	let toggledMap = getContent($language).map(() => {
 		return false;
 	});
+
+	onMount(() => {
+		toggledMap[0] = !toggledMap[0];
+	});
 </script>
 
 {#key $language}
@@ -53,7 +58,7 @@
 			</button>
 
 			{#if toggledMap[i]}
-				<p transition:slide>{section.content}</p>
+				<p transition:slide={{ duration: 300 }}>{section.content}</p>
 			{/if}
 		{/each}
 	</div>
@@ -102,14 +107,15 @@
 		display: flex;
 		align-items: center;
 		flex-direction: column;
-		width: 90vw;
-		max-width: 800px;
+		width: 30em;
+		max-width: 95vw;
 		overflow-y: auto;
 	}
 
 	h1 {
 		color: var(--faq-color);
-		font-size: 42px;
+		font-size: 1.2em;
+		margin: 0;
 		font-family: var(--main-font);
 	}
 

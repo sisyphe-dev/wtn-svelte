@@ -268,7 +268,7 @@
 		min-height: 45vh;
 		flex-grow: 1;
 		width: 100%;
-		gap: 3em;
+		gap: 2em;
 		padding-top: 2em;
 		margin-bottom: 5dvh;
 		color: white;

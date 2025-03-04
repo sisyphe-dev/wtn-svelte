@@ -101,7 +101,7 @@
 			{#if $inputAmount && isNaN(parseFloat($inputAmount))}
 				<ErrorIcon /> Cannot read amount
 			{:else if parseFloat($inputAmount) < 1}
-				<ErrorIcon /> Minimum: 1 ICP
+				<ErrorIcon /> You should have at least 1 ICP to stake.
 			{:else if !isNaN(parseFloat($inputAmount)) && parseFloat($inputAmount) > ($user?.icpBalance() ?? 0)}
 				<ErrorIcon /> You don't have enough funds to complete the transaction.
 			{/if}
