@@ -144,7 +144,7 @@
 		min-width: 80px;
 		border-radius: 8px;
 		position: relative;
-		border: 1px solid black;
+		border: var(--main-container-border);
 		font-size: 14px;
 		padding: 0 1em 0 1em;
 		max-width: none;

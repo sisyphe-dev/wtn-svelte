@@ -407,7 +407,7 @@
 
 	.main-btn {
 		background: var(--main-color);
-		border: 1px solid black;
+		border: var(--main-container-border);
 		border-radius: 8px;
 		cursor: pointer;
 		display: flex;

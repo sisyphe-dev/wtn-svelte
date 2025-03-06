@@ -246,7 +246,7 @@
 		min-width: 80px;
 		max-width: fit-content;
 		position: relative;
-		border: 1px solid black;
+		border: var(--main-container-border);
 		border-radius: 8px;
 		font-size: 16px;
 		font-weight: bold;
