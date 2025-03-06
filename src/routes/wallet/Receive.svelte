@@ -213,7 +213,7 @@
 		background: var(--main-color);
 		min-width: 80px;
 		position: relative;
-		border: 2px solid black;
+		border: var(--main-container-border);
 		border-radius: 8px;
 		font-size: 14px;
 		padding: 0 1em 0 1em;

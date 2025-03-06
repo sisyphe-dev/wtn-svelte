@@ -41,7 +41,7 @@
 			try {
 				let amountE8s = numberToBigintE8s(amount);
 				const approval = await icpTransferApproved(
-					amountE8s,
+					amountE8s + 10_000n,
 					{
 						owner: $user.principal,
 						subaccount: []
@@ -69,6 +69,7 @@
 		} else {
 			toasts.add(Toast.temporaryWarning('Sorry, there are not enough funds in this account.'));
 		}
+		inputAmount.reset();
 		isBusy.set(false);
 	}
 

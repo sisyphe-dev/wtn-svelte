@@ -139,7 +139,7 @@ export async function nicpTransferApproved(
 				created_at_time: [],
 				expires_at: [expiryDate],
 				expected_allowance: [],
-				amount: amount + 10_000n
+				amount,
 			} as ApproveArgs);
 			return handleApproveResult(approveResult);
 		} catch (error) {
@@ -176,7 +176,7 @@ export async function icpTransferApproved(
 				created_at_time: [],
 				expires_at: [expiryDate],
 				expected_allowance: [],
-				amount: amount * 10_000n
+				amount,
 			} as ApproveArgs);
 			return handleApproveResult(approveResult);
 		} catch (error) {
