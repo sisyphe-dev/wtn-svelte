@@ -69,6 +69,7 @@
 		} else {
 			toasts.add(Toast.temporaryWarning('Sorry, there are not enough funds in this account.'));
 		}
+		inputAmount.reset();
 		isBusy.set(false);
 	}
 

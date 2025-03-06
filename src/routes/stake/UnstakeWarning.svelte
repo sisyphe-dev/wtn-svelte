@@ -92,6 +92,7 @@
 		} else {
 			toasts.add(Toast.temporaryWarning('Sorry, there are not enough funds in this account.'));
 		}
+		inputAmount.reset();
 		isBusy.set(false);
 	}
 
@@ -196,6 +197,7 @@
 				// 2. Deposit
 				const amountIn = await depositInFastUnstake(amountE8s);
 				if (!amountIn) {
+					inputAmount.reset();
 					isBusy.set(false);
 					return;
 				}
@@ -208,6 +210,7 @@
 					amountOut.toString()
 				);
 				if (!amountToWithdrawE8s) {
+					inputAmount.reset();
 					isBusy.set(false);
 					return;
 				}
@@ -221,6 +224,7 @@
 		} else {
 			toasts.add(Toast.temporaryWarning('Sorry, there are not enough funds in this account.'));
 		}
+		inputAmount.reset();
 		isBusy.set(false);
 	}
 </script>
@@ -325,7 +329,7 @@
 		min-width: 80px;
 		border-radius: 8px;
 		position: relative;
-		border: 2px solid black;
+		border: var(--main-container-border);
 		font-size: 14px;
 		padding: 0 1em 0 1em;
 		max-width: none;
@@ -368,7 +372,7 @@
 		flex-direction: column;
 		border-radius: 8 px;
 		background: var(--background-color);
-		border: var(--input-border);
+		border: var(--main-container-border);;
 		padding: 0.5em 1em;
 		margin: 0.5em 0;
 		border-radius: 8px;
