@@ -221,7 +221,7 @@
 		background: var(--main-color);
 		color: var(--main-button-text-color);
 		border-radius: 8px;
-		border: 2px solid black;
+		border: var(--main-container-border);
 		font-size: 14px;
 		padding: 0 0.6em;
 		height: 3em;
