@@ -1,7 +1,7 @@
 <script lang="ts">
 	import {
 		computeRewards,
-		displayUsFormat,
+		displayNumber,
 		numberToBigintE8s,
 		computeReceiveAmount,
 		Toast
@@ -10,7 +10,6 @@
 	import ChangeIcon from '$lib/icons/ChangeIcon.svelte';
 	import ErrorIcon from '$lib/icons/ErrorIcon.svelte';
 	import { inputAmount, waterNeuronInfo, canisters, user, toasts, isBusy } from '$lib/stores';
-	import BigNumber from 'bignumber.js';
 	import {
 		icpTransferApproved,
 		handleStakeResult,
@@ -22,23 +21,23 @@
 	import { fade } from 'svelte/transition';
 
 	let invertExchangeRate = false;
-	let exchangeRate: BigNumber;
-	let totalIcpDeposited: BigNumber;
+	let exchangeRate: number;
+	let totalIcpDeposited: number;
 	let isStaking = false;
 
-	async function icpToNicp(amount: BigNumber) {
+	async function icpToNicp(amount: number) {
 		if (
 			!$user ||
 			!$canisters?.waterNeuron.authenticatedActor ||
 			!$canisters?.icpLedger.authenticatedActor ||
-			amount.isNaN() ||
-			amount.isLessThan(BigNumber(1)) ||
+			isNaN(amount) ||
+			amount < 1 ||
 			$isBusy
 		)
 			return;
 		isBusy.set(true);
 
-		if ($user.icpBalance().isGreaterThanOrEqualTo(amount) && amount.isGreaterThan(0)) {
+		if ($user.icpBalance() > amount) {
 			try {
 				let amountE8s = numberToBigintE8s(amount);
 				const approval = await icpTransferApproved(
@@ -98,19 +97,23 @@
 <div class="swap-container">
 	<SwapInput asset={'ICP'} />
 	<div class="paragraphs" in:fade={{ duration: 500 }}>
-		<span class="error">
-			{#if $inputAmount && isNaN(parseFloat($inputAmount))}
+		{#if $inputAmount && isNaN(parseFloat($inputAmount))}
+			<span class="error">
 				<ErrorIcon /> Cannot read amount
-			{:else if parseFloat($inputAmount) < 1}
-				<ErrorIcon /> Minimum: 1 ICP
-			{:else if !BigNumber($inputAmount).isNaN() && BigNumber($inputAmount).isGreaterThanOrEqualTo($user?.icpBalance() ?? BigNumber(0))}
-				<ErrorIcon /> Not enough treasury.
-			{/if}
-		</span>
+			</span>
+		{:else if parseFloat($inputAmount) < 1}
+			<span class="error">
+				<ErrorIcon /> You should have at least 1 ICP to stake.
+			</span>
+		{:else if !isNaN(parseFloat($inputAmount)) && parseFloat($inputAmount) > ($user?.icpBalance() ?? 0)}
+			<span class="error">
+				<ErrorIcon /> You don't have enough funds to complete the transaction.
+			</span>
+		{/if}
 		<p style:color="var(--important-text-color)">
 			{#if exchangeRate}
-				You will receive {displayUsFormat(
-					computeReceiveAmount(true, BigNumber($inputAmount), exchangeRate),
+				You will receive {displayNumber(
+					computeReceiveAmount(true, parseFloat($inputAmount), exchangeRate),
 					8
 				)} nICP
 			{:else}
@@ -123,31 +126,33 @@
 			</button>
 			{#if exchangeRate}
 				{#if invertExchangeRate}
-					1 nICP = {displayUsFormat(BigNumber(1).dividedBy(exchangeRate), 8)} ICP
+					1 nICP = {displayNumber(1 / exchangeRate, 8)} ICP
 				{:else}
-					1 ICP = {displayUsFormat(exchangeRate, 8)} nICP
+					1 ICP = {displayNumber(exchangeRate, 8)} nICP
 				{/if}
 			{:else}
 				-/-
 			{/if}
 		</p>
-		<div class="reward">
-			<p style:margin-right={'2.5em'}>
-				Future WTN Airdrop:
-				{#if totalIcpDeposited && !BigNumber($inputAmount).isNaN()}
-					{displayUsFormat(computeRewards(totalIcpDeposited, BigNumber($inputAmount)), 3)}
-				{:else}
-					-/-
-				{/if}
-			</p>
-			<img src="/tokens/WTN.webp" width="30em" height="30em" alt="WTN logo" class="wtn-logo" />
-		</div>
+		<a class="reward" href="https://docs.waterneuron.fi/wtn/airdrop" target="_blank">
+			<div class="reward">
+				<p style:margin-right={'2.5em'}>
+					Future WTN Airdrop:
+					{#if totalIcpDeposited && !isNaN(parseFloat($inputAmount))}
+						{displayNumber(computeRewards(totalIcpDeposited, parseFloat($inputAmount)), 4)}
+					{:else}
+						-/-
+					{/if}
+				</p>
+				<img src="/tokens/WTN.webp" width="30em" height="30em" alt="WTN logo" class="wtn-logo" />
+			</div>
+		</a>
 	</div>
 	<button
 		class="swap-btn"
 		on:click={async () => {
 			isStaking = true;
-			await icpToNicp(BigNumber($inputAmount));
+			await icpToNicp(parseFloat($inputAmount));
 			isStaking = false;
 		}}
 		title="stake-unstake-btn"
@@ -185,9 +190,6 @@
 		display: flex;
 		flex-direction: column;
 		padding: 1em;
-		border-left: var(--input-border);
-		border-right: var(--input-border);
-		border-bottom: var(--input-border);
 		border-bottom-left-radius: 10px;
 		border-bottom-right-radius: 10px;
 		background-color: var(--background-color);
@@ -204,13 +206,12 @@
 	.error {
 		display: flex;
 		align-items: center;
-		color: var(--title-color);
+		color: var(--text-color);
 		gap: 0.2em;
 		margin-left: 1em;
 		font-size: 16px;
 		font-family: var(--secondary-font);
 		flex-wrap: wrap;
-		max-width: 45%;
 		font-size: 14px;
 	}
 
@@ -236,6 +237,8 @@
 		align-items: center;
 		justify-content: flex-end;
 		position: relative;
+		text-decoration: underline;
+		text-decoration-color: var(--text-color);
 	}
 
 	.swap-btn {
@@ -243,14 +246,13 @@
 		min-width: 80px;
 		max-width: fit-content;
 		position: relative;
-		border: 2px solid black;
+		border: var(--main-container-border);
 		border-radius: 8px;
 		font-size: 16px;
 		font-weight: bold;
-		box-shadow: 3px 3px 0 0 black;
 		padding: 0 1em 0 1em;
 		max-width: none;
-		height: 4em;
+		height: 3em;
 		cursor: pointer;
 		display: flex;
 		justify-content: center;
@@ -259,7 +261,7 @@
 	}
 
 	.swap-btn:hover {
-		box-shadow: 6px 6px 0 0 black;
+		background: var(--main-color-hover);
 	}
 
 	/* === Animation === */

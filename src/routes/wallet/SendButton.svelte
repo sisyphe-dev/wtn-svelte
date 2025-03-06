@@ -1,44 +1,37 @@
 <script lang="ts">
-	import { assetToIconPath, displayUsFormat, isMobile } from '$lib';
-	import {
-		user,
-		selectedAsset,
-		inSendingMenu,
-		inReceivingMenu,
-		ledgerDevice,
-		showBalance
-	} from '$lib/stores';
-	import { BigNumber } from 'bignumber.js';
+	import { assetToIconPath, displayNumber, isMobile } from '$lib';
+	import { user, selectedAsset, inSendingMenu, inReceivingMenu, ledgerDevice } from '$lib/stores';
 	import QRCodeScannerIcon from '$lib/icons/QRCodeScannerIcon.svelte';
 	import UpIcon from '$lib/icons/UpIcon.svelte';
 	import { onMount } from 'svelte';
 
 	export let asset: 'ICP' | 'nICP' | 'WTN';
-	let balance: BigNumber | undefined;
+	let balance: number | undefined = undefined;
 
 	const fetchBalance = () => {
-		if ($user?.account === 'ledger') {
-			balance = $ledgerDevice?.getBalance(asset);
+		if (!$user) return;
+		if ($user.account === 'ledger') {
+			balance = $ledgerDevice?.getBalance(asset) ?? 0;
 		} else {
-			balance = $user?.getBalance(asset);
+			balance = $user.getBalance(asset) ?? 0;
 		}
 	};
 
 	onMount(() => {
-		fetchBalance();
-
 		const intervalId = setInterval(async () => {
 			fetchBalance();
 		}, 5000);
 
 		return () => clearInterval(intervalId);
 	});
+
+	if ($user) fetchBalance();
 </script>
 
 <div class="token-balance-container">
 	<div class="balance">
 		<p>
-			{balance ? displayUsFormat(balance, 8, $showBalance) : '-/-'}
+			{balance !== undefined ? displayNumber(balance, 8) : '-/-'}
 			{asset}
 		</p>
 		<img alt="{asset} logo" src={assetToIconPath(asset)} width="30px" height="30px" />
@@ -93,7 +86,7 @@
 				Airdrop Allocation:
 			{/if}
 			{#if $user}
-				{displayUsFormat($user.wtnAllocation(), 8, $showBalance)}
+				{displayNumber($user.wtnAllocation(), 8)}
 			{:else}
 				-/-
 			{/if} WTN
@@ -151,9 +144,8 @@
 		min-width: 80px;
 		border-radius: 8px;
 		position: relative;
-		border: 2px solid black;
+		border: var(--main-container-border);
 		font-size: 14px;
-		box-shadow: 3px 3px 0 0 black;
 		padding: 0 1em 0 1em;
 		max-width: none;
 		height: 3em;
@@ -162,12 +154,11 @@
 		justify-content: center;
 		align-items: center;
 		cursor: pointer;
-		margin-right: 1em;
+		margin-right: 0.5em;
 	}
 
 	.action-btn:hover {
-		transform: scale(0.95);
-		transition: all 0.3s;
-		box-shadow: 6px 6px 0 0 black;
+		background: var(--main-color-hover);
+		transition: all 0.2s;
 	}
 </style>

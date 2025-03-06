@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { BigNumber } from 'bignumber.js';
 	import { onMount } from 'svelte';
 	import {
 		inCancelWarningMenu,
@@ -10,7 +9,7 @@
 	} from '$lib/stores';
 	import ChangeIcon from '$lib/icons/ChangeIcon.svelte';
 	import {
-		displayUsFormat,
+		displayNumber,
 		bigintE8sToNumber,
 		displayNeuronId,
 		isMobile,
@@ -21,16 +20,15 @@
 
 	let dialog: HTMLDialogElement;
 
-	let exchangeRate: BigNumber;
+	let exchangeRate: number;
 	let warningError: string | undefined;
 	let isConfirmBusy = false;
 	let invertExchangeRate = false;
 
-	const nicpAfterCancel = (icpDue: BigNumber) => {
-		const transactionFee = BigNumber(0.0001);
-		const mergedIcp = icpDue.minus(transactionFee.multipliedBy(2));
-		const nicpWithoutFee = mergedIcp.multipliedBy(exchangeRate);
-		return nicpWithoutFee.minus(nicpWithoutFee.dividedBy(200));
+	const nicpAfterCancel = (icpDue: number) => {
+		const mergedIcp = icpDue - 0.0002;
+		const nicpWithoutFee = mergedIcp * exchangeRate;
+		return nicpWithoutFee - nicpWithoutFee / 200;
 	};
 
 	const setWarning = async () => {
@@ -111,12 +109,12 @@
 					>
 				</p>
 				<p>
-					Stake: {displayUsFormat(bigintE8sToNumber($selectedWithdrawal.request.icp_due), 8)} ICP
+					Stake: {displayNumber(bigintE8sToNumber($selectedWithdrawal.request.icp_due), 8)} ICP
 				</p>
 			</div>
 			<p class="main-information" style:margin-bottom="1em">
 				You will receive {exchangeRate
-					? displayUsFormat(
+					? displayNumber(
 							nicpAfterCancel(bigintE8sToNumber($selectedWithdrawal.request.icp_due)),
 							8
 						)
@@ -128,9 +126,9 @@
 				</button>
 				{#if exchangeRate}
 					{#if invertExchangeRate}
-						1 nICP = {displayUsFormat(BigNumber(1).dividedBy(exchangeRate), 8)} ICP
+						1 nICP = {displayNumber(1 / exchangeRate, 8)} ICP
 					{:else}
-						1 ICP = {displayUsFormat(exchangeRate, 8)} nICP
+						1 ICP = {displayNumber(exchangeRate, 8)} nICP
 					{/if}
 				{/if}
 			</p>
@@ -204,7 +202,7 @@
 		color: var(--stake-text-color);
 		padding: 1.5em;
 		border-radius: 15px;
-		border: var(--input-border);
+		box-shadow: var(--box-shadow);
 	}
 
 	.toggle-container {
@@ -233,7 +231,6 @@
 		position: relative;
 		border: 2px solid black;
 		font-size: 14px;
-		box-shadow: 3px 3px 0 0 black;
 		padding: 0 1em 0 1em;
 		max-width: none;
 		height: 3em;
@@ -246,9 +243,8 @@
 
 	#confirm-btn:hover,
 	#abort-btn:hover {
-		transform: scale(0.95);
-		transition: all 0.3s;
-		box-shadow: 6px 6px 0 0 black;
+		background: var(--main-color-hover);
+		transition: all 0.2s;
 	}
 
 	#abort-btn {

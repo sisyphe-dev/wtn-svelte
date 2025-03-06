@@ -1,8 +1,7 @@
 <script lang="ts">
-	import { assetToIconPath, assetToTransferFee } from '$lib';
+	import { assetToIconPath } from '$lib';
 	import { inputAmount, user, handleInputAmount } from '$lib/stores';
 	import { fade } from 'svelte/transition';
-	import BigNumber from 'bignumber.js';
 
 	export let asset: 'ICP' | 'nICP';
 </script>
@@ -19,22 +18,18 @@
 	<button
 		class="max-btn"
 		on:click={() => {
-			const fee =
-				asset === 'ICP'
-					? BigNumber(2).multipliedBy(assetToTransferFee(asset))
-					: BigNumber(1).multipliedBy(assetToTransferFee(asset));
-			const maxAmount = $user?.getBalance(asset).minus(fee).toNumber() ?? 0;
+			const maxAmount = ($user?.getBalance(asset) ?? 0) - 0.0002;
 			inputAmount.change(maxAmount && maxAmount >= 0 ? maxAmount : 0);
 		}}
 	>
-		<div class="max-btn-items">
-			<h2>{asset}</h2>
-			<span>Max</span>
-		</div>
-		<div class="logo-container">
-			<img class="asset-logo" src={assetToIconPath(asset)} alt="ICP Icon" />
-		</div>
+		MAX
 	</button>
+	<div class="max-btn-items">
+		<h2>{asset}</h2>
+	</div>
+	<div class="logo-container">
+		<img class="asset-logo" src={assetToIconPath(asset)} alt="ICP Icon" />
+	</div>
 </div>
 
 <style>
@@ -42,12 +37,9 @@
 	h2 {
 		color: var(--stake-text-color);
 		margin: 0;
-	}
-
-	span {
-		color: var(--stake-text-color);
-		text-decoration: underline;
-		font-size: 12px;
+		font-family: Arial;
+		font-weight: 400;
+		font-size: 18px;
 	}
 
 	input {
@@ -76,7 +68,8 @@
 		border-radius: 1em;
 		padding: 0 0.5em;
 		background: var(--input-color);
-		border: var(--input-border);
+		border: var(--main-container-border);
+		gap: 8px;
 	}
 
 	/* === Components === */
@@ -86,10 +79,12 @@
 		border: none;
 		flex-direction: row-reverse;
 		align-items: center;
-		padding: 1em;
+		padding: 8px;
 		background: none;
-		gap: 1em;
 		cursor: pointer;
+		border: var(--main-container-border);
+		border-radius: 10px;
+		color: var(--text-color);
 	}
 
 	.max-btn-items {

@@ -9,7 +9,7 @@
 	import { afterUpdate, onMount } from 'svelte';
 	import { toasts, canisters, inQrDestination } from '$lib/stores';
 	import BigNumber from 'bignumber.js';
-	import { isMobile, displayUsFormat, bigintE8sToNumber, Toast } from '$lib';
+	import { isMobile, displayNumber, bigintE8sToNumber, Toast } from '$lib';
 	import QrCodeScannerIcon from '$lib/icons/QRCodeScannerIcon.svelte';
 	import { DEV, HOST } from '$lib/authentification';
 	import { fade } from 'svelte/transition';
@@ -95,7 +95,7 @@
 		if (!selector || !currentBar || !minCommitment) return;
 
 		const barWidth = totalBar.offsetWidth;
-		const ratio = bigintE8sToNumber(status.total_icp_deposited).toNumber() / 23_295_621;
+		const ratio = bigintE8sToNumber(status.total_icp_deposited) / 23_295_621;
 		const previousSnsCheckpoint = (3 * barWidth) / 4;
 		const previousSnsCheckRatio = 0.01526;
 		snsRatio = ratio;
@@ -270,7 +270,7 @@
 				<div class="overall-commitment">
 					<div class="parameter">
 						<span>Overall Commitment</span>
-						<span>{displayUsFormat(bigintE8sToNumber(status.total_icp_deposited))} ICP</span>
+						<span>{displayNumber(bigintE8sToNumber(status.total_icp_deposited))} ICP</span>
 					</div>
 					<div class="progress-bar">
 						<div bind:this={selector} class="triangle-down"></div>
@@ -284,12 +284,12 @@
 			<div class="parameter">
 				<span style="color: #4d79ff">Current SNS</span>
 				<span style="color: #4d79ff"
-					>{snsRatio === 0 ? 0 : displayUsFormat(BigNumber(1 / snsRatio))} WTN/ICP</span
+					>{snsRatio === 0 ? 0 : displayNumber(1 / snsRatio)} WTN/ICP</span
 				>
 			</div>
 			<div class="parameter">
 				<span style="color: #faa123">Previous SNS</span>
-				<span style="color: #faa123">{displayUsFormat(BigNumber(65.5))} WTN/ICP</span>
+				<span style="color: #faa123">{displayNumber(65.5)} WTN/ICP</span>
 			</div>
 			<div class="parameter">
 				<span>{displaySnsTimeLeft(Number(status.time_left))}</span>
@@ -328,7 +328,7 @@
 						<span>ICP available for commit: </span>
 						<span style="margin-left: 10px;" id="destination-icp-balance">
 							{#if balance !== undefined}
-								{displayUsFormat(bigintE8sToNumber(balance))} ICP
+								{displayNumber(bigintE8sToNumber(balance))} ICP
 							{:else}
 								-/- ICP
 							{/if}
@@ -338,7 +338,7 @@
 						<span>ICP deposited in the SNS: </span>
 						<span style="margin-left: 10px;" id="destination-icp-balance">
 							{#if icpDepositedSns !== undefined}
-								{displayUsFormat(bigintE8sToNumber(icpDepositedSns))} ICP
+								{displayNumber(bigintE8sToNumber(icpDepositedSns))} ICP
 							{:else}
 								-/- ICP
 							{/if}
@@ -357,7 +357,7 @@
 						<span>You have successfully deposited</span>
 						<span style="margin-left: 0.5em;" id="destination-icp-balance">
 							{#if icpDepositedSns !== undefined}
-								{displayUsFormat(bigintE8sToNumber(icpDepositedSns))} ICP.
+								{displayNumber(bigintE8sToNumber(icpDepositedSns))} ICP.
 							{:else}
 								-/- ICP.
 							{/if}
@@ -367,7 +367,7 @@
 						<span>Claimable:</span>
 						<span style="margin-left: 0.5em;" id="destination-icp-balance">
 							{#if wtnClaimable !== undefined}
-								{displayUsFormat(bigintE8sToNumber(wtnClaimable))} WTN
+								{displayNumber(bigintE8sToNumber(wtnClaimable))} WTN
 							{:else}
 								-/- WTN.
 							{/if}
@@ -537,7 +537,6 @@
 		position: relative;
 		border: 2px solid black;
 		font-size: 14px;
-		box-shadow: 3px 3px 0 0 black;
 		padding: 0 1em 0 1em;
 		max-width: none;
 		align-self: center;
@@ -550,9 +549,8 @@
 	}
 
 	.commit-btn:hover {
-		transform: scale(0.95);
-		transition: all 0.3s;
-		box-shadow: 6px 6px 0 0 black;
+		background: var(--main-color-hover);
+		transition: all 0.2s;
 	}
 
 	.destination-container {
@@ -591,8 +589,8 @@
 
 	.derive-btn:hover,
 	.icon-btn:hover {
-		transform: scale(0.9);
-		animation: invert 0.5s ease;
+		background: var(--main-color-hover);
+		transition: all 0.2s;
 	}
 
 	.derive-container {

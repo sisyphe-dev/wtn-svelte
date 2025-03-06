@@ -1,4 +1,4 @@
-<svg height="30px" width="30px" viewBox="0 0 364 364" xmlns="http://www.w3.org/2000/svg">
+<svg viewBox="0 0 364 364" xmlns="http://www.w3.org/2000/svg">
 	<defs>
 		<linearGradient
 			id="gradient-5"

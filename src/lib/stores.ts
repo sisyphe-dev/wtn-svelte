@@ -1,7 +1,6 @@
 import { writable } from 'svelte/store';
 import { type User, Canisters, WaterNeuronInfo, fetchIcpBalance, fetchNicpBalance } from './state';
 import { bigintE8sToNumber, Toast } from '$lib';
-import BigNumber from 'bignumber.js';
 import { get } from 'svelte/store';
 import { Principal } from '@dfinity/principal';
 import { encodeIcrcAccount } from '@dfinity/ledger-icrc';
@@ -19,10 +18,9 @@ export const inUnstakeWarningMenu = writable<boolean>(false);
 export const inMobileMenu = writable<boolean>(false);
 export const inQrDestination = writable<boolean>(false);
 export const inSnsMenu = writable<boolean>(false);
-export const showBalance = writable<boolean>(true);
 
 /* === Components === */
-export const language = writable<'en' | 'es' | 'ja' | 'ru'>('en');
+export const language = writable<'en' | 'es' | 'ja' | 'ru' | 'cn'>('en');
 export const availableAccounts = writable<{ owner: Principal; subaccount?: ArrayBuffer }[]>([]);
 export const signer = writable<Signer | undefined>(undefined);
 export const selectedAsset = writable<'ICP' | 'nICP' | 'WTN'>('ICP');
@@ -69,8 +67,8 @@ function createBoomerangSnsStore() {
 		name: string;
 		principal: string;
 		encodedBoomerangAccount: string | undefined;
-		icpBalance: BigNumber | undefined;
-		nicpBalance: BigNumber | undefined;
+		icpBalance: number | undefined;
+		nicpBalance: number | undefined;
 	}>({
 		name: '',
 		principal: '',
@@ -85,8 +83,8 @@ function createBoomerangSnsStore() {
 		setName: (name: string) => update((sns) => ({ ...sns, name })),
 		setEncodedBoomerangAccount: (encodedBoomerangAccount: string) =>
 			update((sns) => ({ ...sns, encodedBoomerangAccount })),
-		setIcpBalance: (icpBalance: BigNumber) => update((sns) => ({ ...sns, icpBalance })),
-		setNicpBalance: (nicpBalance: BigNumber) => update((sns) => ({ ...sns, nicpBalance })),
+		setIcpBalance: (icpBalance: number) => update((sns) => ({ ...sns, icpBalance })),
+		setNicpBalance: (nicpBalance: number) => update((sns) => ({ ...sns, nicpBalance })),
 		reset: () =>
 			set({
 				name: '',

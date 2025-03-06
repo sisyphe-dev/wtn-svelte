@@ -1,13 +1,14 @@
 <script lang="ts">
 	import {
-		displayUsFormat,
+		displayNumber,
 		numberToBigintE8s,
 		E8S,
 		getMaybeAccount,
 		assetToIconPath,
 		assetToTransferFee,
 		assetToDashboardUrl,
-		Toast as ToastMessage
+		Toast as ToastMessage,
+		bigintE8sToNumber
 	} from '$lib';
 	import {
 		inSendingMenu,
@@ -17,11 +18,9 @@
 		toasts,
 		canisters,
 		inputAmount,
-		handleInputAmount,
-		showBalance
+		handleInputAmount
 	} from '$lib/stores';
 	import { onMount } from 'svelte';
-	import BigNumber from 'bignumber.js';
 	import { AccountIdentifier, LedgerCanister } from '@dfinity/ledger-icp';
 	import {
 		handleIcrcTransferResult,
@@ -46,32 +45,18 @@
 	let principal: string;
 	let isSending = false;
 	let dialog: HTMLDialogElement;
-	let balance: BigNumber | undefined;
+	let balance = 0;
 
 	const fetchBalance = () => {
 		if ($user?.account === 'ledger') {
-			balance = $ledgerDevice?.getBalance($selectedAsset);
+			balance = $ledgerDevice?.getBalance($selectedAsset) ?? 0;
 		} else {
-			balance = $user?.getBalance($selectedAsset);
+			balance = $user?.getBalance($selectedAsset) ?? 0;
 		}
 	};
 
-	function isValidAmount(amount: BigNumber): boolean | undefined {
-		return (
-			balance?.isGreaterThanOrEqualTo(amount) &&
-			amount.isGreaterThanOrEqualTo(BigNumber(1).dividedBy(E8S))
-		);
-	}
-
-	async function handleTransferRequest(amount: BigNumber, accountString: string) {
-		if (
-			isSending ||
-			amount.isNaN() ||
-			!isValidAmount(amount) ||
-			!principal ||
-			!$canisters ||
-			!$user
-		)
+	async function handleTransferRequest(amount: number, accountString: string) {
+		if (isSending || isNaN(amount) || balance <= amount || !principal || !$canisters || !$user)
 			return;
 		isSending = true;
 		const amount_e8s = numberToBigintE8s(amount);
@@ -305,7 +290,7 @@
 				<div style:display={'flex'}>
 					<div class="balances">
 						<span style:margin-left={'1em'}
-							>{balance ? displayUsFormat(balance, 8, $showBalance) : '-/-'}
+							>{balance ? displayNumber(balance, 8) : '-/-'}
 							{$selectedAsset}</span
 						>
 						<img
@@ -360,17 +345,17 @@
 					title="max-placeholder"
 					on:click={() => {
 						const fee = assetToTransferFee($selectedAsset);
-						const amount = balance?.isGreaterThanOrEqualTo(fee) ? balance.minus(fee) : BigNumber(0);
-						inputAmount.change(amount.toNumber() && amount.toNumber() >= 0 ? amount.toNumber() : 0);
+						const amount = Math.max(balance - fee, 0);
+						inputAmount.change(amount);
 					}}
 				>
 					MAX
 				</button>
 			</div>
 			<span class="error" title="amount-error">
-				{#if !BigNumber($inputAmount).isNaN() && BigNumber($inputAmount).isGreaterThanOrEqualTo(balance ?? BigNumber(0))}
-					<ErrorIcon /> Not enough treasury.
-				{:else if !BigNumber($inputAmount).isNaN() && BigNumber($inputAmount).isLessThan(BigNumber(1).dividedBy(E8S))}
+				{#if !isNaN(parseFloat($inputAmount)) && parseFloat($inputAmount) > balance}
+					<ErrorIcon /> You don't have enough funds to complete the transaction.
+				{:else if !isNaN(parseFloat($inputAmount)) && parseFloat($inputAmount) <= 0.0001}
 					<ErrorIcon /> Minimum amount: 0.00000001
 				{/if}
 			</span>
@@ -400,7 +385,7 @@
 					class="toggle-btn"
 					title="continue-btn"
 					on:click={() => {
-						handleTransferRequest(BigNumber($inputAmount), principal);
+						handleTransferRequest(parseFloat($inputAmount), principal);
 					}}
 				>
 					<span>Continue</span>
@@ -465,7 +450,7 @@
 		color: var(--stake-text-color);
 		padding: 2em;
 		border-radius: 15px;
-		border: var(--input-border);
+		border: var(--main-container-border);
 	}
 
 	.header-container {
@@ -486,14 +471,13 @@
 	.error {
 		display: flex;
 		align-items: center;
-		color: var(--title-color);
+		color: var(--text-color);
 		gap: 0.2em;
 		margin-left: 1em;
 		margin-top: 4px;
 		font-size: 16px;
 		font-family: var(--secondary-font);
 		flex-wrap: wrap;
-		max-width: 45%;
 		font-size: 14px;
 	}
 
@@ -510,7 +494,7 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		border: var(--input-border);
+		border: var(--main-container-border);
 		background: var(--input-color);
 		border-radius: 0.4em;
 	}
@@ -526,9 +510,8 @@
 		min-width: 80px;
 		border-radius: 8px;
 		position: relative;
-		border: 2px solid black;
+		border: var(--main-container-border);
 		font-size: 14px;
-		box-shadow: 3px 3px 0 0 black;
 		padding: 0 1em 0 1em;
 		max-width: none;
 		height: 3em;
@@ -540,20 +523,19 @@
 	}
 
 	.toggle-btn:hover {
-		transform: scale(0.95);
-		transition: all 0.3s;
-		box-shadow: 6px 6px 0 0 black;
+		background: var(--main-color-hover);
+		transition: all 0.2s;
 	}
 
 	#abort-btn {
 		background: var(--main-button-text-color);
-		color: var(--main-color);
+		color: black;
 	}
 
-	#continue-btn {
+	/* #continue-btn {
 		background: var(--main-color);
 		color: var(--main-button-text-color);
-	}
+	} */
 
 	input::-webkit-outer-spin-button,
 	input::-webkit-inner-spin-button {

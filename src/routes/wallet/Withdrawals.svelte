@@ -1,7 +1,7 @@
 <script lang="ts">
 	import {
 		bigintE8sToNumber,
-		displayUsFormat,
+		displayNumber,
 		renderStatus,
 		displayTimeLeft,
 		fetchNeuronCreationTimestamp,
@@ -98,7 +98,7 @@
 				{#each Object.values(activeWithdrawalRequests).concat(Object.values(cancelledWithdrawalRequests)) as details, index}
 					{#if isMobile}
 						<tr>
-							<td>{displayUsFormat(bigintE8sToNumber(details.request.icp_due))}</td>
+							<td>{displayNumber(bigintE8sToNumber(details.request.icp_due))}</td>
 							<td>
 								<a
 									target="_blank"
@@ -135,8 +135,8 @@
 						</tr>
 					{:else}
 						<tr>
-							<td>{displayUsFormat(bigintE8sToNumber(details.request.nicp_burned))}</td>
-							<td>{displayUsFormat(bigintE8sToNumber(details.request.icp_due))}</td>
+							<td>{displayNumber(bigintE8sToNumber(details.request.nicp_burned))}</td>
+							<td>{displayNumber(bigintE8sToNumber(details.request.icp_due))}</td>
 							<td>
 								<a
 									target="_blank"
@@ -177,7 +177,7 @@
 	/* === Layout === */
 	.withdrawals-container {
 		background-color: var(--background-color);
-		border: var(--input-border);
+		box-shadow: var(--box-shadow);
 		border-radius: 10px;
 		color: var(--stake-text-color);
 		padding: 2em;
@@ -223,7 +223,6 @@
 		border-radius: 8px;
 		border: 2px solid black;
 		font-size: 14px;
-		box-shadow: 3px 3px 0 0 black;
 		padding: 0 0.6em;
 		height: 3em;
 		font-weight: bold;
@@ -234,9 +233,8 @@
 	}
 
 	#cancel-btn:hover {
-		transform: scale(0.95);
-		transition: all 0.3s;
-		box-shadow: 6px 6px 0 0 black;
+		background: var(--main-color-hover);
+		transition: all 0.2s;
 	}
 
 	#cancel-btn-mobile {

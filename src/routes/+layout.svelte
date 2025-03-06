@@ -141,8 +141,9 @@
 		--card-background-contrast: var(--main-color);
 		--card-background: white;
 
-		--main-color: #4c66dc;
-		--main-color-disabled: #4c66dcbd;
+		--main-color: #286e5f;
+		--main-color-hover: #308171;
+		--main-color-disabled: #286e5f;
 		--main-button-text-color: white;
 		--main-button-text-color-disabled: #fefefeb5;
 	}
@@ -150,10 +151,11 @@
 	:root[theme='light'] {
 		--important-text-color: black;
 		--stake-text-color: black;
+		--box-shadow: #7c7c7c63 0px 8px 16px;
 
 		--title-color: black;
 		--border-color: #454545;
-		--page-background: #fcfffd;
+		--page-background: rgb(241, 241, 243);
 		--background-color: #fcfffd;
 		--background-color-transparent: #fefefede;
 		--switch-background-color: rgba(220, 220, 220, 0.49);
@@ -167,19 +169,23 @@
 
 		--unstake-selection-color: #283e9521;
 
-		--svg-fill-color: #000000;
+		--svg-fill-color: #a7a7a7;
 		--svg-opposite-color: #b3b3b3;
 		--sns-selected-button-color: rgb(107 180 249 / 50%);
 
 		--theme-background-asset-logo: none;
 		--theme-border-asset-logo: none;
+
+		--main-container-border: 1px solid rgb(193 193 193);
+		--select-unstake-speed: 1px solid black;
 	}
 
 	:root[theme='dark'] {
-		--svg-fill-color: #ffffff;
+		--svg-fill-color: #a7a7a7;
 		--svg-opposite-color: #7f7f7f;
 		--stake-text-color: white;
 		--qr-code-background: none;
+		--box-shadow: none;
 
 		--main-button-text-color: #fcfffd;
 		--title-color: white;
@@ -201,11 +207,14 @@
 
 		--theme-background-asset-logo: #dadef2;
 		--theme-border-asset-logo: 2px solid #a3a5b0;
+
+		--main-container-border: 1px solid rgba(235, 235, 239, 0.08);
+		--select-unstake-speed: 1px solid white;
 	}
 
 	@font-face {
 		font-family: 'Akrobat-black';
-		src: url('/Akrobat-Black.ttf') format('truetype');
+		src: url('/FliegeMonoVF.ttf') format('truetype');
 		font-weight: normal;
 		font-style: normal;
 	}
@@ -260,9 +269,9 @@
 		min-height: 45vh;
 		flex-grow: 1;
 		width: 100%;
-		gap: 3em;
+		gap: 2em;
 		padding-top: 2em;
-		margin-bottom: 4em;
+		margin-bottom: 5dvh;
 		color: white;
 	}
 

@@ -3,15 +3,18 @@
 	import es from './lang/es.json';
 	import ru from './lang/ru.json';
 	import ja from './lang/ja.json';
+	import cn from './lang/cn.json';
 	import { language } from '$lib/stores';
 	import { fade, slide } from 'svelte/transition';
 	import ArrowIcon from '$lib/icons/ArrowIcon.svelte';
+	import { onMount } from 'svelte';
 
 	const data = {
 		en: en,
 		es: es,
 		ru: ru,
-		ja: ja
+		ja: ja,
+		cn: cn
 	};
 
 	function getContent(language: string) {
@@ -24,6 +27,8 @@
 				return data.ru.sections;
 			case 'ja':
 				return data.ja.sections;
+			case 'cn':
+				return data.cn.sections;
 			default:
 				return [];
 		}
@@ -32,6 +37,10 @@
 	let toggledMap = getContent($language).map(() => {
 		return false;
 	});
+
+	onMount(() => {
+		toggledMap[0] = !toggledMap[0];
+	});
 </script>
 
 {#key $language}
@@ -39,18 +48,19 @@
 		<h1>FAQ</h1>
 		{#each getContent($language) as section, i}
 			<button
-				class="faq-btn"
+				class="faq-container"
 				on:click={() => {
 					toggledMap[i] = !toggledMap[i];
 				}}
 			>
-				<h2>{section.title}</h2>
-				<ArrowIcon isUp={toggledMap[i]} />
+				<div class="faq-container-title">
+					<h2>{section.title}</h2>
+					<ArrowIcon isUp={toggledMap[i]} />
+				</div>
+				{#if toggledMap[i]}
+					<p transition:slide={{ duration: 250 }}>{section.content}</p>
+				{/if}
 			</button>
-
-			{#if toggledMap[i]}
-				<p transition:slide>{section.content}</p>
-			{/if}
 		{/each}
 	</div>
 {/key}
@@ -77,6 +87,13 @@
 		ru
 	</button>
 	<button
+		on:click={() => language.set('cn')}
+		class="lang-btn"
+		class:language-active={$language === 'cn'}
+	>
+		cn
+	</button>
+	<button
 		on:click={() => language.set('ja')}
 		class="lang-btn"
 		class:language-active={$language === 'ja'}
@@ -91,20 +108,48 @@
 		display: flex;
 		align-items: center;
 		flex-direction: column;
-		width: 90vw;
-		max-width: 800px;
+		width: 30em;
+		max-width: 95vw;
 		overflow-y: auto;
+		gap: 1em;
+	}
+
+	.faq-container {
+		width: 100%;
+		border: var(--main-container-border);
+		border-radius: 15px;
+		background: var(--background-color);
+		display: flex;
+		flex-direction: column;
+		text-align: left;
+		justify-content: space-between;
+	}
+
+	.faq-container p {
+		width: 90%;
+		align-self: center;
+	}
+
+	.faq-container-title {
+		display: flex;
+		width: 90%;
+		align-self: center;
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
 	}
 
 	h1 {
 		color: var(--faq-color);
-		font-size: 42px;
+		font-size: 1.2em;
+		margin: 0;
 		font-family: var(--main-font);
 	}
 
 	h2 {
 		color: var(--faq-color);
-		font-size: 1.5em;
+		font-weight: 500;
+		font-size: 1.2em;
 		text-align: start;
 	}
 
@@ -114,28 +159,13 @@
 		font-family: CircularXX, sans-serif;
 		-webkit-font-smoothing: antialiased;
 		line-height: 24px;
-	}
-
-	/* === Components === */
-
-	.faq-btn {
-		background: none;
-		border: none;
-		border-bottom: 2px solid;
-		border-color: var(--faq-color);
-		margin-top: 2em;
-		padding-top: 2em;
-		width: 100%;
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		margin: 0;
+		text-align: left;
 	}
 
 	.lang-btn {
 		background: none;
 		border: none;
-		color: white;
+		color: var(--text-color);
 		cursor: pointer;
 	}
 	/* === Layout === */

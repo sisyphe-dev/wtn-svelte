@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { selectedAsset, inReceivingMenu, user, ledgerDevice, showBalance } from '$lib/stores';
+	import { selectedAsset, inReceivingMenu, user, ledgerDevice } from '$lib/stores';
 	import CopyIcon from '$lib/icons/CopyIcon.svelte';
 	import { fade, scale } from 'svelte/transition';
 	import { onMount } from 'svelte';
 	import QrCreator from 'qr-creator';
-	import { assetToIconPath, displayAccountId, displayPrincipal } from '$lib';
+	import { assetToIconPath } from '$lib';
 
 	let dialog: HTMLDialogElement;
 	let accountId: string | undefined;
@@ -70,7 +70,7 @@
 		</div>
 		<div class="principal-container">
 			{#if $selectedAsset === 'ICP'}
-				<p>{displayAccountId(accountId, !$showBalance)}</p>
+				<p>{accountId}</p>
 				<button
 					class="copy-btn"
 					on:click={() => {
@@ -84,7 +84,7 @@
 					{/if}
 				</button>
 			{:else}
-				<p>{displayPrincipal(principal, !$showBalance)}</p>
+				<p>{principal}</p>
 				<button
 					class="copy-btn"
 					on:click={() => {
@@ -172,7 +172,7 @@
 		padding: 2em;
 		margin: 0.3em;
 		border-radius: 15px;
-		border: var(--input-border);
+		border: var(--main-container-border);
 		gap: 1em;
 		height: fit-content;
 		overflow-x: hidden;
@@ -216,7 +216,6 @@
 		border: 2px solid black;
 		border-radius: 8px;
 		font-size: 14px;
-		box-shadow: 3px 3px 0 0 black;
 		padding: 0 1em 0 1em;
 		width: 10em;
 		height: 3em;
@@ -227,9 +226,8 @@
 	}
 
 	.finish-btn:hover {
-		transform: scale(0.95);
-		transition: all 0.3s;
-		box-shadow: 6px 6px 0 0 black;
+		background: var(--main-color-hover);
+		transition: all 0.2s;
 	}
 
 	#qr-code {

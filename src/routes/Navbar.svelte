@@ -1,12 +1,11 @@
 <script lang="ts">
-	import { isLogging, inMobileMenu, user, ledgerDevice, showBalance } from '$lib/stores';
-	import { displayUsFormat } from '$lib';
+	import { isLogging, inMobileMenu, user, ledgerDevice } from '$lib/stores';
+	import { displayNumber } from '$lib';
 	import { internetIdentityLogout } from '$lib/authentification';
 	import { ThemeToggle } from '@dfinity/gix-components';
 	import PowerOffIcon from '$lib/icons/PowerOffIcon.svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
-	import EyeIcon from '$lib/icons/EyeIcon.svelte';
 	import { Principal } from '@dfinity/principal';
 
 	export function displayUserPrincipal(principal: Principal | undefined) {
@@ -18,20 +17,13 @@
 
 <nav class:filter={$isLogging}>
 	<a href="/" class="menu-selection-container" title="home-btn">
-		<img src="/tokens/WTN.webp" width="75em" height="75em" alt="WTN logo" />
+		<img src="/tokens/WTN.webp" width="50em" height="50em" alt="WTN logo" />
 		<div class="wave-title">
-			<h1 id="static-header">WaterNeuron</h1>
+			<h1>WaterNeuron</h1>
 		</div>
 	</a>
 
 	<div class="right-container">
-		<button
-			on:click={() => {
-				showBalance.set(!$showBalance);
-			}}
-		>
-			<EyeIcon isClosed={$showBalance} />
-		</button>
 		<div class="theme-toggle">
 			<ThemeToggle />
 		</div>
@@ -49,11 +41,11 @@
 			{:else}
 				<a href="/wallet" class="wallet-btn" id="wallet-info">
 					<h2 style:font-weight={'bold'}>{displayUserPrincipal($user.principal)}</h2>
-					<p title="icp-balance-nav">{displayUsFormat($user.icpBalance(), 2, $showBalance)} ICP</p>
+					<p title="icp-balance-nav">{displayNumber($user.icpBalance(), 2)} ICP</p>
 					<p title="nicp-balance-nav">
-						{displayUsFormat($user.nicpBalance(), 2, $showBalance)} nICP
+						{displayNumber($user.nicpBalance(), 2)} nICP
 					</p>
-					<p title="wtn-balance-nav">{displayUsFormat($user.wtnBalance(), 2, $showBalance)} WTN</p>
+					<p title="wtn-balance-nav">{displayNumber($user.wtnBalance(), 2)} WTN</p>
 				</a>
 				<button
 					id="disconnect-btn"
@@ -101,7 +93,7 @@
 		justify-content: space-between;
 		color: white;
 		height: fit-content;
-		padding: 0 2vw;
+		padding: 0 2.5vw;
 		margin-top: 2vh;
 	}
 
@@ -152,6 +144,9 @@
 
 	h1 {
 		color: var(--title-color);
+		font-weight: 800;
+		font-family: var(--main-font);
+		letter-spacing: -0.11em;
 	}
 
 	p {
@@ -169,7 +164,7 @@
 	}
 
 	.menu-selection-container h1 {
-		font-size: 2em;
+		font-size: 1.5em;
 		cursor: pointer;
 		font-family: var(--main-font);
 		position: absolute;
@@ -264,8 +259,8 @@
 		}
 
 		img {
-			height: 5em;
-			width: 5em;
+			height: 50px;
+			width: 50px;
 		}
 
 		.right-container {

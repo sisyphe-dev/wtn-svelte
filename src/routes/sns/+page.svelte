@@ -15,13 +15,7 @@
 	import { handleSnsIcpDepositResult, handleSnsRetrieveNicpResult } from '$lib/resultHandler';
 	import { Principal } from '@dfinity/principal';
 	import BigNumber from 'bignumber.js';
-	import {
-		displayUsFormat,
-		isPrincipalValid,
-		numberToBigintE8s,
-		principalToHex,
-		Toast
-	} from '$lib';
+	import { displayNumber, isPrincipalValid, numberToBigintE8s, principalToHex, Toast } from '$lib';
 
 	let isConfirmBusy: boolean;
 	let isRetrieveBusy: boolean;
@@ -129,13 +123,13 @@
 								href="https://dashboard.internetcomputer.org/account/{principalToHex(
 									$sns.principal
 								)}"
-								class="balance dashboard">{displayUsFormat($sns.icpBalance)} ICP</a
+								class="balance dashboard">{displayNumber($sns.icpBalance)} ICP</a
 							>
 						{:else}
 							<span class="balance">-/- ICP</span>
 						{/if}
 						{#if $sns.nicpBalance}
-							<span class="balance">{displayUsFormat($sns.nicpBalance)} nICP</span>
+							<span class="balance">{displayNumber($sns.nicpBalance)} nICP</span>
 						{:else}
 							<span class="balance">-/- nICP</span>
 						{/if}
@@ -195,7 +189,7 @@
 					<a
 						class="action-btn"
 						href="https://proposals.network/submit?g={$sns.principal}&action=TransferSnsTreasuryFunds&destination={$sns.encodedBoomerangAccount}&amount={numberToBigintE8s(
-							BigNumber($inputAmount)
+							Number($inputAmount)
 						)}"
 						target="blank"
 					>
@@ -285,7 +279,7 @@
 	/* === Layout === */
 	.sns-stake-container {
 		background-color: var(--background-color);
-		border: var(--input-border);
+		box-shadow: var(--box-shadow);
 		border-radius: 10px;
 		display: flex;
 		height: 44em;
@@ -298,8 +292,7 @@
 		flex-direction: column;
 		width: 80%;
 		align-items: start;
-		justify-content: start;
-		gap: 2em;
+		justify-content: space-evenly;
 		padding: 3em;
 	}
 
@@ -373,7 +366,6 @@
 		background: var(--main-color);
 		border: 2px solid black;
 		border-radius: 8px;
-		box-shadow: 3px 3px 0 0 black;
 		font-size: 16px;
 		font-weight: bold;
 		font-family: var(--secondary-font);
@@ -387,9 +379,8 @@
 	}
 
 	.action-btn:hover {
-		transform: scale(0.95);
-		transition: all 0.3s;
-		box-shadow: 6px 6px 0 0 black;
+		background: var(--main-color-hover);
+		transition: all 0.2s;
 	}
 
 	.copy-btn {

@@ -1,13 +1,12 @@
 <script lang="ts">
 	import { waterNeuronInfo } from '$lib/stores';
-	import { displayUsFormat } from '$lib';
-	import BigNumber from 'bignumber.js';
-	import { onMount, afterUpdate } from 'svelte';
+	import { displayNumber } from '$lib';
+	import { onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
 
-	let totalStaked: BigNumber;
-	let apy: BigNumber;
-	let stakersCount: Number;
+	let totalStaked: number;
+	let apy: number;
+	let stakersCount: number;
 
 	async function getLedgerBalanceStoreEntries() {
 		try {
@@ -28,61 +27,64 @@
 		}
 	}
 
-	afterUpdate(() => {
-		if ($waterNeuronInfo) {
-			try {
-				apy = $waterNeuronInfo.apy();
-				totalStaked = $waterNeuronInfo.neuron8yStake().plus($waterNeuronInfo.neuron6mStake());
-			} catch (error) {
-				console.error('Error fetching data:', error);
-			}
-		}
-	});
-
 	onMount(() => {
 		getLedgerBalanceStoreEntries();
 	});
+
+	$: if ($waterNeuronInfo) {
+		apy = $waterNeuronInfo.apy();
+		totalStaked = $waterNeuronInfo.neuron8yStake() + $waterNeuronInfo.neuron6mStake();
+	}
 </script>
 
 <div class="stat-widget-container" in:fade={{ duration: 500 }}>
 	<div class="stat-item">
 		<b>TVL</b>
-		<b>
+		<p>
 			{#if totalStaked}
-				{displayUsFormat(totalStaked, 0)} ICP
+				{displayNumber(totalStaked, 0)} ICP
 			{:else}
 				-/-
 			{/if}
-		</b>
+		</p>
 	</div>
 	<div class="stat-item">
 		<b>APY</b>
-		<b
-			>{#if apy}
-				{displayUsFormat(BigNumber(100).multipliedBy(apy), 1)}%
+		<p>
+			{#if apy}
+				{displayNumber(100 * apy, 1)}%
 			{:else}
 				-/-
-			{/if}</b
-		>
+			{/if}
+		</p>
 	</div>
 	<div class="stat-item">
 		<b>Holders</b>
-		<b>
+		<p>
 			{#if stakersCount || stakersCount === 0}
 				{stakersCount}
 			{:else}
 				-/-
 			{/if}
-		</b>
+		</p>
 	</div>
 </div>
 
 <style>
+	b {
+		font-weight: 800;
+		letter-spacing: -0.05em;
+	}
+
+	p {
+		margin: 0;
+	}
+
 	/* === Layout === */
 	.stat-widget-container {
 		background: var(--background-color);
-		border: var(--border-size) solid var(--border-color);
 		color: var(--stake-text-color);
+		border: var(--main-container-border);
 		padding: 1em;
 		padding-left: 2em;
 		padding-right: 2em;

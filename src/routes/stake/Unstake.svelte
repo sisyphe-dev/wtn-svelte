@@ -1,6 +1,6 @@
 <script lang="ts">
 	import {
-		displayUsFormat,
+		displayNumber,
 		numberToBigintE8s,
 		bigintE8sToNumber,
 		computeReceiveAmount,
@@ -19,7 +19,6 @@
 		isBusy,
 		inUnstakeWarningMenu
 	} from '$lib/stores';
-	import BigNumber from 'bignumber.js';
 	import { DEFAULT_ERROR_MESSAGE } from '$lib/resultHandler';
 	import { CANISTER_ID_ICP_LEDGER, CANISTER_ID_NICP_LEDGER } from '$lib/authentification';
 	import type {
@@ -35,9 +34,9 @@
 	let invertExchangeRate = false;
 	let isFastUnstake = false;
 	let isUnstaking = false;
-	let exchangeRate: BigNumber;
-	let minimumWithdraw: BigNumber;
-	let fastUnstakeAmount = BigNumber(0);
+	let exchangeRate: number;
+	let minimumWithdraw: number;
+	let fastUnstakeAmount = 0;
 	let timeoutId: NodeJS.Timeout | null = null;
 	let showFailedHelp = false;
 	let showImmediateHelp = false;
@@ -75,7 +74,7 @@
 						const key = Object.keys(withdrawNicpResult)[0] as keyof IcpSwapResult;
 						switch (key) {
 							case 'ok':
-								const withdrawNicpAmount = displayUsFormat(
+								const withdrawNicpAmount = displayNumber(
 									bigintE8sToNumber(withdrawNicpResult[key]),
 									4
 								);
@@ -101,7 +100,7 @@
 						const key = Object.keys(withdrawIcpResult)[0] as keyof IcpSwapResult;
 						switch (key) {
 							case 'ok':
-								const withdrawIcpAmount = displayUsFormat(
+								const withdrawIcpAmount = displayNumber(
 									bigintE8sToNumber(withdrawIcpResult[key]),
 									4
 								);
@@ -128,11 +127,11 @@
 		if (!$canisters) return;
 
 		try {
-			const amount = BigNumber($inputAmount);
-			if (amount.isNaN()) return BigNumber(0);
+			const amount = Number($inputAmount);
+			if (isNaN(amount)) return 0;
 
 			const amountIn = numberToBigintE8s(amount);
-			const amountOut = amountIn - numberToBigintE8s(amount.multipliedBy(BigNumber(0.02)));
+			const amountOut = 0;
 
 			const result = await $canisters.icpswapPool.anonymousActor.quote({
 				amountIn: amountIn.toString(),
@@ -146,30 +145,24 @@
 					fastUnstakeAmount = bigintE8sToNumber((result as { ok: bigint }).ok);
 					break;
 				case 'err':
-					fastUnstakeAmount = BigNumber(0);
+					fastUnstakeAmount = 0;
 					break;
 			}
 		} catch (error) {
 			console.log(error);
-			fastUnstakeAmount = BigNumber(0);
+			fastUnstakeAmount = 0;
 		}
 	};
 
 	function unstakeAvailable(): boolean {
-		return (
-			$inputAmount !== '' &&
-			((isFastUnstake && fastUnstakeAmount.toNumber() > 0) ||
-				(!isFastUnstake &&
-					minimumWithdraw &&
-					parseFloat($inputAmount) >= minimumWithdraw.toNumber()))
-		);
+		const amount = parseFloat($inputAmount);
+		const minimumAmount = isFastUnstake ? 0 : minimumWithdraw;
+		return !isNaN(amount) && amount >= minimumAmount;
 	}
 
 	const fetchData = async () => {
 		if ($waterNeuronInfo)
 			try {
-				exchangeRate = $waterNeuronInfo.exchangeRate();
-				minimumWithdraw = BigNumber(10).multipliedBy(exchangeRate);
 			} catch (error) {
 				console.error('Error fetching data:', error);
 			}
@@ -202,6 +195,10 @@
 	};
 
 	$: $inputAmount, triggerTimeout();
+	$: if ($waterNeuronInfo) {
+		exchangeRate = $waterNeuronInfo.exchangeRate();
+		minimumWithdraw = 10 * exchangeRate;
+	}
 </script>
 
 {#if $inUnstakeWarningMenu}
@@ -210,31 +207,33 @@
 
 <div class="swap-container">
 	<SwapInput asset={'nICP'} />
-	<div class="paragraphs-container" in:fade={{ duration: 500 }}>
+	{#if $inputAmount && isNaN(parseFloat($inputAmount))}
 		<span class="error">
-			{#if $inputAmount && isNaN(parseFloat($inputAmount))}
-				<ErrorIcon /> Cannot read amount
-			{:else if !isFastUnstake && $inputAmount && minimumWithdraw && parseFloat($inputAmount) < minimumWithdraw.toNumber()}
-				<ErrorIcon /> Minimum: {displayUsFormat(minimumWithdraw, 4)} nICP
-			{:else if !BigNumber($inputAmount).isNaN() && BigNumber($inputAmount).isGreaterThanOrEqualTo($user?.nicpBalance() ?? BigNumber(0))}
-				<ErrorIcon /> Not enough treasury.
-			{/if}
+			<ErrorIcon /> Cannot read amount
 		</span>
-		<p style:padding-right="0.4em">
-			<button class="change-btn" on:click={() => (invertExchangeRate = !invertExchangeRate)}>
-				<ChangeIcon />
-			</button>
-			{#if exchangeRate}
-				{#if !invertExchangeRate}
-					1 nICP = {displayUsFormat(BigNumber(1).dividedBy(exchangeRate), 8)} ICP
-				{:else}
-					1 ICP = {displayUsFormat(exchangeRate, 8)} nICP
-				{/if}
+	{:else if !isFastUnstake && parseFloat($inputAmount) < minimumWithdraw}
+		<span class="error">
+			<ErrorIcon /> Minimum: {displayNumber(minimumWithdraw, 4)} nICP
+		</span>
+	{:else if parseFloat($inputAmount) > ($user?.nicpBalance() ?? 0)}
+		<span class="error">
+			<ErrorIcon /> You don't have enough funds to complete the transaction.
+		</span>
+	{/if}
+	<p style:padding-right="0.4em">
+		<button class="change-btn" on:click={() => (invertExchangeRate = !invertExchangeRate)}>
+			<ChangeIcon />
+		</button>
+		{#if exchangeRate !== undefined}
+			{#if !invertExchangeRate}
+				1 nICP = {displayNumber(1 / exchangeRate, 8)} ICP
 			{:else}
-				-/-
+				1 ICP = {displayNumber(exchangeRate, 8)} nICP
 			{/if}
-		</p>
-	</div>
+		{:else}
+			-/-
+		{/if}
+	</p>
 	<div class="unstake-selection-container">
 		<button
 			class="unstake-container"
@@ -258,8 +257,8 @@
 				</button>
 			</div>
 			<p>
-				{#if fastUnstakeAmount.isGreaterThanOrEqualTo(0.0002)}
-					Receive {displayUsFormat(fastUnstakeAmount.minus(BigNumber(0.0002)), 8)} ICP
+				{#if fastUnstakeAmount >= 0.0002}
+					Receive {displayNumber(fastUnstakeAmount - 0.0002, 8)} ICP
 				{:else}
 					Receive -/- ICP
 				{/if}
@@ -305,8 +304,8 @@
 			</div>
 			<p>
 				{#if exchangeRate}
-					Receive {displayUsFormat(
-						computeReceiveAmount(false, BigNumber($inputAmount), exchangeRate),
+					Receive {displayNumber(
+						computeReceiveAmount(false, parseFloat($inputAmount), exchangeRate),
 						8
 					)} ICP
 				{:else}
@@ -367,24 +366,14 @@
 		display: flex;
 		flex-direction: column;
 		padding: 1em;
-		border-left: var(--input-border);
-		border-right: var(--input-border);
-		border-bottom: var(--input-border);
 		border-bottom-left-radius: 10px;
 		border-bottom-right-radius: 10px;
 		background-color: var(--background-color);
 		gap: 1em;
 	}
 
-	.paragraphs-container {
-		display: flex;
-		justify-content: space-between;
-		width: 100%;
-	}
-
 	.unstake-selection-container {
 		display: flex;
-		border: var(--input-border);
 		border-radius: 8px;
 		padding: 1em;
 	}
@@ -418,10 +407,8 @@
 
 	.main-btn {
 		background: var(--main-color);
-		position: relative;
-		border: 2px solid black;
+		border: var(--main-container-border);
 		border-radius: 8px;
-		box-shadow: 3px 3px 0 0 black;
 		cursor: pointer;
 		display: flex;
 		justify-content: center;
@@ -430,7 +417,8 @@
 	}
 
 	.main-btn:hover {
-		box-shadow: 6px 6px 0 0 black;
+		background: var(--main-color-hover);
+		transition: all 0.2s;
 	}
 
 	.swap-btn {
@@ -439,19 +427,18 @@
 		padding: 0 1em 0 1em;
 		font-weight: bold;
 		font-size: 16px;
-		height: 4em;
+		height: 3em;
 	}
 
 	.error {
 		display: flex;
 		align-items: center;
-		color: var(--title-color);
+		color: var(--text-color);
 		gap: 0.2em;
 		margin-left: 1em;
 		font-size: 16px;
 		font-family: var(--secondary-font);
 		flex-wrap: wrap;
-		max-width: 45%;
 		font-size: 14px;
 	}
 
@@ -468,13 +455,13 @@
 	}
 
 	.help-content {
+		position: absolute;
 		background: var(--background-color);
 		color: var(--text-color);
 		text-align: left;
 		padding: 1em;
 		border-radius: 8px;
 		width: 200px;
-		position: absolute;
 		bottom: 2em;
 		left: 50%;
 		transform: translate(-50%, 0);
@@ -498,12 +485,12 @@
 
 	/* === Utilities === */
 	.selected {
-		background-color: var(--unstake-selection-color);
+		border: var(--select-unstake-speed);
 		color: var(--title-color);
 	}
 
 	.not-selected {
-		background-color: var(--background-color);
+		border: 1px solid transparent;
 		cursor: pointer;
 	}
 
