@@ -64,7 +64,7 @@
 			try {
 				let amountE8s = numberToBigintE8s(amount);
 				const approval = await nicpTransferApproved(
-					amountE8s,
+					amountE8s + 10_000n,
 					{
 						owner: $user.principal,
 						subaccount: []

@@ -126,9 +126,7 @@
 					<h2>Internet Identity</h2>
 				</button>
 				<button class="login-btn" on:click={() => handleConnection('nfid')}>
-					<img src="/icon/google.svg" width="auto" height="40px" alt="Google Logo." />
-					<h2>Google</h2>
-					<span>|</span>
+					<h2>Google via NFID</h2>
 					<img src="/icon/nfid.webp" width="auto" height="30em" alt="NFID Logo." />
 				</button>
 				<button class="login-btn" on:click={() => handleConnection('plug')}>
