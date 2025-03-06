@@ -142,6 +142,7 @@
 		--card-background: white;
 
 		--main-color: #286e5f;
+		--main-color-hover: #308171;
 		--main-color-disabled: #286e5f;
 		--main-button-text-color: white;
 		--main-button-text-color-disabled: #fefefeb5;
@@ -184,7 +185,7 @@
 		--svg-opposite-color: #7f7f7f;
 		--stake-text-color: white;
 		--qr-code-background: none;
-		--box-shadow: #00000061 0px 8px 16px;
+		--box-shadow: none;
 
 		--main-button-text-color: #fcfffd;
 		--title-color: white;

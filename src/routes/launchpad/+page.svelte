@@ -537,7 +537,6 @@
 		position: relative;
 		border: 2px solid black;
 		font-size: 14px;
-		box-shadow: 3px 3px 0 0 black;
 		padding: 0 1em 0 1em;
 		max-width: none;
 		align-self: center;
@@ -550,9 +549,8 @@
 	}
 
 	.commit-btn:hover {
-		transform: scale(0.95);
-		transition: all 0.3s;
-		box-shadow: 6px 6px 0 0 black;
+		background: var(--main-color-hover);
+		transition: all 0.2s;
 	}
 
 	.destination-container {
@@ -591,8 +589,8 @@
 
 	.derive-btn:hover,
 	.icon-btn:hover {
-		transform: scale(0.9);
-		animation: invert 0.5s ease;
+		background: var(--main-color-hover);
+		transition: all 0.2s;
 	}
 
 	.derive-container {

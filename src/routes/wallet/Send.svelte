@@ -510,9 +510,8 @@
 		min-width: 80px;
 		border-radius: 8px;
 		position: relative;
-		border: 2px solid black;
+		border: var(--main-container-border);
 		font-size: 14px;
-		box-shadow: 3px 3px 0 0 black;
 		padding: 0 1em 0 1em;
 		max-width: none;
 		height: 3em;
@@ -524,9 +523,8 @@
 	}
 
 	.toggle-btn:hover {
-		transform: scale(0.95);
-		transition: all 0.3s;
-		box-shadow: 6px 6px 0 0 black;
+		background: var(--main-color-hover);
+		transition: all 0.2s;
 	}
 
 	#abort-btn {
@@ -534,10 +532,10 @@
 		color: black;
 	}
 
-	#continue-btn {
+	/* #continue-btn {
 		background: var(--main-color);
 		color: var(--main-button-text-color);
-	}
+	} */
 
 	input::-webkit-outer-spin-button,
 	input::-webkit-inner-spin-button {

@@ -261,7 +261,7 @@
 	}
 
 	.swap-btn:hover {
-		box-shadow: 6px 6px 0 0 black;
+		background: var(--main-color-hover);
 	}
 
 	/* === Animation === */

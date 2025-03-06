@@ -119,18 +119,16 @@
 			</div>
 			<div class="selection-container">
 				<button class="login-btn" on:click={() => handleConnection('internetIdentity')}>
-					<img src="/icon/astronaut.webp" width="40em" height="40em" alt="Dfinity Astronaut." />
 					<h2>Internet Identity</h2>
-				</button>
-				<button class="login-btn" on:click={() => handleConnection('nfid')}>
-					<img src="/icon/google.svg" width="auto" height="40em" alt="Google Logo." />
-					<h2>Google</h2>
-					<span>|</span>
-					<img src="/icon/nfid.webp" width="auto" height="30em" alt="NFID Logo." />
+					<img src="/icon/astronaut.webp" width="40em" height="40em" alt="Dfinity Astronaut." />
 				</button>
 				<button class="login-btn" on:click={() => handleConnection('plug')}>
 					<img src="/icon/plug.png" width="40em" height="40em" alt="Plug Icon." />
 					<h2>Plug Wallet</h2>
+				</button>
+				<button class="login-btn" on:click={() => handleConnection('nfid')}>
+					<h2>Google via NFID</h2>
+					<img src="/icon/nfid.webp" width="auto" height="30em" alt="NFID Logo." />
 				</button>
 				{#if DEV || STAGING}
 					<button
@@ -186,8 +184,8 @@
 <style>
 	/* === Base Styles === */
 	h1 {
-		font-family: var(--secondary-font);
-		font-weight: 600;
+		font-family: var(--main-font);
+		font-weight: 500;
 		font-size: 20px;
 		color: var(--title-color);
 	}
@@ -201,11 +199,7 @@
 		color: var(--main-button-text-color);
 		font-family: var(--secondary-font);
 		font-size: 1.2em;
-	}
-
-	span {
-		color: var(--main-button-text-color);
-		font-family: var(--secondary-font);
+		font-weight: 500;
 	}
 
 	::backdrop {
@@ -227,11 +221,11 @@
 		display: flex;
 		flex-direction: column;
 		height: fit-content;
-		max-width: 35em;
+		max-width: 20em;
 		width: 80vw;
 		gap: 1em;
 		background: var(--background-color);
-		padding: 2em;
+		padding: 1em;
 		border: var(--main-container-border);
 		border-radius: 15px;
 	}
@@ -244,44 +238,39 @@
 	}
 
 	.selection-container {
-		display: grid;
-		grid-template-columns: repeat(2, 1fr);
+		display: flex;
+		flex-direction: column;
 		gap: 1em;
-		padding: 1em;
 	}
 
 	/* === Components === */
 	.login-btn {
 		gap: 0.3em;
 		border-radius: 8px;
-		border: 1px solid black;
-		box-shadow: 3px 3px 0 0 black;
+		border: var(--main-container-border);
 		width: auto;
 		height: 5em;
 		align-items: center;
-		justify-content: center;
 		cursor: pointer;
 		display: flex;
 		background: var(--main-color);
+		position: relative;
+		padding: 0 20px;
 	}
 
 	.login-btn:hover {
-		transform: scale(0.95);
-		transition: all 0.3s;
-		box-shadow: 6px 6px 0 0 black;
+		background: var(--main-color-hover);
+		transition: all 0.2s;
+	}
+
+	.login-btn img {
+		position: absolute;
+		right: 20px;
 	}
 
 	.close-btn {
 		border: none;
 		background: none;
 		cursor: pointer;
-	}
-
-	@media (max-width: 767px) {
-		.selection-container {
-			display: flex;
-			flex-direction: column;
-			gap: 1em;
-		}
 	}
 </style>

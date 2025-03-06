@@ -327,7 +327,6 @@
 		position: relative;
 		border: 2px solid black;
 		font-size: 14px;
-		box-shadow: 3px 3px 0 0 black;
 		padding: 0 1em 0 1em;
 		max-width: none;
 		height: 3em;
@@ -339,9 +338,8 @@
 	}
 
 	button:hover {
-		transform: scale(0.95);
-		transition: all 0.3s;
-		box-shadow: 6px 6px 0 0 black;
+		background: var(--main-color-hover);
+		transition: all 0.2s;
 	}
 
 	/* === Containers === */
@@ -355,7 +353,6 @@
 		color: var(--stake-text-color);
 		padding: 1.5em;
 		border-radius: 15px;
-		box-shadow: var(--box-shadow);
 	}
 
 	.toggle-container {

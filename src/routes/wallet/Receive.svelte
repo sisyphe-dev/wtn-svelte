@@ -216,7 +216,6 @@
 		border: 2px solid black;
 		border-radius: 8px;
 		font-size: 14px;
-		box-shadow: 3px 3px 0 0 black;
 		padding: 0 1em 0 1em;
 		width: 10em;
 		height: 3em;
@@ -227,9 +226,8 @@
 	}
 
 	.finish-btn:hover {
-		transform: scale(0.95);
-		transition: all 0.3s;
-		box-shadow: 6px 6px 0 0 black;
+		background: var(--main-color-hover);
+		transition: all 0.2s;
 	}
 
 	#qr-code {

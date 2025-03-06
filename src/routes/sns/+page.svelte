@@ -366,7 +366,6 @@
 		background: var(--main-color);
 		border: 2px solid black;
 		border-radius: 8px;
-		box-shadow: 3px 3px 0 0 black;
 		font-size: 16px;
 		font-weight: bold;
 		font-family: var(--secondary-font);
@@ -380,9 +379,8 @@
 	}
 
 	.action-btn:hover {
-		transform: scale(0.95);
-		transition: all 0.3s;
-		box-shadow: 6px 6px 0 0 black;
+		background: var(--main-color-hover);
+		transition: all 0.2s;
 	}
 
 	.copy-btn {

@@ -79,7 +79,8 @@
 
 	button:hover {
 		border: 2px solid transparent;
-		background-color: var(--sns-selected-button-color);
+		background: var(--main-color-hover);
+		transition: all 0.2s;
 	}
 
 	/* === Layout === */
