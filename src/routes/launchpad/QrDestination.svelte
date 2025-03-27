@@ -66,7 +66,7 @@
 			>
 				<CopyIcon />
 				{#if circleVisible}
-					<div class="circle" transition:scale={{ duration: 500 }}></div>
+					<div class="circle" transition:scale={{ duration: 200 }}></div>
 				{/if}
 			</button>
 		</div>

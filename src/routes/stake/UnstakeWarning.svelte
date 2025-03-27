@@ -234,7 +234,7 @@
 	on:close={() => {
 		inUnstakeWarningMenu.set(false);
 	}}
-	in:fade={{ duration: 500 }}
+	in:fade={{ duration: 200 }}
 >
 	<div class="main-container">
 		<h2>Unstake Confirmation</h2>
@@ -372,7 +372,7 @@
 		flex-direction: column;
 		border-radius: 8 px;
 		background: var(--background-color);
-		border: var(--main-container-border);;
+		border: var(--main-container-border);
 		padding: 0.5em 1em;
 		margin: 0.5em 0;
 		border-radius: 8px;

@@ -97,7 +97,7 @@
 
 <div class="swap-container">
 	<SwapInput asset={'ICP'} />
-	<div class="paragraphs" in:fade={{ duration: 500 }}>
+	<div class="paragraphs" in:fade={{ duration: 200 }}>
 		{#if $inputAmount && isNaN(parseFloat($inputAmount))}
 			<span class="error">
 				<ErrorIcon /> Cannot read amount

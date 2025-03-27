@@ -44,7 +44,7 @@
 </script>
 
 {#key $language}
-	<div class="faq" in:fade={{ duration: 500 }}>
+	<div class="faq" in:fade={{ duration: 200 }}>
 		<h1>FAQ</h1>
 		{#each getContent($language) as section, i}
 			<button

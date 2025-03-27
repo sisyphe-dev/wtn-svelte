@@ -10,7 +10,7 @@
 </script>
 
 <StatsWidget />
-<div class="main-container" in:fade={{ duration: 500 }}>
+<div class="main-container" in:fade={{ duration: 200 }}>
 	<div class="header-container">
 		<button
 			class="header-btn"

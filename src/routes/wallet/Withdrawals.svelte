@@ -74,7 +74,7 @@
 </script>
 
 {#if Object.keys(activeWithdrawalRequests).length + Object.keys(cancelledWithdrawalRequests).length >= 1}
-	<div class="withdrawals-container" in:fade={{ duration: 500 }}>
+	<div class="withdrawals-container" in:fade={{ duration: 200 }}>
 		<h1>Withdrawal Requests</h1>
 		<table>
 			<thead>

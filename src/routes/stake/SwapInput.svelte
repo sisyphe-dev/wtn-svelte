@@ -6,7 +6,7 @@
 	export let asset: 'ICP' | 'nICP';
 </script>
 
-<div class="input-container" in:fade={{ duration: 500 }}>
+<div class="input-container" in:fade={{ duration: 200 }}>
 	<input
 		type="text"
 		maxlength="20"
