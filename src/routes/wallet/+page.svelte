@@ -30,7 +30,7 @@
 	}
 </script>
 
-<div class="wallet-menu-container" in:fade={{ duration: 500 }}>
+<div class="wallet-menu-container" in:fade={{ duration: 200 }}>
 	{#key inMainWallet}
 		<div class="header-container">
 			<h1 style:align-self="center">Wallet</h1>

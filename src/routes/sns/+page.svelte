@@ -96,7 +96,7 @@
 <div class="sns-stake-container" in:fade>
 	<SnsListing />
 	{#key $sns.name}
-		<div class="boomerang-container" in:fade={{ duration: 500 }}>
+		<div class="boomerang-container" in:fade={{ duration: 200 }}>
 			<div class="top-container">
 				<h1>Stake <span style:color="var(--main-color)">{$sns.name}</span> Treasury</h1>
 				<div class="sns-info-container">
@@ -136,7 +136,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="step-container" in:fade={{ duration: 500 }}>
+			<div class="step-container" in:fade={{ duration: 200 }}>
 				<div class="instruction-container">
 					<div class="number-step-container">
 						<span class="round">1</span>
@@ -161,7 +161,7 @@
 						>
 							<CopyIcon />
 							{#if isCircleVisible}
-								<div class="circle" transition:scale={{ duration: 500 }}></div>
+								<div class="circle" transition:scale={{ duration: 200 }}></div>
 							{/if}
 						</button>
 					</div>
@@ -197,7 +197,7 @@
 					</a>
 				{/if}
 			</div>
-			<div class="step-container" in:fade={{ duration: 500 }}>
+			<div class="step-container" in:fade={{ duration: 200 }}>
 				<div class="instruction-container">
 					<div class="number-step-container">
 						<span class="round">2</span>
@@ -214,7 +214,7 @@
 					>
 				{/if}
 			</div>
-			<div class="step-container" in:fade={{ duration: 500 }}>
+			<div class="step-container" in:fade={{ duration: 200 }}>
 				<div class="instruction-container">
 					<div class="number-step-container">
 						<span class="round">3</span>

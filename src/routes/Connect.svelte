@@ -78,7 +78,7 @@
 
 <dialog
 	id="connectDialog"
-	in:fade={{ duration: 500 }}
+	in:fade={{ duration: 100 }}
 	on:close={() => {
 		isLogging.set(false);
 		availableAccounts.set([]);
@@ -86,7 +86,7 @@
 		isBusy.set(false);
 	}}
 >
-	<div class="wallets-container" in:fade={{ duration: 500 }}>
+	<div class="wallets-container">
 		{#if $availableAccounts.length > 0}
 			<div class="header-container">
 				<h1>Select your account</h1>

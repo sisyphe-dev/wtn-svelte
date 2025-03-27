@@ -37,7 +37,7 @@
 	}
 </script>
 
-<div class="stat-widget-container" in:fade={{ duration: 500 }}>
+<div class="stat-widget-container" in:fade={{ duration: 200 }}>
 	<div class="stat-item">
 		<b>TVL</b>
 		<p>
