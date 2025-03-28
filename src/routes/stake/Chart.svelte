@@ -8,9 +8,6 @@
 
 	type Scale = '1m' | '3m' | '6m' | '1y' | 'All';
 
-	const TS_CACHE_KEY = 'ts';
-	const XR_CACHE_KEY = 'xr';
-	const CACHE_REFRESH_KEY = 'dailyTaskExpiry';
 	const NANOS_PER_SEC = 1_000_000_000n;
 	const ONE_MONTH_MILLIS = 30 * 24 * 60 * 60 * 1_000;
 	const BATCH_SIZE = 2_000n;
@@ -157,13 +154,9 @@
 	});
 
 	const setDateRange = (scale: Scale) => {
-		let cachedTs: string | null = localStorage.getItem('cachedTs');
-		let cachedExchangeRates = localStorage.getItem('cachedExchangeRates');
-
-		if (!cachedTs || !cachedExchangeRates) return;
-
-		const fullRangeTs: Date[] = JSON.parse(cachedTs);
-		const fullRangeXrs: number[] = JSON.parse(cachedExchangeRates);
+        if (!$chartData) return;
+		const fullRangeTs: number[] = $chartData.timestamps;
+		const fullRangeXrs: number[] = $chartData.exchangeRates;
 		let rangedTs: number[] = [];
 		let rangedXrs: number[] = [];
 		let now = Date.now();
@@ -186,10 +179,9 @@
 				break;
 		}
 
-		for (const [index, rawDate] of fullRangeTs.entries()) {
-			const timestamp = new Date(rawDate);
-			if (timestamp.getTime() + range >= now) {
-				rangedTs.push(timestamp.getTime());
+		for (const [index, timestamp] of fullRangeTs.entries()) {
+			if (timestamp + range >= now) {
+				rangedTs.push(timestamp);
 				rangedXrs.push(fullRangeXrs[index]);
 			}
 		}
@@ -249,7 +241,9 @@
 		{#if timestamps.length === 0 || exchangeRates.length === 0}
 			<div class="spinner"></div>
 		{/if}
-		<Chart {options} bind:chart />
+		<div class="chart-content-container">
+			<Chart {options} bind:chart />
+		</div>
 		<div class="scales">
 			{#each scales as scale}
 				<button class="scale-btn" on:click={() => setDateRange(scale)}>{scale}</button>
@@ -286,7 +280,15 @@
 		width: fit-content;
 		position: relative;
 		padding: 1em;
-		border-radius: 8px;
+		border-radius: 10px;
+		border: var(--main-container-border);
+        width: 610px;
+        height: 400px;
+	}
+
+	.chart-content-container {
+		width: 600px;
+		height: 310px;
 	}
 
     .close-btn {
