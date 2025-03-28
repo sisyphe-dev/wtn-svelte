@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { canisters, inChart } from '$lib/stores';
+	import { canisters, inChart, chartData } from '$lib/stores';
 	import type { GetEventsResult, Event } from '$lib/../declarations/water_neuron/water_neuron.did';
 	import { Chart } from 'flowbite-svelte';
 	import { onMount } from 'svelte';
@@ -78,25 +78,17 @@
 
 	async function updateCache() {
 		const [ts, xr] = await fetchEvent();
-		localStorage.setItem(TS_CACHE_KEY, JSON.stringify(ts));
-		localStorage.setItem(XR_CACHE_KEY, JSON.stringify(xr));
-
-		const expiry = new Date();
-		expiry.setHours(24, 0, 0, 0);
-		localStorage.setItem(CACHE_REFRESH_KEY, expiry.getTime().toString());
-		timestamps =  [1718748000000].concat(ts);
-		exchangeRates = [1].concat(xr);
+        chartData.set({timestamps: [1718748000000].concat(ts), exchangeRates: [1].concat(xr)})
+        timestamps =  [1718748000000].concat(ts)
+        exchangeRates = [1].concat(xr);
 	}
 
 	function checkCache() {
-		const refreshTime = localStorage.getItem(CACHE_REFRESH_KEY);
-		const xr = localStorage.getItem(XR_CACHE_KEY);
-		const ts = localStorage.getItem(TS_CACHE_KEY);
-		if ((refreshTime && Date.now() >= JSON.parse(refreshTime)) || !(ts && xr && (xr.length === 0 || ts.length === 0))) {
-			updateCache();
+		if ($chartData) {
+            timestamps = $chartData.timestamps;
+			exchangeRates = $chartData.exchangeRates;
 		} else {
-			timestamps = [1718748000000].concat(JSON.parse(ts));
-			exchangeRates = [1].concat(JSON.parse(xr));
+			updateCache();			
 		}
 	}
 
@@ -273,7 +265,7 @@
 				</g>
 			</svg>
 		</button>
-        {#if timestamps.length <= 1 || exchangeRates.length <= 1}
+        {#if timestamps.length === 0 || exchangeRates.length === 0}
             <div class="spinner"></div>
         {/if}		
         <Chart {options} bind:chart />
