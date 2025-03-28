@@ -1,4 +1,5 @@
 import { IDL } from '@dfinity/candid';
+
 export const idlFactory = () => {
 	const UpgradeArg = IDL.Record({
 		governance_fee_share_percent: IDL.Opt(IDL.Nat64)
@@ -199,6 +200,7 @@ export const idlFactory = () => {
 			sns_gov_amount: IDL.Nat64,
 			from_neuron_type: NeuronOrigin
 		}),
+		DistributeICPtoSNSv2: IDL.Null,
 		SplitNeuron: IDL.Record({
 			withdrawal_id: IDL.Nat64,
 			neuron_id: NeuronId
@@ -284,6 +286,47 @@ export const idlFactory = () => {
 		Ok: DepositSuccess,
 		Err: ConversionError
 	});
+	const StandardRecord = IDL.Record({ url: IDL.Text, name: IDL.Text });
+	const ConsentMessageMetadata = IDL.Record({
+		utc_offset_minutes: IDL.Opt(IDL.Nat16),
+		language: IDL.Text
+	});
+	const DisplayMessageType = IDL.Variant({
+		GenericDisplay: IDL.Null,
+		LineDisplay: IDL.Record({
+			characters_per_line: IDL.Nat16,
+			lines_per_page: IDL.Nat16
+		})
+	});
+	const ConsentMessageSpec = IDL.Record({
+		metadata: ConsentMessageMetadata,
+		device_spec: IDL.Opt(DisplayMessageType)
+	});
+	const ConsentMessageRequest = IDL.Record({
+		arg: IDL.Vec(IDL.Nat8),
+		method: IDL.Text,
+		user_preferences: ConsentMessageSpec
+	});
+	const LineDisplayPage = IDL.Record({ lines: IDL.Vec(IDL.Text) });
+	const ConsentMessage = IDL.Variant({
+		LineDisplayMessage: IDL.Record({ pages: IDL.Vec(LineDisplayPage) }),
+		GenericDisplayMessage: IDL.Text
+	});
+	const ConsentInfo = IDL.Record({
+		metadata: ConsentMessageMetadata,
+		consent_message: ConsentMessage
+	});
+	const ErrorInfo = IDL.Record({ description: IDL.Text });
+	const Icrc21Error = IDL.Variant({
+		GenericError: IDL.Record({
+			description: IDL.Text,
+			error_code: IDL.Nat64
+		}),
+		InsufficientPayment: ErrorInfo,
+		UnsupportedCanisterCall: ErrorInfo,
+		ConsentMessageUnavailable: ErrorInfo
+	});
+	const Result_5 = IDL.Variant({ Ok: ConsentInfo, Err: Icrc21Error });
 	const WithdrawalSuccess = IDL.Record({
 		block_index: IDL.Nat,
 		withdrawal_id: IDL.Nat64,
@@ -299,10 +342,13 @@ export const idlFactory = () => {
 		get_airdrop_allocation: IDL.Func([IDL.Opt(IDL.Principal)], [IDL.Nat64], ['query']),
 		get_events: IDL.Func([GetEventsArg], [GetEventsResult], ['query']),
 		get_info: IDL.Func([], [CanisterInfo], ['query']),
+		get_pending_rewards: IDL.Func([IDL.Opt(IDL.Principal)], [IDL.Nat64], ['query']),
 		get_transfer_statuses: IDL.Func([IDL.Vec(IDL.Nat64)], [IDL.Vec(TransferStatus)], ['query']),
 		get_withdrawal_requests: IDL.Func([IDL.Opt(Account)], [IDL.Vec(WithdrawalDetails)], ['query']),
 		get_wtn_proposal_id: IDL.Func([IDL.Nat64], [Result_2], ['query']),
 		icp_to_nicp: IDL.Func([ConversionArg], [Result_3], []),
+		icrc10_supported_standards: IDL.Func([], [IDL.Vec(StandardRecord)], ['query']),
+		icrc21_canister_call_consent_message: IDL.Func([ConsentMessageRequest], [Result_5], []),
 		nicp_to_icp: IDL.Func([ConversionArg], [Result_4], [])
 	});
 };

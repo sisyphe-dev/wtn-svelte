@@ -16,6 +16,7 @@ export const inReceivingMenu = writable<boolean>(false);
 export const inCancelWarningMenu = writable<boolean>(false);
 export const inUnstakeWarningMenu = writable<boolean>(false);
 export const inMobileMenu = writable<boolean>(false);
+export const inChart = writable<boolean>(false);
 export const inQrDestination = writable<boolean>(false);
 export const inSnsMenu = writable<boolean>(false);
 
@@ -29,6 +30,9 @@ export const user = writable<User | undefined>(undefined);
 export const ledgerDevice = writable<LedgerDevice | undefined>(undefined);
 export const canisters = writable<Canisters | undefined>(undefined);
 export const waterNeuronInfo = writable<WaterNeuronInfo | undefined>(undefined);
+export const chartData = writable<{ timestamps: number[]; exchangeRates: number[] } | undefined>(
+	undefined
+);
 
 /* === Input Amount ==== */
 function createInputAmountStore() {

@@ -41,6 +41,28 @@ export interface CanisterInfo {
 	total_icp_deposited: bigint;
 	stakers_count: bigint;
 }
+export interface ConsentInfo {
+	metadata: ConsentMessageMetadata;
+	consent_message: ConsentMessage;
+}
+export type ConsentMessage =
+	| {
+			LineDisplayMessage: { pages: Array<LineDisplayPage> };
+	  }
+	| { GenericDisplayMessage: string };
+export interface ConsentMessageMetadata {
+	utc_offset_minutes: [] | [number];
+	language: string;
+}
+export interface ConsentMessageRequest {
+	arg: Uint8Array | number[];
+	method: string;
+	user_preferences: ConsentMessageSpec;
+}
+export interface ConsentMessageSpec {
+	metadata: ConsentMessageMetadata;
+	device_spec: [] | [DisplayMessageType];
+}
 export interface ConversionArg {
 	maybe_subaccount: [] | [Uint8Array | number[]];
 	amount_e8s: bigint;
@@ -58,9 +80,20 @@ export interface DepositSuccess {
 	block_index: bigint;
 	transfer_id: bigint;
 }
+export type DisplayMessageType =
+	| { GenericDisplay: null }
+	| {
+			LineDisplay: {
+				characters_per_line: number;
+				lines_per_page: number;
+			};
+	  };
 export type DissolveState =
 	| { DissolveDelaySeconds: bigint }
 	| { WhenDissolvedTimestampSeconds: bigint };
+export interface ErrorInfo {
+	description: string;
+}
 export interface Event {
 	timestamp: bigint;
 	payload: EventType;
@@ -127,6 +160,7 @@ export type EventType =
 				from_neuron_type: NeuronOrigin;
 			};
 	  }
+	| { DistributeICPtoSNSv2: null }
 	| { SplitNeuron: { withdrawal_id: bigint; neuron_id: NeuronId } };
 export interface ExecutedTransfer {
 	block_index: [] | [bigint];
@@ -149,6 +183,13 @@ export interface GovernanceError {
 	error_type: number;
 }
 export type GuardError = { AlreadyProcessing: null } | { TooManyConcurrentRequests: null };
+export type Icrc21Error =
+	| {
+			GenericError: { description: string; error_code: bigint };
+	  }
+	| { InsufficientPayment: ErrorInfo }
+	| { UnsupportedCanisterCall: ErrorInfo }
+	| { ConsentMessageUnavailable: ErrorInfo };
 export interface InitArg {
 	wtn_ledger_id: Principal;
 	wtn_governance_id: Principal;
@@ -157,6 +198,9 @@ export interface InitArg {
 export interface KnownNeuronData {
 	name: string;
 	description: [] | [string];
+}
+export interface LineDisplayPage {
+	lines: Array<string>;
 }
 export type LiquidArg = { Upgrade: [] | [UpgradeArg] } | { Init: InitArg };
 export interface MergeResponse {
@@ -227,6 +271,11 @@ export type Result_1 = { Ok: bigint } | { Err: ConversionError };
 export type Result_2 = { Ok: NeuronId } | { Err: NeuronId };
 export type Result_3 = { Ok: DepositSuccess } | { Err: ConversionError };
 export type Result_4 = { Ok: WithdrawalSuccess } | { Err: ConversionError };
+export type Result_5 = { Ok: ConsentInfo } | { Err: Icrc21Error };
+export interface StandardRecord {
+	url: string;
+	name: string;
+}
 export type TransferError =
 	| {
 			GenericError: { message: string; error_code: bigint };
@@ -291,10 +340,13 @@ export interface _SERVICE {
 	get_airdrop_allocation: ActorMethod<[[] | [Principal]], bigint>;
 	get_events: ActorMethod<[GetEventsArg], GetEventsResult>;
 	get_info: ActorMethod<[], CanisterInfo>;
+	get_pending_rewards: ActorMethod<[[] | [Principal]], bigint>;
 	get_transfer_statuses: ActorMethod<[BigUint64Array | bigint[]], Array<TransferStatus>>;
 	get_withdrawal_requests: ActorMethod<[[] | [Account]], Array<WithdrawalDetails>>;
 	get_wtn_proposal_id: ActorMethod<[bigint], Result_2>;
 	icp_to_nicp: ActorMethod<[ConversionArg], Result_3>;
+	icrc10_supported_standards: ActorMethod<[], Array<StandardRecord>>;
+	icrc21_canister_call_consent_message: ActorMethod<[ConsentMessageRequest], Result_5>;
 	nicp_to_icp: ActorMethod<[ConversionArg], Result_4>;
 }
 export declare const idlFactory: IDL.InterfaceFactory;
