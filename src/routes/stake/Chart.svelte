@@ -154,7 +154,7 @@
 	});
 
 	const setDateRange = (scale: Scale) => {
-        if (!$chartData) return;
+		if (!$chartData) return;
 		const fullRangeTs: number[] = $chartData.timestamps;
 		const fullRangeXrs: number[] = $chartData.exchangeRates;
 		let rangedTs: number[] = [];
@@ -225,17 +225,17 @@
 >
 	<div class="chart-container">
 		<div class="header-container">
-            <h2>Exchange rate {isInverted? 'ICP/nICP': 'nICP/ICP'}</h2>
+			<h2>Exchange rate {isInverted ? 'ICP/nICP' : 'nICP/ICP'}</h2>
 			<button class="change-btn" on:click={() => (isInverted = !isInverted)}>
 				<ChangeIcon />
 			</button>
 			<button
-                class="close-btn"
+				class="close-btn"
 				on:click={() => {
 					dialog.close();
 				}}
 			>
-				<CloseIcon color="--title-color"/>
+				<CloseIcon color="--title-color" />
 			</button>
 		</div>
 		{#if timestamps.length === 0 || exchangeRates.length === 0}
@@ -282,8 +282,8 @@
 		padding: 1em;
 		border-radius: 10px;
 		border: var(--main-container-border);
-        width: 610px;
-        height: 400px;
+		width: 610px;
+		height: 400px;
 	}
 
 	.chart-content-container {
@@ -291,18 +291,18 @@
 		height: 310px;
 	}
 
-    .close-btn {
-        background: none; 
-        top: 1em; 
-        right: 1em; 
-        z-index: 10; 
-        cursor: pointer;
-        border: none;
-        display: flex;
-        flex-grow: 1;
-        justify-content: end;
-        align-items: center;
-    }
+	.close-btn {
+		background: none;
+		top: 1em;
+		right: 1em;
+		z-index: 10;
+		cursor: pointer;
+		border: none;
+		display: flex;
+		flex-grow: 1;
+		justify-content: end;
+		align-items: center;
+	}
 
 	.scales {
 		display: flex;
@@ -320,12 +320,12 @@
 		border-bottom-right-radius: 8px;
 	}
 
-    h2 {
-        font-family: var(--main-font);
-        margin: 0;
-    }
+	h2 {
+		font-family: var(--main-font);
+		margin: 0;
+	}
 
-    .change-btn {
+	.change-btn {
 		border: none;
 		display: flex;
 		width: fit-content;
@@ -336,12 +336,12 @@
 		cursor: pointer;
 	}
 
-    .change-btn:hover {
+	.change-btn:hover {
 		transform: scale(1.2);
 		animation: invert 0.5s ease;
 	}
 
-    @keyframes invert {
+	@keyframes invert {
 		from {
 			transform: scale(1);
 		}
@@ -350,12 +350,12 @@
 		}
 	}
 
-    .header-container {
-        display: flex;
-        align-items: center;
-        width: 100%;
-        gap: 1em;
-    }
+	.header-container {
+		display: flex;
+		align-items: center;
+		width: 100%;
+		gap: 1em;
+	}
 
 	.scale-btn {
 		border: none;
