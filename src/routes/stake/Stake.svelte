@@ -4,7 +4,8 @@
 		displayNumber,
 		numberToBigintE8s,
 		computeReceiveAmount,
-		Toast
+		Toast,
+		isMobile
 	} from '$lib';
 	import SwapInput from './SwapInput.svelte';
 	import ChangeIcon from '$lib/icons/ChangeIcon.svelte';
@@ -138,41 +139,52 @@
 			{#if exchangeRate}
 				{#if invertExchangeRate}
 					1 nICP = {displayNumber(1 / exchangeRate, 8)} ICP
-					<button class="chart-btn" on:click={() => inChart.set(true)}>
-						<svg width="40" height="20">
-							<rect
-								width="100%"
-								height="100%"
-								fill="var(--background-color-transparent)"
-								rx="8"
-								ry="8"
-							/>
-							<path
-								d="M0,15 L10,15 L40,5 "
-								fill="none"
-								stroke="var(--main-color)"
-								stroke-width="2"
-							/>
-						</svg>
-					</button>
+					{#if !isMobile}
+						<button class="chart-btn" on:click={() => inChart.set(true)}>
+							<svg width="40" height="20">
+								<rect
+									width="100%"
+									height="100%"
+									fill="var(--background-color-transparent)"
+									rx="8"
+									ry="8"
+								/>
+								<path
+									d="M0,15 L10,15 L40,5 "
+									fill="none"
+									stroke="var(--main-color)"
+									stroke-width="2"
+								/>
+							</svg>
+						</button>
+					{/if}
 				{:else}
 					1 ICP = {displayNumber(exchangeRate, 8)} nICP
-					<button class="chart-btn" on:click={() => inChart.set(true)}>
-						<svg width="40" height="20">
-							<rect
-								width="100%"
-								height="100%"
-								fill="var(--background-color-transparent)"
-								rx="8"
-								ry="8"
-							/>
-							<path d="M0,5 L10,5 L40,15" fill="none" stroke="var(--main-color)" stroke-width="2" />
-						</svg>
+					{#if !isMobile}
+						<button class="chart-btn" on:click={() => inChart.set(true)}>
+							<svg width="40" height="20">
+								<rect
+									width="100%"
+									height="100%"
+									fill="var(--background-color-transparent)"
+									rx="8"
+									ry="8"
+								/>
+								<path
+									d="M0,5 L10,5 L40,15"
+									fill="none"
+									stroke="var(--main-color)"
+									stroke-width="2"
+								/>
+							</svg>
+						</button>
+					{/if}
+				{/if}
+				{#if isMobile}
+					<button class="full-screen" on:click={() => inChart.set(true)}>
+						<FullScreenIcon />
 					</button>
 				{/if}
-				<button class="full-screen" on:click={() => inChart.set(true)}>
-					<FullScreenIcon />
-				</button>
 			{:else}
 				-/-
 			{/if}
@@ -209,7 +221,7 @@
 		{/if}
 	</button>
 </div>
-{#if $inChart}
+{#if $inChart && !isMobile}
 	<Chart isInverted={invertExchangeRate} />
 {/if}
 
