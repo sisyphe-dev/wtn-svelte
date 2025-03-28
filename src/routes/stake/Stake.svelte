@@ -180,7 +180,7 @@
 						</button>
 					{/if}
 				{/if}
-				{#if isMobile}
+				{#if !isMobile}
 					<button class="full-screen" on:click={() => inChart.set(true)}>
 						<FullScreenIcon />
 					</button>
