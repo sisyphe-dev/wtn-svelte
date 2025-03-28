@@ -3,6 +3,8 @@
 	import type { GetEventsResult, Event } from '$lib/../declarations/water_neuron/water_neuron.did';
 	import { Chart } from 'flowbite-svelte';
 	import { onMount } from 'svelte';
+	import ChangeIcon from '$lib/icons/ChangeIcon.svelte';
+	import CloseIcon from '$lib/icons/CloseIcon.svelte';
 
 	type Scale = '1m' | '3m' | '6m' | '1y' | 'All';
 
@@ -37,7 +39,6 @@
 		},
 		series: [
 			{
-				name: 'Exchange Rate',
 				data: isInverted
 					? exchangeRates.map((xr) => {
 							return 1 / xr;
@@ -62,13 +63,6 @@
 		xaxis: {
 			categories: timestamps,
 			type: 'datetime' as 'datetime'
-		},
-		title: {
-			text: `Exchange Rate ${isInverted ? 'ICP/nICP' : 'nICP/ICP'}`,
-			style: {
-				fontSize: '14px',
-				fontFamily: 'var(--secondary-font)'
-			}
 		},
 		tooltip: { enabled: true },
 		dataLabels: {
@@ -206,7 +200,7 @@
 	const updateOptions = () => {
 		options.series = [
 			{
-				name: 'Exchange Rate',
+				name: !isInverted ? 'nICP/ICP' : 'ICP/nICP',
 				data: isInverted
 					? exchangeRates.map((xr) => {
 							return Number((1 / xr).toFixed(4));
@@ -228,7 +222,7 @@
 		}
 	};
 
-	$: timestamps, exchangeRates, updateOptions();
+	$: timestamps, exchangeRates, isInverted, updateOptions();
 </script>
 
 <dialog
@@ -238,42 +232,27 @@
 	}}
 >
 	<div class="chart-container">
-		<button
-			style="background: none; position: absolute; top: 1em; right: 1em; z-index: 10; cursor: pointer;"
-			on:click={() => {
-				dialog.close();
-			}}
-		>
-			<svg
-				fill="black"
-				height="15px"
-				width="15px"
-				version="1.1"
-				id="Layer_1"
-				xmlns="http://www.w3.org/2000/svg"
-				xmlns:xlink="http://www.w3.org/1999/xlink"
-				viewBox="0 0 512 512"
-				xml:space="preserve"
+		<div class="header-container">
+            <h2>Exchange rate {isInverted? 'ICP/nICP': 'nICP/ICP'}</h2>
+			<button class="change-btn" on:click={() => (isInverted = !isInverted)}>
+				<ChangeIcon />
+			</button>
+			<button
+                class="close-btn"
+				on:click={() => {
+					dialog.close();
+				}}
 			>
-				<g stroke-width="0"></g><g stroke-linecap="round" stroke-linejoin="round"> </g>
-				<g>
-					<g>
-						<g>
-							<polygon
-								points="512,59.076 452.922,0 256,196.922 59.076,0 0,59.076 196.922,256 0,452.922 59.076,512 256,315.076 452.922,512 512,452.922 315.076,256 "
-							></polygon>
-						</g>
-					</g>
-				</g>
-			</svg>
-		</button>
+				<CloseIcon color="--title-color"/>
+			</button>
+		</div>
 		{#if timestamps.length === 0 || exchangeRates.length === 0}
 			<div class="spinner"></div>
 		{/if}
 		<Chart {options} bind:chart />
 		<div class="scales">
 			{#each scales as scale}
-				<button on:click={() => setDateRange(scale)}>{scale}</button>
+				<button class="scale-btn" on:click={() => setDateRange(scale)}>{scale}</button>
 			{/each}
 		</div>
 	</div>
@@ -310,6 +289,19 @@
 		border-radius: 8px;
 	}
 
+    .close-btn {
+        background: none; 
+        top: 1em; 
+        right: 1em; 
+        z-index: 10; 
+        cursor: pointer;
+        border: none;
+        display: flex;
+        flex-grow: 1;
+        justify-content: end;
+        align-items: center;
+    }
+
 	.scales {
 		display: flex;
 		width: fit-content;
@@ -326,14 +318,51 @@
 		border-bottom-right-radius: 8px;
 	}
 
-	button {
+    h2 {
+        font-family: var(--main-font);
+        margin: 0;
+    }
+
+    .change-btn {
+		border: none;
+		display: flex;
+		width: fit-content;
+		height: fit-content;
+		background: transparent;
+		padding: 0;
+		margin: 0;
+		cursor: pointer;
+	}
+
+    .change-btn:hover {
+		transform: scale(1.2);
+		animation: invert 0.5s ease;
+	}
+
+    @keyframes invert {
+		from {
+			transform: scale(1);
+		}
+		to {
+			transform: scale(1.2);
+		}
+	}
+
+    .header-container {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        gap: 1em;
+    }
+
+	.scale-btn {
 		border: none;
 		background-color: #286e5f5e;
 		height: 40px;
 		width: 60px;
 	}
 
-	button:hover {
+	.scale-btn:hover {
 		background-color: #286e5fd1;
 	}
 
