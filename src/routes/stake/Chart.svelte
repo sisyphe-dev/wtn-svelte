@@ -4,13 +4,24 @@
 	import { Chart } from 'flowbite-svelte';
 	import { onMount } from 'svelte';
 
+	type Scale = '1m' | '3m' | '6m' | '1y' | 'All';
+
+	const TS_CACHE_KEY = 'ts';
+	const XR_CACHE_KEY = 'xr';
+	const CACHE_EXPIRY_KEY = 'dailyTaskExpiry';
+	const NANOS_PER_SEC = 1_000_000_000n;
+	const ONE_MONTH_MILLIS = 30 * 24 * 60 * 60 * 1_000;
+	const BATCH_SIZE = 2_000n;
+
 	let dialog: HTMLDialogElement;
 	let chart: ApexCharts | undefined;
-	const NANOS_PER_SEC = 1_000_000_000n;
+
 	export let isInverted: boolean;
-	let exchangeRates: number[] = [1];
-	let ts: number[] = [1718748000000];
+	let exchangeRates: number[] = [];
+	let timestamps: number[] = [];
 	let isFirstLoad = true;
+	const scales: Scale[] = ['1m', '3m', '6m', '1y', 'All'];
+
 	let options: ApexCharts.ApexOptions = {
 		chart: {
 			width: '600px',
@@ -49,7 +60,7 @@
 			colors: ['#286e5f']
 		},
 		xaxis: {
-			categories: ts,
+			categories: timestamps,
 			type: 'datetime' as 'datetime'
 		},
 		title: {
@@ -65,60 +76,68 @@
 		}
 	};
 
-	const reload = () => {
-		localStorage.removeItem('cachedTs');
-		localStorage.removeItem('cachedExchangeRates');
-	};
+	async function updateCache() {
+		const [ts, xr] = await fetchEvent();
+		localStorage.setItem(TS_CACHE_KEY, JSON.stringify([1718748000000].concat(ts)));
+		localStorage.setItem(XR_CACHE_KEY, JSON.stringify([1].concat(xr)));
 
-	async function processBatch(startingPoints: bigint[]): Promise<GetEventsResult[]> {
-		if (!$canisters) return [];
-
-		const batchSize = 2_000n;
-		let promises = [];
-		for (const start of startingPoints) {
-			promises.push($canisters.waterNeuron.anonymousActor.get_events({ start, length: batchSize }));
-		}
-		return await Promise.all(promises);
+		const expiry = new Date();
+		expiry.setHours(24, 0, 0, 0);
+		localStorage.setItem(CACHE_EXPIRY_KEY, expiry.getTime().toString());
+		timestamps = ts;
+		exchangeRates = xr;
 	}
 
-	const fetchEvent = async () => {
-		const cachedTs = localStorage.getItem('cachedTs');
-		const cachedExchangeRates = localStorage.getItem('cachedExchangeRates');
+	function checkCache() {
+		const expiryTime = localStorage.getItem(CACHE_EXPIRY_KEY);
+		const ts = localStorage.getItem(XR_CACHE_KEY);
+		const xr = localStorage.getItem(TS_CACHE_KEY);
 
-		if (cachedTs && cachedExchangeRates) {
-			ts = JSON.parse(cachedTs);
-			exchangeRates = JSON.parse(cachedExchangeRates);
-			return;
+		if ((expiryTime && Date.now() < JSON.parse(expiryTime)) || !(ts && xr)) {
+			updateCache();
+		} else {
+			timestamps = JSON.parse(ts);
+			exchangeRates = JSON.parse(xr);
 		}
+	}
 
-		const batchSize = 2_000n;
+	async function processBatch(startingPoints: bigint[]): Promise<Event[]> {
+		if (!$canisters) return [];
+
+		let promises = [];
+		for (const start of startingPoints) {
+			promises.push(processEvents(start));
+		}
+		const results = await Promise.all(promises);
+        return results.reduce((acc, ev) => acc.concat(ev), []);
+	}
+
+	async function processEvents(start: bigint): Promise<Event[]> {
+		if (!$canisters) return [];
+		const result = await $canisters.waterNeuron.anonymousActor.get_events({
+			start,
+			length: BATCH_SIZE
+		});
+   
+		return result.events.filter((ev) => {
+			return ['IcpDeposit', 'NIcpWithdrawal', 'DispatchICPRewards'].some((key) => key in ev.payload);
+		});
+	}
+
+	async function fetchEvent(): Promise<[number[], number[]]> {
 		const batchCount = 25;
-		const batches = Array.from({ length: batchCount }, (_, i) => BigInt(i) * batchSize);
-
-		let results: GetEventsResult[] = await processBatch(batches);
-
-		let events: Event[] = [];
-		for (const evs of results) {
-			events = events.concat(evs.events);
-		}
-
-		console.log(
-			'Number of dispatched events:',
-			events.filter((event) => {
-				return 'DispatchICPRewards' in event.payload;
-			}).length
-		);
-
+		const batches = Array.from({ length: batchCount }, (_, i) => BigInt(i) * BATCH_SIZE);
+		const events =  await processBatch(batches);
 		let icp6m = 0n;
 		let nicpMinted = 0n;
 		let icpVariation = 0n;
 		let nicpVariation = 0n;
 		let xr = 1;
 
-		const filteredEvents = events.filter((event) =>
-			['IcpDeposit', 'NIcpWithdrawal', 'DispatchICPRewards'].some((key) => key in event.payload)
-		);
-		for (const event of filteredEvents) {
+		let ts: number[] = [];
+		let xrs: number[] = [];
+
+		for (const event of events) {
 			if ('IcpDeposit' in event.payload) {
 				icpVariation += event.payload.IcpDeposit.amount;
 				nicpVariation += BigInt(Math.floor(xr * Number(event.payload.IcpDeposit.amount)));
@@ -132,28 +151,24 @@
 				icp6m += icpVariation;
 				nicpMinted += nicpVariation;
 				xr = Number(nicpMinted) / Number(icp6m);
+
 				const date = new Date(1_000 * Number(event.timestamp / NANOS_PER_SEC));
-				ts = [...ts, date.getTime()];
-				exchangeRates = [...exchangeRates, Number(xr.toFixed(4))];
-				exchangeRates = exchangeRates;
+				ts.push(date.getTime());
+				xrs.push(Number(xr.toFixed(4)));
+
 				icpVariation = 0n;
 				nicpVariation = 0n;
 			}
 		}
-
-		localStorage.setItem('cachedTs', JSON.stringify(ts));
-		localStorage.setItem('cachedExchangeRates', JSON.stringify(exchangeRates));
-	};
+		return [ts, xrs];
+	}
 
 	onMount(() => {
-		fetchEvent();
 		dialog = document.getElementById('chartDialog') as HTMLDialogElement;
 		dialog.showModal();
+		checkCache();
 	});
 
-	type Scale = '1m' | '3m' | '6m' | '1y' | 'All';
-	const scales: Scale[] = ['1m', '3m', '6m', '1y', 'All'];
-	const ONE_MONTH_MILLIS = 30 * 24 * 60 * 60 * 1_000;
 	const setDateRange = (scale: Scale) => {
 		let cachedTs: string | null = localStorage.getItem('cachedTs');
 		let cachedExchangeRates = localStorage.getItem('cachedExchangeRates');
@@ -191,9 +206,10 @@
 				rangedXrs.push(fullRangeXrs[index]);
 			}
 		}
-		ts = rangedTs;
+		timestamps = rangedTs;
 		exchangeRates = rangedXrs;
 	};
+
 	const updateOptions = () => {
 		options.series = [
 			{
@@ -208,7 +224,7 @@
 		] as ApexAxisChartSeries;
 
 		options.xaxis = {
-			categories: ts,
+			categories: timestamps,
 			type: 'datetime' as 'datetime'
 		};
 
@@ -219,7 +235,7 @@
 		}
 	};
 
-	$: ts, exchangeRates, updateOptions();
+	$: timestamps, exchangeRates, updateOptions();
 </script>
 
 <dialog
@@ -246,12 +262,7 @@
 				viewBox="0 0 512 512"
 				xml:space="preserve"
 			>
-				<g id="SVGRepo_bgCarrier" stroke-width="0"></g><g
-					id="SVGRepo_tracerCarrier"
-					stroke-linecap="round"
-					stroke-linejoin="round"
-				>
-				</g>
+				<g stroke-width="0"></g><g stroke-linecap="round" stroke-linejoin="round"> </g>
 				<g>
 					<g>
 						<g>
@@ -263,7 +274,10 @@
 				</g>
 			</svg>
 		</button>
-		<Chart {options} bind:chart />
+        {#if timestamps.length <= 1 || exchangeRates.length <= 1}
+            <div class="spinner"></div>
+        {/if}		
+        <Chart {options} bind:chart />
 		<div class="scales">
 			{#each scales as scale}
 				<button on:click={() => setDateRange(scale)}>{scale}</button>
@@ -329,4 +343,25 @@
 	button:hover {
 		background-color: #286e5fd1;
 	}
+
+	.spinner {
+		width: 1em;
+		height: 1em;
+		border: 3px solid var(--main-color);
+		border-top-color: transparent;
+		border-radius: 50%;
+		animation: spin 1s linear infinite;
+        position: absolute;
+	}
+
+	@keyframes spin {
+		from {
+			transform: rotate(0deg);
+		}
+		to {
+			transform: rotate(360deg);
+		}
+	}
+
+
 </style>
