@@ -143,6 +143,7 @@
 
 		--main-color: #286e5f;
 		--main-color-hover: #308171;
+		--main-color-light: #286e5f5e;
 		--main-color-disabled: #286e5f;
 		--main-button-text-color: white;
 		--main-button-text-color-disabled: #fefefeb5;
@@ -157,7 +158,7 @@
 		--border-color: #454545;
 		--page-background: rgb(241, 241, 243);
 		--background-color: #fcfffd;
-		--background-color-transparent: #fefefede;
+		--background-color-transparent: #f0f0f0de;
 		--switch-background-color: rgba(220, 220, 220, 0.49);
 
 		--qr-code-background: #283e95;

@@ -9,7 +9,15 @@
 	import SwapInput from './SwapInput.svelte';
 	import ChangeIcon from '$lib/icons/ChangeIcon.svelte';
 	import ErrorIcon from '$lib/icons/ErrorIcon.svelte';
-	import { inputAmount, waterNeuronInfo, canisters, user, toasts, isBusy } from '$lib/stores';
+	import {
+		inputAmount,
+		waterNeuronInfo,
+		canisters,
+		user,
+		toasts,
+		isBusy,
+		inChart
+	} from '$lib/stores';
 	import {
 		icpTransferApproved,
 		handleStakeResult,
@@ -19,6 +27,8 @@
 	import type { Account } from '../../declarations/icrc_ledger/icrc_ledger.did';
 	import { onMount, afterUpdate } from 'svelte';
 	import { fade } from 'svelte/transition';
+	import Chart from './Chart.svelte';
+	import FullScreenIcon from '$lib/icons/FullScreenIcon.svelte';
 
 	let invertExchangeRate = false;
 	let exchangeRate: number;
@@ -128,13 +138,46 @@
 			{#if exchangeRate}
 				{#if invertExchangeRate}
 					1 nICP = {displayNumber(1 / exchangeRate, 8)} ICP
+					<button class="chart-btn" on:click={() => inChart.set(true)}>
+						<svg width="40" height="20">
+							<rect
+								width="100%"
+								height="100%"
+								fill="var(--background-color-transparent)"
+								rx="8"
+								ry="8"
+							/>
+							<path
+								d="M0,15 L10,15 L40,5 "
+								fill="none"
+								stroke="var(--main-color)"
+								stroke-width="2"
+							/>
+						</svg>
+					</button>
 				{:else}
 					1 ICP = {displayNumber(exchangeRate, 8)} nICP
+					<button class="chart-btn" on:click={() => inChart.set(true)}>
+						<svg width="40" height="20">
+							<rect
+								width="100%"
+								height="100%"
+								fill="var(--background-color-transparent)"
+								rx="8"
+								ry="8"
+							/>
+							<path d="M0,5 L10,5 L40,15" fill="none" stroke="var(--main-color)" stroke-width="2" />
+						</svg>
+					</button>
 				{/if}
+				<button class="full-screen" on:click={() => inChart.set(true)}>
+					<FullScreenIcon />
+				</button>
 			{:else}
 				-/-
 			{/if}
 		</p>
+
 		<a class="reward" href="https://docs.waterneuron.fi/wtn/airdrop" target="_blank">
 			<div class="reward">
 				<p style:margin-right={'2.5em'}>
@@ -166,6 +209,9 @@
 		{/if}
 	</button>
 </div>
+{#if $inChart}
+	<Chart isInverted={invertExchangeRate} />
+{/if}
 
 <style>
 	/* === Base Styles === */
@@ -226,6 +272,29 @@
 		padding: 0;
 		margin: 0;
 		cursor: pointer;
+	}
+
+	.full-screen {
+		border: none;
+		background: none;
+		border-radius: 8px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 0.2em;
+		cursor: pointer;
+	}
+
+	.chart-btn {
+		border: none;
+		background: none;
+		cursor: pointer;
+		display: flex;
+		justify-content: center;
+	}
+
+	.full-screen:hover {
+		background-color: var(--main-color-light);
 	}
 
 	.wtn-logo {
