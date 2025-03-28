@@ -78,27 +78,25 @@
 
 	async function updateCache() {
 		const [ts, xr] = await fetchEvent();
-        console.log(ts.length, xr.length);
-		localStorage.setItem(TS_CACHE_KEY, JSON.stringify([1718748000000].concat(ts)));
-		localStorage.setItem(XR_CACHE_KEY, JSON.stringify([1].concat(xr)));
+		localStorage.setItem(TS_CACHE_KEY, JSON.stringify(ts));
+		localStorage.setItem(XR_CACHE_KEY, JSON.stringify(xr));
 
 		const expiry = new Date();
 		expiry.setHours(24, 0, 0, 0);
 		localStorage.setItem(CACHE_REFRESH_KEY, expiry.getTime().toString());
-		timestamps = ts;
-		exchangeRates = xr;
+		timestamps =  [1718748000000].concat(ts);
+		exchangeRates = [1].concat(xr);
 	}
 
 	function checkCache() {
 		const refreshTime = localStorage.getItem(CACHE_REFRESH_KEY);
 		const xr = localStorage.getItem(XR_CACHE_KEY);
 		const ts = localStorage.getItem(TS_CACHE_KEY);
-
-		if ((refreshTime && Date.now() >= JSON.parse(refreshTime)) || !(ts && xr)) {
+		if ((refreshTime && Date.now() >= JSON.parse(refreshTime)) || !(ts && xr && (xr.length === 0 || ts.length === 0))) {
 			updateCache();
 		} else {
-			timestamps = JSON.parse(ts);
-			exchangeRates = JSON.parse(xr);
+			timestamps = [1718748000000].concat(JSON.parse(ts));
+			exchangeRates = [1].concat(JSON.parse(xr));
 		}
 	}
 
