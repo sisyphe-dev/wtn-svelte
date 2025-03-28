@@ -5,18 +5,18 @@
 	import { onMount } from 'svelte';
 
 	let dialog: HTMLDialogElement;
-    let chart: ApexCharts | undefined;
+	let chart: ApexCharts | undefined;
 	const NANOS_PER_SEC = 1_000_000_000n;
 	export let isInverted: boolean;
 	let exchangeRates: number[] = [1];
 	let ts: number[] = [1718748000000];
-    let isFirstLoad = true;
+	let isFirstLoad = true;
 	let options: ApexCharts.ApexOptions = {
 		chart: {
-			height: '400px',
-			width: '500px',
+			width: '600px',
+			height: '300px',
 			type: 'area' as 'area',
-			fontFamily: 'Inter, sans-serif',
+			fontFamily: 'var(--main-font)',
 			toolbar: { show: false },
 			dropShadow: { enabled: false },
 			animations: {
@@ -56,7 +56,7 @@
 			text: `Exchange Rate ${isInverted ? 'ICP/nICP' : 'nICP/ICP'}`,
 			style: {
 				fontSize: '14px',
-				fontFamily: 'Inter, sans-serif'
+				fontFamily: 'var(--secondary-font)'
 			}
 		},
 		tooltip: { enabled: true },
@@ -215,8 +215,8 @@
 		if (options.chart?.animations && !isFirstLoad && chart) {
 			options.chart.animations = { enabled: true, dynamicAnimation: { enabled: true, speed: 300 } };
 		} else {
-            isFirstLoad = false;
-        }
+			isFirstLoad = false;
+		}
 	};
 
 	$: ts, exchangeRates, updateOptions();
@@ -230,7 +230,7 @@
 >
 	<div class="chart-container">
 		<button
-			style="background: none; position: absolute; top: 2em; right: 2em; z-index: 10; cursor: pointer;"
+			style="background: none; position: absolute; top: 1em; right: 1em; z-index: 10; cursor: pointer;"
 			on:click={() => {
 				dialog.close();
 			}}
@@ -299,7 +299,7 @@
 		height: fit-content;
 		width: fit-content;
 		position: relative;
-		padding: 2em 4em;
+		padding: 1em;
 		border-radius: 8px;
 	}
 
