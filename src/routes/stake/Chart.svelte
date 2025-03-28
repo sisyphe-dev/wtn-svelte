@@ -8,7 +8,7 @@
 
 	const TS_CACHE_KEY = 'ts';
 	const XR_CACHE_KEY = 'xr';
-	const CACHE_EXPIRY_KEY = 'dailyTaskExpiry';
+	const CACHE_REFRESH_KEY = 'dailyTaskExpiry';
 	const NANOS_PER_SEC = 1_000_000_000n;
 	const ONE_MONTH_MILLIS = 30 * 24 * 60 * 60 * 1_000;
 	const BATCH_SIZE = 2_000n;
@@ -78,22 +78,23 @@
 
 	async function updateCache() {
 		const [ts, xr] = await fetchEvent();
+        console.log(ts.length, xr.length);
 		localStorage.setItem(TS_CACHE_KEY, JSON.stringify([1718748000000].concat(ts)));
 		localStorage.setItem(XR_CACHE_KEY, JSON.stringify([1].concat(xr)));
 
 		const expiry = new Date();
 		expiry.setHours(24, 0, 0, 0);
-		localStorage.setItem(CACHE_EXPIRY_KEY, expiry.getTime().toString());
+		localStorage.setItem(CACHE_REFRESH_KEY, expiry.getTime().toString());
 		timestamps = ts;
 		exchangeRates = xr;
 	}
 
 	function checkCache() {
-		const expiryTime = localStorage.getItem(CACHE_EXPIRY_KEY);
-		const ts = localStorage.getItem(XR_CACHE_KEY);
-		const xr = localStorage.getItem(TS_CACHE_KEY);
+		const refreshTime = localStorage.getItem(CACHE_REFRESH_KEY);
+		const xr = localStorage.getItem(XR_CACHE_KEY);
+		const ts = localStorage.getItem(TS_CACHE_KEY);
 
-		if ((expiryTime && Date.now() < JSON.parse(expiryTime)) || !(ts && xr)) {
+		if ((refreshTime && Date.now() >= JSON.parse(refreshTime)) || !(ts && xr)) {
 			updateCache();
 		} else {
 			timestamps = JSON.parse(ts);
