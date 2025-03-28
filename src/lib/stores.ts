@@ -30,8 +30,10 @@ export const user = writable<User | undefined>(undefined);
 export const ledgerDevice = writable<LedgerDevice | undefined>(undefined);
 export const canisters = writable<Canisters | undefined>(undefined);
 export const waterNeuronInfo = writable<WaterNeuronInfo | undefined>(undefined);
-export const chartData = writable<{ timestamps: number[], exchangeRates: number[]} | undefined>(undefined);
- 
+export const chartData = writable<{ timestamps: number[]; exchangeRates: number[] } | undefined>(
+	undefined
+);
+
 /* === Input Amount ==== */
 function createInputAmountStore() {
 	const { subscribe, set } = writable<string>();

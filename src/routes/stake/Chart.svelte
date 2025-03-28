@@ -78,17 +78,17 @@
 
 	async function updateCache() {
 		const [ts, xr] = await fetchEvent();
-        chartData.set({timestamps: [1718748000000].concat(ts), exchangeRates: [1].concat(xr)})
-        timestamps =  [1718748000000].concat(ts)
-        exchangeRates = [1].concat(xr);
+		chartData.set({ timestamps: [1718748000000].concat(ts), exchangeRates: [1].concat(xr) });
+		timestamps = [1718748000000].concat(ts);
+		exchangeRates = [1].concat(xr);
 	}
 
 	function checkCache() {
 		if ($chartData) {
-            timestamps = $chartData.timestamps;
+			timestamps = $chartData.timestamps;
 			exchangeRates = $chartData.exchangeRates;
 		} else {
-			updateCache();			
+			updateCache();
 		}
 	}
 
@@ -100,7 +100,7 @@
 			promises.push(processEvents(start));
 		}
 		const results = await Promise.all(promises);
-        return results.reduce((acc, ev) => acc.concat(ev), []);
+		return results.reduce((acc, ev) => acc.concat(ev), []);
 	}
 
 	async function processEvents(start: bigint): Promise<Event[]> {
@@ -109,16 +109,18 @@
 			start,
 			length: BATCH_SIZE
 		});
-   
+
 		return result.events.filter((ev) => {
-			return ['IcpDeposit', 'NIcpWithdrawal', 'DispatchICPRewards'].some((key) => key in ev.payload);
+			return ['IcpDeposit', 'NIcpWithdrawal', 'DispatchICPRewards'].some(
+				(key) => key in ev.payload
+			);
 		});
 	}
 
 	async function fetchEvent(): Promise<[number[], number[]]> {
 		const batchCount = 25;
 		const batches = Array.from({ length: batchCount }, (_, i) => BigInt(i) * BATCH_SIZE);
-		const events =  await processBatch(batches);
+		const events = await processBatch(batches);
 		let icp6m = 0n;
 		let nicpMinted = 0n;
 		let icpVariation = 0n;
@@ -265,10 +267,10 @@
 				</g>
 			</svg>
 		</button>
-        {#if timestamps.length === 0 || exchangeRates.length === 0}
-            <div class="spinner"></div>
-        {/if}		
-        <Chart {options} bind:chart />
+		{#if timestamps.length === 0 || exchangeRates.length === 0}
+			<div class="spinner"></div>
+		{/if}
+		<Chart {options} bind:chart />
 		<div class="scales">
 			{#each scales as scale}
 				<button on:click={() => setDateRange(scale)}>{scale}</button>
@@ -342,7 +344,7 @@
 		border-top-color: transparent;
 		border-radius: 50%;
 		animation: spin 1s linear infinite;
-        position: absolute;
+		position: absolute;
 	}
 
 	@keyframes spin {
@@ -353,6 +355,4 @@
 			transform: rotate(360deg);
 		}
 	}
-
-
 </style>
