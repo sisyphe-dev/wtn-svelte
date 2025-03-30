@@ -32,6 +32,7 @@
 				height,
 				type: 'area' as 'area',
 				fontFamily: 'var(--main-font)',
+				foreColor: 'var(--title-color)',
 				toolbar: { show: false },
 				dropShadow: { enabled: false },
 				animations: {
@@ -65,7 +66,7 @@
 			},
 			xaxis: {
 				categories: timestamps,
-				type: 'datetime' as 'datetime'
+				type: 'datetime' as 'datetime',
 			},
 			tooltip: { enabled: true },
 			dataLabels: {
@@ -315,6 +316,7 @@
 	}
 
 	h2 {
+		color: var(--title-color);
 		font-family: var(--main-font);
 		margin: 0;
 	}
@@ -356,6 +358,7 @@
 		background-color: #286e5f5e;
 		height: 40px;
 		width: 60px;
+		color: var(--title-color);
 	}
 
 	.scale-btn:hover {
