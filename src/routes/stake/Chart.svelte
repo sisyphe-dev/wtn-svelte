@@ -66,7 +66,7 @@
 			},
 			xaxis: {
 				categories: timestamps,
-				type: 'datetime' as 'datetime',
+				type: 'datetime' as 'datetime'
 			},
 			tooltip: { enabled: true },
 			dataLabels: {
@@ -207,7 +207,7 @@
 	}}
 >
 	<div class="chart-container">
-		<div class="header-container" style:min-width={width} style:min-height={height}>
+		<div class="header-container">
 			<h2>{isMobile ? '' : 'Exchange rate'} {isInverted ? 'ICP/nICP' : 'nICP/ICP'}</h2>
 			<button
 				class="change-btn"
@@ -227,10 +227,10 @@
 				<CloseIcon color="--title-color" />
 			</button>
 		</div>
-		{#if timestamps.length === 0 || exchangeRates.length === 0}
-			<div class="spinner"></div>
-		{/if}
-		<div class="chart-content-container" style:width style:height>
+		<div class="chart-content-container" style:width="{width}px" style:height="{height}px">
+			{#if timestamps.length === 0 || exchangeRates.length === 0}
+				<div class="spinner"></div>
+			{/if}
 			<Chart {options} bind:chart />
 		</div>
 		<div class="scales">
