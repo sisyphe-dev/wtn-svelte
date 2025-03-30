@@ -167,7 +167,6 @@
 	function handleResize() {
 		width = Math.min(600, 0.9 * document.getElementsByClassName('chart-container')[0].clientWidth);
 		height = Math.min(300, width / 2);
-		console.log(width, height);
 	}
 	const setDateRange = (scale: Scale) => {
 		if (!$chartData) return;
@@ -208,7 +207,7 @@
 	}}
 >
 	<div class="chart-container">
-		<div class="header-container">
+		<div class="header-container" style:min-width={width} style:min-height={height}>
 			<h2>{isMobile ? '' : 'Exchange rate'} {isInverted ? 'ICP/nICP' : 'nICP/ICP'}</h2>
 			<button
 				class="change-btn"
