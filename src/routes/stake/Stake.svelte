@@ -140,7 +140,7 @@
 				{#if invertExchangeRate}
 					1 nICP = {displayNumber(1 / exchangeRate, 8)} ICP
 					<button class="chart-btn" on:click={() => inChart.set(true)}>
-						<svg width="40" height="20">
+						<svg width="30" height="20">
 							<rect
 								width="100%"
 								height="100%"
@@ -149,7 +149,7 @@
 								ry="8"
 							/>
 							<path
-								d="M0,15 L10,15 L40,5 "
+								d="M0,15 L10,15 L30,5 "
 								fill="none"
 								stroke="var(--main-color)"
 								stroke-width="2"
@@ -159,7 +159,7 @@
 				{:else}
 					1 ICP = {displayNumber(exchangeRate, 8)} nICP
 					<button class="chart-btn" on:click={() => inChart.set(true)}>
-						<svg width="40" height="20">
+						<svg width="30" height="20">
 							<rect
 								width="100%"
 								height="100%"
@@ -167,7 +167,7 @@
 								rx="8"
 								ry="8"
 							/>
-							<path d="M0,5 L10,5 L40,15" fill="none" stroke="var(--main-color)" stroke-width="2" />
+							<path d="M0,5 L10,5 L30,15" fill="none" stroke="var(--main-color)" stroke-width="2" />
 						</svg>
 					</button>
 				{/if}

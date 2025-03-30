@@ -1,10 +1,11 @@
 <script lang="ts">
 	import { canisters, inChart, chartData } from '$lib/stores';
-	import type { GetEventsResult, Event } from '$lib/../declarations/water_neuron/water_neuron.did';
+	import type { Event } from '$lib/../declarations/water_neuron/water_neuron.did';
 	import { Chart } from 'flowbite-svelte';
 	import { onMount } from 'svelte';
 	import ChangeIcon from '$lib/icons/ChangeIcon.svelte';
 	import CloseIcon from '$lib/icons/CloseIcon.svelte';
+	import { isMobile } from '$lib';
 
 	type Scale = '1m' | '3m' | '6m' | '1y' | 'All';
 
@@ -19,52 +20,58 @@
 	let exchangeRates: number[] = [];
 	let timestamps: number[] = [];
 	let isFirstLoad = true;
+	let width = 600;
+	let height = 300;
 	const scales: Scale[] = ['1m', '3m', '6m', '1y', 'All'];
+	let options: ApexCharts.ApexOptions;
 
-	let options: ApexCharts.ApexOptions = {
-		chart: {
-			width: '600px',
-			height: '300px',
-			type: 'area' as 'area',
-			fontFamily: 'var(--main-font)',
-			toolbar: { show: false },
-			dropShadow: { enabled: false },
-			animations: {
-				enabled: false,
-				dynamicAnimation: { enabled: false }
+	const getApexOptions = () => {
+		return {
+			chart: {
+				width,
+				height,
+				type: 'area' as 'area',
+				fontFamily: 'var(--main-font)',
+				toolbar: { show: false },
+				dropShadow: { enabled: false },
+				animations: {
+					enabled: !isFirstLoad && chart !== undefined,
+					dynamicAnimation: { enabled: !isFirstLoad && chart !== undefined, speed: 300 }
+				}
+			},
+			series: [
+				{
+					name: !isInverted ? 'nICP/ICP' : 'ICP/nICP',
+					data: isInverted
+						? exchangeRates.map((xr) => {
+								return Number((1 / xr).toFixed(4));
+							})
+						: exchangeRates,
+					color: '#286e5f'
+				}
+			] as ApexAxisChartSeries,
+			fill: {
+				type: 'gradient',
+				gradient: {
+					opacityFrom: 0.55,
+					opacityTo: 0,
+					shade: '#286e5f',
+					gradientToColors: ['#286e5f']
+				}
+			},
+			stroke: {
+				width: 2,
+				colors: ['#286e5f']
+			},
+			xaxis: {
+				categories: timestamps,
+				type: 'datetime' as 'datetime'
+			},
+			tooltip: { enabled: true },
+			dataLabels: {
+				enabled: false
 			}
-		},
-		series: [
-			{
-				data: isInverted
-					? exchangeRates.map((xr) => {
-							return 1 / xr;
-						})
-					: exchangeRates,
-				color: '#286e5f'
-			}
-		] as ApexAxisChartSeries,
-		fill: {
-			type: 'gradient',
-			gradient: {
-				opacityFrom: 0.55,
-				opacityTo: 0,
-				shade: '#286e5f',
-				gradientToColors: ['#286e5f']
-			}
-		},
-		stroke: {
-			width: 2,
-			colors: ['#286e5f']
-		},
-		xaxis: {
-			categories: timestamps,
-			type: 'datetime' as 'datetime'
-		},
-		tooltip: { enabled: true },
-		dataLabels: {
-			enabled: false
-		}
+		};
 	};
 
 	async function updateCache() {
@@ -151,7 +158,17 @@
 		dialog = document.getElementById('chartDialog') as HTMLDialogElement;
 		dialog.showModal();
 		checkCache();
+		handleResize();
+		window.addEventListener('resize', handleResize);
+
+		return () => window.removeEventListener('resize', handleResize);
 	});
+
+	function handleResize() {
+		width = Math.min(600, 0.9 * document.getElementsByClassName('chart-container')[0].clientWidth);
+		height = Math.min(300, width / 2);
+		console.log(width, height);
+	}
 
 	const setDateRange = (scale: Scale) => {
 		if (!$chartData) return;
@@ -189,32 +206,14 @@
 		exchangeRates = rangedXrs;
 	};
 
-	const updateOptions = () => {
-		options.series = [
-			{
-				name: !isInverted ? 'nICP/ICP' : 'ICP/nICP',
-				data: isInverted
-					? exchangeRates.map((xr) => {
-							return Number((1 / xr).toFixed(4));
-						})
-					: exchangeRates,
-				color: '#286e5f'
-			}
-		] as ApexAxisChartSeries;
-
-		options.xaxis = {
-			categories: timestamps,
-			type: 'datetime' as 'datetime'
-		};
-
-		if (options.chart?.animations && !isFirstLoad && chart) {
-			options.chart.animations = { enabled: true, dynamicAnimation: { enabled: true, speed: 300 } };
-		} else {
-			isFirstLoad = false;
-		}
-	};
-
-	$: timestamps, exchangeRates, isInverted, updateOptions();
+	$: timestamps,
+		exchangeRates,
+		isInverted,
+		width,
+		height,
+		isFirstLoad,
+		chart,
+		(options = getApexOptions());
 </script>
 
 <dialog
@@ -225,8 +224,14 @@
 >
 	<div class="chart-container">
 		<div class="header-container">
-			<h2>Exchange rate {isInverted ? 'ICP/nICP' : 'nICP/ICP'}</h2>
-			<button class="change-btn" on:click={() => (isInverted = !isInverted)}>
+			<h2>{isMobile ? '' : 'Exchange rate'} {isInverted ? 'ICP/nICP' : 'nICP/ICP'}</h2>
+			<button
+				class="change-btn"
+				on:click={() => {
+					isFirstLoad = false;
+					isInverted = !isInverted;
+				}}
+			>
 				<ChangeIcon />
 			</button>
 			<button
@@ -241,12 +246,18 @@
 		{#if timestamps.length === 0 || exchangeRates.length === 0}
 			<div class="spinner"></div>
 		{/if}
-		<div class="chart-content-container">
+		<div class="chart-content-container" style:width style:height>
 			<Chart {options} bind:chart />
 		</div>
 		<div class="scales">
 			{#each scales as scale}
-				<button class="scale-btn" on:click={() => setDateRange(scale)}>{scale}</button>
+				<button
+					class="scale-btn"
+					on:click={() => {
+						isFirstLoad = false;
+						setDateRange(scale);
+					}}>{scale}</button
+				>
 			{/each}
 		</div>
 	</div>
@@ -276,19 +287,18 @@
 		justify-content: center;
 		align-items: center;
 		background: var(--background-color);
-		height: fit-content;
-		width: fit-content;
+		width: 90%;
+		max-width: 600px;
 		position: relative;
 		padding: 1em;
 		border-radius: 10px;
 		border: var(--main-container-border);
-		width: 610px;
-		height: 400px;
 	}
 
 	.chart-content-container {
-		width: 600px;
-		height: 310px;
+		display: flex;
+		justify-content: center;
+		align-items: center;
 	}
 
 	.close-btn {
@@ -384,6 +394,12 @@
 		}
 		to {
 			transform: rotate(360deg);
+		}
+	}
+
+	@media (max-width: 767px) {
+		h2 {
+			font-size: 20px;
 		}
 	}
 </style>
