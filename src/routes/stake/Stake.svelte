@@ -4,7 +4,8 @@
 		displayNumber,
 		numberToBigintE8s,
 		computeReceiveAmount,
-		Toast
+		Toast,
+		isMobile
 	} from '$lib';
 	import SwapInput from './SwapInput.svelte';
 	import ChangeIcon from '$lib/icons/ChangeIcon.svelte';
