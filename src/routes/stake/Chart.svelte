@@ -93,11 +93,11 @@
 	async function processBatch(startingPoints: bigint[]): Promise<Event[]> {
 		if (!$canisters) return [];
 
-		let promises = [];
-		for (const start of startingPoints) {
-			promises.push(processEvents(start));
-		}
-		const results = await Promise.all(promises);
+		const results = await Promise.all(
+			startingPoints.map((start) => {
+				return processEvents(start);
+			})
+		);
 		return results.reduce((acc, ev) => acc.concat(ev), []);
 	}
 
@@ -117,38 +117,37 @@
 
 	async function fetchEvent(): Promise<[number[], number[]]> {
 		const batchCount = 25;
-		const batches = Array.from({ length: batchCount }, (_, i) => BigInt(i) * BATCH_SIZE);
-		const events = await processBatch(batches);
-		let icp6m = 0n;
-		let nicpMinted = 0n;
-		let icpVariation = 0n;
-		let nicpVariation = 0n;
-		let xr = 1;
+		const events = await processBatch(
+			Array.from({ length: batchCount }, (_, i) => BigInt(i) * BATCH_SIZE)
+		);
 
+		let icp6m = 0n,
+			nicpMinted = 0n,
+			icpVariation = 0n,
+			nicpVariation = 0n;
+		let xr = 1;
 		let ts: number[] = [];
 		let xrs: number[] = [];
 
-		for (const event of events) {
-			if ('IcpDeposit' in event.payload) {
-				icpVariation += event.payload.IcpDeposit.amount;
-				nicpVariation += BigInt(Math.floor(xr * Number(event.payload.IcpDeposit.amount)));
+		for (const { payload, timestamp } of events) {
+			if ('IcpDeposit' in payload) {
+				icpVariation += payload.IcpDeposit.amount;
+				nicpVariation += BigInt(Math.floor(xr * Number(payload.IcpDeposit.amount)));
 			}
-			if ('NIcpWithdrawal' in event.payload) {
-				nicpVariation -= event.payload.NIcpWithdrawal.nicp_burned;
-				icpVariation -= BigInt(Math.floor(Number(event.payload.NIcpWithdrawal.nicp_burned) / xr));
+			if ('NIcpWithdrawal' in payload) {
+				nicpVariation -= payload.NIcpWithdrawal.nicp_burned;
+				icpVariation -= BigInt(Math.floor(Number(payload.NIcpWithdrawal.nicp_burned) / xr));
 			}
-			if ('DispatchICPRewards' in event.payload) {
-				icpVariation += event.payload.DispatchICPRewards.nicp_amount;
+			if ('DispatchICPRewards' in payload) {
+				icpVariation += payload.DispatchICPRewards.nicp_amount;
 				icp6m += icpVariation;
 				nicpMinted += nicpVariation;
 				xr = Number(nicpMinted) / Number(icp6m);
 
-				const date = new Date(1_000 * Number(event.timestamp / NANOS_PER_SEC));
-				ts.push(date.getTime());
+				ts.push(1_000 * Number(timestamp / NANOS_PER_SEC));
 				xrs.push(Number(xr.toFixed(4)));
 
-				icpVariation = 0n;
-				nicpVariation = 0n;
+				icpVariation = nicpVariation = 0n;
 			}
 		}
 		return [ts, xrs];
@@ -169,41 +168,26 @@
 		height = Math.min(300, width / 2);
 		console.log(width, height);
 	}
-
 	const setDateRange = (scale: Scale) => {
 		if (!$chartData) return;
-		const fullRangeTs: number[] = $chartData.timestamps;
-		const fullRangeXrs: number[] = $chartData.exchangeRates;
-		let rangedTs: number[] = [];
-		let rangedXrs: number[] = [];
-		let now = Date.now();
-		let range = now;
 
-		switch (scale) {
-			case '1m':
-				range = ONE_MONTH_MILLIS;
-				break;
-			case '3m':
-				range = 3 * ONE_MONTH_MILLIS;
-				break;
-			case '6m':
-				range = 6 * ONE_MONTH_MILLIS;
-				break;
-			case '1y':
-				range = 12 * ONE_MONTH_MILLIS;
-				break;
-			case 'All':
-				break;
-		}
+		const { timestamps: fullRangeTs, exchangeRates: fullRangeXrs } = $chartData;
+		const now = Date.now();
+		const range =
+			{
+				'1m': ONE_MONTH_MILLIS,
+				'3m': 3 * ONE_MONTH_MILLIS,
+				'6m': 6 * ONE_MONTH_MILLIS,
+				'1y': 12 * ONE_MONTH_MILLIS,
+				All: Infinity
+			}[scale] ?? Infinity;
 
-		for (const [index, timestamp] of fullRangeTs.entries()) {
-			if (timestamp + range >= now) {
-				rangedTs.push(timestamp);
-				rangedXrs.push(fullRangeXrs[index]);
-			}
-		}
-		timestamps = rangedTs;
-		exchangeRates = rangedXrs;
+		const filtered = fullRangeTs
+			.map((timestamp, index) => ({ timestamp, rate: fullRangeXrs[index] }))
+			.filter(({ timestamp }) => timestamp + range >= now);
+
+		timestamps = filtered.map(({ timestamp }) => timestamp);
+		exchangeRates = filtered.map(({ rate }) => rate);
 	};
 
 	$: timestamps,
