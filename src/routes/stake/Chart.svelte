@@ -1,10 +1,11 @@
 <script lang="ts">
 	import { canisters, inChart, chartData } from '$lib/stores';
-	import type { GetEventsResult, Event } from '$lib/../declarations/water_neuron/water_neuron.did';
+	import type { Event } from '$lib/../declarations/water_neuron/water_neuron.did';
 	import { Chart } from 'flowbite-svelte';
 	import { onMount } from 'svelte';
 	import ChangeIcon from '$lib/icons/ChangeIcon.svelte';
 	import CloseIcon from '$lib/icons/CloseIcon.svelte';
+	import { isMobile } from '$lib';
 
 	type Scale = '1m' | '3m' | '6m' | '1y' | 'All';
 
@@ -19,52 +20,58 @@
 	let exchangeRates: number[] = [];
 	let timestamps: number[] = [];
 	let isFirstLoad = true;
+	let width = 600;
+	let height = 300;
 	const scales: Scale[] = ['1m', '3m', '6m', '1y', 'All'];
+	let options: ApexCharts.ApexOptions;
 
-	let options: ApexCharts.ApexOptions = {
-		chart: {
-			width: '600px',
-			height: '300px',
-			type: 'area' as 'area',
-			fontFamily: 'var(--main-font)',
-			toolbar: { show: false },
-			dropShadow: { enabled: false },
-			animations: {
-				enabled: false,
-				dynamicAnimation: { enabled: false }
+	const getApexOptions = () => {
+		return {
+			chart: {
+				width,
+				height,
+				type: 'area' as 'area',
+				fontFamily: 'var(--main-font)',
+				toolbar: { show: false },
+				dropShadow: { enabled: false },
+				animations: {
+					enabled: !isFirstLoad && chart !== undefined,
+					dynamicAnimation: { enabled: !isFirstLoad && chart !== undefined, speed: 300 }
+				}
+			},
+			series: [
+				{
+					name: !isInverted ? 'nICP/ICP' : 'ICP/nICP',
+					data: isInverted
+						? exchangeRates.map((xr) => {
+								return Number((1 / xr).toFixed(4));
+							})
+						: exchangeRates,
+					color: '#286e5f'
+				}
+			] as ApexAxisChartSeries,
+			fill: {
+				type: 'gradient',
+				gradient: {
+					opacityFrom: 0.55,
+					opacityTo: 0,
+					shade: '#286e5f',
+					gradientToColors: ['#286e5f']
+				}
+			},
+			stroke: {
+				width: 2,
+				colors: ['#286e5f']
+			},
+			xaxis: {
+				categories: timestamps,
+				type: 'datetime' as 'datetime'
+			},
+			tooltip: { enabled: true },
+			dataLabels: {
+				enabled: false
 			}
-		},
-		series: [
-			{
-				data: isInverted
-					? exchangeRates.map((xr) => {
-							return 1 / xr;
-						})
-					: exchangeRates,
-				color: '#286e5f'
-			}
-		] as ApexAxisChartSeries,
-		fill: {
-			type: 'gradient',
-			gradient: {
-				opacityFrom: 0.55,
-				opacityTo: 0,
-				shade: '#286e5f',
-				gradientToColors: ['#286e5f']
-			}
-		},
-		stroke: {
-			width: 2,
-			colors: ['#286e5f']
-		},
-		xaxis: {
-			categories: timestamps,
-			type: 'datetime' as 'datetime'
-		},
-		tooltip: { enabled: true },
-		dataLabels: {
-			enabled: false
-		}
+		};
 	};
 
 	async function updateCache() {
@@ -86,11 +93,11 @@
 	async function processBatch(startingPoints: bigint[]): Promise<Event[]> {
 		if (!$canisters) return [];
 
-		let promises = [];
-		for (const start of startingPoints) {
-			promises.push(processEvents(start));
-		}
-		const results = await Promise.all(promises);
+		const results = await Promise.all(
+			startingPoints.map((start) => {
+				return processEvents(start);
+			})
+		);
 		return results.reduce((acc, ev) => acc.concat(ev), []);
 	}
 
@@ -110,38 +117,37 @@
 
 	async function fetchEvent(): Promise<[number[], number[]]> {
 		const batchCount = 25;
-		const batches = Array.from({ length: batchCount }, (_, i) => BigInt(i) * BATCH_SIZE);
-		const events = await processBatch(batches);
-		let icp6m = 0n;
-		let nicpMinted = 0n;
-		let icpVariation = 0n;
-		let nicpVariation = 0n;
-		let xr = 1;
+		const events = await processBatch(
+			Array.from({ length: batchCount }, (_, i) => BigInt(i) * BATCH_SIZE)
+		);
 
+		let icp6m = 0n,
+			nicpMinted = 0n,
+			icpVariation = 0n,
+			nicpVariation = 0n;
+		let xr = 1;
 		let ts: number[] = [];
 		let xrs: number[] = [];
 
-		for (const event of events) {
-			if ('IcpDeposit' in event.payload) {
-				icpVariation += event.payload.IcpDeposit.amount;
-				nicpVariation += BigInt(Math.floor(xr * Number(event.payload.IcpDeposit.amount)));
+		for (const { payload, timestamp } of events) {
+			if ('IcpDeposit' in payload) {
+				icpVariation += payload.IcpDeposit.amount;
+				nicpVariation += BigInt(Math.floor(xr * Number(payload.IcpDeposit.amount)));
 			}
-			if ('NIcpWithdrawal' in event.payload) {
-				nicpVariation -= event.payload.NIcpWithdrawal.nicp_burned;
-				icpVariation -= BigInt(Math.floor(Number(event.payload.NIcpWithdrawal.nicp_burned) / xr));
+			if ('NIcpWithdrawal' in payload) {
+				nicpVariation -= payload.NIcpWithdrawal.nicp_burned;
+				icpVariation -= BigInt(Math.floor(Number(payload.NIcpWithdrawal.nicp_burned) / xr));
 			}
-			if ('DispatchICPRewards' in event.payload) {
-				icpVariation += event.payload.DispatchICPRewards.nicp_amount;
+			if ('DispatchICPRewards' in payload) {
+				icpVariation += payload.DispatchICPRewards.nicp_amount;
 				icp6m += icpVariation;
 				nicpMinted += nicpVariation;
 				xr = Number(nicpMinted) / Number(icp6m);
 
-				const date = new Date(1_000 * Number(event.timestamp / NANOS_PER_SEC));
-				ts.push(date.getTime());
+				ts.push(1_000 * Number(timestamp / NANOS_PER_SEC));
 				xrs.push(Number(xr.toFixed(4)));
 
-				icpVariation = 0n;
-				nicpVariation = 0n;
+				icpVariation = nicpVariation = 0n;
 			}
 		}
 		return [ts, xrs];
@@ -151,70 +157,47 @@
 		dialog = document.getElementById('chartDialog') as HTMLDialogElement;
 		dialog.showModal();
 		checkCache();
+		handleResize();
+		window.addEventListener('resize', handleResize);
+
+		return () => window.removeEventListener('resize', handleResize);
 	});
 
+	function handleResize() {
+		width = Math.min(600, 0.9 * document.getElementsByClassName('chart-container')[0].clientWidth);
+		height = Math.min(300, width / 2);
+		console.log(width, height);
+	}
 	const setDateRange = (scale: Scale) => {
 		if (!$chartData) return;
-		const fullRangeTs: number[] = $chartData.timestamps;
-		const fullRangeXrs: number[] = $chartData.exchangeRates;
-		let rangedTs: number[] = [];
-		let rangedXrs: number[] = [];
-		let now = Date.now();
-		let range = now;
 
-		switch (scale) {
-			case '1m':
-				range = ONE_MONTH_MILLIS;
-				break;
-			case '3m':
-				range = 3 * ONE_MONTH_MILLIS;
-				break;
-			case '6m':
-				range = 6 * ONE_MONTH_MILLIS;
-				break;
-			case '1y':
-				range = 12 * ONE_MONTH_MILLIS;
-				break;
-			case 'All':
-				break;
-		}
-
-		for (const [index, timestamp] of fullRangeTs.entries()) {
-			if (timestamp + range >= now) {
-				rangedTs.push(timestamp);
-				rangedXrs.push(fullRangeXrs[index]);
-			}
-		}
-		timestamps = rangedTs;
-		exchangeRates = rangedXrs;
-	};
-
-	const updateOptions = () => {
-		options.series = [
+		const { timestamps: fullRangeTs, exchangeRates: fullRangeXrs } = $chartData;
+		const now = Date.now();
+		const range =
 			{
-				name: !isInverted ? 'nICP/ICP' : 'ICP/nICP',
-				data: isInverted
-					? exchangeRates.map((xr) => {
-							return Number((1 / xr).toFixed(4));
-						})
-					: exchangeRates,
-				color: '#286e5f'
-			}
-		] as ApexAxisChartSeries;
+				'1m': ONE_MONTH_MILLIS,
+				'3m': 3 * ONE_MONTH_MILLIS,
+				'6m': 6 * ONE_MONTH_MILLIS,
+				'1y': 12 * ONE_MONTH_MILLIS,
+				All: Infinity
+			}[scale] ?? Infinity;
 
-		options.xaxis = {
-			categories: timestamps,
-			type: 'datetime' as 'datetime'
-		};
+		const filtered = fullRangeTs
+			.map((timestamp, index) => ({ timestamp, rate: fullRangeXrs[index] }))
+			.filter(({ timestamp }) => timestamp + range >= now);
 
-		if (options.chart?.animations && !isFirstLoad && chart) {
-			options.chart.animations = { enabled: true, dynamicAnimation: { enabled: true, speed: 300 } };
-		} else {
-			isFirstLoad = false;
-		}
+		timestamps = filtered.map(({ timestamp }) => timestamp);
+		exchangeRates = filtered.map(({ rate }) => rate);
 	};
 
-	$: timestamps, exchangeRates, isInverted, updateOptions();
+	$: timestamps,
+		exchangeRates,
+		isInverted,
+		width,
+		height,
+		isFirstLoad,
+		chart,
+		(options = getApexOptions());
 </script>
 
 <dialog
@@ -225,8 +208,14 @@
 >
 	<div class="chart-container">
 		<div class="header-container">
-			<h2>Exchange rate {isInverted ? 'ICP/nICP' : 'nICP/ICP'}</h2>
-			<button class="change-btn" on:click={() => (isInverted = !isInverted)}>
+			<h2>{isMobile ? '' : 'Exchange rate'} {isInverted ? 'ICP/nICP' : 'nICP/ICP'}</h2>
+			<button
+				class="change-btn"
+				on:click={() => {
+					isFirstLoad = false;
+					isInverted = !isInverted;
+				}}
+			>
 				<ChangeIcon />
 			</button>
 			<button
@@ -241,12 +230,18 @@
 		{#if timestamps.length === 0 || exchangeRates.length === 0}
 			<div class="spinner"></div>
 		{/if}
-		<div class="chart-content-container">
+		<div class="chart-content-container" style:width style:height>
 			<Chart {options} bind:chart />
 		</div>
 		<div class="scales">
 			{#each scales as scale}
-				<button class="scale-btn" on:click={() => setDateRange(scale)}>{scale}</button>
+				<button
+					class="scale-btn"
+					on:click={() => {
+						isFirstLoad = false;
+						setDateRange(scale);
+					}}>{scale}</button
+				>
 			{/each}
 		</div>
 	</div>
@@ -276,19 +271,18 @@
 		justify-content: center;
 		align-items: center;
 		background: var(--background-color);
-		height: fit-content;
-		width: fit-content;
+		width: 90%;
+		max-width: 600px;
 		position: relative;
 		padding: 1em;
 		border-radius: 10px;
 		border: var(--main-container-border);
-		width: 610px;
-		height: 400px;
 	}
 
 	.chart-content-container {
-		width: 600px;
-		height: 310px;
+		display: flex;
+		justify-content: center;
+		align-items: center;
 	}
 
 	.close-btn {
@@ -384,6 +378,12 @@
 		}
 		to {
 			transform: rotate(360deg);
+		}
+	}
+
+	@media (max-width: 767px) {
+		h2 {
+			font-size: 20px;
 		}
 	}
 </style>
