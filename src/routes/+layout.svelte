@@ -193,7 +193,7 @@
 
 		--border-color: rgb(158 163 178);
 		--background-color: rgb(43, 51, 67);
-		--background-color-transparent: rgb(43, 51, 67, 0.9);
+		--background-color-transparent: #252c38;
 		--switch-background-color: rgba(34, 38, 47, 0.6);
 
 		--input-color: rgb(39, 46, 60);
