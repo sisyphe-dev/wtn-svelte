@@ -92,10 +92,12 @@
 	}
 
 	async function fetchEvent(): Promise<[number[], number[]]> {
-		const response = await fetch("https://wtn-exchange-rate.s3.eu-north-1.amazonaws.com/exchange-rates.json");
-		const { timestamps: ts, exchangeRates: xrs }  =  await response.json();
+		const response = await fetch(
+			'https://wtn-exchange-rate.s3.eu-north-1.amazonaws.com/exchange-rates.json'
+		);
+		const { timestamps: ts, exchangeRates: xrs } = await response.json();
 		return [ts, xrs];
-	}	
+	}
 
 	onMount(() => {
 		dialog = document.getElementById('chartDialog') as HTMLDialogElement;
