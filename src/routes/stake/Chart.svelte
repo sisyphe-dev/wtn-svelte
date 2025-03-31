@@ -91,66 +91,11 @@
 		}
 	}
 
-	async function processBatch(startingPoints: bigint[]): Promise<Event[]> {
-		if (!$canisters) return [];
-
-		const results = await Promise.all(
-			startingPoints.map((start) => {
-				return processEvents(start);
-			})
-		);
-		return results.reduce((acc, ev) => acc.concat(ev), []);
-	}
-
-	async function processEvents(start: bigint): Promise<Event[]> {
-		if (!$canisters) return [];
-		const result = await $canisters.waterNeuron.anonymousActor.get_events({
-			start,
-			length: BATCH_SIZE
-		});
-
-		return result.events.filter((ev) => {
-			return ['IcpDeposit', 'NIcpWithdrawal', 'DispatchICPRewards'].some(
-				(key) => key in ev.payload
-			);
-		});
-	}
-
 	async function fetchEvent(): Promise<[number[], number[]]> {
-		const batchCount = 25;
-		const events = await processBatch(
-			Array.from({ length: batchCount }, (_, i) => BigInt(i) * BATCH_SIZE)
+		const response = await fetch(
+			'https://wtn-exchange-rate.s3.eu-north-1.amazonaws.com/exchange-rates.json'
 		);
-
-		let icp6m = 0n,
-			nicpMinted = 0n,
-			icpVariation = 0n,
-			nicpVariation = 0n;
-		let xr = 1;
-		let ts: number[] = [];
-		let xrs: number[] = [];
-
-		for (const { payload, timestamp } of events) {
-			if ('IcpDeposit' in payload) {
-				icpVariation += payload.IcpDeposit.amount;
-				nicpVariation += BigInt(Math.floor(xr * Number(payload.IcpDeposit.amount)));
-			}
-			if ('NIcpWithdrawal' in payload) {
-				nicpVariation -= payload.NIcpWithdrawal.nicp_burned;
-				icpVariation -= BigInt(Math.floor(Number(payload.NIcpWithdrawal.nicp_burned) / xr));
-			}
-			if ('DispatchICPRewards' in payload) {
-				icpVariation += payload.DispatchICPRewards.nicp_amount;
-				icp6m += icpVariation;
-				nicpMinted += nicpVariation;
-				xr = Number(nicpMinted) / Number(icp6m);
-
-				ts.push(1_000 * Number(timestamp / NANOS_PER_SEC));
-				xrs.push(Number(xr.toFixed(4)));
-
-				icpVariation = nicpVariation = 0n;
-			}
-		}
+		const { timestamps: ts, exchangeRates: xrs } = await response.json();
 		return [ts, xrs];
 	}
 
