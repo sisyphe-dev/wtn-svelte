@@ -32,10 +32,9 @@
 		numberToBigintE8s,
 		bigintE8sToNumber,
 		computeReceiveAmount,
-		Toast
+		Toast,
+		assetToTransferFee
 	} from '$lib';
-
-	const DEFAULT_LEDGER_FEE = 10_000n;
 
 	export let isFastUnstake: boolean;
 	export let fastUnstakeAmount: number;
@@ -64,7 +63,7 @@
 			try {
 				let amountE8s = numberToBigintE8s(amount);
 				const approval = await nicpTransferApproved(
-					amountE8s + 10_000n,
+					amountE8s + assetToTransferFee('nICP'),
 					{
 						owner: $user.principal,
 						subaccount: []
@@ -122,7 +121,7 @@
 		if (!$canisters?.icpswapPool.authenticatedActor) return;
 
 		const depositResult = await $canisters.icpswapPool.authenticatedActor.depositFrom({
-			fee: DEFAULT_LEDGER_FEE,
+			fee: assetToTransferFee('nICP'),
 			token: CANISTER_ID_NICP_LEDGER,
 			amount: amountE8s
 		} as DepositArgs);
@@ -156,7 +155,7 @@
 		if (!$canisters?.icpswapPool.authenticatedActor) return;
 
 		const withdrawResult = await $canisters.icpswapPool.authenticatedActor.withdraw({
-			fee: DEFAULT_LEDGER_FEE,
+			fee: assetToTransferFee('ICP'),
 			token: CANISTER_ID_ICP_LEDGER,
 			amount: amountToWithdrawE8s
 		} as WithdrawArgs);
@@ -170,7 +169,7 @@
 		}
 	};
 
-	// Fees -> Approve: 0.0001 nICP; Deposit: 0.0001 nICP; Withdraw: 0.0001 ICP
+	// Fees -> Approve: 0.01 nICP; Deposit: 0.01 nICP; Withdraw: 0.0001 ICP
 	async function fastUnstake(amount: number) {
 		if (!$canisters || !$user || $isBusy || isNaN(amount) || !fastUnstakeAmount) return;
 		isBusy.set(true);
@@ -189,9 +188,9 @@
 						spender
 					} as AllowanceArgs);
 				const allowance = allowanceResult['allowance'];
-				if (numberToBigintE8s(amount) + 10_000n > allowance) {
-					// Approve an additional 0.0001 nICP to cover the deposit fee.
-					await approveInFastUnstake(spender, amountE8s + 10_000n);
+				if (numberToBigintE8s(amount) + assetToTransferFee('nICP') > allowance) {
+					// Approve an additional 0.01 nICP to cover the deposit fee.
+					await approveInFastUnstake(spender, amountE8s + assetToTransferFee('nICP'));
 				}
 
 				// 2. Deposit

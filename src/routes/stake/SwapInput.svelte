@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { assetToIconPath, assetToTransferFee } from '$lib';
+	import { assetToIconPath, assetToTransferFee, bigintE8sToNumber } from '$lib';
 	import { inputAmount, user, handleInputAmount } from '$lib/stores';
 	import { fade } from 'svelte/transition';
 
@@ -18,7 +18,7 @@
 	<button
 		class="max-btn"
 		on:click={() => {
-			const fee = 2 * assetToTransferFee(asset);
+			const fee = 2 * bigintE8sToNumber(assetToTransferFee(asset));
 			const maxAmount = ($user?.getBalance(asset) ?? 0) - fee;
 			inputAmount.change(Math.max(maxAmount, 0));
 		}}

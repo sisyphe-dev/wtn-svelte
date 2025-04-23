@@ -2,7 +2,6 @@
 	import {
 		displayNumber,
 		numberToBigintE8s,
-		E8S,
 		getMaybeAccount,
 		assetToIconPath,
 		assetToTransferFee,
@@ -167,7 +166,7 @@
 
 				const args = {
 					to: to_account.toUint8Array(),
-					fee: { e8s: 10000n } as Tokens,
+					fee: { e8s: assetToTransferFee('ICP') } as Tokens,
 					memo: 0n,
 					from_subaccount: [],
 					created_at_time: [],
@@ -205,7 +204,7 @@
 				const blockHeight = await ledger.icrc1Transfer({
 					to: to_account,
 					amount: amount_e8s,
-					fee: numberToBigintE8s(assetToTransferFee(asset)),
+					fee: assetToTransferFee(asset),
 					createdAt: BigInt(Date.now()) * BigInt(1e6)
 				});
 
@@ -217,7 +216,7 @@
 				const blockHeight = await ledger.transfer({
 					to: to_account,
 					amount: amount_e8s,
-					fee: numberToBigintE8s(assetToTransferFee(asset)),
+					fee: assetToTransferFee(asset),
 					created_at_time: BigInt(Date.now()) * BigInt(1e6)
 				});
 
@@ -345,7 +344,7 @@
 					title="max-placeholder"
 					on:click={() => {
 						const fee = assetToTransferFee($selectedAsset);
-						const amount = Math.max(balance - fee, 0);
+						const amount = Math.max(balance - bigintE8sToNumber(fee), 0);
 						inputAmount.change(amount);
 					}}
 				>
@@ -355,15 +354,15 @@
 			<span class="error" title="amount-error">
 				{#if !isNaN(parseFloat($inputAmount)) && parseFloat($inputAmount) > balance}
 					<ErrorIcon /> You don't have enough funds to complete the transaction.
-				{:else if !isNaN(parseFloat($inputAmount)) && parseFloat($inputAmount) <= 0.0001}
-					<ErrorIcon /> Minimum amount: 0.00000001
+				{:else if !isNaN(parseFloat($inputAmount)) && parseFloat($inputAmount) <= bigintE8sToNumber(assetToTransferFee($selectedAsset))}
+					<ErrorIcon /> Minimum amount: bigintE8sToNumber(assetToTransferFee($selectedAsset))
 				{/if}
 			</span>
 		</div>
 		<div>
 			<p>Transfer Fee</p>
 			<p style:padding-left="1em">
-				{assetToTransferFee($selectedAsset)}
+				{bigintE8sToNumber(assetToTransferFee($selectedAsset))}
 				{$selectedAsset}
 			</p>
 		</div>
