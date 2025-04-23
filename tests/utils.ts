@@ -10,7 +10,7 @@ import type {
 import { AccountIdentifier, LedgerCanister } from '@dfinity/ledger-icp';
 import { Page } from 'playwright';
 import { expect } from '@playwright/test';
-import { getMaybeAccount } from '$lib';
+import { assetToTransferFee, getMaybeAccount } from '$lib';
 
 const key = [
 	'302a300506032b657003210093d488f46b485c07e09b554d9451574bfc669912b99d453722c474e6a7f90fcc',
@@ -51,7 +51,7 @@ export async function transferICP(accountString: string) {
 	if (maybeAccount instanceof AccountIdentifier) {
 		const result = await mockCanisters.icpLedger.authenticatedActor?.transfer({
 			to: maybeAccount.toUint8Array(),
-			fee: { e8s: 10000n } as Tokens,
+			fee: { e8s: assetToTransferFee('ICP') } as Tokens,
 			memo: 0n,
 			from_subaccount: [],
 			created_at_time: [],

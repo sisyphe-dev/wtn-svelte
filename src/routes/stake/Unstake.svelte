@@ -4,7 +4,8 @@
 		numberToBigintE8s,
 		bigintE8sToNumber,
 		computeReceiveAmount,
-		Toast
+		Toast,
+		assetToTransferFee
 	} from '$lib';
 	import ChangeIcon from '$lib/icons/ChangeIcon.svelte';
 	import InfoIcon from '$lib/icons/InfoIcon.svelte';
@@ -41,7 +42,6 @@
 	let showFailedHelp = false;
 	let showImmediateHelp = false;
 	let showDelayedHelp = false;
-	const DEFAULT_LEDGER_FEE = 10_000n;
 
 	const withdrawIcpswapTokens = async () => {
 		if (!$canisters?.icpswapPool.authenticatedActor || !$user) return;
@@ -60,13 +60,16 @@
 					const nicpBalanceE8s = result[key]['balance0'];
 					const icpBalanceE8s = result[key]['balance1'];
 
-					if (nicpBalanceE8s + icpBalanceE8s < 2n * DEFAULT_LEDGER_FEE) {
+					if (
+						nicpBalanceE8s + icpBalanceE8s <
+						assetToTransferFee('ICP') + assetToTransferFee('nICP')
+					) {
 						toasts.add(Toast.temporaryError('No funds to withdraw detected.'));
 					}
 
-					if (nicpBalanceE8s > DEFAULT_LEDGER_FEE) {
+					if (nicpBalanceE8s > assetToTransferFee('nICP')) {
 						const withdrawNicpResult = await $canisters.icpswapPool.authenticatedActor.withdraw({
-							fee: DEFAULT_LEDGER_FEE,
+							fee: assetToTransferFee('nICP'),
 							token: CANISTER_ID_NICP_LEDGER,
 							amount: nicpBalanceE8s
 						} as WithdrawArgs);
@@ -90,9 +93,9 @@
 						}
 					}
 
-					if (icpBalanceE8s > DEFAULT_LEDGER_FEE) {
+					if (icpBalanceE8s > assetToTransferFee('ICP')) {
 						const withdrawIcpResult = await $canisters.icpswapPool.authenticatedActor.withdraw({
-							fee: DEFAULT_LEDGER_FEE,
+							fee: assetToTransferFee('ICP'),
 							token: CANISTER_ID_ICP_LEDGER,
 							amount: icpBalanceE8s
 						} as WithdrawArgs);

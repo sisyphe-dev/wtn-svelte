@@ -5,7 +5,8 @@
 		numberToBigintE8s,
 		computeReceiveAmount,
 		Toast,
-		isMobile
+		isMobile,
+		assetToTransferFee
 	} from '$lib';
 	import SwapInput from './SwapInput.svelte';
 	import ChangeIcon from '$lib/icons/ChangeIcon.svelte';
@@ -52,7 +53,7 @@
 			try {
 				let amountE8s = numberToBigintE8s(amount);
 				const approval = await icpTransferApproved(
-					amountE8s + 10_000n,
+					amountE8s + assetToTransferFee('ICP'),
 					{
 						owner: $user.principal,
 						subaccount: []

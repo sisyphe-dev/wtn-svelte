@@ -58,14 +58,14 @@ export function assetToDashboardUrl(asset: 'ICP' | 'nICP' | 'WTN'): string {
 	}
 }
 
-export function assetToTransferFee(asset: 'ICP' | 'nICP' | 'WTN'): number {
+export function assetToTransferFee(asset: 'ICP' | 'nICP' | 'WTN'): bigint {
 	switch (asset) {
 		case 'ICP':
-			return 0.0001;
+			return 10_000n;
 		case 'nICP':
-			return 0.0001;
+			return 1_000_000n;
 		case 'WTN':
-			return 0.01;
+			return 1_000_000n;
 	}
 }
 
