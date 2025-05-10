@@ -1,9 +1,9 @@
-import { Account, AccountIdentifier, SubAccount } from '@dfinity/ledger-icp';
+import { type Account, AccountIdentifier, SubAccount } from '@dfinity/ledger-icp';
 import { IDL } from '@dfinity/candid';
 import { Actor, HttpAgent, type Agent } from '@dfinity/agent';
 import type { _SERVICE as icrcLedgerInterface } from '../declarations/icrc_ledger/icrc_ledger.did';
 import type { _SERVICE as icpLedgerInterface } from '../declarations/icp_ledger/icp_ledger.did';
-import type { _SERVICE as icpswapPoolInterface } from '../declarations/icpswap_pool/icpswap_pool.did';
+import type { _SERVICE as icpswapInterface } from '../declarations/icpswap_pool/icpswap_pool.did';
 import type { _SERVICE as boomerangInterface } from '../declarations/boomerang/boomerang.did';
 import type {
 	CanisterInfo,
@@ -11,7 +11,7 @@ import type {
 } from '../declarations/water_neuron/water_neuron.did';
 import { idlFactory as idlFactoryIcrc } from '../declarations/icrc_ledger';
 import { idlFactory as idlFactoryIcp } from '../declarations/icrc_ledger';
-import { idlFactory as idlFactoryIcpswapPool } from '../declarations/icpswap_pool';
+import { idlFactory as idlFactoryicpswap } from '../declarations/icpswap_pool';
 import { idlFactory as idlFactoryBoomerang } from '../declarations/boomerang';
 import { idlFactory as idlFactoryWaterNeuron } from '../declarations/water_neuron';
 import { get } from 'svelte/store';
@@ -27,7 +27,7 @@ import {
 	CANISTER_ID_WTN_LEDGER,
 	DEV,
 	HOST
-} from './authentification';
+} from './env';
 
 export class User {
 	public principal: Principal;
@@ -131,8 +131,8 @@ export class Canisters {
 		idl: idlFactoryIcrc,
 		canisterId: CANISTER_ID_WTN_LEDGER
 	});
-	public icpswap: CanisterActor<icpswapPoolInterface> = new CanisterActor({
-		idl: idlFactoryIcpswapPool,
+	public icpswap: CanisterActor<icpswapInterface> = new CanisterActor({
+		idl: idlFactoryicpswap,
 		canisterId: CANISTER_ID_ICPSWAP_POOL
 	});
 	public boomerang: CanisterActor<boomerangInterface> = new CanisterActor({

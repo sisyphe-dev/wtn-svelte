@@ -11,27 +11,21 @@ import { IcrcLedgerCanister } from '@dfinity/ledger-icrc';
 import { LedgerCanister } from '@dfinity/ledger-icp';
 import { Secp256k1PublicKey } from '@dfinity/identity-secp256k1';
 import { BrowserExtensionTransport } from '@slide-computer/signer-extension';
+import {
+	CANISTER_ID_ICP_LEDGER,
+	CANISTER_ID_II,
+	CANISTER_ID_NICP_LEDGER,
+	CANISTER_ID_WTN_LEDGER,
+	DAPP_DERIVATION_ORIGIN,
+	DEV,
+	HOST,
+	IDENTITY_PROVIDER,
+	NFID_RPC,
+	OISY_RPC
+} from './env';
 
 // 1 hour in nanoseconds
 const AUTH_MAX_TIME_TO_LIVE = BigInt(60 * 60 * 1000 * 1000 * 1000);
-
-export const DEV = import.meta.env ? import.meta.env.DEV : true;
-export const STAGING = process.env.CANISTER_ID === '47pxu-byaaa-aaaap-ahpsa-cai';
-
-export const HOST = DEV ? 'http://127.0.1:8080' : 'https://ic0.app';
-const DAPP_DERIVATION_ORIGIN = 'https://n3i53-gyaaa-aaaam-acfaq-cai.icp0.io';
-const IDENTITY_PROVIDER = 'https://identity.ic0.app';
-
-export const OISY_RPC = 'https://oisy.com/sign' as const;
-export const NFID_RPC = 'https://nfid.one/rpc' as const;
-
-const CANISTER_ID_II = DEV ? 'iidmm-fiaaa-aaaaq-aadmq-cai' : 'rdmx6-jaaaa-aaaaa-aaadq-cai';
-export const CANISTER_ID_WTN_LEDGER = 'jcmow-hyaaa-aaaaq-aadlq-cai';
-export const CANISTER_ID_ICP_LEDGER = 'ryjl3-tyaaa-aaaaa-aaaba-cai';
-export const CANISTER_ID_NICP_LEDGER = 'buwm7-7yaaa-aaaar-qagva-cai';
-export const CANISTER_ID_BOOMERANG = 'daijl-2yaaa-aaaar-qag3a-cai';
-export const CANISTER_ID_WATER_NEURON = 'tsbvt-pyaaa-aaaar-qafva-cai';
-export const CANISTER_ID_ICPSWAP_POOL = 'e5a7x-pqaaa-aaaag-qkcga-cai';
 
 export async function connectWithInternetIdentity() {
 	const authClient = await AuthClient.create();
@@ -129,21 +123,16 @@ export async function connectWithExtension() {
 		const transport = await BrowserExtensionTransport.findTransport({
 			uuid: '71edc834-bab2-4d59-8860-c36a01fee7b8'
 		});
-		console.log('Transport: ', transport);
 
 		const newSigner = new Signer({ transport });
+		const accounts = await newSigner.accounts();
 
-		console.log('The wallet set the following permission scope:', await newSigner.permissions());
-
-		const userPrincipal = (await newSigner.accounts())[0].owner;
-
-		const signerAgent = SignerAgent.createSync({
-			signer: newSigner,
-			account: userPrincipal
-		});
-
-		canisters.set(registerActors(signerAgent));
-		user.set(new User(userPrincipal));
+		if (accounts.length > 1) {
+			availableAccounts.set(accounts);
+			signer.set(newSigner);
+		} else {
+			finalizePlugConnection(newSigner, accounts[0].owner);
+		}
 	} catch (e) {
 		console.error(e);
 	}

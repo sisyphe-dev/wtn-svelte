@@ -49,7 +49,7 @@ export async function transferICP(accountString: string) {
 	if (!maybeAccount) throw new Error('Failed to decode account.');
 
 	if (maybeAccount instanceof AccountIdentifier) {
-		const result = await mockCanisters.icpLedger.authenticatedActor?.transfer({
+		const result = await mockCanisters.icpLedger.authActor?.transfer({
 			to: maybeAccount.toUint8Array(),
 			fee: { e8s: assetToTransferFee('ICP') } as Tokens,
 			memo: 0n,
@@ -60,7 +60,7 @@ export async function transferICP(accountString: string) {
 
 		if (!result || Object.keys(result)[0] === 'Err') throw new Error('Failed to transfer balance');
 	} else {
-		const result = await mockCanisters.icpLedger.authenticatedActor?.icrc1_transfer({
+		const result = await mockCanisters.icpLedger.authActor?.icrc1_transfer({
 			to: maybeAccount,
 			fee: [],
 			memo: [],
@@ -84,7 +84,7 @@ export async function transferNICP(accountString: string) {
 	if (!maybeAccount) throw new Error('Failed to decode account.');
 	if (maybeAccount instanceof AccountIdentifier)
 		throw new Error('Acount ID provided. You should use principal.');
-	const result = await mockCanisters.nicpLedger.authenticatedActor?.icrc1_transfer({
+	const result = await mockCanisters.nicpLedger.authActor?.icrc1_transfer({
 		to: maybeAccount,
 		fee: [],
 		memo: [],

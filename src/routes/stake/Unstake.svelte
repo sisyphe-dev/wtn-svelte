@@ -21,7 +21,7 @@
 		inUnstakeWarningMenu
 	} from '$lib/stores';
 	import { DEFAULT_ERROR_MESSAGE } from '$lib/resultHandler';
-	import { CANISTER_ID_ICP_LEDGER, CANISTER_ID_NICP_LEDGER } from '$lib/authentification';
+	import { CANISTER_ID_ICP_LEDGER, CANISTER_ID_NICP_LEDGER } from '$lib/env';
 	import type {
 		SwapArgs,
 		WithdrawArgs,
@@ -44,12 +44,10 @@
 	let showDelayedHelp = false;
 
 	const withdrawIcpswapTokens = async () => {
-		if (!$canisters?.icpswapPool.authenticatedActor || !$user) return;
+		if (!$canisters?.icpswap.authActor || !$user) return;
 		isBusy.set(true);
 		try {
-			const result = await $canisters.icpswapPool.anonymousActor.getUserUnusedBalance(
-				$user.principal
-			);
+			const result = await $canisters.icpswap.anonymousActor.getUserUnusedBalance($user.principal);
 			const key = Object.keys(result)[0] as keyof IcpSwapUnusedBalanceResult;
 
 			switch (key) {
@@ -68,7 +66,7 @@
 					}
 
 					if (nicpBalanceE8s > assetToTransferFee('nICP')) {
-						const withdrawNicpResult = await $canisters.icpswapPool.authenticatedActor.withdraw({
+						const withdrawNicpResult = await $canisters.icpswap.authActor.withdraw({
 							fee: assetToTransferFee('nICP'),
 							token: CANISTER_ID_NICP_LEDGER,
 							amount: nicpBalanceE8s
@@ -94,7 +92,7 @@
 					}
 
 					if (icpBalanceE8s > assetToTransferFee('ICP')) {
-						const withdrawIcpResult = await $canisters.icpswapPool.authenticatedActor.withdraw({
+						const withdrawIcpResult = await $canisters.icpswap.authActor.withdraw({
 							fee: assetToTransferFee('ICP'),
 							token: CANISTER_ID_ICP_LEDGER,
 							amount: icpBalanceE8s
@@ -136,7 +134,7 @@
 			const amountIn = numberToBigintE8s(amount);
 			const amountOut = 0;
 
-			const result = await $canisters.icpswapPool.anonymousActor.quote({
+			const result = await $canisters.icpswap.anonymousActor.quote({
 				amountIn: amountIn.toString(),
 				zeroForOne: true,
 				amountOutMinimum: amountOut.toString()

@@ -7,7 +7,7 @@ import type {
 	NeuronId,
 	WithdrawalDetails
 } from '$lib/../declarations/water_neuron/water_neuron.did';
-import { DEV } from './authentification';
+import { DEV } from './env';
 
 export const E8S = 100_000_000n;
 
