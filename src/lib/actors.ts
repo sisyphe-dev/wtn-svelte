@@ -14,8 +14,6 @@ import { idlFactory as idlFactoryIcp } from '../declarations/icrc_ledger';
 import { idlFactory as idlFactoryicpswap } from '../declarations/icpswap_pool';
 import { idlFactory as idlFactoryBoomerang } from '../declarations/boomerang';
 import { idlFactory as idlFactoryWaterNeuron } from '../declarations/water_neuron';
-import { get } from 'svelte/store';
-import { canisters } from './stores';
 import { Principal } from '@dfinity/principal';
 import { bigintE8sToNumber } from '$lib';
 import {
@@ -147,16 +145,6 @@ export class Canisters {
 	constructor() {}
 }
 
-export function registerActors(agent: Agent): Canisters {
-	let store = get(canisters);
-	store.waterNeuron.connectWith(agent);
-	store.icpLedger.connectWith(agent);
-	store.nicpLedger.connectWith(agent);
-	store.wtnLedger.connectWith(agent);
-	store.icpswap.connectWith(agent);
-	store.boomerang.connectWith(agent);
-	return store;
-}
 
 export async function fetchBalance(
 	ledger: icrcLedgerInterface | icpLedgerInterface,

@@ -17,16 +17,15 @@ import {
 import { smallerVersion } from '@dfinity/utils';
 import type Transport from '@ledgerhq/hw-transport';
 import LedgerApp from '@zondax/ledger-icp';
-import {
-	LedgerError,
+import type {
 	ResponseAddress,
 	ResponseSign,
-	ResponseVersion,
 	ResponseSignUpdateCall
 } from '@zondax/ledger-icp';
 import { AccountIdentifier, LedgerCanister } from '@dfinity/ledger-icp';
 import { bigintE8sToNumber } from '$lib';
 import { IcrcLedgerCanister } from '@dfinity/ledger-icrc';
+import { LedgerError, type ResponseVersion } from '@zondax/ledger-js';
 
 export const LEDGER_DEFAULT_DERIVE_PATH = `m/44'/223'/0'/0/0`;
 const LEDGER_SIGNATURE_LENGTH = 64;
@@ -105,12 +104,17 @@ export class LedgerDevice {
 }
 
 export class LedgerIdentity extends SignIdentity {
+	private readonly derivePath: string;
+	private readonly publicKey: Secp256k1PublicKey;
+
 	private constructor(
-		private readonly derivePath: string,
-		private readonly publicKey: Secp256k1PublicKey
-	) {
+		derivePath: string,
+		publicKey: Secp256k1PublicKey
+	  ) {
 		super();
-	}
+		this.derivePath = derivePath;
+		this.publicKey = publicKey;
+	  }
 
 	public static async create(): Promise<LedgerIdentity> {
 		const { app, transport } = await this.connect();
@@ -310,13 +314,15 @@ export class LedgerIdentity extends SignIdentity {
 }
 
 const checkResponseCode = async (returnCode: LedgerError): Promise<void> => {
-	const { LedgerError } = await import('@zondax/ledger-icp');
+	const { LedgerError } = await import('@zondax/ledger-js');
 	if (returnCode === LedgerError.TransactionRejected) {
 		throw new Error('User rejected transaction.');
 	}
 };
 
-const bufferToArrayBuffer = (buffer: Buffer): ArrayBuffer => {
+const bufferToArrayBuffer = (buffer: Buffer<ArrayBufferLike> | undefined): ArrayBuffer => {
+	if (!buffer) return new ArrayBuffer()
+
 	return buffer.buffer.slice(
 		buffer.byteOffset,
 		buffer.byteOffset + buffer.byteLength

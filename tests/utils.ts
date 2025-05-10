@@ -1,16 +1,15 @@
 import { HttpAgent } from '@dfinity/agent';
 import { Ed25519KeyIdentity } from '@dfinity/identity';
-import { fetchActors } from '$lib/authentification';
-import { User } from '$lib/state';
+import { User } from '$lib/actors';
 import type {
 	TransferArgs,
 	Tokens,
 	TransferArg
 } from '../src/declarations/icp_ledger/icp_ledger.did';
-import { AccountIdentifier, LedgerCanister } from '@dfinity/ledger-icp';
-import { Page } from 'playwright';
-import { expect } from '@playwright/test';
+import { AccountIdentifier } from '@dfinity/ledger-icp';
+import { expect, Page } from '@playwright/test';
 import { assetToTransferFee, getMaybeAccount } from '$lib';
+import { registerActors } from '$lib/authentification';
 
 const key = [
 	'302a300506032b657003210093d488f46b485c07e09b554d9451574bfc669912b99d453722c474e6a7f90fcc',
@@ -33,7 +32,7 @@ export const mockSetup = async () => {
 	});
 
 	return {
-		mockCanisters: await fetchActors(agent),
+		mockCanisters: registerActors(agent),
 		mockMintingAccount: new User(dummyIdentity.getPrincipal())
 	};
 };

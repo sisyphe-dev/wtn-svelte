@@ -1,9 +1,9 @@
 import { AuthClient } from '@dfinity/auth-client';
-import { HttpAgent, type Identity } from '@dfinity/agent';
+import { Agent, HttpAgent, type Identity } from '@dfinity/agent';
 import { Signer } from '@slide-computer/signer';
 import { PostMessageTransport } from '@slide-computer/signer-web';
 import { user, canisters, availableAccounts, signer, ledgerDevice } from './stores';
-import { registerActors, User } from './actors';
+import { Canisters, User } from './actors';
 import { SignerAgent } from '@slide-computer/signer-agent';
 import { Principal } from '@dfinity/principal';
 import { LedgerDevice, LedgerIdentity } from './ledger-identity';
@@ -23,6 +23,18 @@ import {
 	NFID_RPC,
 	OISY_RPC
 } from './env';
+import { get } from 'svelte/store';
+
+export function registerActors(agent: Agent): Canisters {
+	let store = get(canisters);
+	store.waterNeuron.connectWith(agent);
+	store.icpLedger.connectWith(agent);
+	store.nicpLedger.connectWith(agent);
+	store.wtnLedger.connectWith(agent);
+	store.icpswap.connectWith(agent);
+	store.boomerang.connectWith(agent);
+	return store;
+}
 
 // 1 hour in nanoseconds
 const AUTH_MAX_TIME_TO_LIVE = BigInt(60 * 60 * 1000 * 1000 * 1000);
