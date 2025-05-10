@@ -17,11 +17,7 @@ import {
 import { smallerVersion } from '@dfinity/utils';
 import type Transport from '@ledgerhq/hw-transport';
 import LedgerApp from '@zondax/ledger-icp';
-import type {
-	ResponseAddress,
-	ResponseSign,
-	ResponseSignUpdateCall
-} from '@zondax/ledger-icp';
+import type { ResponseAddress, ResponseSign, ResponseSignUpdateCall } from '@zondax/ledger-icp';
 import { AccountIdentifier, LedgerCanister } from '@dfinity/ledger-icp';
 import { bigintE8sToNumber } from '$lib';
 import { IcrcLedgerCanister } from '@dfinity/ledger-icrc';
@@ -107,14 +103,11 @@ export class LedgerIdentity extends SignIdentity {
 	private readonly derivePath: string;
 	private readonly publicKey: Secp256k1PublicKey;
 
-	private constructor(
-		derivePath: string,
-		publicKey: Secp256k1PublicKey
-	  ) {
+	private constructor(derivePath: string, publicKey: Secp256k1PublicKey) {
 		super();
 		this.derivePath = derivePath;
 		this.publicKey = publicKey;
-	  }
+	}
 
 	public static async create(): Promise<LedgerIdentity> {
 		const { app, transport } = await this.connect();
@@ -321,7 +314,7 @@ const checkResponseCode = async (returnCode: LedgerError): Promise<void> => {
 };
 
 const bufferToArrayBuffer = (buffer: Buffer<ArrayBufferLike> | undefined): ArrayBuffer => {
-	if (!buffer) return new ArrayBuffer()
+	if (!buffer) return new ArrayBuffer();
 
 	return buffer.buffer.slice(
 		buffer.byteOffset,

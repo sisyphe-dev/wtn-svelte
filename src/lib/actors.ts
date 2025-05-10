@@ -145,7 +145,6 @@ export class Canisters {
 	constructor() {}
 }
 
-
 export async function fetchBalance(
 	ledger: icrcLedgerInterface | icpLedgerInterface,
 	principal: Principal,

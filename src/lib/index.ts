@@ -114,13 +114,14 @@ export function renderStatus(status: WithdrawalStatus): string {
 	switch (key) {
 		case 'ConversionDone':
 			return `<p>
-	  Conversion done at
+	  Conversion done at height
 	  <a
+		style="color: var(--title-color)"
 		target="_blank"
 		rel="noreferrer"
-		href={https://dashboard.internetcomputer.org/transaction/${status[key]['transfer_block_height']}}
+		href="https://dashboard.internetcomputer.org/transaction/${status[key]['transfer_block_height']}"
 	  >
-		Height ${status[key]['transfer_block_height']}
+		 ${status[key]['transfer_block_height']}
 	  </a>
 	</p>`;
 		case 'NotFound':
