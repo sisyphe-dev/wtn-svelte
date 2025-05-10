@@ -29,7 +29,6 @@
 		Result_7 as IcpSwapUnusedBalanceResult
 	} from '$lib/../declarations/icpswap_pool/icpswap_pool.did';
 	import { onMount, afterUpdate } from 'svelte';
-	import { fade } from 'svelte/transition';
 	import UnstakeWarning from './UnstakeWarning.svelte';
 
 	let invertExchangeRate = false;

@@ -21,12 +21,11 @@
 	} = {};
 
 	const fetchWithdrawals = async () => {
-		if ($user && $canisters) {
+		if ($user) {
 			const withdrawalRequests =
 				await $canisters.waterNeuron.anonymousActor.get_withdrawal_requests([
 					{ owner: $user.principal, subaccount: [] }
 				]);
-
 			const [newCancelled, newActive]: [
 				{ [key: number]: WithdrawalDetails },
 				{ [key: number]: WithdrawalDetails }

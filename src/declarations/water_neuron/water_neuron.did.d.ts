@@ -350,4 +350,4 @@ export interface _SERVICE {
 	nicp_to_icp: ActorMethod<[ConversionArg], Result_4>;
 }
 export declare const idlFactory: IDL.InterfaceFactory;
-export declare const init: (args: { IDL: typeof IDL }) => IDL.Type[];
+export declare const init: ({ IDL }: { IDL: IDL }) => IDL.Type[];

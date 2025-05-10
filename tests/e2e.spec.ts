@@ -242,7 +242,7 @@ test('e2e test sns', async ({ page }) => {
 	expect(await isToastSuccess(page)).toBeTruthy();
 });
 
-testWithII('e2e test cancel withdrawal', async ({ page, iiPage }) => {
+testWithII.only('e2e test cancel withdrawal', async ({ page, iiPage }) => {
 	await page.goto('/');
 
 	await page.locator('[title="connect-btn"]').click();

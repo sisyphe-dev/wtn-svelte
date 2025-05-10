@@ -10,7 +10,7 @@ import type {
 	_SERVICE as waterNeuronInterface
 } from '../declarations/water_neuron/water_neuron.did';
 import { idlFactory as idlFactoryIcrc } from '../declarations/icrc_ledger';
-import { idlFactory as idlFactoryIcp } from '../declarations/icrc_ledger';
+import { idlFactory as idlFactoryIcp } from '../declarations/icp_ledger';
 import { idlFactory as idlFactoryicpswap } from '../declarations/icpswap_pool';
 import { idlFactory as idlFactoryBoomerang } from '../declarations/boomerang';
 import { idlFactory as idlFactoryWaterNeuron } from '../declarations/water_neuron';
@@ -117,27 +117,27 @@ export class CanisterActor<T> {
 }
 
 export class Canisters {
-	public icpLedger: CanisterActor<icpLedgerInterface> = new CanisterActor({
+	public icpLedger = new CanisterActor<icpLedgerInterface>({
 		idl: idlFactoryIcp,
 		canisterId: CANISTER_ID_ICP_LEDGER
 	});
-	public nicpLedger: CanisterActor<icrcLedgerInterface> = new CanisterActor({
+	public nicpLedger = new CanisterActor<icrcLedgerInterface>({
 		idl: idlFactoryIcrc,
 		canisterId: CANISTER_ID_NICP_LEDGER
 	});
-	public wtnLedger: CanisterActor<icrcLedgerInterface> = new CanisterActor({
+	public wtnLedger = new CanisterActor<icrcLedgerInterface>({
 		idl: idlFactoryIcrc,
 		canisterId: CANISTER_ID_WTN_LEDGER
 	});
-	public icpswap: CanisterActor<icpswapInterface> = new CanisterActor({
+	public icpswap = new CanisterActor<icpswapInterface>({
 		idl: idlFactoryicpswap,
 		canisterId: CANISTER_ID_ICPSWAP_POOL
 	});
-	public boomerang: CanisterActor<boomerangInterface> = new CanisterActor({
+	public boomerang = new CanisterActor<boomerangInterface>({
 		idl: idlFactoryBoomerang,
 		canisterId: CANISTER_ID_BOOMERANG
 	});
-	public waterNeuron: CanisterActor<waterNeuronInterface> = new CanisterActor({
+	public waterNeuron = new CanisterActor<waterNeuronInterface>({
 		idl: idlFactoryWaterNeuron,
 		canisterId: CANISTER_ID_WATER_NEURON
 	});
