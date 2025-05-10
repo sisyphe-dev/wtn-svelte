@@ -1,5 +1,5 @@
 import { AuthClient } from '@dfinity/auth-client';
-import { Agent, HttpAgent, type Identity } from '@dfinity/agent';
+import { type Agent, HttpAgent, type Identity } from '@dfinity/agent';
 import { Signer } from '@slide-computer/signer';
 import { PostMessageTransport } from '@slide-computer/signer-web';
 import { user, canisters, availableAccounts, signer, ledgerDevice } from './stores';
