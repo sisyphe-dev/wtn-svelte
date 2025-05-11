@@ -1,16 +1,12 @@
 <script lang="ts">
 	import { isBusy, availableAccounts, signer, toasts, isLogging } from '$lib/stores';
 	import {
-		DEV,
-		STAGING,
 		connectWithInternetIdentity,
 		connectWithTransport,
-		connectWithPlug,
 		testSignIn,
 		localSignIn,
-		NFID_RPC,
-		OISY_RPC,
-		finalizePlugConnection
+		finalizePlugConnection,
+		connectWithExtension
 	} from '$lib/authentification';
 	import { fade } from 'svelte/transition';
 	import { displayPrincipal, Toast as ToastMessage } from '$lib';
@@ -20,6 +16,7 @@
 	import { Principal } from '@dfinity/principal';
 	import Toast from './Toast.svelte';
 	import { user } from '$lib/stores';
+	import { DEV, NFID_RPC, OISY_RPC, STAGING } from '$lib/env';
 
 	let dialog: HTMLDialogElement;
 
@@ -33,7 +30,7 @@
 					await connectWithInternetIdentity();
 					break;
 				case 'plug':
-					await connectWithPlug();
+					await connectWithExtension();
 					break;
 				case 'oisy':
 					await connectWithTransport(OISY_RPC);
@@ -62,7 +59,7 @@
 			toasts.add(ToastMessage.temporaryWarning('Connection with wallet failed.'));
 		} else {
 			try {
-				await finalizePlugConnection(newSigner, userPrincipal);
+				finalizePlugConnection(newSigner, userPrincipal);
 			} catch (error) {
 				console.log(error);
 			}

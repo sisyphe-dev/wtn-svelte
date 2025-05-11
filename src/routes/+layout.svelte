@@ -21,46 +21,40 @@
 		ledgerDevice
 	} from '$lib/stores';
 	import { onMount } from 'svelte';
-	import {
-		WaterNeuronInfo,
-		fetchIcpBalance,
-		fetchNicpBalance,
-		fetchWtnBalance,
-		fetchWtnAllocation
-	} from '$lib/state';
+	import { WaterNeuronInfo, fetchBalance, fetchWtnAllocation } from '$lib/actors';
 	import { tryConnectOnReload } from '$lib/authentification';
 	import Toast from './Toast.svelte';
 
 	async function updateBalances() {
 		if ($canisters && $user) {
-			$user.icpBalanceE8s = await fetchIcpBalance(
-				$user.principal,
-				$canisters.icpLedger.anonymousActor
+			$user.icpBalanceE8s = await fetchBalance(
+				$canisters.icpLedger.anonymousActor,
+				$user.principal
 			);
-			$user.nicpBalanceE8s = await fetchNicpBalance(
-				$user.principal,
-				$canisters.nicpLedger.anonymousActor
+			$user.nicpBalanceE8s = await fetchBalance(
+				$canisters.nicpLedger.anonymousActor,
+				$user.principal
 			);
-			$user.wtnBalanceE8s = await fetchWtnBalance(
-				$user.principal,
-				$canisters.wtnLedger.anonymousActor
+			$user.wtnBalanceE8s = await fetchBalance(
+				$canisters.wtnLedger.anonymousActor,
+				$user.principal
 			);
 
 			$user.wtnAllocationE8s =
 				(await fetchWtnAllocation($user.principal, $canisters.waterNeuron.anonymousActor)) ?? 0n;
 
 			if ($ledgerDevice) {
-				$ledgerDevice.icpBalanceE8s = await fetchIcpBalance(
-					$ledgerDevice.principal,
-					$canisters.icpLedger.anonymousActor
+				$ledgerDevice.icpBalanceE8s = await fetchBalance(
+					$canisters.icpLedger.anonymousActor,
+					$ledgerDevice.principal
 				);
-				$ledgerDevice.nicpBalanceE8s = await fetchNicpBalance(
-					$ledgerDevice.principal,
-					$canisters.nicpLedger.anonymousActor
+				$ledgerDevice.nicpBalanceE8s = await fetchBalance(
+					$canisters.nicpLedger.anonymousActor,
+					$ledgerDevice.principal
 				);
-				$ledgerDevice.wtnBalanceE8s = await fetchWtnBalance(
-					$ledgerDevice.principal,
-					$canisters.wtnLedger.anonymousActor
+				$ledgerDevice.wtnBalanceE8s = await fetchBalance(
+					$canisters.wtnLedger.anonymousActor,
+					$ledgerDevice.principal
 				);
 			}
 		}

@@ -76,7 +76,7 @@
 							status = await icrcTransfer(
 								maybeAccount,
 								amount_e8s,
-								$canisters.icpLedger.authenticatedActor,
+								$canisters.icpLedger.authActor,
 								'ICP'
 							);
 						} else {
@@ -101,7 +101,7 @@
 							status = await icrcTransfer(
 								maybeAccount,
 								amount_e8s,
-								$canisters.nicpLedger.authenticatedActor,
+								$canisters.nicpLedger.authActor,
 								'nICP'
 							);
 						} else {
@@ -126,7 +126,7 @@
 							status = await icrcTransfer(
 								maybeAccount,
 								amount_e8s,
-								$canisters.wtnLedger.authenticatedActor,
+								$canisters.wtnLedger.authActor,
 								'WTN'
 							);
 						} else {
@@ -161,7 +161,7 @@
 		if (!$user) return { success: false, message: 'User is not authenticated.' };
 		try {
 			if ($user?.account === 'main') {
-				if (!$canisters?.icpLedger.authenticatedActor)
+				if (!$canisters?.icpLedger.authActor)
 					return { success: false, message: 'User is not authenticated.' };
 
 				const args = {
@@ -172,7 +172,7 @@
 					created_at_time: [],
 					amount: { e8s: amount_e8s } as Tokens
 				} as TransferArgs;
-				const result = await $canisters?.icpLedger.authenticatedActor.transfer(args);
+				const result = await $canisters?.icpLedger.authActor.transfer(args);
 				return handleTransferResult(result);
 			} else {
 				if (!$ledgerDevice) return { success: false, message: 'Device is not connected.' };

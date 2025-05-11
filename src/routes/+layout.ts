@@ -1,7 +1,7 @@
 export const prerender = true;
 export const ssr = false;
 export const trailingSlash = 'always';
-import { DEV } from '$lib/authentification';
+import { DEV } from '$lib/env';
 import { Buffer } from 'buffer/index.js';
 
 if (DEV) {

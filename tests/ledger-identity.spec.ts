@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
-import { LedgerError, ResponseSignUpdateCall, type ResponseSign } from '@zondax/ledger-icp';
+import type { ResponseSignUpdateCall, ResponseSign } from '@zondax/ledger-icp';
 import { decodeSignature, decodeUpdateSignatures } from '$lib/ledger-identity';
+import { LedgerError } from '@zondax/ledger-js';
 
 test('decodeSignature', () => {
 	const call1 = () =>

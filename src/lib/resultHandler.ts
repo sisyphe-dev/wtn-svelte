@@ -31,8 +31,8 @@ import type {
 	_SERVICE as icpLedgerInterface
 } from '../declarations/icp_ledger/icp_ledger.did';
 import type { _SERVICE as icrcLedgerInterface } from '../declarations/icrc_ledger/icrc_ledger.did';
-import { CANISTER_ID_WATER_NEURON } from './authentification';
-import { CanisterActor } from './state';
+import { CANISTER_ID_WATER_NEURON } from './env';
+import { CanisterActor } from './actors';
 
 export const DEFAULT_ERROR_MESSAGE: string = 'Unknown result, please refresh the page.';
 
@@ -116,7 +116,7 @@ export async function nicpTransferApproved(
 	account: Account,
 	nicpLedger: CanisterActor<icrcLedgerInterface>
 ): Promise<ToastResult> {
-	if (!nicpLedger.authenticatedActor) return { success: false, message: 'User not authenticated.' };
+	if (!nicpLedger.authActor) return { success: false, message: 'User not authenticated.' };
 
 	const spender = {
 		owner: Principal.fromText(CANISTER_ID_WATER_NEURON),
@@ -131,7 +131,7 @@ export async function nicpTransferApproved(
 		try {
 			// Two weeks later, in nanoseconds
 			const expiryDate = BigInt(Date.now() * 1_000_000 + 1_209_600_000_000_000);
-			const approveResult: ApproveResult = await nicpLedger.authenticatedActor.icrc2_approve({
+			const approveResult: ApproveResult = await nicpLedger.authActor.icrc2_approve({
 				spender,
 				fee: [],
 				memo: [],
@@ -154,7 +154,7 @@ export async function icpTransferApproved(
 	account: Account,
 	icpLedger: CanisterActor<icpLedgerInterface>
 ): Promise<ToastResult> {
-	if (!icpLedger.authenticatedActor) return { success: false, message: 'User not authenticated.' };
+	if (!icpLedger.authActor) return { success: false, message: 'User not authenticated.' };
 	const spender = {
 		owner: Principal.fromText(CANISTER_ID_WATER_NEURON),
 		subaccount: []
@@ -168,7 +168,7 @@ export async function icpTransferApproved(
 		try {
 			// Two weeks later, in nanoseconds
 			const expiryDate = BigInt(Date.now() * 1_000_000 + 1_209_600_000_000_000);
-			const approveResult: ApproveResult = await icpLedger.authenticatedActor.icrc2_approve({
+			const approveResult: ApproveResult = await icpLedger.authActor.icrc2_approve({
 				spender,
 				fee: [],
 				memo: [],

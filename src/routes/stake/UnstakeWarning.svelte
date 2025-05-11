@@ -26,7 +26,7 @@
 		CANISTER_ID_ICP_LEDGER,
 		CANISTER_ID_ICPSWAP_POOL,
 		CANISTER_ID_NICP_LEDGER
-	} from '$lib/authentification';
+	} from '$lib/env';
 	import {
 		displayNumber,
 		numberToBigintE8s,
@@ -52,8 +52,8 @@
 		if (
 			!$user ||
 			$isBusy ||
-			!$canisters?.nicpLedger.authenticatedActor ||
-			!$canisters?.waterNeuron.authenticatedActor ||
+			!$canisters?.nicpLedger.authActor ||
+			!$canisters?.waterNeuron.authActor ||
 			isNaN(amount) ||
 			amount < minimumWithdraw
 		)
@@ -73,7 +73,7 @@
 				if (!approval.success) {
 					toasts.add(Toast.error(approval.message ?? 'Unknown Error.'));
 				} else {
-					const conversionResult = await $canisters.waterNeuron.authenticatedActor.nicp_to_icp({
+					const conversionResult = await $canisters.waterNeuron.authActor.nicp_to_icp({
 						maybe_subaccount: [],
 						amount_e8s: amountE8s
 					} as ConversionArg);
@@ -96,19 +96,18 @@
 	}
 
 	const approveInFastUnstake = async (spender: Account, amountE8s: bigint) => {
-		if (!$canisters?.nicpLedger.authenticatedActor) return;
+		if (!$canisters?.nicpLedger.authActor) return;
 
-		const approveResult: ApproveResult =
-			await $canisters.nicpLedger.authenticatedActor.icrc2_approve({
-				spender,
-				fee: [],
-				memo: [],
-				from_subaccount: [],
-				created_at_time: [],
-				expires_at: [],
-				expected_allowance: [],
-				amount: amountE8s
-			} as ApproveArgs);
+		const approveResult: ApproveResult = await $canisters.nicpLedger.authActor.icrc2_approve({
+			spender,
+			fee: [],
+			memo: [],
+			from_subaccount: [],
+			created_at_time: [],
+			expires_at: [],
+			expected_allowance: [],
+			amount: amountE8s
+		} as ApproveArgs);
 
 		const status = handleApproveResult(approveResult);
 		if (!status.success) {
@@ -118,9 +117,9 @@
 	};
 
 	const depositInFastUnstake = async (amountE8s: bigint) => {
-		if (!$canisters?.icpswapPool.authenticatedActor) return;
+		if (!$canisters?.icpswap.authActor) return;
 
-		const depositResult = await $canisters.icpswapPool.authenticatedActor.depositFrom({
+		const depositResult = await $canisters.icpswap.authActor.depositFrom({
 			fee: assetToTransferFee('nICP'),
 			token: CANISTER_ID_NICP_LEDGER,
 			amount: amountE8s
@@ -135,9 +134,9 @@
 	};
 
 	const swapInFastUnstake = async (amountIn: string, amountOut: string) => {
-		if (!$canisters?.icpswapPool.authenticatedActor) return;
+		if (!$canisters?.icpswap.authActor) return;
 
-		const swapResult = await $canisters.icpswapPool.authenticatedActor.swap({
+		const swapResult = await $canisters.icpswap.authActor.swap({
 			amountIn: amountIn.toString(),
 			zeroForOne: true,
 			amountOutMinimum: amountOut.toString()
@@ -152,9 +151,9 @@
 	};
 
 	const withdrawInFastUnstake = async (amountToWithdrawE8s: bigint) => {
-		if (!$canisters?.icpswapPool.authenticatedActor) return;
+		if (!$canisters?.icpswap.authActor) return;
 
-		const withdrawResult = await $canisters.icpswapPool.authenticatedActor.withdraw({
+		const withdrawResult = await $canisters.icpswap.authActor.withdraw({
 			fee: assetToTransferFee('ICP'),
 			token: CANISTER_ID_ICP_LEDGER,
 			amount: amountToWithdrawE8s

@@ -1,5 +1,4 @@
 import { writable } from 'svelte/store';
-import { type User, Canisters, WaterNeuronInfo, fetchIcpBalance, fetchNicpBalance } from './state';
 import { bigintE8sToNumber, Toast } from '$lib';
 import { get } from 'svelte/store';
 import { Principal } from '@dfinity/principal';
@@ -7,6 +6,7 @@ import { encodeIcrcAccount } from '@dfinity/ledger-icrc';
 import type { WithdrawalDetails } from '../declarations/water_neuron/water_neuron.did';
 import { Signer } from '@slide-computer/signer';
 import { LedgerDevice } from './ledger-identity';
+import { Canisters, fetchBalance, User, WaterNeuronInfo } from './actors';
 
 /* === Flags === */
 export const isLogging = writable<boolean>(false);
@@ -28,7 +28,7 @@ export const selectedAsset = writable<'ICP' | 'nICP' | 'WTN'>('ICP');
 export const selectedWithdrawal = writable<WithdrawalDetails | undefined>(undefined);
 export const user = writable<User | undefined>(undefined);
 export const ledgerDevice = writable<LedgerDevice | undefined>(undefined);
-export const canisters = writable<Canisters | undefined>(undefined);
+export const canisters = writable<Canisters>(new Canisters());
 export const waterNeuronInfo = writable<WaterNeuronInfo | undefined>(undefined);
 export const chartData = writable<{ timestamps: number[]; exchangeRates: number[] } | undefined>(
 	undefined
@@ -102,8 +102,8 @@ function createBoomerangSnsStore() {
 export const sns = createBoomerangSnsStore();
 
 export const handleSnsChange = async (name?: string, principal?: string) => {
-	const fetchedCanisters = get(canisters);
-	if (!fetchedCanisters) return;
+	const actors = get(canisters);
+	if (!actors) return;
 
 	sns.reset();
 	inputAmount.reset();
@@ -114,9 +114,9 @@ export const handleSnsChange = async (name?: string, principal?: string) => {
 			const p = Principal.fromText(principal);
 			sns.setPrincipal(principal);
 			const [account, icpBalanceE8s, nicpBalanceE8s] = await Promise.all([
-				fetchedCanisters.boomerang.anonymousActor.get_staking_account(p),
-				fetchIcpBalance(p, fetchedCanisters.icpLedger.anonymousActor),
-				fetchNicpBalance(p, fetchedCanisters.nicpLedger.anonymousActor)
+				actors.boomerang.anonymousActor.get_staking_account(p),
+				fetchBalance(actors.icpLedger.anonymousActor, p),
+				fetchBalance(actors.nicpLedger.anonymousActor, p)
 			]);
 			const encodedBoomerangAccount = encodeIcrcAccount({
 				owner: account.owner,
