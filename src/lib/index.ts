@@ -7,7 +7,7 @@ import type {
 	NeuronId,
 	WithdrawalDetails
 } from '$lib/../declarations/water_neuron/water_neuron.did';
-import { DEV } from './authentification';
+import { DEV } from './env';
 
 export const E8S = 100_000_000n;
 
@@ -114,13 +114,14 @@ export function renderStatus(status: WithdrawalStatus): string {
 	switch (key) {
 		case 'ConversionDone':
 			return `<p>
-	  Conversion done at
+	  Conversion done at height
 	  <a
+		style="color: var(--title-color)"
 		target="_blank"
 		rel="noreferrer"
-		href={https://dashboard.internetcomputer.org/transaction/${status[key]['transfer_block_height']}}
+		href="https://dashboard.internetcomputer.org/transaction/${status[key]['transfer_block_height']}"
 	  >
-		Height ${status[key]['transfer_block_height']}
+		 ${status[key]['transfer_block_height']}
 	  </a>
 	</p>`;
 		case 'NotFound':
@@ -158,7 +159,7 @@ export function displayTimeLeft(created_at: number, isMobile = false) {
 // Timestamp in seconds.
 export async function fetchNeuronCreationTimestamp(neuron_id: NeuronId): Promise<number> {
 	// October 28th, 2024. 3:12 PM
-	const localTestingTimestamp = 1730124683;
+	const localTestingTimestamp = Date.now();
 	if (process.env.DFX_NETWORK !== 'ic') return localTestingTimestamp;
 	try {
 		const response = await fetch(
@@ -251,7 +252,7 @@ export async function getWarningError(withdrawal: WithdrawalDetails): Promise<st
 			const oneYearSeconds = ((4 * 365 + 1) * 24 * 60 * 60) / 4;
 			const twoWeeksSeconds = oneYearSeconds / 24;
 			const sixMonthsSeconds = oneYearSeconds / 2;
-			if (currentTime - createdAt > sixMonthsSeconds - twoWeeksSeconds) {
+			if (currentTime + twoWeeksSeconds > createdAt + sixMonthsSeconds) {
 				return 'Withdrawal is too close to disbursing.';
 			} else {
 				return undefined;

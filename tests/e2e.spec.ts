@@ -12,12 +12,12 @@ test('Intermediary account should have balance', async () => {
 
 	if (!(mockCanisters && mockMintingAccount))
 		throw new Error('Mock user or mock canisters are undefined.');
-	const icpBalance = await mockCanisters.icpLedger.authenticatedActor?.icrc1_balance_of({
+	const icpBalance = await mockCanisters.icpLedger.authActor?.icrc1_balance_of({
 		owner: mockMintingAccount.principal,
 		subaccount: []
 	});
 
-	const nicpBalance = await mockCanisters.nicpLedger.authenticatedActor?.icrc1_balance_of({
+	const nicpBalance = await mockCanisters.nicpLedger.authActor?.icrc1_balance_of({
 		owner: mockMintingAccount.principal,
 		subaccount: []
 	});

@@ -40,8 +40,8 @@
 	async function icpToNicp(amount: number) {
 		if (
 			!$user ||
-			!$canisters?.waterNeuron.authenticatedActor ||
-			!$canisters?.icpLedger.authenticatedActor ||
+			!$canisters?.waterNeuron.authActor ||
+			!$canisters?.icpLedger.authActor ||
 			isNaN(amount) ||
 			amount < 1 ||
 			$isBusy
@@ -63,7 +63,7 @@
 				if (!approval.success) {
 					toasts.add(Toast.error(approval.message ?? DEFAULT_ERROR_MESSAGE));
 				} else {
-					const conversionResult = await $canisters.waterNeuron.authenticatedActor.icp_to_nicp({
+					const conversionResult = await $canisters.waterNeuron.authActor.icp_to_nicp({
 						maybe_subaccount: [],
 						amount_e8s: amountE8s
 					} as ConversionArg);

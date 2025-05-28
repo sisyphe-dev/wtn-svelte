@@ -36,12 +36,11 @@
 	};
 
 	const handleCancellation = async () => {
-		if (!$canisters?.waterNeuron.authenticatedActor || !$selectedWithdrawal?.request.neuron_id[0])
-			return;
+		if (!$canisters?.waterNeuron.authActor || !$selectedWithdrawal?.request.neuron_id[0]) return;
 
 		isConfirmBusy = true;
 		try {
-			const result = await $canisters.waterNeuron.authenticatedActor.cancel_withdrawal(
+			const result = await $canisters.waterNeuron.authActor.cancel_withdrawal(
 				$selectedWithdrawal.request.neuron_id[0]
 			);
 			const status = handleCancelWithdrawalResult(result);
