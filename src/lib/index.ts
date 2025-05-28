@@ -159,7 +159,7 @@ export function displayTimeLeft(created_at: number, isMobile = false) {
 // Timestamp in seconds.
 export async function fetchNeuronCreationTimestamp(neuron_id: NeuronId): Promise<number> {
 	// October 28th, 2024. 3:12 PM
-	const localTestingTimestamp = 1730124683;
+	const localTestingTimestamp = Date.now();
 	if (process.env.DFX_NETWORK !== 'ic') return localTestingTimestamp;
 	try {
 		const response = await fetch(
@@ -252,7 +252,7 @@ export async function getWarningError(withdrawal: WithdrawalDetails): Promise<st
 			const oneYearSeconds = ((4 * 365 + 1) * 24 * 60 * 60) / 4;
 			const twoWeeksSeconds = oneYearSeconds / 24;
 			const sixMonthsSeconds = oneYearSeconds / 2;
-			if (currentTime - createdAt > sixMonthsSeconds - twoWeeksSeconds) {
+			if (currentTime + twoWeeksSeconds > createdAt + sixMonthsSeconds) {
 				return 'Withdrawal is too close to disbursing.';
 			} else {
 				return undefined;
