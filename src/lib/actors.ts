@@ -169,8 +169,8 @@ export async function fetchWtnAllocation(
 }
 
 const DAO_SHARE = 0.1;
-const APY_6M = 0.076;
-const APY_8Y = 0.142;
+const APY_6M = 0.073;
+const APY_8Y = 0.137;
 
 export class WaterNeuronInfo {
 	public info: CanisterInfo;
