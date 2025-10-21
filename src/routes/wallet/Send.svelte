@@ -174,62 +174,11 @@
 			} as TransferArgs;
 			const result = await icpLedger.transfer(args);
 			return handleTransferResult(result);
-			// } else {
-			// 	if (!$ledgerDevice?.icpLedger.authActor) return { success: false, message: 'Device is not connected.' };
-			// 	const blockHeight = await $ledgerDevice.icpLedger.transfer({
-			// 		to: to_account,
-			// 		amount: amount_e8s
-			// 	});
-			// 	return {
-			// 		success: true,
-			// 		message: `Successful transfer at <a target='_blank' style="text-decoration: underline; color: var(--toast-text-color);" href=https://dashboard.internetcomputer.org/transaction/${blockHeight}>block index ${blockHeight}</a>.`
-			// 	};
-			// }
 		} catch (error) {
 			console.error('[icpTransfer] ', error);
 			return { success: false, message: 'Transfer failed. Please, try again.' };
 		}
 	}
-
-	// async function icrcLedgerWalletTransfer(
-	// 	to_account: Account,
-	// 	amount_e8s: bigint,
-	// 	ledger: icrcLedgerInterface | icpLedgerInterface | undefined,
-	// 	asset: 'nICP' | 'ICP' | 'WTN'
-	// ): Promise<ToastResult> {
-	// 	try {
-	// 		if (!ledger) return { success: false, message: 'Device is not connected.' };
-
-	// 		if (ledger instanceof LedgerCanister) {
-	// 			const blockHeight = await ledger.icrc1Transfer({
-	// 				to: to_account,
-	// 				amount: amount_e8s,
-	// 				fee: assetToTransferFee('ICP'),
-	// 				createdAt: BigInt(Date.now()) * BigInt(1e6)
-	// 			});
-
-	// 			return {
-	// 				success: true,
-	// 				message: `Successful transfer at <a target='_blank' style="text-decoration: underline; color: var(--toast-text-color);" href=${assetToDashboardUrl('ICP')}${blockHeight}>block index ${blockHeight}</a>.`
-	// 			};
-	// 		} else {
-	// 			const blockHeight = await ledger.transfer({
-	// 				to: to_account,
-	// 				amount: amount_e8s,
-	// 				fee: assetToTransferFee(asset),
-	// 				created_at_time: BigInt(Date.now()) * BigInt(1e6)
-	// 			});
-
-	// 			return {
-	// 				success: true,
-	// 				message: `Successful transfer at <a target='_blank' style="text-decoration: underline; color: var(--toast-text-color);" href=${assetToDashboardUrl(asset)}${blockHeight}>block index ${blockHeight}</a>.`
-	// 			};
-	// 		}
-	// 	} catch (error) {
-	// 		console.error('[icrcLedgerWalletTransfer] ', error);
-	// 		return { success: false, message: 'Transfer failed. Please, try again.' };
-	// 	}
-	// }
 
 	async function icrcTransfer(
 		to_account: Account,
