@@ -108,7 +108,7 @@
 								maybeAccount,
 								amount_e8s,
 								$ledgerDevice?.nicpLedger.authActor,
-								'ICP'
+								'nICP'
 							);
 						}
 					}
@@ -133,7 +133,7 @@
 								maybeAccount,
 								amount_e8s,
 								$ledgerDevice?.wtnLedger.authActor,
-								'ICP'
+								'WTN'
 							);
 						}
 					}

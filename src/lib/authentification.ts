@@ -197,6 +197,10 @@ export async function connectWithHardwareWallet() {
 		canisterId: CANISTER_ID_WTN_LEDGER
 	});
 
+	icpLedger.connectWith(authenticatedAgent);
+	nicpLedger.connectWith(authenticatedAgent);
+	wtnLedger.connectWith(authenticatedAgent);
+
 	ledgerDevice.set(
 		new LedgerDevice({
 			principal: ledgerIdentity.getPrincipal(),
@@ -291,6 +295,10 @@ export async function testSignIn() {
 					idl: idlFactoryIcrc,
 					canisterId: CANISTER_ID_WTN_LEDGER
 				});
+
+				icpLedger.connectWith(ledgerAgent);
+				nicpLedger.connectWith(ledgerAgent);
+				wtnLedger.connectWith(ledgerAgent);
 
 				ledgerDevice.set(
 					new LedgerDevice({
